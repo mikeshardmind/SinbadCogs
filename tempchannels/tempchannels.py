@@ -19,15 +19,15 @@ class TempChannels:
 
     #todo: give the person who added the channel the Manage channel permission for that channel
     __author__ = "mikeshardmind"
-    __version__ = "1.0"
+    __version__ = "1.1"
 
     def __init__(self, bot):
         self.bot = bot
         self.settings = dataIO.load_json('data/tempchannels/settings.json')
 
     @checks.admin_or_permissions(Manage_channels=True)
-    @commands.group(pass_context=True, no_pm=True)
-    async def tempchanneltoggle(self, ctx):
+    @tempchannels.command(name="toggle", pass_context=True, no_pm=True)
+    async def _tempchanneltoggle(self, ctx):
         """toggles the temp channels commands on/off for all users
         this requires the "Manage Channels" permission
         """
@@ -49,8 +49,8 @@ class TempChannels:
                 self.save_json()
                 await self.bot.say('Creation of temporary channels is now enabled.')
 
-    @commands.group(pass_context=True, no_pm=True)
-    async def newtemp(self, ctx, name: str):
+    @tempchannels.command(name="new", pass_context=True, no_pm=True)
+    async def _newtemp(self, ctx, name: str):
         """makes a new temporary channel
         channel name should be enclosed in quotation marks"""
         server = ctx.message.server
@@ -59,7 +59,7 @@ class TempChannels:
         if perms.manage_channels is False:
             await self.bot.say('I do not have permission to do that')
         elif self.settings[server.id]['toggle'] is False:
-            await self.bot.say('This command is currently turned off. Reenable with\n```[p]tempchanneltoggle```')
+            await self.bot.say('This command is currently turned off. Reenable with\n```{}tempchanneltoggle```'.format())
         else:
             channel = await self.bot.create_channel(server, name, type=discord.ChannelType.voice)
             self.settings[server.id]['channels'].append(channel.id)
@@ -68,8 +68,8 @@ class TempChannels:
 
     #Minimum permissions required to remove the channels forcefully is manage_channels
     @checks.admin_or_permissions(Manage_channels=True)
-    @commands.group(pass_context=True, no_pm=True)
-    async def purgetemps(self, ctx):
+    @tempchannels.command(name="purge", pass_context=True, no_pm=True)
+    async def _purgetemps(self, ctx):
         """purges this server's temp channels even if in use"""
         server = ctx.message.server
 
@@ -81,8 +81,8 @@ class TempChannels:
                 await self.bot.say('Temporary Channels Purged')
             except:
                 e = sys.exc_info()[0]
-                log.debug('Exception During purgetemps: ' +str(e))
-                pass
+                log.debug('Exception During purgetemps: {}'.format(e))
+
 
             self.settings[server.id]['channels'].clear()
             self.save_json()
