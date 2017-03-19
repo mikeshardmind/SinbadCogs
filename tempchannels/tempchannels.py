@@ -20,7 +20,7 @@ class TempChannels:
 
     #todo: give the person who added the channel the Manage channel permission for that channel
     __author__ = "mikeshardmind"
-    __version__ = "1.1"
+    __version__ = "1.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -33,6 +33,16 @@ class TempChannels:
             await self.bot.send_cmd_help(ctx)
 
 
+    def initial_config(self, server_id):
+        """makes an entry for the server, defaults to turned off"""
+
+        if server_id not in self.settings: #trust but verify
+            self.settings[server_id] = {'toggle': False,
+                                        'channels': [],
+                                        'cache': []
+                                       }
+            self.save_json()
+
     @checks.admin_or_permissions(Manage_channels=True)
     @tempchannels.command(name="toggle", pass_context=True, no_pm=True)
     async def _tempchanneltoggle(self, ctx):
@@ -41,21 +51,16 @@ class TempChannels:
         """
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = {'toggle': True,
-                                        'channels': [],
-                                        'cache': []
-                                       }
+            initial_config(server.id)
+
+        if self.settings[server.id]['toggle'] is True:
+            self.settings[server.id]['toggle'] = False
+            self.save_json()
+            await self.bot.say('Creation of temporary channels is now disabled.')
+        else:
+            self.settings[server.id]['toggle'] = True
             self.save_json()
             await self.bot.say('Creation of temporary channels is now enabled.')
-        elif server.id in self.settings:
-            if self.settings[server.id]['toggle'] is True:
-                self.settings[server.id]['toggle'] = False
-                self.save_json()
-                await self.bot.say('Creation of temporary channels is now disabled.')
-            else:
-                self.settings[server.id]['toggle'] = True
-                self.save_json()
-                await self.bot.say('Creation of temporary channels is now enabled.')
 
     @tempchannels.command(name="new", pass_context=True, no_pm=True)
     async def _newtemp(self, ctx, name: str):
@@ -63,6 +68,9 @@ class TempChannels:
         channel name should be enclosed in quotation marks"""
         server = ctx.message.server
         perms = ctx.message.server.get_member(self.bot.user.id).server_permissions
+
+        if server.id not in self.settings:
+            initial_config(server.id)
 
         if perms.manage_channels is False:
             await self.bot.say('I do not have permission to do that')
@@ -80,24 +88,32 @@ class TempChannels:
     async def _purgetemps(self, ctx):
         """purges this server's temp channels even if in use"""
         server = ctx.message.server
-        channels = self.settings[server.id]['channels']
 
-        for channel_id in channels:
-            try:
-                channel = server.get_channel(channel_id)
-                await asyncio.sleep(0.25)
-                await self.bot.delete_channel(channel)
-                channels.remove(channel.id)
-                self.save_json()
-            except:
-                e = sys.exc_info()[0]
-                log.debug('Exception During purgetemps: {}'.format(e))
-        await self.bot.say('Temporary Channels Purged')
+
+        if server.id in self.settings:
+            channels = self.settings[server.id]['channels']
+            for channel_id in channels:
+                try:
+                    channel = server.get_channel(channel_id)
+                    await asyncio.sleep(0.25)
+                    await self.bot.delete_channel(channel)
+                    channels.remove(channel.id)
+                    self.save_json()
+                except:
+                    e = sys.exc_info()[0]
+                    log.debug('Exception During purgetemps: {}'.format(e))
+            await self.bot.say('Temporary Channels Purged')
+        else:
+            await self.bot.say('No Entires for this server.')
+        settingscleanup(server)
 
     @tempchannels.command(name="testing", hidden=True, pass_context=True, no_pm=True)
-    async def _timetesting(self,ctx):
+    async def timetesting(self,ctx):
         """hidden function for testing, should not ever exist enabled in branch master"""
         server = ctx.message.server
+        if server.id not in self.settings:
+            initial_config(server.id)
+
         channels = self.settings[server.id]['channels']
         cache = self.settings[server.id]['cache']
 
@@ -109,6 +125,8 @@ class TempChannels:
                     timenow = datetime.utcnow()
                     ctime = sever.get_channel(channel_id).created_at()
                     await self.bot.say('The current time: ```{}``` \nCompared to when {} was created: ```{}``` '.format(timenow, channel_id, ctime))
+            
+
 
     def save_json(self):
         dataIO.save_json("data/tempchannels/settings.json", self.settings)
@@ -138,18 +156,25 @@ class TempChannels:
                 channels.remove(channel.id)
                 self.save_json()
 
-        #Temp move into a seperate function to test expected behavior....
-        #cleanup channels older than 5 minutes even if they haven't been entered
-        #for channel_id in channels:
-        #    if len(server.get_channel(channel_id).voice_members) == 0:
-        #        timenow = datetime.utcnow()
-        #        ctime = sever.get_channel(channel_id).created_at()
+        settingscleanup(server)
 
 
-        #probably not needed now that I fixed purge
-        for channel_id in cache:
-            if channel_id not in channels:
-                cache.remove(channel_id)
+    def settingscleanup(self, server):
+        """cleanup of settings in various edge cases """
+        if server.id in self.settings: #can't clean a mess that doesn't exist
+            channels = self.settings[server.id]['channels']
+            cache = self.settings[server.id]['cache']
+            for channel_id in channels:
+                channel = server.get_channel(channel_id)
+                if channel is None:
+                    channels.remove(channel_id)
+                    self.save_json()
+            for channel_id in cache:
+                if channel_id not in channels:
+                    cache.remove(channel_id)
+                    self.save_json()
+
+
 
 def check_folder():
     f = 'data/tempchannels'
