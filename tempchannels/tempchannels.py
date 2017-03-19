@@ -1,16 +1,14 @@
+import os
+import asyncio
+import logging
 import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from .utils import checks
-import os
-import asyncio
 
-import logging 
 log = logging.getLogger('red.TempChannels')
 
-
-
-class tempchannels:
+class TempChannels:
     """
     allows creating temporary channels
     channels are auto-removed when empty
@@ -70,7 +68,7 @@ class tempchannels:
     #Minimum permissions required to remove the channels forcefully is manage_channels
     @checks.admin_or_permissions(Manage_channels=True)
     @commands.group(pass_context=True, no_pm=True)
-    async def purgetemps(self,ctx):
+    async def purgetemps(self, ctx):
         """purges this server's temp channels even if in use"""
         server = ctx.message.server
 
@@ -82,7 +80,7 @@ class tempchannels:
                 await self.bot.say('Temporary Channels Purged')
             except:
                 e = sys.exc_info()[0]
-                log.debug('Exception During purgetemps: ' % e )
+                log.debug('Exception During purgetemps: ' % e)
                 pass
 
             self.settings[server.id]['channels'].clear()
@@ -135,6 +133,6 @@ def check_file():
 def setup(bot):
     check_folder()
     check_file()
-    n = tempchannels(bot)
+    n = TempChannels(bot)
     bot.add_listener(n.autoempty, 'on_voice_state_update')
     bot.add_cog(n)
