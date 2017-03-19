@@ -1,5 +1,6 @@
 import os
 import sys
+import datetime
 import asyncio
 import logging
 import discord
@@ -93,8 +94,19 @@ class TempChannels:
                 log.debug('Exception During purgetemps: {}'.format(e))
         await self.bot.say('Temporary Channels Purged')
 
+    @tempchannels.command(name="testing", hidden=True, pass_context=True, no_pm=True)
+    async def _timetesting(self,ctx):
+        """hidden function for testing, should not ever exist enabled in branch master"""
+        server = ctx.message.server
+        channels = self.settings[server.id]['channels']
+        cache = self.settings[server.id]['cache']
 
-
+        #cleanup channels older than 5 minutes even if they haven't been entered
+        for channel_id in channels:
+            if len(server.get_channel(channel_id).voice_members) == 0:
+                timenow = datetime.utcnow()
+                ctime = sever.get_channel(channel_id).created_at()
+                await self.bot.say('The current time: ```{}``` \nCompared to when {} was created: ```{}``` '.format(timenow, channel_id, ctime))
 
     def save_json(self):
         dataIO.save_json("data/tempchannels/settings.json", self.settings)
@@ -123,6 +135,14 @@ class TempChannels:
                 cache.remove(channel.id)
                 channels.remove(channel.id)
                 self.save_json()
+
+        #Temp move into a seperate function to test expected behavior....
+        #cleanup channels older than 5 minutes even if they haven't been entered
+        #for channel_id in channels:
+        #    if len(server.get_channel(channel_id).voice_members) == 0:
+        #        timenow = datetime.utcnow()
+        #        ctime = sever.get_channel(channel_id).created_at()
+
 
         #probably not needed now that I fixed purge
         for channel_id in cache:
