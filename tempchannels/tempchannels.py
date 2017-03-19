@@ -105,7 +105,7 @@ class TempChannels:
             await self.bot.say('Temporary Channels Purged')
         else:
             await self.bot.say('No Entires for this server.')
-        settingscleanup(server)
+        self.settingscleanup(server)
 
     @tempchannels.command(name="testing", hidden=True, pass_context=True, no_pm=True)
     async def timetesting(self,ctx):
@@ -156,7 +156,7 @@ class TempChannels:
                 channels.remove(channel.id)
                 self.save_json()
 
-        settingscleanup(server)
+        self.settingscleanup(server)
 
 
     def settingscleanup(self, server):
