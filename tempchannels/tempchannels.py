@@ -25,6 +25,13 @@ class TempChannels:
         self.bot = bot
         self.settings = dataIO.load_json('data/tempchannels/settings.json')
 
+    @commands.group(name="tempchannels", aliases=["tmpc"], pass_context=True, no_pm=True)
+    async def tempchannels(self, ctx):
+        """Cog for allowing users to make temporary channels"""
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_cmd_help(ctx)
+
+
     @checks.admin_or_permissions(Manage_channels=True)
     @tempchannels.command(name="toggle", pass_context=True, no_pm=True)
     async def _tempchanneltoggle(self, ctx):
@@ -72,20 +79,21 @@ class TempChannels:
     async def _purgetemps(self, ctx):
         """purges this server's temp channels even if in use"""
         server = ctx.message.server
+        channels = self.settings[server.id]['channels']
 
-        for channel_id in self.settings[server.id]['channels']:
+        for channel_id in channels:
             try:
                 channel = server.get_channel(channel_id)
                 await asyncio.sleep(0.25)
                 await self.bot.delete_channel(channel)
-                await self.bot.say('Temporary Channels Purged')
+                channels.remove(channel.id)
+                self.save_json()
             except:
                 e = sys.exc_info()[0]
                 log.debug('Exception During purgetemps: {}'.format(e))
+        await self.bot.say('Temporary Channels Purged')
 
 
-            self.settings[server.id]['channels'].clear()
-            self.save_json()
 
 
     def save_json(self):
@@ -116,7 +124,7 @@ class TempChannels:
                 channels.remove(channel.id)
                 self.save_json()
 
-        #cleanup cache in cases I have yet to figure out why they occur rarely
+        #probably not needed now that I fixed purge
         for channel_id in cache:
             if channel_id not in channels:
                 cache.remove(channel_id)
