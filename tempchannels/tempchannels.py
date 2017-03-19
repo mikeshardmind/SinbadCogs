@@ -5,8 +5,8 @@ from .utils import checks
 import os
 import asyncio
 
-import logging # you dont need logging if you dont generate logs
-log = logging.getLogger('red.TempChannels') #I should log exceptions, but I'm not.
+import logging 
+log = logging.getLogger('red.TempChannels')
 
 
 
