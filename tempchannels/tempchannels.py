@@ -1,4 +1,5 @@
 import os
+import sys
 import asyncio
 import logging
 import discord
@@ -80,7 +81,7 @@ class TempChannels:
                 await self.bot.say('Temporary Channels Purged')
             except:
                 e = sys.exc_info()[0]
-                log.debug('Exception During purgetemps: ' % e)
+                log.debug('Exception During purgetemps: ' +str(e))
                 pass
 
             self.settings[server.id]['channels'].clear()
