@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "Thanks for installing. Hopefully you find this helpful. Once enabled by someone with the ability to manage channels, this allows anyone in the discord to spin up a temporary channel. This is still a work in progress, but it is working so far. Check back for added functionality later. ",
+    "NAME" : "tempchannels",
+    "SHORT" : "Temporary Channels Cog",
+    "DESCRIPTION" : "Allows for the creation of temporary channels by anyone"
+}
