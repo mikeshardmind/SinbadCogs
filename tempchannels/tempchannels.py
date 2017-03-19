@@ -51,7 +51,7 @@ class TempChannels:
         """
         server = ctx.message.server
         if server.id not in self.settings:
-            initial_config(server.id)
+            self.initial_config(server.id)
 
         if self.settings[server.id]['toggle'] is True:
             self.settings[server.id]['toggle'] = False
@@ -70,7 +70,7 @@ class TempChannels:
         perms = ctx.message.server.get_member(self.bot.user.id).server_permissions
 
         if server.id not in self.settings:
-            initial_config(server.id)
+            self.initial_config(server.id)
 
         if perms.manage_channels is False:
             await self.bot.say('I do not have permission to do that')
@@ -112,7 +112,7 @@ class TempChannels:
         """hidden function for testing, should not ever exist enabled in branch master"""
         server = ctx.message.server
         if server.id not in self.settings:
-            initial_config(server.id)
+            self.initial_config(server.id)
 
         channels = self.settings[server.id]['channels']
         cache = self.settings[server.id]['cache']
@@ -125,7 +125,7 @@ class TempChannels:
                     timenow = datetime.utcnow()
                     ctime = sever.get_channel(channel_id).created_at()
                     await self.bot.say('The current time: ```{}``` \nCompared to when {} was created: ```{}``` '.format(timenow, channel_id, ctime))
-            
+
 
 
     def save_json(self):
