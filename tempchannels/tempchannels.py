@@ -99,6 +99,7 @@ class TempChannels:
                     await self.bot.delete_channel(channel)
                     channels.remove(channel.id)
                     self.save_json()
+                await asyncio.sleep(0.25)
             await self.bot.say('Temporary Channels Purged')
         else:
             await self.bot.say('No Entires for this server.')
