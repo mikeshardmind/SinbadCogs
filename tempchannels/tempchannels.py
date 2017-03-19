@@ -93,15 +93,12 @@ class TempChannels:
         if server.id in self.settings:
             channels = self.settings[server.id]['channels']
             for channel_id in channels:
-                try:
-                    channel = server.get_channel(channel_id)
+                channel = server.get_channel(channel_id)
+                if channel is not None:
                     await asyncio.sleep(0.25)
                     await self.bot.delete_channel(channel)
                     channels.remove(channel.id)
                     self.save_json()
-                except:
-                    e = sys.exc_info()[0]
-                    log.debug('Exception During purgetemps: {}'.format(e))
             await self.bot.say('Temporary Channels Purged')
         else:
             await self.bot.say('No Entires for this server.')
