@@ -103,10 +103,12 @@ class TempChannels:
 
         #cleanup channels older than 5 minutes even if they haven't been entered
         for channel_id in channels:
-            if len(server.get_channel(channel_id).voice_members) == 0:
-                timenow = datetime.utcnow()
-                ctime = sever.get_channel(channel_id).created_at()
-                await self.bot.say('The current time: ```{}``` \nCompared to when {} was created: ```{}``` '.format(timenow, channel_id, ctime))
+            channel = server.get_channel(channel_id)
+            if channel is not None:
+                if len(server.get_channel(channel_id).voice_members) == 0:
+                    timenow = datetime.utcnow()
+                    ctime = sever.get_channel(channel_id).created_at()
+                    await self.bot.say('The current time: ```{}``` \nCompared to when {} was created: ```{}``` '.format(timenow, channel_id, ctime))
 
     def save_json(self):
         dataIO.save_json("data/tempchannels/settings.json", self.settings)
