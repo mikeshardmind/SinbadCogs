@@ -21,7 +21,7 @@ class TempChannels:
 
     #todo: give the person who added the channel the Manage channel permission for that channel
     __author__ = "mikeshardmind"
-    __version__ = "1.2"
+    __version__ = "1.3"
 
     def __init__(self, bot):
         self.bot = bot
@@ -33,20 +33,28 @@ class TempChannels:
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
+    @tempchannels.group(name="tempset", pass_context=True, no_pm=True)
+    async def tempset(self, ctx):
+        """Configuration settings"""
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_cmd_help(ctx)
+
+
 
     def initial_config(self, server_id):
         """makes an entry for the server, defaults to turned off"""
 
         if server_id not in self.settings: #trust but verify
-            self.settings[server_id] = {'toggle': False,
+            self.settings[server_id] = {'toggleactive': False,
+                                        'toggleowner': False,
                                         'channels': [],
                                         'cache': []
                                        }
             self.save_json()
 
     @checks.admin_or_permissions(Manage_channels=True)
-    @tempchannels.command(name="toggle", pass_context=True, no_pm=True)
-    async def _tempchanneltoggle(self, ctx):
+    @tempset.command(name="toggleactive", pass_context=True, no_pm=True)
+    async def tempchanneltoggle(self, ctx):
         """toggles the temp channels commands on/off for all users
         this requires the "Manage Channels" permission
         """
@@ -54,17 +62,36 @@ class TempChannels:
         if server.id not in self.settings:
             self.initial_config(server.id)
 
-        if self.settings[server.id]['toggle'] is True:
-            self.settings[server.id]['toggle'] = False
+        if self.settings[server.id]['toggleactive'] is True:
+            self.settings[server.id]['toggleactive'] = False
             self.save_json()
             await self.bot.say('Creation of temporary channels is now disabled.')
         else:
-            self.settings[server.id]['toggle'] = True
+            self.settings[server.id]['toggleactive'] = True
             self.save_json()
             await self.bot.say('Creation of temporary channels is now enabled.')
 
+    @checks.admin_or_permissions(Manage_channels=True)
+    @tempset.command(name="toggleowner", pass_context=True, no_pm=True)
+    async def toggleowner(self, ctx):
+        """toggles if the creator of the temp channel owns it
+        requires the "Manage Channels" permission
+        Defaults to false"""
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.initial_config(server.id)
+
+        if self.settings[server.id]['toggleowner'] is True:
+            self.settings[server.id]['toggleowner'] = False
+            self.save_json()
+            await self.bot.say('Users no longer own the temp channels they make.')
+        else:
+            self.settings[server.id]['toggleowner'] = True
+            self.save_json()
+            await self.bot.say('Users now own the temp channels they make.')
+
     @tempchannels.command(name="new", pass_context=True, no_pm=True)
-    async def _newtemp(self, ctx, name: str):
+    async def newtemp(self, ctx, name: str):
         """makes a new temporary channel
         channel name should be enclosed in quotation marks"""
         server = ctx.message.server
@@ -75,10 +102,15 @@ class TempChannels:
 
         if perms.manage_channels is False:
             await self.bot.say('I do not have permission to do that')
-        elif self.settings[server.id]['toggle'] is False:
+        elif self.settings[server.id]['toggleactive'] is False:
             await self.bot.say('This command is currently turned off.')
         else:
             channel = await self.bot.create_channel(server, name, type=discord.ChannelType.voice)
+            if self.settings[server.id]['toggleowner'] is True:
+                overwrite = discord.PermissionOverwrite()
+                overwrite.manage_channels = True
+                overwrite.manage_roles = True
+                await self.bot.edit_channel_permissions(channel, ctx.message.author, overwrite)
             self.settings[server.id]['channels'].append(channel.id)
             self.save_json()
 
@@ -152,8 +184,9 @@ class TempChannels:
 
 
     def settingscleanup(self, server):
-        """cleanup of settings in various edge cases """
-        if server.id in self.settings: #can't clean a mess that doesn't exist
+        """cleanup of settings"""
+        #can't clean a mess that doesn't exist
+        if server.id in self.settings:
             channels = self.settings[server.id]['channels']
             cache = self.settings[server.id]['cache']
             for channel_id in channels:
