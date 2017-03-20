@@ -19,7 +19,6 @@ class TempChannels:
     once enabled all users can use it
     """
 
-    #todo: give the person who added the channel the Manage channel permission for that channel
     __author__ = "mikeshardmind"
     __version__ = "1.3"
 
