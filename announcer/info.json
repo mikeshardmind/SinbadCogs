@@ -1,6 +1,6 @@
 {
     AUTHOR : mikeshardmind,
-    INSTALL_MSG : This cog is unfinished right now don't load it unless you are sure of what you are doing,
+    INSTALL_MSG : This cog is completely owner only. Currently only allows 1 announcement channel per server.,
     NAME : Announcer,
     SHORT : Configureable announcements cog,
     DESCRIPTION : Allows for announcements across manually defined channels.
