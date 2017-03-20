@@ -115,9 +115,9 @@ class TempChannels:
             self.save_json()
 
 
-    #Minimum permissions required to remove the channels forcefully is manage_channels
-    @checks.admin_or_permissions(Manage_channels=True)
-    @tempchannels.command(name="purge", pass_context=True, no_pm=True)
+    #Minimum permissions required to remove the channels forcefully is manage server
+    @checks.admin_or_permissions(Manage_server=True)
+    @tempchannels.command(name="purge", hidden=True, pass_context=True, no_pm=True)
     async def _purgetemps(self, ctx):
         """purges this server's temp channels even if in use"""
         server = ctx.message.server
