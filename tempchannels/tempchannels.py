@@ -2,18 +2,19 @@ import os
 import sys
 from datetime import date, datetime, timedelta
 import asyncio
-import logging
+#import logging #not logging anything currently
 import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from .utils import checks
 
-log = logging.getLogger('red.TempChannels')
+#log = logging.getLogger('red.TempChannels') #not logging anything currently
 
 class TempChannels:
     """
     allows creating temporary channels
-    channels are auto-removed when empty
+    channels are auto-removed when they become empty
+    or if nobody has entered them within 5 minutes of creation
     requires server admin or manage channels to enable
     once enabled all users can use it
     """
@@ -75,7 +76,7 @@ class TempChannels:
         if perms.manage_channels is False:
             await self.bot.say('I do not have permission to do that')
         elif self.settings[server.id]['toggle'] is False:
-            await self.bot.say('This command is currently turned off. Reenable with\n```{}tempchanneltoggle```'.format())
+            await self.bot.say('This command is currently turned off.')
         else:
             channel = await self.bot.create_channel(server, name, type=discord.ChannelType.voice)
             self.settings[server.id]['channels'].append(channel.id)
@@ -95,35 +96,15 @@ class TempChannels:
             for channel_id in channels:
                 channel = server.get_channel(channel_id)
                 if channel is not None:
-                    await asyncio.sleep(0.25)
+                    await asyncio.sleep(1)
                     await self.bot.delete_channel(channel)
                     channels.remove(channel.id)
                     self.save_json()
-                await asyncio.sleep(0.25)
+                await asyncio.sleep(1)
             await self.bot.say('Temporary Channels Purged')
         else:
             await self.bot.say('No Entires for this server.')
         self.settingscleanup(server)
-
-    @tempchannels.command(name="testing", hidden=True, pass_context=True, no_pm=True)
-    async def timetesting(self,ctx):
-        """hidden function for testing, should not ever exist enabled in branch master"""
-        server = ctx.message.server
-        if server.id not in self.settings:
-            self.initial_config(server.id)
-
-        channels = self.settings[server.id]['channels']
-        cache = self.settings[server.id]['cache']
-
-        #cleanup channels older than 5 minutes even if they haven't been entered
-        for channel_id in channels:
-            channel = server.get_channel(channel_id)
-            if channel is not None:
-                if len(server.get_channel(channel_id).voice_members) == 0:
-                    timenow = datetime.utcnow()
-                    ctime = sever.get_channel(channel_id).created_at()
-                    await self.bot.say('The current time: ```{}``` \nCompared to when {} was created: ```{}``` '.format(timenow, channel_id, ctime))
-
 
 
     def save_json(self):
@@ -137,7 +118,6 @@ class TempChannels:
         cache = self.settings[server.id]['cache']
 
         #this prevents channels from being deleted before being used
-        #todo: track times and prevent permanently unused channels from lasting forever.
         if memb_after.voice.voice_channel is not None:
             channel = memb_after.voice.voice_channel
             if channel.id in channels:
@@ -153,6 +133,20 @@ class TempChannels:
                 cache.remove(channel.id)
                 channels.remove(channel.id)
                 self.save_json()
+
+        #unused temp channels should dissapear even if unused after 5 minutes
+        for channel_id in channels:
+            channel = server.get_channel(channel_id)
+            if channel is not None:
+                if len(server.get_channel(channel_id).voice_members) == 0:
+                    tnow = datetime.utcnow() #.strftime('%Y-%m-%d %H:%M:%S')
+                    ctime = server.get_channel(channel_id).created_at #.strftime('%Y-%m-%d %H:%M:%S')
+                    tdelta = tnow - ctime
+                    if tdelta.seconds > 300:
+                        await self.bot.delete_channel(channel)
+                        channels.remove(channel.id)
+                        self.save_json()
+                        await asyncio.sleep(1)
 
         self.settingscleanup(server)
 
