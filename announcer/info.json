@@ -1,7 +1,7 @@
 {
-    AUTHOR : mikeshardmind,
-    INSTALL_MSG : This cog is completely owner only. Currently only allows 1 announcement channel per server.,
-    NAME : Announcer,
-    SHORT : Configureable announcements cog,
-    DESCRIPTION : Allows for announcements across manually defined channels.
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "This cog is completely owner only. Currently allows a sane 1 announcent channel per server.",
+    "NAME" : "Announcer",
+    "SHORT" : "An announcements cog",
+    "DESCRIPTION" : "An announcement cog that sends a message to any number of servers in configurable channels"
 }
