@@ -28,7 +28,7 @@ class TempChannels:
 
     @commands.group(name="tempchannels", aliases=["tmpc"], pass_context=True, no_pm=True)
     async def tempchannels(self, ctx):
-        """Cog for allowing users to make temporary channels"""
+        """Make temporary channels"""
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
