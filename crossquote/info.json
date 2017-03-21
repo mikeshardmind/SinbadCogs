@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "DO NOT LOAD THIS, it is unfinished and (possibly) dangerous depending on the state of it currently",
+    "NAME" : "crossquote",
+    "SHORT" : "don't install: unfinished",
+    "DESCRIPTION" : "will allow for cross server quoting by just the message ID. Must be explicitly allowed by someone with manage server to quote from their server."
+}
