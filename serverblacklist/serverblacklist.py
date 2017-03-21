@@ -68,7 +68,7 @@ class ServerBlacklist:
                 await self.bot.say("I can't remove a server from the blacklist"
                                    " without an ID")
             else:
-                if server_id in self.settings:
+                if server_id in list(self.settings):
                     del self.settings[server_id]
                     self.save_json()
                     await self.bot.say("Server with ID: {} no longer "
