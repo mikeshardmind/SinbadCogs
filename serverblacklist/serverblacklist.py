@@ -14,7 +14,7 @@ class ServerBlacklist:
     leave when joined to. It does not require you to make the bot private"""
 
     __author__ = "mikeshardmind"
-    __version__ = "0.1"
+    __version__ = "0.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -84,14 +84,69 @@ class ServerBlacklist:
                           "place I couldn't resond")
 
 
+    @checks.is_owner()
+    @commands.group(name="blacklistset", pass_context=True)
+    async def blacklistset(self, ctx):
+        """Manage the server blacklist
+        These commands will fail if not in direct message"""
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_cmd_help(ctx)
+
+    @checks.is_owner()
+    @blacklistset.command(name="fetch", pass_context=True)
+    async def fetch_blacklist(self, ctx):
+        """get a list of blacklisted server's IDs"""
+
+        if ctx.message.channel.is_private:
+            keys = ""
+            for key in self.bot.settings.items():
+                if is_number(key):
+                    keys = keys.join("{} ,".format(key))
+            keys = keys[:-1]
+            await self.bot.say("Here are the server IDs in the blacklist: \n"
+                               "{}".format(keys))
+        else:
+            await self.bot.say("You can't use that here.")
+
+
+
+    @checks.is_owner()
+    @blacklistset.command(name="setmsg", pass_context=True)
+    async def setleaveonblack(self, ctx, msg=None):
+        """sets (or clears) the message to send when leaving
+        like the rest of this cog, direct message only
+        message must be enclsed in quotes"""
+
+        if ctx.message.channel.is_private:
+            self.settings['msg'] = msg
+            self.save_json
+            if msg:
+                await self.bot.say("Message set to: \n```{}```".format(msg))
+            else:
+                await self.bot.say("Leave message disabled")
+        else:
+            await self.bot.say("You can't use that here.")
+
+
+
     async def blacklist_routine(self, server):
         """do the thing"""
 
         if server.id in self.settings:
+            if self.settings['msg']:
+                self.bot.send_message(server, "{}".format(msg))
             await self.bot.leave_server(server)
             log.debug("I left a server named {} with an ID of {} "
                       "".format(server.name, server.id))
 
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+        pass
 
 def check_folder():
     f = 'data/serverblacklist'
