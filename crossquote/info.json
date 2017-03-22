@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "DO NOT LOAD THIS, it is unfinished and (possibly) dangerous depending on the state of it currently",
+    "INSTALL_MSG" : "Hi, this isn't 100% finished yet, but it is working. Planned features include whitelisting users and blacklisting channels from being quoted\nHint: use ```[p]crossquote init``` once loaded to speed up the first quote ",
     "NAME" : "crossquote",
-    "SHORT" : "don't install: unfinished",
-    "DESCRIPTION" : "will allow for cross server quoting by just the message ID. Must be explicitly allowed by someone with manage server to quote from their server."
+    "SHORT" : "allows for cross server quotes",
+    "DESCRIPTION" : "will allow for cross server quoting by just the message ID."
 }

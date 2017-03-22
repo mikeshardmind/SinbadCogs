@@ -65,10 +65,23 @@ class CrossQuote:
             await self.bot.say("That doesn't look like valid input!")
 
     @checks.is_owner()
-    @crossquoteset.command(name="init", hidden=true)
-    async def init_settings(self, server=None):
+    @crossquoteset.command(name="init", hidden=True)
+    async def manual_init_settings(self):
         """adds default settings for all servers the bot is in
         can be called manually by the bot owner (hidden)"""
+
+        serv_ids = map(lambda s: s.id, self.bot.servers)
+        for serv_id in serv_ids:
+            if serv_id not in self.settings:
+                self.settings[serv_id] = {'bypass': False,
+                                          'whitelisted': [], #future feature
+                                          'blacklisted': []  #future feature
+                                         }
+                self.save_json()
+
+    async def init_settings(self, server=None):
+        """adds default settings for all servers the bot is in
+        when needed and on join"""
 
         if server:
             if server.id not in self.settings:
@@ -90,7 +103,7 @@ class CrossQuote:
 
 
     @commands.command(pass_context=True, name='crossquote')
-    async def _q(self, context, message_id: int):
+    async def _q(self, ctx, message_id: int):
         """
         Quote someone with the message id. To get the message id you need to enable developer mode.
         """
@@ -104,15 +117,16 @@ class CrossQuote:
                             found = True
                     except Exception as error:
                         log.debug(error)
-        self.sendifallowed(ctx.message.author, ctx.message.channel, message)
+        await self.sendifallowed(ctx.message.author, ctx.message.channel, message)
 
 
-    async def sendifallowed(self, who, where, message=none):
+    async def sendifallowed(self, who, where, message=None):
         "checks if a response should be sent, then sends the appropriate response"
 
         if message:
             channel = message.channel
             server = channel.server
+            self.init_settings(server)
             perms_managechannel = channel.permissions_for(who).manage_messages
             can_bypass = self.settings[server.id]['bypass']
             if perms_managechannel or can_bypass:
@@ -126,17 +140,17 @@ class CrossQuote:
                 em = discord.Embed(description='You don\'t have permission to quote from that server')
         else:
             em = discord.Embed(description='I\'m sorry, I couldn\'t find that message', color=discord.Color.red())
-        await self.bot.send_message(where, em)
+        await self.bot.send_message(where, embed=em)
 
 
 
 def check_folder():
-    f = 'data/serverblacklist'
+    f = 'data/crossquote'
     if not os.path.exists(f):
         os.makedirs(f)
 
 def check_file():
-    f = 'data/serverblacklist/settings.json'
+    f = 'data/crossquote/settings.json'
     if dataIO.is_valid_json(f) is False:
         dataIO.save_json(f, {})
 
@@ -144,4 +158,5 @@ def setup(bot):
     check_folder()
     check_file()
     n = CrossQuote(bot)
+    bot.add_listener(n.init_settings, "on_server_join")
     bot.add_cog(n)
