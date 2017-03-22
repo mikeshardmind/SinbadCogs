@@ -117,8 +117,11 @@ class CrossQuote:
                             found = True
                     except Exception as error:
                         log.debug(error)
-        await self.sendifallowed(ctx.message.author, ctx.message.channel, message)
-
+        if found:
+            await self.sendifallowed(ctx.message.author, ctx.message.channel, message)
+        else:
+            em = discord.Embed(description='I\'m sorry, I couldn\'t find that message', color=discord.Color.red())
+            await self.bot.send_message(where, embed=em)
 
     async def sendifallowed(self, who, where, message=None):
         "checks if a response should be sent, then sends the appropriate response"
