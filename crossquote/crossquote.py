@@ -136,7 +136,7 @@ class CrossQuote:
                 avatar = author.avatar_url if author.avatar else author.default_avatar_url
                 em = discord.Embed(description=content, color=discord.Color.purple())
                 em.set_author(name='Quote from: {} on {}'.format(author.name, timestamp), icon_url=avatar)
-                em.set_footer(text='Server: {} Channel: #{}'.format(server.name, channel.name))
+                em.set_footer(text='Channel: <#{}>'.format(channel.id))
             else:
                 em = discord.Embed(description='You don\'t have permission to quote from that server')
         else:
