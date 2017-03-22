@@ -132,7 +132,8 @@ class CrossQuote:
             self.init_settings(server)
             perms_managechannel = channel.permissions_for(who).manage_messages
             can_bypass = self.settings[server.id]['bypass']
-            if perms_managechannel or can_bypass:
+            source_is_dest = where.server.id == server.id
+            if perms_managechannel or can_bypass or source_is_dest:
                 content = message.clean_content
                 author = message.author
                 sname = server.name
