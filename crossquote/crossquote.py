@@ -21,7 +21,7 @@ class CrossQuote:
     def __init__(self, bot):
         self.bot = bot
 
-        __version__ = "0.1"
+        __version__ = "0.2"
         self.bot = bot
         self.settings = dataIO.load_json('data/crossquote/settings.json')
 
@@ -136,6 +136,7 @@ class CrossQuote:
                 avatar = author.avatar_url if author.avatar else author.default_avatar_url
                 em = discord.Embed(description=content, color=discord.Color.purple())
                 em.set_author(name='Quote from: {} on {}'.format(author.name, timestamp), icon_url=avatar)
+                em.set_footer(text='Server: {} Channel: #{}'.format(server.name, channel.name))
             else:
                 em = discord.Embed(description='You don\'t have permission to quote from that server')
         else:
