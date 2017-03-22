@@ -132,11 +132,14 @@ class CrossQuote:
             if perms_managechannel or can_bypass:
                 content = '\a\n'+message.clean_content
                 author = message.author
+                sname = server.name
+                cname = channel.name
                 timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M:%S')
                 avatar = author.avatar_url if author.avatar else author.default_avatar_url
+                footer = 'Said in #{} on the server named: {}'.format(cname, sname)
                 em = discord.Embed(description=content, color=discord.Color.purple())
                 em.set_author(name='Quote from: {} on {}'.format(author.name, timestamp), icon_url=avatar)
-                em.set_footer(text='Channel: <#{}>'.format(channel.id))
+                em.set_footer(text=footer)
             else:
                 em = discord.Embed(description='You don\'t have permission to quote from that server')
         else:
