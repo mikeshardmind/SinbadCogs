@@ -1,8 +1,0 @@
-{
-    "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "OBSOLETE: DO NOT INSTALL/LOAD replaced by embedder",
-    "NAME" : "gethelp",
-    "Hidden" : "True",
-    "SHORT" : "OBSOLETE: DO NOT INSTALL/LOAD",
-    "DESCRIPTION" : "OBSOLETE: DO NOT INSTALL/LOAD, look at embedder"
-}
