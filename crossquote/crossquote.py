@@ -18,10 +18,10 @@ class CrossQuote:
     that someone who can manage server has disabled this check for their server.
     """ #Yes, I am aware you can still copy/paste manually if you can see the ID
 
-    def __init__(self, bot):
-        self.bot = bot
+    __version__ = "0.2"
 
-        __version__ = "0.2"
+    def __init__(self, bot):
+
         self.bot = bot
         self.settings = dataIO.load_json('data/crossquote/settings.json')
 

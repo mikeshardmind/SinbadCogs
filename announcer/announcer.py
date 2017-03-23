@@ -12,7 +12,7 @@ from cogs.utils import checks
 
 class Announcer:
     """Configureable Announcements."""
-
+    # >> Next version will depend on embbeder.
     __author__ = "mikeshardmind"
     __version__ = "1.0"
 
