@@ -1,6 +1,5 @@
 import os
 import sys  # noqa: F401
-import datetime  # noqa: F401
 import asyncio
 import discord
 from discord.ext import commands
@@ -165,10 +164,8 @@ class TempChannels:
             channel = server.get_channel(channel_id)
             if channel is not None:
                 if len(server.get_channel(channel_id).voice_members) == 0:
-                    tnow = datetime.time()
-                    ctime = server.get_channel(channel_id).created_at
-                    tdelta = tnow - ctime
-                    if tdelta.seconds > 300:
+                    await asyncioio.sleep(60)
+                    if len(server.get_channel(channel_id).voice_members) == 0:
                         await self.bot.delete_channel(channel)
                         channels.remove(channel.id)
                         self.save_json()
