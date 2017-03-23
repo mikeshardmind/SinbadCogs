@@ -14,11 +14,7 @@ class Embedder:
     Warning: if users have disabled link previews, they cannot see embeds"""
 
     __author__ = "mikeshardmind"
-    __version__ = "0.1a"
-
-    #this version is alpha af
-    #No syntax errors, but no testing
-    #repeat: case testing has not been done.
+    __version__ = "1"
 
 
     def __init__(self, bot):
