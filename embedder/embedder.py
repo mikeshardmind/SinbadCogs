@@ -37,8 +37,9 @@ class Embedder:
 
     @checks.admin_or_permissions(Manage_messages=True)
     @embed.group(name="make", pass_context=True, no_pm=True)
-    async def make_embed(self, ctx, em_name=None):
-        """makes and stores an embed"""
+    async def make_embed(self, ctx, em_name=None, time=False):
+        """makes and stores an embed optional flag for setting
+        the creation time as the footer"""
 
         author = ctx.message.author
         channel = ctx.message.channel
@@ -52,18 +53,18 @@ class Embedder:
             await self.bot.say("Please give me the message to be embedded.")
             message = await self.bot.wait_for_message(channel=channel, author=author)
             content = message.clean_content
-            timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
 
-            await self.bot.say("Should the footer be the creation date? (yes/no)")
-            message = await self.bot.wait_for_message(channel=channel, author=author)
-            if message.content is "yes":
-                footer = 'embed created on {} by {}'.format(timestamp, author.name)
+            if time:
+                timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
+                footer = 'embed created on {} UTC by {}'.format(timestamp, author.name)
             else:
-                await self.bot.say("Okay, what should go here then?")
+                await self.bot.say("Please give me the footer to be embedded")
                 message = await self.bot.wait_for_message(channel=channel, author=author)
                 footer = message.clean_content
 
             if em_name and title and content and footer:
+                if server.id not in self.settings:
+                    self.settings[server.id] = {}
                 self.settings[server.id][em_name] = {'title': title,
                                                      'content': content,
                                                      'footer': footer,
@@ -89,7 +90,7 @@ class Embedder:
                 else:
                     await self.bot.say("No such embed.")
             else:
-                await self.bot.say("There are no embeds stored for this server!")
+                await self.bot.say("I don't have any embeds stored for this server")
         else:
             await self.bot.say("I was expecting the name of the embed to remove")
 
@@ -105,47 +106,41 @@ class Embedder:
             where = ctx.message.channel
 
         if em_name:
-            if server.id in self.settings:
-                if em_name in self.settings[server.id]:
-                    title = self.settings[server.id]['title']
-                    content = self.settings[server.id]['content']
-                    footer = self.settings[server.id]['footer']
-                    if content and timestamp and footer and title:
-                        em = discord.Embed(description=content, color=discord.Color.purple())
-                        em.set_author(name=title)
-                        em.set_footer(text=footer)
-
-                        await self.bot.send_message(where, embed=em)
-                        try:
-                            await self.bot.delete_message(message)
-                        except Exception as e:
-                            log.debug("{}".format(e))
-                    else:
-                        log.debug("Something went terribly "
-                                  "wrong when trying to retrieve {} from {}".format(em_name, server.id))
-                        await self.bot.say("Something went wrong trying to retrieve that")
-                else:
-                    await self.bot.say("I couldn't find an embed by that name.")
+            title = self.settings.get(server.id, {}).get(em_name, {}).get('title')
+            content = self.settings.get(server.id, {}).get(em_name, {}).get('content')
+            footer = self.settings.get(server.id, {}).get(em_name, {}).get('footer')
+            if content and footer and title:
+                em = discord.Embed(description=content, color=discord.Color.purple())
+                em.set_author(name=title)
+                em.set_footer(text=footer)
+                await self.bot.send_message(where, embed=em)
+                try:
+                    await self.bot.delete_message(message)
+                except Exception as e:
+                    log.debug("{}".format(e))
             else:
-                await self.bot.say("I don't have any embeds stored for this server")
+                await self.bot.say("I couldn't find an embed by that name for this server.")
+
         else:
             await self.bot.say("I was expecting the name of the embed you wanted.")
 
     @embed.command(name="list", pass_context=True, no_pm=True)
     async def embed_list(self, ctx):
+        """lists embeds"""
 
-        ems = None
+        ems = []
         server = ctx.message.server
         if server.id in self.settings:
-            ems = self.settings[server.id].keys()
-            if len(ems) > 0:
-                await self.bot.say("Embed names for this server: {}".format(ems))
-            else:
-                await self.bot.say("No embeds found for this server.")
+            for key in self.settings[server.id]:
+                ems.append(key)
+
+
+        if ems:
+            em_names = ", ".join(ems)
+            await self.bot.say("here are the names of the embeds "
+                               "on this server: {}".format(em_names))
         else:
-            await self.bot.say("No embeds found for this server.")
-
-
+            await self.bot.say("I don't have any embeds stored for this server")
 
 
 
@@ -163,5 +158,5 @@ def check_file():
 def setup(bot):
     check_folder()
     check_file()
-    n = GetHelp(bot)
+    n = Embedder(bot)
     bot.add_cog(n)
