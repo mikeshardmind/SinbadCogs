@@ -1,6 +1,6 @@
 import os
-import sys
-import asyncio
+import sys  # noqa: F401
+import asyncio  # noqa: F401
 import discord
 import logging
 from discord.ext import commands
@@ -9,22 +9,19 @@ from cogs.utils import checks
 
 log = logging.getLogger('red.CrossQuote')
 
+
 class CrossQuote:
     """
-    Cross server quote by message ID. Formatting of the embed was taken from
-    https://github.com/PaddoInWonderland/PaddoCogs/quote/quote.py
-    For the sake of privacy, allowing a quote from another server will require
-    that the user attempting to quote from that server can manage messages or
-    that someone who can manage server has disabled this check for their server.
-    """ #Yes, I am aware you can still copy/paste manually if you can see the ID
+    Cross server quote by message ID.
+    """
 
+    __author__ = "mikeshardmind"
     __version__ = "0.2"
 
     def __init__(self, bot):
 
         self.bot = bot
         self.settings = dataIO.load_json('data/crossquote/settings.json')
-
 
     def save_json(self):
         dataIO.save_json("data/crossquote/settings.json", self.settings)
@@ -74,9 +71,9 @@ class CrossQuote:
         for serv_id in serv_ids:
             if serv_id not in self.settings:
                 self.settings[serv_id] = {'bypass': False,
-                                          'whitelisted': [], #future feature
-                                          'blacklisted': []  #future feature
-                                         }
+                                          'whitelisted': [],
+                                          'blacklisted': []
+                                          }
                 self.save_json()
 
     async def init_settings(self, server=None):
@@ -86,45 +83,48 @@ class CrossQuote:
         if server:
             if server.id not in self.settings:
                 self.settings[server.id] = {'bypass': False,
-                                            'whitelisted': [], #future feature
-                                            'blacklisted': []  #future feature
-                                           }
+                                            'whitelisted': [],
+                                            'blacklisted': []
+                                            }
                 self.save_json()
         else:
             serv_ids = map(lambda s: s.id, self.bot.servers)
             for serv_id in serv_ids:
                 if serv_id not in self.settings:
                     self.settings[serv_id] = {'bypass': False,
-                                              'whitelisted': [], #future feature
-                                              'blacklisted': []  #future feature
-                                             }
+                                              'whitelisted': [],
+                                              'blacklisted': []
+                                              }
                     self.save_json()
-
-
 
     @commands.command(pass_context=True, name='crossquote')
     async def _q(self, ctx, message_id: int):
         """
-        Quote someone with the message id. To get the message id you need to enable developer mode.
+        Quote someone with the message id.
+        To get the message id you need to enable developer mode.
         """
         found = False
         for server in self.bot.servers:
             for channel in server.channels:
                 if not found:
                     try:
-                        message = await self.bot.get_message(channel, str(message_id))
+                        message = await self.bot.get_message(channel,
+                                                             str(message_id))
                         if message:
                             found = True
                     except Exception as error:
-                        log.debug(error)
+                        log.debug("{}".format(error))
         if found:
-            await self.sendifallowed(ctx.message.author, ctx.message.channel, message)
+            await self.sendifallowed(ctx.message.author,
+                                     ctx.message.channel, message)
         else:
-            em = discord.Embed(description='I\'m sorry, I couldn\'t find that message', color=discord.Color.red())
+            em = discord.Embed(description='I\'m sorry, I couldn\'t find '
+                               'that message', color=discord.Color.red())
             await self.bot.send_message(ctx.message.channel, embed=em)
 
     async def sendifallowed(self, who, where, message=None):
-        "checks if a response should be sent, then sends the appropriate response"
+        """checks if a response should be sent
+        then sends the appropriate response"""
 
         if message:
             channel = message.channel
@@ -139,17 +139,20 @@ class CrossQuote:
                 sname = server.name
                 cname = channel.name
                 timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
-                avatar = author.avatar_url if author.avatar else author.default_avatar_url
+                avatar = author.avatar_url if author.avatar \
+                    else author.default_avatar_url
                 footer = 'Said in {} #{} at {}'.format(sname, cname, timestamp)
-                em = discord.Embed(description=content, color=discord.Color.purple())
+                em = discord.Embed(description=content,
+                                   color=discord.Color.purple())
                 em.set_author(name='{}'.format(author.name), icon_url=avatar)
                 em.set_footer(text=footer)
             else:
-                em = discord.Embed(description='You don\'t have permission to quote from that server')
+                em = discord.Embed(description='You don\'t have '
+                                   'permission to quote from that server')
         else:
-            em = discord.Embed(description='I\'m sorry, I couldn\'t find that message', color=discord.Color.red())
+            em = discord.Embed(description='I\'m sorry, I couldn\'t '
+                               'find that message', color=discord.Color.red())
         await self.bot.send_message(where, embed=em)
-
 
 
 def check_folder():
@@ -157,10 +160,12 @@ def check_folder():
     if not os.path.exists(f):
         os.makedirs(f)
 
+
 def check_file():
     f = 'data/crossquote/settings.json'
     if dataIO.is_valid_json(f) is False:
         dataIO.save_json(f, {})
+
 
 def setup(bot):
     check_folder()

@@ -1,18 +1,13 @@
 import os
-import sys
-import asyncio
-import discord
-import logging
+import asyncio  # noqa: F401
+import discord  # noqa: F401
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 
 
-
-
 class Announcer:
     """Configureable Announcements."""
-    # >> Next version will depend on embbeder.
     __author__ = "mikeshardmind"
     __version__ = "1.0"
 
@@ -23,7 +18,6 @@ class Announcer:
     def save_settings(self):
         dataIO.save_json('data/announcer/settings.json', self.settings)
 
-
     @checks.is_owner()
     @commands.command(name="announcer", pass_context=True)
     async def announcer(self, ctx, *, msg):
@@ -33,7 +27,8 @@ class Announcer:
         for server_id in server_ids:
             if server_id in self.settings:
                 server = self.bot.get_server(server_id)
-                channel = server.get_channel(self.settings[server_id]['channel'])
+                channel = server.get_channel(
+                          self.settings[server_id]['channel'])
                 if channel.permissions_for(server.me).send_messages:
                     await self.bot.send_message(channel, msg)
 
@@ -68,11 +63,12 @@ class Announcer:
         if channel is None:
             await self.bot.say("I cannot find that channel")
         elif channel.is_private:
-            await self.bot.say("Ignoring Request: Invalid place to send announcements")
+            await self.bot.say("Ignoring Request: "
+                               "Invalid place to send announcements")
         else:
             if channel.permissions_for(server.me).send_messages is False:
-                await self.bot.say("Warning: I cannot speak in that channel "
-                                   "I will add it to the list, but announcements"
+                await self.bot.say("Warning: I cannot speak in that channel I "
+                                   "will add it to the list, but announcements"
                                    " will not be sent if this is not fixed")
 
             if server.id not in self.settings:
@@ -80,8 +76,8 @@ class Announcer:
             else:
                 self.settings[server.id]['channel'] = channel.id
             self.save_settings()
-            await self.bot.say("Announcement channel for the associated server "
-                               "has been set")
+            await self.bot.say("Announcement channel for the associated"
+                               "server has been set")
 
     @checks.is_owner()
     @announcerset.command(name="delchan", pass_context=True)
@@ -108,8 +104,9 @@ class Announcer:
                 self.save_settings()
             else:
                 await self.bot.say("This is not an announcement channel")
-                await self.bot.say("Hint: The announcement channel"
-                                   " for the server is <#{}>".format(self.settings[server.id]['channel']))
+                output = self.settings[server.id]['channel']
+                await self.bot.say("Hint: The announcement channel for the "
+                                   "server is <#{}>".format(output))
         else:
             await self.bot.say("This channel is not an announcement channel")
 
@@ -119,10 +116,12 @@ def check_folder():
     if not os.path.exists(f):
         os.makedirs(f)
 
+
 def check_file():
     f = 'data/announcer/settings.json'
     if dataIO.is_valid_json(f) is False:
         dataIO.save_json(f, {})
+
 
 def setup(bot):
     check_folder()

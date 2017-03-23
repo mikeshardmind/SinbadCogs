@@ -1,5 +1,5 @@
 import os
-import sys
+import sys  # noqa: F401
 import asyncio
 import discord
 import logging
@@ -9,21 +9,21 @@ from cogs.utils import checks
 
 log = logging.getLogger('red.ServerBlacklist')
 
+
 class ServerBlacklist:
     """Lets a bot owner create a list of servers that the bot will immediately
     leave when joined to. It does not require you to make the bot private"""
-
     __author__ = "mikeshardmind"
     __version__ = "0.3"
 
     def __init__(self, bot):
         self.bot = bot
         self.settings = dataIO.load_json('data/serverblacklist/settings.json')
-        self.blacklist = dataIO.load_json('data/serverblacklist/blacklist.json')
+        self.blacklist = dataIO.load_json('data/serverblacklist/list.json')
 
     def save_json(self):
         dataIO.save_json("data/serverblacklist/settings.json", self.settings)
-        dataIO.save_json("data/serverblacklist/blacklist.json", self.blacklist)
+        dataIO.save_json("data/serverblacklist/list.json", self.blacklist)
 
     @checks.is_owner()
     @commands.group(name="serverblacklist", pass_context=True)
@@ -45,7 +45,7 @@ class ServerBlacklist:
                 await self.bot.say("I can't blacklist a server without the ID")
             else:
                 if server_id not in self.blacklist:
-                    self.blacklist[server_id] = { }
+                    self.blacklist[server_id] = {}
                     self.save_json()
                     await self.bot.say("Server with ID: {} "
                                        "blacklisted.".format(server_id))
@@ -59,24 +59,27 @@ class ServerBlacklist:
                         channel = server.default_channel
                         msg = self.settings.get('msg', None)
                         if msg:
-                            if channel.permissions_for(server.me).send_messages:
-                                await self.bot.send_message(channel, "{}".format(msg))
+                            if channel.permissions_for(
+                                                      server.me).send_messages:
+                                await self.bot.send_message(channel,
+                                                            "{}".format(msg))
                             else:
-                                log.debug("Did not have permission to leave exit message "
-                                          "for server named {} with an ID of {} "
-                                          " ".format(server.name, server.id))
+                                log.debug("Did not have permission to "
+                                          "leave exit message for"
+                                          "server named {} with an ID of {}"
+                                          .format(server.name, server.id))
                         await asyncio.sleep(1)
                         await self.bot.leave_server(server)
                         await self.bot.say("I was in that server. Was.")
                 else:
-                    await self.bot.say("That server is already in the blacklist")
+                    await self.bot.say("That server is already "
+                                       "in the blacklist")
         else:
             try:
                 await self.bot.say("You can't use that here")
             except discord.errors.Forbidden:
                 log.debug("Some Dumbass didn't RTFM and tried to use me in a "
                           "place I couldn't resond")
-
 
     @checks.is_owner()
     @serverblacklist.command(name="remove", pass_context=True)
@@ -105,7 +108,6 @@ class ServerBlacklist:
                 log.debug("Some Dumbass didn't RTFM and tried to use me in a "
                           "place I couldn't resond")
 
-
     @checks.is_owner()
     @serverblacklist.command(name="list", pass_context=True)
     async def fetch_blacklist(self, ctx):
@@ -116,14 +118,13 @@ class ServerBlacklist:
             keys = " ,".join(self.blacklist.keys())
 
             if keys:
-                await self.bot.say("Here are the server IDs in the blacklist: \n"
+                await self.bot.say("Here are the server IDs "
+                                   "in the blacklist: \n"
                                    "{}".format(keys))
             else:
                 await self.bot.say("There are no servers in the blacklist.")
         else:
             await self.bot.say("You can't use that here.")
-
-
 
     @checks.is_owner()
     @serverblacklist.command(name="setmsg", pass_context=True)
@@ -141,8 +142,6 @@ class ServerBlacklist:
                 await self.bot.say("Leave message disabled")
         else:
             await self.bot.say("You can't use that here.")
-
-
 
     async def blacklist_routine(self, server):
         """do the thing"""
@@ -163,24 +162,17 @@ class ServerBlacklist:
                       "".format(server.name, server.id))
 
 
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-        pass
-
 def check_folder():
     f = 'data/serverblacklist'
     if not os.path.exists(f):
         os.makedirs(f)
 
+
 def check_file():
     f = 'data/serverblacklist/settings.json'
     if dataIO.is_valid_json(f) is False:
         dataIO.save_json(f, {})
-    f = 'data/serverblacklist/blacklist.json'
+    f = 'data/serverblacklist/list.json'
     if dataIO.is_valid_json(f) is False:
         dataIO.save_json(f, {})
 
