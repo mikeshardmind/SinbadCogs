@@ -1,8 +1,8 @@
 {
     "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "if you want to use it, read the code first, its hidden for a reason right now",
-    "NAME" : "resourcer",
+    "INSTALL_MSG" : "OBSOLETE: DO NOT INSTALL/LOAD replaced by embedder",
+    "NAME" : "embedder",
     "Hidden" : "True",
-    "SHORT" : "hidden",
-    "DESCRIPTION" : "hidden"
+    "SHORT" : "OBSOLETE: DO NOT INSTALL/LOAD",
+    "DESCRIPTION" : "OBSOLETE: DO NOT INSTALL/LOAD, look at embedder"
 }
