@@ -18,7 +18,7 @@ class Embedder:
 
     #this version is alpha af
     #No syntax errors, but no testing
-    #case testing has not been done.
+    #repeat: case testing has not been done.
 
 
     def __init__(self, bot):
