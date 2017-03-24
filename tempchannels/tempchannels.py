@@ -90,8 +90,7 @@ class TempChannels:
 
     @tempchannels.command(name="new", pass_context=True, no_pm=True)
     async def newtemp(self, ctx, *, args ):
-        """makes a new temporary channel
-        channel name should be enclosed in quotation marks"""
+        """makes a new temporary channel"""
         server = ctx.message.server
         perms = ctx.message.server.get_member(
                                            self.bot.user.id).server_permissions
