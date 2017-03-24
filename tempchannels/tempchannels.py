@@ -89,12 +89,14 @@ class TempChannels:
             await self.bot.say('Users now own the temp channels they make.')
 
     @tempchannels.command(name="new", pass_context=True, no_pm=True)
-    async def newtemp(self, ctx, name: str):
+    async def newtemp(self, ctx, *, args ):
         """makes a new temporary channel
         channel name should be enclosed in quotation marks"""
         server = ctx.message.server
         perms = ctx.message.server.get_member(
                                            self.bot.user.id).server_permissions
+        
+        name = str(args)
 
         if server.id not in self.settings:
             self.initial_config(server.id)
