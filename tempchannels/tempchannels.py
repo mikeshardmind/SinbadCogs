@@ -30,9 +30,9 @@ class TempChannels:
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
-    @tempchannels.group(name="tempset", pass_context=True, no_pm=True)
+    @commands.group(name="tempchannelset", pass_context=True, no_pm=True)
     async def tempset(self, ctx):
-        """Configuration settings"""
+        """Configuration settings for tempchannels"""
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
@@ -89,13 +89,13 @@ class TempChannels:
             await self.bot.say('Users now own the temp channels they make.')
 
     @tempchannels.command(name="new", pass_context=True, no_pm=True)
-    async def newtemp(self, ctx, *, args ):
+    async def newtemp(self, ctx, *, name ):
         """makes a new temporary channel"""
         server = ctx.message.server
         perms = ctx.message.server.get_member(
                                            self.bot.user.id).server_permissions
-        
-        name = str(args)
+
+        cname = str(name)
 
         if server.id not in self.settings:
             self.initial_config(server.id)
@@ -106,7 +106,7 @@ class TempChannels:
             await self.bot.say('This command is currently turned off.')
         else:
             channel = await self.bot.create_channel(
-                                  server, name, type=discord.ChannelType.voice)
+                                 server, cname, type=discord.ChannelType.voice)
             if self.settings[server.id]['toggleowner'] is True:
                 overwrite = discord.PermissionOverwrite()
                 overwrite.manage_channels = True
