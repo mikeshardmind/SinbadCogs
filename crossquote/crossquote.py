@@ -16,7 +16,7 @@ class CrossQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.2"
+    __version__ = "0.3"
 
     def __init__(self, bot):
 
@@ -26,40 +26,37 @@ class CrossQuote:
     def save_json(self):
         dataIO.save_json("data/crossquote/settings.json", self.settings)
 
-    @commands.group(name="crossquoteset", pass_context=True, no_pm=True)
+    @commands.group(name="crossquoteset", pass_context=True, no_pm=True, hidden=True)
     async def crossquoteset(self, ctx):
         """configuration settings for cross server quotes"""
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
     @checks.admin_or_permissions(Manage_server=True)
-    @crossquoteset.command(name="bypass", pass_context=True, no_pm=True)
-    async def allow_without_permission(self, ctx, bypass=None):
+    @crossquoteset.command(name="bypasstoggle", pass_context=True, no_pm=True)
+    async def allow_without_permission(self, ctx):
         """allows people with manage server to allow users bypass needing
         manage messages to quote from their server to others
         bypass should be True or False. The default value is False"""
 
         server = ctx.message.server
 
-        if bypass is None:
-            await self.bot.say("I was expecting a True or False after that.")
-        elif bypass is True:
-            if server.id not in self.settings:
-                self.init_settings(server)
+
+        if server.id not in self.settings:
+            self.init_settings(server)
             self.settings[server.id]['bypass'] = True
             self.save_json()
+        else:
+            self.settings[server.id]['bypass'] = \
+            not self.settings[server.id]['bypass']
+
+        if self.settings[server.id]['bypass']:
             await self.bot.say("Now anyone can quote from this server "
                                "if they can see the message")
-        elif bypass is False:
-            if server.id not in self.settings:
-                self.init_settings(server)
-            else:
-                self.settings[server.id]['bypass'] = False
-                self.save_json()
+        else:
             await self.bot.say("Quoting from this server again requires manage"
                                " messages")
-        else:
-            await self.bot.say("That doesn't look like valid input!")
+
 
     @checks.is_owner()
     @crossquoteset.command(name="init", hidden=True)
@@ -97,7 +94,7 @@ class CrossQuote:
                                               }
                     self.save_json()
 
-    @commands.command(pass_context=True, name='crossquote')
+    @commands.command(pass_context=True, name='crossquote', aliases=["quote"])
     async def _q(self, ctx, message_id: int):
         """
         Quote someone with the message id.
