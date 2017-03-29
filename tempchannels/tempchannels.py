@@ -12,7 +12,6 @@ class TempChannels:
     """
     allows creating temporary channels
     channels are auto-removed when they become empty
-    or if nobody has entered them within 5 minutes of creation
     requires server admin or manage channels to enable
     once enabled all users can use it
     """
