@@ -8,7 +8,7 @@ class DofusWikia:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='dwiki', pass_context=True)
+    @commands.command(name='dofus', pass_context=True)
     async def dofus_wikia(self, ctx, *args):
         """ Dofus Wikia Search """
 

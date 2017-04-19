@@ -10,7 +10,7 @@ import re
 cssf = '```css\n{}```'
 
 
-class DofusTh:
+class Treasure:
 
     def __init__(self, bot):
         self.bot = bot
@@ -66,4 +66,4 @@ class DofusTh:
 
 
 def setup(bot):
-    bot.add_cog(DofusTh(bot))
+    bot.add_cog(Treasure(bot))

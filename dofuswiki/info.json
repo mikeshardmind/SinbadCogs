@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "mikeshardmind",
     "INSTALL_MSG" : "Feature Merge from another bot",
-    "NAME" : "embedder",
+    "NAME" : "DofusWiki",
     "Hidden" : "True",
     "SHORT" : "Dofus wiki",
     "DESCRIPTION" : "Dofus wiki"
