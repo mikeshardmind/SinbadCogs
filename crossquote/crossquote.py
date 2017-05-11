@@ -117,6 +117,7 @@ class CrossQuote:
             em = discord.Embed(description='I\'m sorry, I couldn\'t find '
                                'that message', color=discord.Color.red())
             await self.bot.send_message(ctx.message.channel, embed=em)
+        await self.bot.delete_message(ctx.message)
 
     @commands.command(pass_context=True, name='crossservquote', aliases=["sq"])
     async def _csq(self, ctx, message_id: int):
@@ -141,13 +142,14 @@ class CrossQuote:
                                    'is slow. Use cross channel quote for '
                                    'messages on the same server.',
                                    color=discord.Color.red())
-                await self.bot.send_message(ctx.message.channel, embed=em)
+                await self.bot.send_message(ctx.message.author, embed=em)
             await self.sendifallowed(ctx.message.author,
                                      ctx.message.channel, message)
         else:
             em = discord.Embed(description='I\'m sorry, I couldn\'t find '
                                'that message', color=discord.Color.red())
             await self.bot.send_message(ctx.message.channel, embed=em)
+        await self.bot.delete_message(ctx.message)
 
     async def sendifallowed(self, who, where, message=None):
         """checks if a response should be sent
@@ -161,7 +163,18 @@ class CrossQuote:
             can_bypass = self.settings[server.id]['bypass']
             source_is_dest = where.server.id == server.id
             if perms_managechannel or can_bypass or source_is_dest:
-                em = quoteformat(message)
+                content = message.clean_content
+                author = message.author
+                sname = server.name
+                cname = channel.name
+                timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
+                avatar = author.avatar_url if author.avatar \
+                    else author.default_avatar_url
+                footer = 'Said in {} #{} at {}'.format(sname, cname, timestamp)
+                em = discord.Embed(description=content,
+                                   color=discord.Color.purple())
+                em.set_author(name='{}'.format(author.name), icon_url=avatar)
+                em.set_footer(text=footer)
             else:
                 em = discord.Embed(description='You don\'t have '
                                    'permission to quote from that server',
@@ -170,22 +183,6 @@ class CrossQuote:
             em = discord.Embed(description='I\'m sorry, I couldn\'t '
                                'find that message', color=discord.Color.red())
         await self.bot.send_message(where, embed=em)
-
-    def quoteformat(message=None):
-        if message:
-            content = message.clean_content
-            author = message.author
-            sname = server.name
-            cname = channel.name
-            timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
-            avatar = author.avatar_url if author.avatar \
-                else author.default_avatar_url
-            footer = 'Said in {} #{} at {}'.format(sname, cname, timestamp)
-            em = discord.Embed(description=content,
-                               color=discord.Color.purple())
-            em.set_author(name='{}'.format(author.name), icon_url=avatar)
-            em.set_footer(text=footer)
-        return em
 
 
 def check_folder():
