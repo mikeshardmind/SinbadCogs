@@ -16,7 +16,7 @@ class CrossQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.3"
+    __version__ = "0.4"
 
     def __init__(self, bot):
 
@@ -26,7 +26,8 @@ class CrossQuote:
     def save_json(self):
         dataIO.save_json("data/crossquote/settings.json", self.settings)
 
-    @commands.group(name="crossquoteset", pass_context=True, no_pm=True, hidden=True)
+    @commands.group(name="crossquoteset",
+                    pass_context=True, no_pm=True, hidden=True)
     async def crossquoteset(self, ctx):
         """configuration settings for cross server quotes"""
         if ctx.invoked_subcommand is None:
@@ -41,14 +42,13 @@ class CrossQuote:
 
         server = ctx.message.server
 
-
         if server.id not in self.settings:
             self.init_settings(server)
             self.settings[server.id]['bypass'] = True
             self.save_json()
         else:
             self.settings[server.id]['bypass'] = \
-            not self.settings[server.id]['bypass']
+                not self.settings[server.id]['bypass']
 
         if self.settings[server.id]['bypass']:
             await self.bot.say("Now anyone can quote from this server "
@@ -56,7 +56,6 @@ class CrossQuote:
         else:
             await self.bot.say("Quoting from this server again requires manage"
                                " messages")
-
 
     @checks.is_owner()
     @crossquoteset.command(name="init", hidden=True)
@@ -94,8 +93,34 @@ class CrossQuote:
                                               }
                     self.save_json()
 
-    @commands.command(pass_context=True, name='crossquote', aliases=["q"])
-    async def _q(self, ctx, message_id: int):
+    @commands.command(pass_context=True, name='crosschanquote', aliases=["cq"])
+    async def _ccq(self, ctx, message_id: int):
+        """
+        Quote someone with the message id.
+        To get the message id you need to enable developer mode.
+        """
+        found = False
+        server = ctx.message.channel.server
+        for channel in server.channels:
+            if not found:
+                try:
+                    message = await self.bot.get_message(channel,
+                                                         str(message_id))
+                    if message:
+                        found = True
+                except Exception as error:
+                    log.debug("{}".format(error))
+        if found:
+            await self.sendifallowed(ctx.message.author,
+                                     ctx.message.channel, message)
+        else:
+            em = discord.Embed(description='I\'m sorry, I couldn\'t find '
+                               'that message', color=discord.Color.red())
+            await self.bot.send_message(ctx.message.channel, embed=em)
+        await self.bot.delete_message(ctx.message)
+
+    @commands.command(pass_context=True, name='crossservquote', aliases=["sq"])
+    async def _csq(self, ctx, message_id: int):
         """
         Quote someone with the message id.
         To get the message id you need to enable developer mode.
@@ -112,12 +137,19 @@ class CrossQuote:
                     except Exception as error:
                         log.debug("{}".format(error))
         if found:
+            if ctx.message.channel.server == message.channel.server:
+                em = discord.Embed(description='Using the cross server quote '
+                                   'is slow. Use cross channel quote for '
+                                   'messages on the same server.',
+                                   color=discord.Color.red())
+                await self.bot.send_message(ctx.message.author, embed=em)
             await self.sendifallowed(ctx.message.author,
                                      ctx.message.channel, message)
         else:
             em = discord.Embed(description='I\'m sorry, I couldn\'t find '
                                'that message', color=discord.Color.red())
             await self.bot.send_message(ctx.message.channel, embed=em)
+        await self.bot.delete_message(ctx.message)
 
     async def sendifallowed(self, who, where, message=None):
         """checks if a response should be sent
@@ -145,7 +177,8 @@ class CrossQuote:
                 em.set_footer(text=footer)
             else:
                 em = discord.Embed(description='You don\'t have '
-                                   'permission to quote from that server')
+                                   'permission to quote from that server',
+                                   color=discord.Color.red())
         else:
             em = discord.Embed(description='I\'m sorry, I couldn\'t '
                                'find that message', color=discord.Color.red())
