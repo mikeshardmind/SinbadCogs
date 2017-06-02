@@ -350,8 +350,8 @@ class Survey:
                     lnames.append(server.get_member(uid).display_name)
                     lanswers.append(answer)
 
-        return tabulate({"Responses": lanswers,
-                        "Names": lnames}, headers="keys")
+        return tabulate({"Names": lnames,
+                         "Responses": lanswers, }, headers="keys")
 
     def _make_waiting_list(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
