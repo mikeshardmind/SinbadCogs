@@ -6,5 +6,4 @@
     "DESCRIPTION" : "Runs surveys for a specific role of people via DM, and prints real-time results to a given text channel. Supports changing responses, answer option quotas, and reminders based on initial answer.",
     "REQUIREMENTS" : ["python-dateutil", "pytz", "tabulate"],
     "TAGS": ["survey", "poll", "event", "tools", "utility"],
-    "HIDDEN": "True"
 }
