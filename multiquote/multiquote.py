@@ -16,7 +16,7 @@ class MultiQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.2"
+    __version__ = "1.0"
 
     def __init__(self, bot):
 
