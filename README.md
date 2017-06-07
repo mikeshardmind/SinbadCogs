@@ -15,6 +15,10 @@ Cog for quoting from any server the bot is in by just the message ID
 
 Cog respects server privacy settings, and defaults to less permissive.
 
+# Multiquote
+
+Quote multiple messages from the same server with a list of message IDs
+
 # Embedder
 
 Cog for Making, Storing, and calling Embed objects to the chat.
