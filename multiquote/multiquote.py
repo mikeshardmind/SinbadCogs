@@ -123,10 +123,13 @@ class MultiQuote:
         to search. I reccomend not enabling this on public bots.
         It is disabled by default
         """
+
         if self.settings["global"]["csmq"]:
             for message_id in args:
                 found = False
                 for server in self.bot.servers:
+                    if server.id not in self.settings:
+                        await self.init_settings(server)
                     for channel in server.channels:
                         if not found:
                             try:
@@ -152,8 +155,9 @@ class MultiQuote:
         """
         Multiple Quotes by message ID (same server only)
         """
-
         server = ctx.message.channel.server
+        if server.id not in self.settings:
+            await self.init_settings(server)
         for message_id in args:
             found = False
             for channel in server.channels:
