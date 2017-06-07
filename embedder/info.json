@@ -1,8 +1,0 @@
-{
-    "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "Hope you find this useful. \nword of caution, people who have disabled link previews will be unable to see the embeds (true when this was comitted)",
-    "NAME" : "embedder",
-    "Hidden" : "False",
-    "SHORT" : "Interactive embedder",
-    "DESCRIPTION" : "cog for making, storing, and calling embed objects. embed objects are server unique"
-}
