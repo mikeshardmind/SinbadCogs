@@ -19,16 +19,6 @@ Cog respects server privacy settings, and defaults to less permissive.
 
 Quote multiple messages from the same server with a list of message IDs
 
-# Embedder
-
-Cog for Making, Storing, and calling Embed objects to the chat.
-
-Embeds are unique to each server
-
-Globally accessible embeds may be added at some point later
-
-Note: If a user has link previews disabled, they also do not see embeds.
-
 # Serverblacklist
 
 Configureable cog for maintaining a list of servers the bot will leave when invited to
