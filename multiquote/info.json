@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "Run ```\nmultiquote init```\n after install",
+    "NAME" : "multiquote",
+    "SHORT" : "multiple quotes",
+    "DESCRIPTION" : "grabs the things"
+}
