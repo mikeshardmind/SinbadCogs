@@ -3,5 +3,5 @@
     "INSTALL_MSG" : "Run ```\nmultiquote init```\n after install",
     "NAME" : "multiquote",
     "SHORT" : "multiple quotes",
-    "DESCRIPTION" : "grabs the things"
+    "DESCRIPTION" : "grabs the things from any channel the bot can see. later version will have a behavior toggle (owner) for same server only for performance reasons."
 }
