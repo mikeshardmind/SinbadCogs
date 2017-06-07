@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "Hi, this isn't 100% finished yet, but it is working. Planned features include whitelisting users and blacklisting channels from being quoted\nHint: use ```[p]crossquoteset init``` once loaded to speed up the first quote ",
+    "INSTALL_MSG" : "hope you find this useful",
     "NAME" : "crossquote",
-    "SHORT" : "allows for cross server quotes",
+    "SHORT" : "allows for cross channel/server quotes by message ID",
     "DESCRIPTION" : "will allow for cross server quoting by just the message ID."
 }
