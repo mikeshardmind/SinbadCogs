@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "Run ```\nmultiquote init```\n after install",
+    "INSTALL_MSG" : "I hope you find this helpful",
     "NAME" : "multiquote",
     "SHORT" : "multiple quotes",
-    "DESCRIPTION" : "grabs the things from any channel the bot can see. later version will have a behavior toggle (owner) for same server only for performance reasons."
+    "DESCRIPTION" : "grabs the things from any channel the bot can see on the same server.\nMore goodies hidden in the source for other servers\nRead before you enable said goodies"
 }

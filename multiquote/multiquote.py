@@ -16,18 +16,20 @@ class MultiQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.1a"
+    __version__ = "0.2"
 
     def __init__(self, bot):
 
         self.bot = bot
         self.settings = dataIO.load_json('data/multiquote/settings.json')
+        if "global" not in self.settings:
+            self.settings["global"] = {'csmq': False}
 
     def save_json(self):
         dataIO.save_json("data/multiquote/settings.json", self.settings)
 
     @commands.group(name="multiquoteset",
-                    pass_context=True, no_pm=True, hidden=True)
+                    pass_context=True, no_pm=True)
     async def multiquoteset(self, ctx):
         """configuration settings"""
         if ctx.invoked_subcommand is None:
@@ -70,7 +72,27 @@ class MultiQuote:
                                           'whitelisted': [],
                                           'blacklisted': []
                                           }
-                self.save_json()
+
+        self.save_json()
+
+    @checks.is_owner()
+    @multiquoteset.command(name="csmqtoggle", hidden=True)
+    async def _csmq_setting(self):
+        """
+        Enables cross server multiquotes
+        This has serious performance scaling issues
+        Do not enable this on a public bot.
+        This feature is hidden for a reason. Use at your own risk
+        """
+        self.settings["global"]["csmq"] = \
+            not self.settings["global"]["csmq"]
+        self.save_json()
+
+        if self.settings["global"]["csmq"]:
+            await self.bot.say("You were warned. "
+                               "if this breaks, turn it back off")
+        else:
+            await self.bot.say("Probably the best course of action")
 
     async def init_settings(self, server=None):
         """adds default settings for all servers the bot is in
@@ -93,24 +115,57 @@ class MultiQuote:
                                               }
                     self.save_json()
 
-    @commands.command(pass_context=True, name='multiquote', aliases=["mq"])
-    async def _q(self, ctx, *args):
+    @commands.command(pass_context=True, name='crossmultiquote',
+                      aliases=["csmq"], hidden=True)
+    async def _csmq(self, ctx, *args):
         """
-        Multiple Quotes by ID.
+        Multiple Quotes by ID This version is slower the more servers it needs
+        to search. I reccomend not enabling this on public bots.
+        It is disabled by default
         """
+        if self.settings["global"]["csmq"]:
+            for message_id in args:
+                found = False
+                for server in self.bot.servers:
+                    for channel in server.channels:
+                        if not found:
+                            try:
+                                message = \
+                                    await self.bot.get_message(channel,
+                                                               str(message_id))
+                                if message:
+                                    found = True
+                            except Exception as error:
+                                log.debug("{}".format(error))
+                if found:
+                    await self.sendifallowed(ctx.message.author,
+                                             ctx.message.channel, message)
+                else:
+                    em = discord.Embed(description="I\'m sorry, I couldn\'t "
+                                                   "find that message",
+                                       color=discord.Color.red())
+                    await self.bot.send_message(ctx.message.channel, embed=em)
+
+    @commands.command(pass_context=True, name='multiquote',
+                      aliases=["mq"])
+    async def _mq(self, ctx, *args):
+        """
+        Multiple Quotes by message ID (same server only)
+        """
+
+        server = ctx.message.channel.server
         for message_id in args:
             found = False
-            for server in self.bot.servers:
-                for channel in server.channels:
-                    if not found:
-                        try:
-                            message = \
-                                await self.bot.get_message(channel,
-                                                           str(message_id))
-                            if message:
-                                found = True
-                        except Exception as error:
-                            log.debug("{}".format(error))
+            for channel in server.channels:
+                if not found:
+                    try:
+                        message = \
+                            await self.bot.get_message(channel,
+                                                       str(message_id))
+                        if message:
+                            found = True
+                    except Exception as error:
+                        log.debug("{}".format(error))
             if found:
                 await self.sendifallowed(ctx.message.author,
                                          ctx.message.channel, message)
