@@ -16,7 +16,7 @@ class CrossQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.4"
+    __version__ = "1.0"
 
     def __init__(self, bot):
 
@@ -101,6 +101,8 @@ class CrossQuote:
         """
         found = False
         server = ctx.message.channel.server
+        if server.id not in self.settings:
+            await self.init_settings(server)
         for channel in server.channels:
             if not found:
                 try:
@@ -127,6 +129,8 @@ class CrossQuote:
         """
         found = False
         for server in self.bot.servers:
+            if server.id not in self.settings:
+                await self.init_settings(server)
             for channel in server.channels:
                 if not found:
                     try:
