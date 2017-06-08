@@ -1,5 +1,4 @@
 import os
-import sys  # noqa: F401
 from datetime import date, datetime, timedelta  # noqa: F401
 import asyncio
 import discord

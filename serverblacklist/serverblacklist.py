@@ -1,5 +1,4 @@
 import os
-import sys  # noqa: F401
 import asyncio
 import discord
 import logging
