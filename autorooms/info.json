@@ -3,5 +3,5 @@
     "INSTALL_MSG" : "Enjoy",
     "NAME" : "autorooms",
     "SHORT" : "makes rooms",
-    "DESCRIPTION" : "Currently only works on channels with no permission overides. To be fixed."
+    "DESCRIPTION" : "makes rooms with same permissions as the one spawned from"
 }
