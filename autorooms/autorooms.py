@@ -1,5 +1,6 @@
 import os
 import sys  # noqa: F401
+from datetime import date, datetime, timedelta  # noqa: F401
 import asyncio
 import discord
 from discord.ext import commands
@@ -66,7 +67,6 @@ class AutoRooms:
             self.save_json()
             await self.bot.say('channel set')
 
-
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="delclone", pass_context=True, no_pm=True)
     async def killclone(self, ctx, chan):
@@ -78,7 +78,6 @@ class AutoRooms:
             self.settings[server.id]['channels'].remove(chan)
             self.save_json()
             await self.bot.say('channel removed')
-
 
     def save_json(self):
         dataIO.save_json("data/autorooms/settings.json", self.settings)
@@ -102,7 +101,7 @@ class AutoRooms:
                         await self.bot.edit_channel_permissions(channel,
                                                                 overwrite)
                     await self.bot.move_member(memb_after, channel)
-                    self.settings[server.id]['clones'].append(channel.id)
+                    clones.append(channel.id)
                 self.save_json()
 
         if memb_after.voice.voice_channel is not None:
@@ -117,34 +116,8 @@ class AutoRooms:
             if len(channel.voice_members) == 0:
                 await self.bot.delete_channel(channel)
                 cache.remove(channel.id)
-                channels.remove(channel.id)
+                clones.remove(channel.id)
                 self.save_json()
-
-        for channel_id in cache:
-            channel = server.get_channel(channel_id)
-            if channel is not None:
-                if len(server.get_channel(channel_id).voice_members) == 0:
-                    await self.bot.delete_channel(channel)
-                    channels.remove(channel.id)
-                    self.save_json()
-                    await asyncio.sleep(1)
-
-        self.settingscleanup(server)
-
-    def autocleanup(self, server):
-        """cleanup of settings"""
-        if server.id in self.settings:
-            channels = self.settings[server.id]['channels']
-            cache = self.settings[server.id]['cache']
-            for channel_id in channels:
-                channel = server.get_channel(channel_id)
-                if channel is None:
-                    channels.remove(channel_id)
-                    self.save_json()
-            for channel_id in cache:
-                if channel_id not in channels:
-                    cache.remove(channel_id)
-                    self.save_json()
 
 
 def check_folder():
