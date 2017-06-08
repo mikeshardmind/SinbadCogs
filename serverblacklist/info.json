@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "mikeshardmind",
     "INSTALL_MSG" : "Thanks for installing. Hopefully you find this helpful. use ```[p]help serverblacklist``` for more info",
-    "NAME" : "serverblacklist",
+    "NAME" : "ServerBlacklist",
     "SHORT" : "cog for blacklisting servers",
     "DESCRIPTION" : "Lets the owner blacklist servers by ID"
 }

@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "mikeshardmind",
     "INSTALL_MSG" : "Enjoy",
-    "NAME" : "autorooms",
+    "NAME" : "AutoRooms",
     "SHORT" : "makes rooms",
     "DESCRIPTION" : "makes rooms with same permissions as the one spawned from"
 }

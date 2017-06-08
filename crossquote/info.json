@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "mikeshardmind",
     "INSTALL_MSG" : "hope you find this useful",
-    "NAME" : "crossquote",
+    "NAME" : "CrossQuote",
     "SHORT" : "allows for cross channel/server quotes by message ID",
     "DESCRIPTION" : "will allow for cross server quoting by just the message ID."
 }
