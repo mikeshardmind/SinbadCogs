@@ -57,7 +57,7 @@ class AutoRooms:
 
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="makeclone", pass_context=True, no_pm=True)
-    async def settrigger(self, ctx, chan):
+    async def setclone(self, ctx, chan):
         """makes a channel for cloning"""
         server = ctx.message.server
         if server.id not in self.settings:
@@ -66,6 +66,18 @@ class AutoRooms:
             self.settings[server.id]['channels'].append(chan)
             self.save_json()
             await self.bot.say('channel set')
+
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="delclone", pass_context=True, no_pm=True)
+    async def killclone(self, ctx, chan):
+        """removess a channel for cloning"""
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.initial_config(server.id)
+        if chan is not None:
+            self.settings[server.id]['channels'].remove(chan)
+            self.save_json()
+            await self.bot.say('channel removed')
 
     def save_json(self):
         dataIO.save_json("data/autorooms/settings.json", self.settings)
