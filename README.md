@@ -44,4 +44,8 @@ needing to grant "manage channels" to people for them to create short lived voic
 
 It requires that someone who can manage channels enable it for the server.
 
+# Free
+The code in this repo will always be free to use and modify, but if you like any of my code and want to buy me a cup of coffee you can use the following address
+
+BTC: 14x7qLCpBKUbKFKvMMyGoa1b7w2moiBpWt
 
