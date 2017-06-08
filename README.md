@@ -25,6 +25,10 @@ Configureable cog for maintaining a list of servers the bot will leave when invi
 
 Optionally you can set a message to send to the default server channel to explain this.
 
+# AutoRooms
+
+WIP
+
 # tempchannels
 
 Configureable cog for allowing the creation of temporary voice channels
