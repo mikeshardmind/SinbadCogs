@@ -15,7 +15,7 @@ class MultiQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0"
+    __version__ = "1.1"
 
     def __init__(self, bot):
 
@@ -147,9 +147,10 @@ class MultiQuote:
                                                    "find that message",
                                        color=discord.Color.red())
                     await self.bot.send_message(ctx.message.channel, embed=em)
+        await self.bot.delete_message(ctx.message)
 
     @commands.command(pass_context=True, name='multiquote',
-                      aliases=["mq"])
+                      aliases=["mq", "quote"])
     async def _mq(self, ctx, *args):
         """
         Multiple Quotes by message ID (same server only)
@@ -176,6 +177,7 @@ class MultiQuote:
                 em = discord.Embed(description='I\'m sorry, I couldn\'t find '
                                    'that message', color=discord.Color.red())
                 await self.bot.send_message(ctx.message.channel, embed=em)
+        await self.bot.delete_message(ctx.message)
 
     async def sendifallowed(self, who, where, message=None):
         """checks if a response should be sent
