@@ -1,6 +1,6 @@
 {
     "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "This is a testing version, do not expect this to work",
+    "INSTALL_MSG" : "This is not feature complete yet, but the core functionality works. Use at own risk.",
     "NAME" : "SuggestionBox",
     "SHORT" : "Make a suggestion box",
     "DESCRIPTION" : "collects suggestions, dumps them in configured channel(s)"

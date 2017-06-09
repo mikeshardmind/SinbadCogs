@@ -11,7 +11,7 @@ class SuggestionBox:
     """custom cog for a configureable suggestion box"""
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0-testing"
+    __version__ = "1.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -40,7 +40,7 @@ class SuggestionBox:
 
     @checks.admin_or_permissions(Manage_server=True)
     @setsuggest.command(name="output", pass_context=True, no_pm=True)
-    async def setoutput(self, ctx, channel=None):
+    async def setoutput(self, ctx, chan=None):
         """sets the output channel(s) by id"""
         server = ctx.message.server
         if server.id not in self.settings:
@@ -61,7 +61,22 @@ class SuggestionBox:
 
         await self.bot.say("I couldn\'t find a channel with that id")
 
-    @command.command(name="suggest", pass_context=True)
+    @checks.admin_or_permissions(Manage_server=True)
+    @setsuggest.command(name="toggleactive", pass_context=True, no_pm=True)
+    async def suggest_toggle(self, ctx):
+        """Toggles whether the suggestion box is enabled or not"""
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.initial_config(server.id)
+        self.settings[server.id]['inactive'] = \
+            not self.settings[server.id]['inactive']
+        self.save_json()
+        if self.settings[server.id]['inactive']:
+            await self.bot.say("Suggestions disabled.")
+        else:
+            await self.bot.say("Suggestions enabled.")
+
+    @commands.command(name="suggest", pass_context=True)
     async def makesuggestion(self, ctx):
         "make a suggestion by following the prompts"
         author = ctx.message.author
@@ -79,16 +94,16 @@ class SuggestionBox:
                                       "before making an additional one")
 
         self.bot.say("I will message you to collect your suggestion.")
-        self.settings.[server.id]['usercache'].append(author.id)
+        self.settings[server.id]['usercache'].append(author.id)
 
         dm = await self.bot.send_message(author,
                                          "Please respond to this message"
                                          "with your suggestion.\nYour "
-                                         "suggestion should be a single"
+                                         "suggestion should be a single "
                                          "message, so take your time.")
         message = await self.bot.wait_for_message(channel=dm.channel,
                                                   author=author)
-        self._snd_suggest(message, server)
+        await self.send_suggest(message, server)
 
     async def send_suggest(self, message, server):
 
@@ -100,9 +115,9 @@ class SuggestionBox:
 
         em = discord.Embed(description=suggestion,
                            color=discord.Color.purple())
-        em.set_author(name='Suggestion from {}'.format(author.mention),
+        em.set_author(name='Suggestion from {}'.format(author.name),
                       icon_url=avatar)
-        em.set_footer("Suggestion made at {}".format(timestamp))
+        em.set_footer(text='Suggestion made at {} UTC'.format(timestamp))
 
         for output in self.settings[server.id]['output']:
             where = server.get_channel(output)
@@ -110,6 +125,7 @@ class SuggestionBox:
                     await self.bot.send_message(where, embed=em)
 
         self.settings[server.id]['usercache'].remove(author.id)
+        self.save_json()
 
 
 def check_folder():
@@ -127,5 +143,5 @@ def check_file():
 def setup(bot):
     check_folder()
     check_file()
-    n = Reporter(bot)
+    n = SuggestionBox(bot)
     bot.add_cog(n)
