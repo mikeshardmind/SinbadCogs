@@ -2,7 +2,7 @@
 
 Slowly growing collection of cogs for [Red](https://github.com/Twentysix26/Red-DiscordBot)
 
-I'm Sinbad#0413 on Discord
+I'm Sinbad#0413 on Discord 
 
 
 # Announcer
@@ -27,7 +27,9 @@ Optionally you can set a message to send to the default server channel to explai
 
 # AutoRooms
 
-Configureable Cog for auto group channels
+Configureable Cog for generated channels.
+
+Set a/some voice channel(s) as a template. if anyone enters one, a channel with identical permissions to the original is created and the user is moved to it. When the generated channels are empty, they are automatically removed.
 
 # tempchannels
 
@@ -47,8 +49,3 @@ This does not respect the permissions of the person calling it, it is specifical
 needing to grant "manage channels" to people for them to create short lived voice chats.
 
 It requires that someone who can manage channels enable it for the server.
-
-# Free
-The code in this repo will always be free to use and modify, but if you like any of my code and want to buy me a cup of coffee you can use the following address
-
-BTC: 14x7qLCpBKUbKFKvMMyGoa1b7w2moiBpWt
