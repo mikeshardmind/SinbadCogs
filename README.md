@@ -15,6 +15,9 @@ Cog for quoting from any server the bot is in by just the message ID
 
 Cog respects server privacy settings, and defaults to less permissive.
 
+# Antimentionspam
+  removes messages with above a certain threshold (configureable) of mentions
+
 # Multiquote
 
 Quote multiple messages from the same server with a list of message IDs
