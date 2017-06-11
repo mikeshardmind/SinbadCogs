@@ -1,6 +1,6 @@
 {
     "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "Thanks for installing. Hopefully you find this helpful. Make sure to configure it for the servers you want it active on",
+    "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.",
     "NAME" : "TempChannels",
     "SHORT" : "Temporary Channels Cog",
     "DESCRIPTION" : "Allows for the creation of temporary channels by anyone"

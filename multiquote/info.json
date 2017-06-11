@@ -1,6 +1,6 @@
 {
     "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "I hope you find this helpful, \n ```run multiquoteset init```\n on initial install",
+    "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.",
     "NAME" : "MultiQuote",
     "SHORT" : "multiple quotes",
     "DESCRIPTION" : "grabs the things from any channel the bot can see on the same server.\nMore goodies hidden in the source for other servers\nRead before you enable said goodies"
