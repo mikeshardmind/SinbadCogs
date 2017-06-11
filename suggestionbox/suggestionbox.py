@@ -105,6 +105,8 @@ class SuggestionBox:
                                                   author=author)
         await self.send_suggest(message, server)
 
+        await self.bot.send_message(author, "Your suggestion was submitted.")
+
     async def send_suggest(self, message, server):
 
         author = message.author
