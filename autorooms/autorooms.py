@@ -11,7 +11,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-    __version__ = "1.1"
+    __version__ = "1.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -30,7 +30,8 @@ class AutoRooms:
             self.settings[server_id] = {'toggleactive': False,
                                         'channels': [],
                                         'clones': [],
-                                        'cache': []
+                                        'cache': [],
+                                        'prepend': 'Auto:'
                                         }
             self.save_json()
 
@@ -52,6 +53,26 @@ class AutoRooms:
             self.settings[server.id]['toggleactive'] = True
             self.save_json()
             await self.bot.say('Auto Rooms enabled.')
+
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="setprepend", pass_context=True, no_pm=True)
+    async def setprepend(self, ctx, *, prepend):
+        """
+        Sets the text prepended to the generated channels
+        Default is "Auto:"
+        """
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.initial_config(server.id)
+        if prepend is None:
+            return await self.bot.say("I will not create channels of the same"
+                                      "as their origin. Please specify text "
+                                      "to prepend to channel names")
+
+        self.settings[server.id]['prepend'] = str(prepend)
+        self.save_json()
+        await self.bot.say("I am now prepending `{}` to channels I "
+                           "make".format(str(prepend)))
 
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="makeclone", pass_context=True, no_pm=True)
@@ -86,8 +107,9 @@ class AutoRooms:
         if self.settings[server.id]['toggleactive']:
             if memb_after.voice.voice_channel is not None:
                 chan = memb_after.voice.voice_channel
+                prepend = self.settings[server.id]['prepend']
                 if chan.id in self.settings[server.id]['channels']:
-                    cname = "Auto: {}".format(chan.name)
+                    cname = "{}{}".format(prepend, chan.name)
                     overwrites = chan.overwrites
                     channel = await self.bot.create_channel(
                             server, cname, *overwrites,
