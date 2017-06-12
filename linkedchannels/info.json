@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.",
+    "NAME" : "LinkedChannels",
+    "SHORT" : "2-way channel link",
+    "DESCRIPTION" : "2-way discord channel link. Can be cross server"
+}
