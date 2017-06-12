@@ -15,7 +15,7 @@ class CrossQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.1"
+    __version__ = "1.2"
 
     def __init__(self, bot):
 
@@ -92,7 +92,8 @@ class CrossQuote:
                                               }
                     self.save_json()
 
-    @commands.command(pass_context=True, name='crosschanquote', aliases=["cq"])
+    @commands.command(pass_context=True, name='crosschanquote',
+                      aliases=["ccq"])
     async def _ccq(self, ctx, message_id: int):
         """
         Quote someone with the message id.
@@ -120,7 +121,8 @@ class CrossQuote:
             await self.bot.send_message(ctx.message.channel, embed=em)
         await self.bot.delete_message(ctx.message)
 
-    @commands.command(pass_context=True, name='crossservquote', aliases=["sq"])
+    @commands.command(pass_context=True, name='crossservquote',
+                      aliases=["csq"])
     async def _csq(self, ctx, message_id: int):
         """
         Quote someone with the message id.
