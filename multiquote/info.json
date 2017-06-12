@@ -1,6 +1,6 @@
 {
     "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.",
+    "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.\n Warning: The multiquote can be very slow to respond, give it time, it will give you an error if it isn't doing anything.",
     "NAME" : "MultiQuote",
     "SHORT" : "multiple quotes",
     "DESCRIPTION" : "grabs the things from any channel the bot can see on the same server.\nMore goodies hidden in the source for other servers\nRead before you enable said goodies"
