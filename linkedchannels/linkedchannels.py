@@ -82,8 +82,10 @@ class LinkedChannels:
                 self.channel2 = c
                 checked += 1
         if checked == 2:
-            self.active = True
-            return True
+            if self.settings['active']:
+                self.active = True
+            return True  # validation even if inactive
+        self.active = False
         return False
 
     async def on_message(self, message):
