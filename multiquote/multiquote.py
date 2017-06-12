@@ -15,7 +15,7 @@ class MultiQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.1"
+    __version__ = "1.2"
 
     def __init__(self, bot):
 
@@ -149,8 +149,7 @@ class MultiQuote:
                     await self.bot.send_message(ctx.message.channel, embed=em)
         await self.bot.delete_message(ctx.message)
 
-    @commands.command(pass_context=True, name='multiquote',
-                      aliases=["mq", "quote"])
+    @commands.command(pass_context=True, name='multiquote', aliases=["mq"])
     async def _mq(self, ctx, *args):
         """
         Multiple Quotes by message ID (same server only)
