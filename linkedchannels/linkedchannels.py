@@ -118,7 +118,8 @@ class LinkedChannels:
             footer = 'Said in {} #{} at {}'.format(sname, cname, timestamp)
             em = discord.Embed(description=content,
                                color=discord.Color.purple())
-            em.set_author(name='{} ({})'.format(author.name, author.id), icon_url=avatar)
+            em.set_author(name='{} ({})'.format(author.name, author.id),
+                          icon_url=avatar)
             em.set_footer(text=footer)
             await self.bot.send_message(where, embed=em)
 
