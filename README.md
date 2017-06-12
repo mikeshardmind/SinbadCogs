@@ -60,3 +60,7 @@ Configureable suggestionbox
 # ReportTool
 
 Configureable reporting tool
+
+# LinkedChannels
+
+links 2 channels by channel ID
