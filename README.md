@@ -34,7 +34,7 @@ Configureable Cog for generated channels.
 
 Set a/some voice channel(s) as a template. if anyone enters one, a channel with identical permissions to the original is created and the user is moved to it. When the generated channels are empty, they are automatically removed.
 
-# tempchannels
+# TempChannels
 
 Configureable cog for allowing the creation of temporary voice channels
 
@@ -52,3 +52,11 @@ This does not respect the permissions of the person calling it, it is specifical
 needing to grant "manage channels" to people for them to create short lived voice chats.
 
 It requires that someone who can manage channels enable it for the server.
+
+# SuggestionBox
+
+Configureable suggestionbox
+
+# ReportTool
+
+Configureable reporting tool
