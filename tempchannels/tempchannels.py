@@ -142,6 +142,8 @@ class TempChannels:
     async def autoempty(self, memb_before, memb_after):
         """This cog is Self Cleaning"""
         server = memb_after.server
+        if server.id not in self.settings:
+            self.initial_config(server.id)
         channels = self.settings[server.id]['channels']
         cache = self.settings[server.id]['cache']
 
@@ -152,13 +154,25 @@ class TempChannels:
                     cache.append(channel.id)
                     self.save_json()
 
-        channel = memb_before.voice.voice_channel
-        if channel.id in cache:
-            if len(channel.voice_members) == 0:
-                await self.bot.delete_channel(channel)
-                cache.remove(channel.id)
-                channels.remove(channel.id)
-                self.save_json()
+        if memb_before.server == memb_after.server:
+            channel = memb_before.voice.voice_channel
+            if channel is not None:
+                if channel.id in cache:
+                    if len(channel.voice_members) == 0:
+                        await self.bot.delete_channel(channel)
+                        cache.remove(channel.id)
+                        channels.remove(channel.id)
+                        self.save_json()
+        else:
+            channel = memb_before.voice.voice_channel
+            if channel is not None:
+                b4cache = self.settings[memb_before.server.id]['cache']
+                if channel.id in b4cache:
+                    if len(channel.voice_members) == 0:
+                        await self.bot.delete_channel(channel)
+                        cache.remove(channel.id)
+                        channels.remove(channel.id)
+                        self.save_json()
 
         for channel_id in channels:
             channel = server.get_channel(channel_id)
