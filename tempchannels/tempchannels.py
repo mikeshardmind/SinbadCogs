@@ -142,6 +142,8 @@ class TempChannels:
     async def autoempty(self, memb_before, memb_after):
         """This cog is Self Cleaning"""
         server = memb_after.server
+        if server.id not in self.settings:
+            self.initial_config(server.id)
         channels = self.settings[server.id]['channels']
         cache = self.settings[server.id]['cache']
 
