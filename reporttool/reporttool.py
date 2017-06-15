@@ -117,13 +117,12 @@ class ReportTool:
                                                   author=author, timeout=120)
 
         if message is None:
-            return await self.bot.send_message(author,
-                                               "I can't wait forever, "
-                                               "try again when ready")
+            await self.bot.send_message(author, "I can't wait forever, "
+                                                "try again when ready")
             self.settings[server.id]['usercache'].remove(author.id)
             self.save_json()
         else:
-            await self.send_suggest(message, server)
+            await self.send_report(message, server)
 
             await self.bot.send_message(author, "Your report was submitted.")
 
