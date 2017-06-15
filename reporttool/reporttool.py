@@ -12,7 +12,7 @@ class ReportTool:
 #   this is basically just a quick mod of my suggestionbox cog
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0"
+    __version__ = "1.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -38,6 +38,14 @@ class ReportTool:
                                         'multiout': False
                                         }
             self.save_json()
+
+    @checks.admin_or_permissions(Manage_server=True)
+    @setreport.command(name="fixcache", pass_context=True, no_pm=True)
+    async def fix_cache(self, ctx):
+        """use this if the bot gets stuck not recording your response"""
+        self.initial_config(ctx.message.server.id)
+        self.settings[server.id]['usercache'] = []
+        self.save_json()
 
     @checks.admin_or_permissions(Manage_server=True)
     @setreport.command(name="output", pass_context=True, no_pm=True)
