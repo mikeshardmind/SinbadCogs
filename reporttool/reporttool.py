@@ -12,11 +12,13 @@ class ReportTool:
 #   this is basically just a quick mod of my suggestionbox cog
 
     __author__ = "mikeshardmind"
-    __version__ = "1.1"
+    __version__ = "1.2"
 
     def __init__(self, bot):
         self.bot = bot
         self.settings = dataIO.load_json('data/reporttool/settings.json')
+        for s in self.settings:
+            self.settings[s]['usercache'] = []
 
     def save_json(self):
         dataIO.save_json("data/reporttool/settings.json", self.settings)
@@ -109,15 +111,21 @@ class ReportTool:
                                          "Please respond to this message"
                                          "with your Report.\nYour "
                                          "Report should be a single "
-                                         "message, so take your time.\n"
-                                         "Please Include as much detail "
-                                         "as possible.")
+                                         "message")
 
         message = await self.bot.wait_for_message(channel=dm.channel,
-                                                  author=author)
-        await self.send_report(message, server)
+                                                  author=author, timeout=120)
 
-        await self.bot.send_message(author, "Your report has been submitted.")
+        if message is None:
+            return await self.bot.send_message(author,
+                                               "I can't wait forever, "
+                                               "try again when ready")
+            self.settings[server.id]['usercache'].remove(author.id)
+            self.save_json()
+        else:
+            await self.send_suggest(message, server)
+
+            await self.bot.send_message(author, "Your report was submitted.")
 
     async def send_report(self, message, server):
 
