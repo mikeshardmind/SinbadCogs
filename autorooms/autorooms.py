@@ -1,4 +1,6 @@
 import os
+import sys  # noqa: F401
+from datetime import date, datetime, timedelta  # noqa: F401
 import asyncio
 import discord
 from discord.ext import commands
@@ -11,7 +13,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-    __version__ = "1.2"
+    __version__ = "0.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -30,8 +32,7 @@ class AutoRooms:
             self.settings[server_id] = {'toggleactive': False,
                                         'channels': [],
                                         'clones': [],
-                                        'cache': [],
-                                        'prepend': 'Auto:'
+                                        'cache': []
                                         }
             self.save_json()
 
@@ -55,28 +56,8 @@ class AutoRooms:
             await self.bot.say('Auto Rooms enabled.')
 
     @checks.admin_or_permissions(Manage_channels=True)
-    @autoroomset.command(name="setprepend", pass_context=True, no_pm=True)
-    async def setprepend(self, ctx, *, prepend):
-        """
-        Sets the text prepended to the generated channels
-        Default is "Auto:"
-        """
-        server = ctx.message.server
-        if server.id not in self.settings:
-            self.initial_config(server.id)
-        if prepend is None:
-            return await self.bot.say("I will not create channels of the same"
-                                      "as their origin. Please specify text "
-                                      "to prepend to channel names")
-
-        self.settings[server.id]['prepend'] = str(prepend)
-        self.save_json()
-        await self.bot.say("I am now prepending `{}` to channels I "
-                           "make".format(str(prepend)))
-
-    @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="makeclone", pass_context=True, no_pm=True)
-    async def setclone(self, ctx, chan):
+    async def settrigger(self, ctx, chan):
         """makes a channel for cloning"""
         server = ctx.message.server
         if server.id not in self.settings:
@@ -86,52 +67,71 @@ class AutoRooms:
             self.save_json()
             await self.bot.say('channel set')
 
-    @checks.admin_or_permissions(Manage_channels=True)
-    @autoroomset.command(name="delclone", pass_context=True, no_pm=True)
-    async def killclone(self, ctx, chan):
-        """removess a channel for cloning"""
-        server = ctx.message.server
-        if server.id not in self.settings:
-            self.initial_config(server.id)
-        if chan is not None:
-            self.settings[server.id]['channels'].remove(chan)
-            self.save_json()
-            await self.bot.say('channel removed')
-
     def save_json(self):
         dataIO.save_json("data/autorooms/settings.json", self.settings)
 
     async def autorooms(self, memb_before, memb_after):
         """This cog is Self Cleaning"""
         server = memb_before.server
+        channels = self.settings[server.id]['channels']
+        cache = self.settings[server.id]['cache']
+        clones = self.settings[server.id]['clones']
+
         if self.settings[server.id]['toggleactive']:
             if memb_after.voice.voice_channel is not None:
                 chan = memb_after.voice.voice_channel
-                prepend = self.settings[server.id]['prepend']
-                if chan.id in self.settings[server.id]['channels']:
-                    cname = "{}{}".format(prepend, chan.name)
+                if chan.id in channels:
                     overwrites = chan.overwrites
+                    cname = "Auto: {}".format(chan.name)
                     channel = await self.bot.create_channel(
-                            server, cname, *overwrites,
-                            type=discord.ChannelType.voice)
+                            server, cname, type=discord.ChannelType.voice)
+                    for overwrite in overwrites:
+                        await self.bot.edit_channel_permissions(channel,
+                                                                overwrite)
                     await self.bot.move_member(memb_after, channel)
                     self.settings[server.id]['clones'].append(channel.id)
                 self.save_json()
 
         if memb_after.voice.voice_channel is not None:
             channel = memb_after.voice.voice_channel
-            if channel.id in self.settings[server.id]['clones']:
-                if channel.id not in self.settings[server.id]['cache']:
-                    self.settings[server.id]['cache'].append(channel.id)
+            if channel.id in clones:
+                if channel.id not in cache:
+                    cache.append(channel.id)
                     self.save_json()
 
         channel = memb_before.voice.voice_channel
-        if channel.id in self.settings[server.id]['cache']:
+        if channel.id in cache:
             if len(channel.voice_members) == 0:
                 await self.bot.delete_channel(channel)
-                self.settings[server.id]['cache'].remove(channel.id)
-                self.settings[server.id]['clones'].remove(channel.id)
+                cache.remove(channel.id)
+                channels.remove(channel.id)
                 self.save_json()
+
+        for channel_id in cache:
+            channel = server.get_channel(channel_id)
+            if channel is not None:
+                if len(server.get_channel(channel_id).voice_members) == 0:
+                    await self.bot.delete_channel(channel)
+                    channels.remove(channel.id)
+                    self.save_json()
+                    await asyncio.sleep(1)
+
+        self.settingscleanup(server)
+
+    def autocleanup(self, server):
+        """cleanup of settings"""
+        if server.id in self.settings:
+            channels = self.settings[server.id]['channels']
+            cache = self.settings[server.id]['cache']
+            for channel_id in channels:
+                channel = server.get_channel(channel_id)
+                if channel is None:
+                    channels.remove(channel_id)
+                    self.save_json()
+            for channel_id in cache:
+                if channel_id not in channels:
+                    cache.remove(channel_id)
+                    self.save_json()
 
 
 def check_folder():
