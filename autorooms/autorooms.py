@@ -13,7 +13,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-    __version__ = "0.1"
+    __version__ = "1.5"
 
     def __init__(self, bot):
         self.bot = bot
@@ -103,33 +103,20 @@ class AutoRooms:
         if channel.id in cache:
             if len(channel.voice_members) == 0:
                 await self.bot.delete_channel(channel)
-                cache.remove(channel.id)
-                channels.remove(channel.id)
-                self.save_json()
+                self.settingscleanup(server)
 
-        for channel_id in cache:
-            channel = server.get_channel(channel_id)
-            if channel is not None:
-                if len(server.get_channel(channel_id).voice_members) == 0:
-                    await self.bot.delete_channel(channel)
-                    channels.remove(channel.id)
-                    self.save_json()
-                    await asyncio.sleep(1)
-
-        self.settingscleanup(server)
-
-    def autocleanup(self, server):
+    def settingscleanup(self, server):
         """cleanup of settings"""
         if server.id in self.settings:
-            channels = self.settings[server.id]['channels']
+            clones = self.settings[server.id]['clones']
             cache = self.settings[server.id]['cache']
-            for channel_id in channels:
+            for channel_id in clones:
                 channel = server.get_channel(channel_id)
                 if channel is None:
-                    channels.remove(channel_id)
+                    clones.remove(channel_id)
                     self.save_json()
             for channel_id in cache:
-                if channel_id not in channels:
+                if channel_id not in clones:
                     cache.remove(channel_id)
                     self.save_json()
 
