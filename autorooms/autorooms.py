@@ -13,7 +13,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-    __version__ = "1.5"
+    __version__ = "1.6"
 
     def __init__(self, bot):
         self.bot = bot
@@ -77,20 +77,21 @@ class AutoRooms:
         cache = self.settings[server.id]['cache']
         clones = self.settings[server.id]['clones']
 
-        if self.settings[server.id]['toggleactive']:
-            if memb_after.voice.voice_channel is not None:
-                chan = memb_after.voice.voice_channel
-                if chan.id in channels:
-                    overwrites = chan.overwrites
-                    cname = "Auto: {}".format(chan.name)
-                    channel = await self.bot.create_channel(
-                            server, cname, type=discord.ChannelType.voice)
-                    for overwrite in overwrites:
-                        await self.bot.edit_channel_permissions(channel,
-                                                                overwrite)
-                    await self.bot.move_member(memb_after, channel)
-                    self.settings[server.id]['clones'].append(channel.id)
-                self.save_json()
+        if server.id in self.settings:
+            if self.settings[server.id]['toggleactive']:
+                if memb_after.voice.voice_channel is not None:
+                    chan = memb_after.voice.voice_channel
+                    if chan.id in channels:
+                        overwrites = chan.overwrites
+                        cname = "Auto: {}".format(chan.name)
+                        channel = await self.bot.create_channel(
+                                server, cname, type=discord.ChannelType.voice)
+                        for overwrite in overwrites:
+                            await self.bot.edit_channel_permissions(channel,
+                                                                    overwrite)
+                            await self.bot.move_member(memb_after, channel)
+                        self.settings[server.id]['clones'].append(channel.id)
+                        self.save_json()
 
         if memb_after.voice.voice_channel is not None:
             channel = memb_after.voice.voice_channel
