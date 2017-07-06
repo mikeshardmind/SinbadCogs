@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.\n Warning: The crossquote can be very slow to respond especially when used cross server, give it time, it will give you an error if it isn't doing anything.",
+    "NAME" : "EmbedMaker",
+    "SHORT" : "Makes an embed object",
+    "DESCRIPTION" : "You can use this to make embeds in channels (Which gives access to markdown syntax for links)"
+}
