@@ -93,7 +93,7 @@ class CrossQuote:
                     self.save_json()
 
     @commands.command(pass_context=True, name='crosschanquote',
-                      aliases=["ccq"])
+                      aliases=["ccq", "quote"])
     async def _ccq(self, ctx, message_id: int):
         """
         Quote someone with the message id.
