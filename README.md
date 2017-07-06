@@ -64,3 +64,7 @@ Configureable reporting tool
 # LinkedChannels
 
 links 2 channels by channel ID
+
+# EmbedMaker
+
+Tool for making embed objects, storing them, and recalling them
