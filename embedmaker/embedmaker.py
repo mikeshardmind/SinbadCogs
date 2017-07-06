@@ -27,37 +27,23 @@ class EmbedMaker:
         dataIO.save_json("data/embedmaker/settings.json", self.settings)
 
     def save_embeds(self):
-        dataIO.save_json("data/embedmaker/settings.json", self.embeds)
+        dataIO.save_json("data/embedmaker/embeds.json", self.embeds)
 
-    async def init_settings(self, server=None):
+    async def initial_config(self, server=None):
         """adds default settings for all servers the bot is in
         when needed and on join"""
 
         if server:
-            if server_id not in self.settings:
-                self.settings[server_id] = {'inactive': True,
+            if server.id not in self.settings:
+                self.settings[server.id] = {'inactive': True,
                                             'usercache': [],
                                             'roles': []
                                             }
                 self.save_settings()
 
-            if server_id not in self.embeds:
-                self.embeds[server_id] = {'embeds': []}
+            if server.id not in self.embeds:
+                self.embeds[server.id] = {'embeds': []}
                 self.save_embeds()
-
-        else:
-            serv_ids = map(lambda s: s.id, self.bot.servers)
-            for serv_id in serv_ids:
-                if server_id not in self.settings:
-                    self.settings[server_id] = {'inactive': True,
-                                                'usercache': [],
-                                                'roles': []
-                                                }
-                    self.save_settings()
-
-                if server_id not in self.embeds:
-                    self.embeds[server_id] = {'embeds': []}
-                    self.save_embeds()
 
         if 'global' not in self.embeds:
             self.embeds['global'] = {'embeds': []}
@@ -104,10 +90,10 @@ class EmbedMaker:
         """Toggles whether embeds are enabled or not"""
         server = ctx.message.server
         if server.id not in self.settings:
-            self.initial_config(server.id)
+            await self.initial_config(server)
         self.settings[server.id]['inactive'] = \
             not self.settings[server.id]['inactive']
-        self.save_json()
+        self.save_settings()
         if self.settings[server.id]['inactive']:
             await self.bot.say("Embeds disabled.")
         else:
@@ -120,9 +106,9 @@ class EmbedMaker:
         if "global" not in self.settings:
             self.initial_config()
         self.settings['global']['inactive'] = \
-            not self.settings[server.id]['inactive']
+            not self.settings['global']['inactive']
         self.save_settings()
-        if self.settings[server.id]['inactive']:
+        if self.settings['global']['inactive']:
             await self.bot.say("Global Embeds disabled.")
         else:
             await self.bot.say("Global Embeds enabled.")
@@ -140,14 +126,13 @@ class EmbedMaker:
         await self.bot.say("If an embed of that name existed, it is gone now.")
 
     @checks.is_owner()
-    @embed.command(name="removeglobal")
-    async def remove_g_embed(self, ctx, name: str):
+    @embed.command(name="removeglobal", pass_context=True)
+    async def remove_g_embed(self, name: str):
         """removes a global embed"""
-        server = ctx.message.server
         name = name.lower()
         embeds = self.embeds["global"]["embeds"]
         embeds[:] = [e for e in embeds if e.get('name') != name]
-        self.embeds[server.id]["embeds"] = embeds
+        self.embeds['global']["embeds"] = embeds
         self.save_embeds()
         await self.bot.say("If an embed of that name existed, it is gone now.")
 
@@ -158,16 +143,18 @@ class EmbedMaker:
         author = ctx.message.author
         server = ctx.message.server
 
+        if server.id not in self.embeds:
+            await self.initial_config(server)
         if server.id not in self.settings:
-            return await self.bot.say("Embed creation has not been "
-                                      "configured for this server.")
+            await self.initial_config(server)
         if self.settings[server.id]['inactive']:
             return await self.bot.say("Embed creation is not currently "
                                       "enabled on this server.")
 
         name = name.lower()
-        if name in self.embeds[server.id]["embeds"]:
-            return await self.bot.say("An embed by that name exists ")
+        for e in self.embeds[server.id]['embeds']:
+            if e.get('name') == name:
+                return await self.bot.say("An embed by that name exists ")
 
         if author.id in self.settings[server.id]['usercache']:
             return await self.bot.say("Finish making your prior embed "
@@ -177,16 +164,18 @@ class EmbedMaker:
         await self.contact_for_embed(name, author, server)
 
     @checks.is_owner()
-    @embed.command(name="makeglobal")
+    @embed.command(name="makeglobal", pass_context=True)
     async def make_g_embed(self, ctx, name: str):
         """Interactive prompt for making a global embed"""
         author = ctx.message.author
 
+        if "global" not in self.embeds:
+            await self.initial_config()
         if "global" not in self.settings:
-            self.init_settings()
+            await self.initial_config()
 
         name = name.lower()
-        if name in self.embeds["global"]["embeds"]:
+        if name in self.embeds['global']['embeds']:
             return await self.bot.say("An embed by that name exists ")
 
         if author.id in self.settings["global"]['usercache']:
@@ -219,7 +208,7 @@ class EmbedMaker:
     @checks.admin_or_permissions(Manage_messages=True)
     @embed.command(name="dm", pass_context=True, no_pm=True)
     async def fetch_dm(self, ctx, name: str, user_id: str):
-        """fetches an embed"""
+        """fetches an embed, and DMs it to a user"""
         server = ctx.message.server
 
         em = await self.get_embed(name.lower(), server.id)
@@ -232,7 +221,7 @@ class EmbedMaker:
     @checks.admin_or_permissions(Manage_messages=True)
     @embed.command(name="dmglobal", pass_context=True, no_pm=True)
     async def fetch_global_dm(self, ctx, name: str, user_id: str):
-        """fetches a global embed"""
+        """fetches a global embed, and DMs it to a user"""
         server = ctx.message.server
 
         em = await self.get_embed(name.lower())
@@ -301,25 +290,30 @@ class EmbedMaker:
         em.set_footer(text=footer)
         return em
 
-    async def save_embed(self, name, title, message, server):
+    async def save_embed(self, name, title, message, server=None):
 
         author = message.author
         content = message.clean_content
+        if title is not None:
+            title = title.clean_content
         timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
+        footer = "created at {} UTC".format(timestamp)
         name = name.lower()
 
         embed = {'name': name,
                  'title': title,
                  'content': content,
-                 'footer': timestamp
+                 'footer': footer
                  }
 
         if server is not None:
             self.embeds[server.id]['embeds'].append(embed)
+            self.settings[server.id]['usercache'].remove(author.id)
         else:
             self.embeds['global']['embeds'].append(embed)
+            self.settings['global']['usercache'].remove(author.id)
         self.save_embeds()
-        self.settings[server.id]['usercache'].remove(author.id)
+
         self.save_settings()
 
 
@@ -342,5 +336,4 @@ def setup(bot):
     check_folder()
     check_file()
     n = EmbedMaker(bot)
-    bot.add_listener(n.init_settings, "on_server_join")
     bot.add_cog(n)
