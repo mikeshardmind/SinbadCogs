@@ -1,6 +1,6 @@
 {
     "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.\n Warning: The crossquote can be very slow to respond especially when used cross server, give it time, it will give you an error if it isn't doing anything.",
+    "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.\n Warning: users with link previews disabled cannot see these embeds",
     "NAME" : "EmbedMaker",
     "SHORT" : "Make, store, and recall embeds",
     "DESCRIPTION" : "You can use this to make embeds in channels (Which gives access to markdown syntax for links)"
