@@ -15,7 +15,7 @@ class EmbedMaker:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0"
+    __version__ = "1.1"
 
     def __init__(self, bot):
 
@@ -127,7 +127,7 @@ class EmbedMaker:
 
     @checks.is_owner()
     @embed.command(name="removeglobal", pass_context=True)
-    async def remove_g_embed(self, name: str):
+    async def remove_g_embed(self, ctx, name: str):
         """removes a global embed"""
         name = name.lower()
         embeds = self.embeds["global"]["embeds"]
@@ -218,7 +218,7 @@ class EmbedMaker:
         if who is not None:
             await self.bot.send_message(who, embed=em)
 
-    @checks.admin_or_permissions(Manage_messages=True)
+    @checks.is_owner()
     @embed.command(name="dmglobal", pass_context=True, no_pm=True)
     async def fetch_global_dm(self, ctx, name: str, user_id: str):
         """fetches a global embed, and DMs it to a user"""
