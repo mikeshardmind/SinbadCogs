@@ -74,7 +74,7 @@ class LinkedChannels:
         links = list(self.settings.keys())
         await self.bot.say("Active link names:\n {}".format(links))
 
-    async def validate(self, name=None):
+    async def validate(self):
         channels = self.bot.get_all_channels()
         channels = [c for c in channels if c.type == discord.ChannelType.text]
 
