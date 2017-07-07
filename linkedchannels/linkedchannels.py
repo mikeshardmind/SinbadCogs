@@ -1,26 +1,26 @@
 import os
 import asyncio  # noqa: F401
 import discord
-import logging
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 
 
 class LinkedChannels:
-    """links 2 or more channels across discords that the bot can see.
+    """links 2 channels across discord serversthat the bot can see.
     heavily influenced by Twentysix26's Rift
     https://github.com/Twentysix26/26-Cogs/blob/master/rift/rift.py
-    This version is persistent until closed and shows
-    who said what on both sides"""
+    This version is persistent across restarts and shows
+    who said what on both sides.\n supports multiple active links"""
 
     __author__ = "mikeshardmind"
-    __version__ = "1.1"
+    __version__ = "2.0"
 
     def __init__(self, bot):
         self.bot = bot
         self.settings = dataIO.load_json('data/linkedchannels/settings.json')
-        self.links = []
+        self.links = {}
+        self.activechans = []
         self.initialized = False
 
     def save_json(self):
@@ -28,21 +28,26 @@ class LinkedChannels:
 
     @checks.is_owner()
     @commands.command(name="makelink", pass_context=True)
-    async def makelink(self, ctx, name: str, *chan_ids):
-        """links two or more channels by id and names the link"""
+    async def makelink(self, ctx, name: str, chan1: str, chan2: str):
+        """links two channels by id and names the link"""
+        name = name.lower()
         if name in self.settings:
             return await self.bot.say("there is an existing link of that name")
-        chans = []
-        for chan in chan_ids:
-            if chan not in chans:
-                chans.append(chan)
-        if len(chans) > 1:
-            self.settings['name'] = {'chans' = chans
-                                     'active': False
-                                     }
 
+        channels = self.bot.get_all_channels()
+        channels = [c for c in channels if c.type == discord.ChannelType.text]
+        channels = [c.id for c in channels if c.id == chan1 or c.id == chan2]
+
+        if bool(set(channels) & set(self.activechans)):
+            return await self.bot.say("One or more of these channels is "
+                                      "already linked elsewhere")
+
+        if len(channels) == 2:
+            self.settings[name] = {'chans': channels}
             self.save_json()
-            await self.bot.say("Link formed; be sure to activate it")
+            await self.validate()
+            if name in self.links:
+                await self.bot.say("Link formed.")
         else:
             await self.bot.say("I did not get two or more unique channel IDs")
 
@@ -50,53 +55,34 @@ class LinkedChannels:
     @commands.command(name="unlink", pass_context=True)
     async def unlink(self, ctx, name: str):
         """unlinks two channels by link name"""
-
+        name = name.lower()
         if name in self.links:
-            self.links = [l for l in self.links if l['name'] != name]
-        self.settings = [l for l in self.settings if l['name'] != name]
-        self.save_json()
-        await self.bot.say("If there was a link by that name, it has been "
-                           "removed.")
+            chans = self.links[name]
+            self.links.pop(name, None)
+            self.settings.pop(name, None)
+            self.activechans = [c for c in self.activechans if c not in chans]
+            self.save_json()
+            await self.bot.say("Link removed")
+        else:
+            await self.bot.say("No such link")
 
     @checks.is_owner()
     @commands.command(name="listlinks", pass_context=True)
     async def list_links(self, ctx):
         """lists the channel links by name"""
 
-        names = [link['name'] for link in self.settings]
-        self.bot.say("{}".format(names))
-
-    @checks.is_owner()
-    @commands.command(name="togglelink", pass_context=True)
-    async def togglelink(self, ctx, name: str):
-        """toggles the link status"""
-        if name not in self.settings:
-            return await self.bot.say("No link by that name")
-        self.settings[name]['active'] = not self.settings[name'active]
-        self.validate()
-        if self.links[name]['active']:
-            await self.bot.say("Link activated")
-        else:
-            await self.bot.say("Link deactivated")
+        links = list(self.settings.keys())
+        await self.bot.say("Active link names:\n {}".format(links))
 
     async def validate(self, name=None):
         channels = self.bot.get_all_channels()
         channels = [c for c in channels if c.type == discord.ChannelType.text]
 
-        for l in self.settings:
-            link = {'name': self.settings[l]['name'],
-                    'chans': [],
-                    'active': self.settings[l]['active']
-                    }
-            for channel in channels:
-                if self.settings[name]['A'] == channel.id:
-                    link['chans'].append(channel)
-                if self.settings[name]['B'] == channel.id:
-                    link['chans'].append(channel)
-
-            if len(link[chans]) >= 2:
-                if self.settings[name]['active']:
-                    self.links.append(link)
+        for name in self.settings:
+            chan_ids = list(*self.settings[name].values())
+            chans = [c for c in channels if c.id in chan_ids]
+            self.links[name] = chans
+            self.activechans += chan_ids
 
     async def on_message(self, message):
         """Do stuff based on settings"""
@@ -110,12 +96,11 @@ class LinkedChannels:
         channel = message.channel
         destination = None
         for link in self.links:
-            if channel in link['chans']:
-                destinations = [c for c in link['chans'] if c != channel]
+            if channel in self.links[link]:
+                destination = [c for c in self.links[link] if c != channel][0]
 
-        if destinations is not None:
-            for d in destinations:
-                await self.sender(d, message)
+        if destination is not None:
+            await self.sender(destination, message)
 
     async def sender(self, where, message=None):
         """sends the thing"""
