@@ -128,7 +128,8 @@ class MultiQuote:
         await self.sendifallowed(auth, chan, a)
         channel = a.channel
         async for m in \
-                self.bot.logs_from(channel, limit=1000000, after=a, before=b):
+                self.bot.logs_from(channel, limit=1000000,
+                                   after=a, before=b, reverse=True):
             await self.sendifallowed(auth, chan, m)
         await self.sendifallowed(auth, chan, b)
 
