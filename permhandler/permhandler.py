@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from .utils import checks
+from cogs.utils.chat_formatting import box, pagify
 
 
 class PermHandler:
@@ -67,7 +68,8 @@ class PermHandler:
         output = ""
         for r in role_list:
             output += "\n{} : {}".format(r.name, r.id)
-        await self.bot.send_message(ctx.message.author, "{}".format(output))
+        for page in pagify(output, delims=["\n"]):
+            await self.bot.send_message(ctx.message.author, box(page))
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="toggleactive", pass_context=True, no_pm=True)
