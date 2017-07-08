@@ -15,7 +15,7 @@ class MultiQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.3"
+    __version__ = "1.4"
 
     def __init__(self, bot):
 
@@ -114,6 +114,24 @@ class MultiQuote:
                                               }
                     self.save_json()
 
+    @checks.is_owner()
+    @commands.command(pass_context=True, name='rangequote',
+                      aliases=["rmq"], hidden=True)
+    async def _rmq(self, ctx, first: str, last: str):
+        """quotes a range (inclusive)"""
+        a = await self.get_msg(first)
+        b = await self.get_msg(last)
+        if a is None or b is None or a.channel.id != b.channel.id:
+            return await self.bot.say("Dumbass messed something up")
+        auth = ctx.message.author
+        chan = ctx.message.channel
+        await self.sendifallowed(auth, chan, a)
+        channel = a.channel
+        async for m in \
+                self.bot.logs_from(channel, limit=1000000, after=a, before=b):
+            await self.sendifallowed(auth, chan, m)
+        await self.sendifallowed(auth, chan, b)
+
     @commands.command(pass_context=True, name='crossmultiquote',
                       aliases=["csmq"], hidden=True)
     async def _csmq(self, ctx, *args):
@@ -125,21 +143,8 @@ class MultiQuote:
 
         if self.settings["global"]["csmq"]:
             for message_id in args:
-                found = False
-                for server in self.bot.servers:
-                    if server.id not in self.settings:
-                        await self.init_settings(server)
-                    for channel in server.channels:
-                        if not found:
-                            try:
-                                message = \
-                                    await self.bot.get_message(channel,
-                                                               str(message_id))
-                                if message:
-                                    found = True
-                            except Exception as error:
-                                log.debug("{}".format(error))
-                if found:
+                message = await self.get_msg(str(message_id))
+                if message is not None:
                     await self.sendifallowed(ctx.message.author,
                                              ctx.message.channel, message)
                 else:
@@ -157,24 +162,35 @@ class MultiQuote:
         if server.id not in self.settings:
             await self.init_settings(server)
         for message_id in args:
-            found = False
-            for channel in server.channels:
-                if not found:
-                    try:
-                        message = \
-                            await self.bot.get_message(channel,
-                                                       str(message_id))
-                        if message:
-                            found = True
-                    except Exception as error:
-                        log.debug("{}".format(error))
-            if found:
+            message = await self.get_msg(message_id, server)
+            if message is not None:
                 await self.sendifallowed(ctx.message.author,
                                          ctx.message.channel, message)
             else:
                 em = discord.Embed(description='I\'m sorry, I couldn\'t find '
                                    'that message', color=discord.Color.red())
                 await self.bot.send_message(ctx.message.channel, embed=em)
+
+    async def get_msg(self, messsage_id: str, server=None):
+        if server is not None:
+            for channel in server.channels:
+                try:
+                    msg = await self.bot.get_message(channel, messsage_id)
+                    if msg:
+                        return msg
+                    except Exception:
+                        pass
+            return None
+
+        for server in self.bot.servers:
+            for channel in server.channels:
+                try:
+                    msg = await self.bot.get_message(channel,  message_id)
+                    if msg:
+                        return msg
+                except Exception:
+                    pass
+        return None
 
     async def sendifallowed(self, who, where, message=None):
         """checks if a response should be sent
