@@ -13,7 +13,7 @@ class PermHandler:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.1"
+    __version__ = "1.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -174,11 +174,14 @@ class PermHandler:
                     overwrite.connect = False
                     await self.bot.edit_channel_permissions(vchan, e_role,
                                                             overwrite)
+                    asyncio.sleep(1)
+
             for role in role_list:
                 overwrite = discord.PermissionOverwrite()
                 overwrite.connect = True
                 await self.bot.edit_channel_permissions(vchan, role,
                                                         overwrite)
+                asyncio.sleep(1)
 
         for tchan in tchans:
             e_overwrites = tchan.overwrites
@@ -189,11 +192,14 @@ class PermHandler:
                     overwrite.read_messages = False
                     await self.bot.edit_channel_permissions(tchan, e_role,
                                                             overwrite)
+                    asyncio.sleep(1)
+
             for role in role_list:
                 overwrite = discord.PermissionOverwrite()
                 overwrite.read_messages = True
                 await self.bot.edit_channel_permissions(tchan, role,
                                                         overwrite)
+                asyncio.sleep(1)
 
 
 def check_folder():
