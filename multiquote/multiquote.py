@@ -171,15 +171,15 @@ class MultiQuote:
                                    'that message', color=discord.Color.red())
                 await self.bot.send_message(ctx.message.channel, embed=em)
 
-    async def get_msg(self, messsage_id: str, server=None):
+    async def _get_msg(self, message_id: str, server=None):
         if server is not None:
             for channel in server.channels:
                 try:
-                    msg = await self.bot.get_message(channel, messsage_id)
+                    msg = await self.bot.get_message(channel, message_id)
                     if msg:
                         return msg
-                    except Exception:
-                        pass
+                except Exception:
+                    pass
             return None
 
         for server in self.bot.servers:
