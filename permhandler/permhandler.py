@@ -54,9 +54,12 @@ class PermHandler:
         vcs = [c.name for c in channels if c.type == discord.ChannelType.voice]
         tcs = [c.name for c in channels if c.type == discord.ChannelType.text]
 
-        await self.bot.say("Priveleged Roles: {}".format(rls))
-        await self.bot.say("Protected Voice Chats: {}".format(vcs))
-        await self.bot.say("Protected Voice Chats: {}".format(tcs))
+        output = ""
+        output += "Priveleged Roles: {}".format(rls)
+        output += "\nProtected Voice Chats: {}".format(vcs)
+        output += "\nProtected Voice Chats: {}".format(tcs)
+        for page in pagify(output, delims=["\n", ","]):
+            await self.bot.send_message(ctx.message.author, box(page))
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="roledump", pass_context=True, no_pm=True)
