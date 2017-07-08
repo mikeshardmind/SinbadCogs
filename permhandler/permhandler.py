@@ -12,7 +12,7 @@ class PermHandler:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0"
+    __version__ = "1.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -23,7 +23,7 @@ class PermHandler:
 
     @checks.admin_or_permissions(Manage_server=True)
     @commands.group(name="permhandle", aliases=["phandle"],
-                    pass_context=True, no_pm=True)
+                    pass_context=True, no_pm=True, hidden=True)
     async def permhandle(self, ctx):
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
@@ -56,6 +56,18 @@ class PermHandler:
         await self.bot.say("Priveleged Roles: {}".format(rls))
         await self.bot.say("Protected Voice Chats: {}".format(vcs))
         await self.bot.say("Protected Voice Chats: {}".format(tcs))
+
+    @checks.admin_or_permissions(Manage_server=True)
+    @permhandle.command(name="roledump", pass_context=True, no_pm=True)
+    async def roledump(self, ctx):
+        """ lists roles and their IDs"""
+        server = ctx.message.server
+        role_list = server.roles
+
+        output = ""
+        for r in role_list:
+            output += "\n{} : {}".format(r.name, r.id)
+        await self.bot.send_message(ctx.message.author, "{}".format(output))
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="toggleactive", pass_context=True, no_pm=True)
