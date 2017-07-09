@@ -207,7 +207,7 @@ class MultiQuote:
             can_bypass = self.settings[server.id]['bypass']
             source_is_dest = where.server.id == server.id
             if perms_managechannel or can_bypass or source_is_dest:
-                em self.qform(message)
+                em = self.qform(message)
             else:
                 em = discord.Embed(description='You don\'t have '
                                    'permission to quote from that server')
