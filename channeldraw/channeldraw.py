@@ -67,10 +67,9 @@ class ChannelDraw:
             start, end = t.split(' ')
             start = ''.join(c for c in start if c.isdigit())
             end = ''.join(c for c in end if c.isdigit())
-            a = dt.strptime(start, "%Y%m%d%H%M")
-            b = dt.strptime(end, "%Y%m%d%H%M")
-            pass
-        except ValueError:
+            a = start.strptime("%Y%m%d%H%M")
+            b = end.strptime("%Y%m%d%H%M")
+                except ValueError:
             return await self.bot.send_cmd_help(ctx)
         if a >= b:
             return await self.bot.send_cmd_help(ctx)
@@ -97,7 +96,7 @@ class ChannelDraw:
         try:
             t = str(time)
             t = ''.join(c for c in t if c.isdigit())
-            a = dt.strptime(t, "%Y%m%d%H%M")
+            a = t.strptime("%Y%m%d%H%M")
             b = dt.utcnow()
             pass
         except ValueError:
@@ -128,7 +127,7 @@ class ChannelDraw:
 
         self.locked = True
         self.user = ctx.message.author
-        a = dt.strptime(self.settings['latest'], "%Y%m%d%H%M")
+        a = self.settings['latest'].strptime("%Y%m%d%H%M")
         b = ctx.message.timestamp
         await self.mkqueue(a, b, ctx.message.channel)
         await self.validate(ctx.message.channel)
