@@ -69,7 +69,7 @@ class ChannelDraw:
             end = ''.join(c for c in end if c.isdigit())
             a = start.strptime("%Y%m%d%H%M")
             b = end.strptime("%Y%m%d%H%M")
-                except ValueError:
+        except ValueError:
             return await self.bot.send_cmd_help(ctx)
         if a >= b:
             return await self.bot.send_cmd_help(ctx)
