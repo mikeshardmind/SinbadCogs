@@ -28,11 +28,6 @@ class ChannelDraw:
         """Used for the weekly portal draw"""
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
-        if ctx.message.server.id != "108724760782888960":
-            return await self.bot.say("This is not ready. "
-                                      "Wait for Red v3, or finish it yourself")
-        if ctx.message.channel.id != "308106032507256832":
-            return await self.bot.say("You can't use that here.")
 
     @draw.command(pass_context=True, name='bymessages')
     async def by_msgs(self, ctx, first: str, last: str):
@@ -54,7 +49,7 @@ class ChannelDraw:
         self.locked = True
         self.user = ctx.message.author
         self.queue.append(a)
-        self.mkqueue(a.timestamp, b.timestamp, b.channel)
+        await self.mkqueue(a.timestamp, b.timestamp, b.channel)
         self.queue.append(b)
 
         self.settings['latest'] = b.timestamp.strftime("%Y%m%d%H%M")
@@ -172,7 +167,6 @@ class ChannelDraw:
                 self.bot.logs_from(channel, limit=1000000,
                                    after=a, before=b, reverse=True):
                 self.queue.append(message)
-                asyncio.sleep(1)
 
     async def get_msg(self, message_id: str, server=None):
         if server is not None:
