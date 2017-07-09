@@ -151,7 +151,7 @@ class ChannelDraw:
             await self.bot.send_message(self.user, embed=em)
             message = await self.bot.wait_for_message(channel=dm.channel,
                                                       author=self.user)
-            reply = message.cleancontent().lower().strip()
+            reply = message.clean_content().lower().strip()
             if reply[0] == 'y':
                 await self.bot.send_message(channel, "{} won the drawing with "
                                             "the following entry"
