@@ -57,7 +57,7 @@ class ChannelDraw:
         self.mkqueue(a, b, a.channel)
         self.queue.append(b)
 
-        self.settings['latest'] = dt.strftime(b.timestamp, "%Y%m%d%H%M")
+        self.settings['latest'] = b.timestamp.strftime("%Y%m%d%H%M")
         self.save_json()
         await self.validate(ctx.message.channel)
 
@@ -88,7 +88,7 @@ class ChannelDraw:
         self.user = ctx.message.author
 
         await self.mkqueue(a, b, ctx.message.channel)
-        self.settings['latest'] = dt.strftime(b.timestamp, "%Y%m%d%H%M")
+        self.settings['latest'] = b.timestamp.strftime("%Y%m%d%H%M")
         self.save_json()
         await self.validate(ctx.message.channel)
 
@@ -117,7 +117,7 @@ class ChannelDraw:
         self.locked = True
         self.user = ctx.message.author
         await self.mkqueue(a, b, ctx.message.channel)
-        self.settings['latest'] = dt.strftime(b.timestamp, "%Y%m%d%H%M")
+        self.settings['latest'] = b.timestamp.strftime("%Y%m%d%H%M")
         self.save_json()
         await self.validate(ctx.message.channel)
 
@@ -137,7 +137,7 @@ class ChannelDraw:
         b = ctx.message.timestamp
         await self.mkqueue(a, b, ctx.message.channel)
         await self.validate(ctx.message.channel)
-        self.settings['latest'] = dt.strftime(b.timestamp, "%Y%m%d%H%M")
+        self.settings['latest'] = b.timestamp.strftime("%Y%m%d%H%M")
         self.save_json()
 
     async def validate(self, channel):
