@@ -7,10 +7,11 @@ from datetime import datetime as dt
 import random
 import asyncio
 
+
 class ChannelDraw:
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0"
+    __version__ = "1.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -22,7 +23,7 @@ class ChannelDraw:
     def save_json(self):
         dataIO.save_json("data/channeldraw/settings.json", self.settings)
 
-    @checks.admin_or_permissions(Manage_channels=True)
+    @checks.is_owner()
     @commands.group(pass_context=True, name='draw', no_pm=True)
     async def draw(self, ctx):
         """Used for the weekly portal draw"""
@@ -52,7 +53,7 @@ class ChannelDraw:
         await self.mkqueue(a.timestamp, b.timestamp, b.channel)
         self.queue.append(b)
 
-        self.settings['latest'] = b.timestamp.strftime("%Y%m%d%H%M")
+        self.settings['latest'] = ctx.message.timestamp.strftime("%Y%m%d%H%M")
         self.save_json()
         await self.validate(b.channel)
 
@@ -67,8 +68,8 @@ class ChannelDraw:
             start, end = t.split(' ')
             start = ''.join(c for c in start if c.isdigit())
             end = ''.join(c for c in end if c.isdigit())
-            a = start.strptime("%Y%m%d%H%M")
-            b = end.strptime("%Y%m%d%H%M")
+            a = dt.strptime(start, "%Y%m%d%H%M")
+            b = dt.strptime(end, "%Y%m%d%H%M")
         except ValueError:
             return await self.bot.send_cmd_help(ctx)
         if a >= b:
@@ -82,7 +83,7 @@ class ChannelDraw:
         self.user = ctx.message.author
 
         await self.mkqueue(a, b, ctx.message.channel)
-        self.settings['latest'] = b.timestamp.strftime("%Y%m%d%H%M")
+        self.settings['latest'] = ctx.message.timestamp.strftime("%Y%m%d%H%M")
         self.save_json()
         await self.validate(ctx.message.channel)
 
@@ -96,7 +97,7 @@ class ChannelDraw:
         try:
             t = str(time)
             t = ''.join(c for c in t if c.isdigit())
-            a = t.strptime("%Y%m%d%H%M")
+            a = dt.strptime(t, "%Y%m%d%H%M")
             b = dt.utcnow()
             pass
         except ValueError:
@@ -111,7 +112,7 @@ class ChannelDraw:
         self.locked = True
         self.user = ctx.message.author
         await self.mkqueue(a, b, ctx.message.channel)
-        self.settings['latest'] = b.timestamp.strftime("%Y%m%d%H%M")
+        self.settings['latest'] = ctx.message.timestamp.strftime("%Y%m%d%H%M")
         self.save_json()
         await self.validate(ctx.message.channel)
 
@@ -127,11 +128,12 @@ class ChannelDraw:
 
         self.locked = True
         self.user = ctx.message.author
-        a = self.settings['latest'].strptime("%Y%m%d%H%M")
+        a = dt.strptime(self.settings['latest'], "%Y%m%d%H%M")
         b = ctx.message.timestamp
         await self.mkqueue(a, b, ctx.message.channel)
         await self.validate(ctx.message.channel)
-        self.settings['latest'] = b.timestamp.strftime("%Y%m%d%H%M")
+
+        self.settings['latest'] = ctx.message.timestamp.strftime("%Y%m%d%H%M")
         self.save_json()
 
     async def validate(self, channel):
