@@ -4,7 +4,7 @@ from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 import os
 from datetime import datetime as dt
-from random import shuffle
+import random
 
 
 class ChannelDraw:
@@ -141,8 +141,8 @@ class ChannelDraw:
         self.save_json()
 
     async def validate(self, channel):
-
-        shuffle(self.queue)
+        random.seed()
+        random.shuffle(self.queue)
         while self.locked:
             dm = await self.bot.send_message(self.user,
                                              "Is the following a valid entry?")
