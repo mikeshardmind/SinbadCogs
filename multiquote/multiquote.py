@@ -1,5 +1,5 @@
 import os
-import asyncio  # noqa: F401
+import asyncio
 import discord
 import logging
 from discord.ext import commands
@@ -15,7 +15,7 @@ class MultiQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.4"
+    __version__ = "2.0"
 
     def __init__(self, bot):
 
@@ -131,6 +131,7 @@ class MultiQuote:
                 self.bot.logs_from(channel, limit=1000000,
                                    after=a, before=b, reverse=True):
             await self.sendifallowed(auth, chan, m)
+            asyncio.sleep(1)
         await self.sendifallowed(auth, chan, b)
 
     @commands.command(pass_context=True, name='crossmultiquote',
@@ -164,6 +165,7 @@ class MultiQuote:
             await self.init_settings(server)
         for message_id in args:
             message = await self.get_msg(message_id, server)
+            asyncio.sleep(1)
             if message is not None:
                 await self.sendifallowed(ctx.message.author,
                                          ctx.message.channel, message)
@@ -205,18 +207,7 @@ class MultiQuote:
             can_bypass = self.settings[server.id]['bypass']
             source_is_dest = where.server.id == server.id
             if perms_managechannel or can_bypass or source_is_dest:
-                content = message.clean_content
-                author = message.author
-                sname = server.name
-                cname = channel.name
-                timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
-                avatar = author.avatar_url if author.avatar \
-                    else author.default_avatar_url
-                footer = 'Said in {} #{} at {}'.format(sname, cname, timestamp)
-                em = discord.Embed(description=content,
-                                   color=discord.Color.purple())
-                em.set_author(name='{}'.format(author.name), icon_url=avatar)
-                em.set_footer(text=footer)
+                em self.qform(message)
             else:
                 em = discord.Embed(description='You don\'t have '
                                    'permission to quote from that server')
@@ -225,6 +216,26 @@ class MultiQuote:
                                'find that message', color=discord.Color.red())
         await self.bot.send_message(where, embed=em)
 
+    def qform(self, message):
+        channel = message.channel
+        server = channel.server
+        content = message.clean_content
+        author = message.author
+        sname = server.name
+        cname = channel.name
+        timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
+        avatar = author.avatar_url if author.avatar \
+            else author.default_avatar_url
+        if message.attachments:
+            a = message.attachments[0]
+            fname = a['filename']
+            url = a['url']
+            content += "\nUploaded: [{}]({})".format(fname, url)
+        footer = 'Said in {} #{} at {} UTC'.format(sname, cname, timestamp)
+        em = discord.Embed(description=content, color=discord.Color.purple())
+        em.set_author(name='{}'.format(author.name), icon_url=avatar)
+        em.set_footer(text=footer)
+        return em
 
 def check_folder():
     f = 'data/multiquote'

@@ -15,7 +15,7 @@ class CrossQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.3"
+    __version__ = "2.0"
 
     def __init__(self, bot):
 
@@ -166,18 +166,7 @@ class CrossQuote:
             can_bypass = self.settings[server.id]['bypass']
             source_is_dest = where.server.id == server.id
             if perms_managechannel or can_bypass or source_is_dest:
-                content = message.clean_content
-                author = message.author
-                sname = server.name
-                cname = channel.name
-                timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
-                avatar = author.avatar_url if author.avatar \
-                    else author.default_avatar_url
-                footer = 'Said in {} #{} at {}'.format(sname, cname, timestamp)
-                em = discord.Embed(description=content,
-                                   color=discord.Color.purple())
-                em.set_author(name='{}'.format(author.name), icon_url=avatar)
-                em.set_footer(text=footer)
+                em = self.qform(message)
             else:
                 em = discord.Embed(description='You don\'t have '
                                    'permission to quote from that server',
@@ -187,6 +176,26 @@ class CrossQuote:
                                'find that message', color=discord.Color.red())
         await self.bot.send_message(where, embed=em)
 
+    def qform(self, message):
+        channel = message.channel
+        server = channel.server
+        content = message.clean_content
+        author = message.author
+        sname = server.name
+        cname = channel.name
+        timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
+        avatar = author.avatar_url if author.avatar \
+            else author.default_avatar_url
+        if message.attachments:
+            a = message.attachments[0]
+            fname = a['filename']
+            url = a['url']
+            content += "\nUploaded: [{}]({})".format(fname, url)
+        footer = 'Said in {} #{} at {} UTC'.format(sname, cname, timestamp)
+        em = discord.Embed(description=content, color=discord.Color.purple())
+        em.set_author(name='{}'.format(author.name), icon_url=avatar)
+        em.set_footer(text=footer)
+        return em
 
 def check_folder():
     f = 'data/crossquote'
