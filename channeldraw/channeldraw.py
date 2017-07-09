@@ -2,10 +2,8 @@ import discord
 from .utils import checks
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
-from time import time
 import os
 from datetime import datetime as dt
-import asyncio
 from random import shuffle
 
 
@@ -26,7 +24,7 @@ class ChannelDraw:
 
     @checks.admin_or_permissions(Manage_channels=True)
     @commands.group(pass_context=True, name='draw', no_pm=True)
-    async def drawprep(self, ctx):
+    async def draw(self, ctx):
         """Used for the weekly portal draw"""
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
@@ -38,8 +36,8 @@ class ChannelDraw:
 
     @draw.command(pass_context=True, name='bymessages')
     async def by_msgs(self, ctx, first: str, last: str):
-        """gets messages of an inclusive range of the message IDs in the same
-        channel"""
+        """gets messages of an inclusive range of the message IDs
+        in the same channel"""
 
         a = await self.get_msg(first)
         b = await self.get_msg(last)
@@ -63,16 +61,15 @@ class ChannelDraw:
 
     @draw.command(pass_context=True, name='bytimes')
     async def by_times(self, ctx, *, times):
-        """gets messages from the channel it was called from
-        between 2 times (UTC).\n
-        Format should be \n\`YYYY-MM-DDHH:mm\`\n
+        """gets messages from the channel it was called from between 2 times.\n
+        Format should be \nYYYY-MM-DDHH:mm\n
         In chronological order, with a space inbetween them"""
 
         try:
             t = str(times)
             start, end = t.split(' ')
-            start = ''.join(c for c in first if c.isdigit())
-            end = ''.join(c for c in first if c.isdigit())
+            start = ''.join(c for c in start if c.isdigit())
+            end = ''.join(c for c in end if c.isdigit())
             a = dt.strptime(start, "%Y%m%d%H%M")
             b = dt.strptime(end, "%Y%m%d%H%M")
             pass
@@ -117,7 +114,6 @@ class ChannelDraw:
 
         self.settings.locked = True
         self.settings.user = ctx.message.author
-
         await self.mkqueue(a, b, ctx.message.channel)
         self.settings['latest'] = b
         self.save_json()
@@ -129,13 +125,20 @@ class ChannelDraw:
         if not self.settings['latest']:
             return await self.bot.send_cmd_help(ctx)
 
+        if self.settings.locked:
+            return await self.bot.say("<@{}> has already started the drawing "
+                                      .format(self.user.id))
+
         self.settings.locked = True
+        self.user = ctx.message.author
         a = self.settings['latest']
         b = ctx.message.timestamp
         await self.mkqueue(a, b, ctx.message.channel)
         await self.validate(ctx.message.channel)
+        self.settings['latest'] = b
+        self.save_json()
 
-    async def validate(channel):
+    async def validate(self, channel):
 
         shuffle(self.queue)
         while self.locked:
