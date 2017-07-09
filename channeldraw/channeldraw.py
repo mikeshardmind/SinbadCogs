@@ -5,7 +5,7 @@ from cogs.utils.dataIO import dataIO
 import os
 from datetime import datetime as dt
 import random
-
+import asyncio
 
 class ChannelDraw:
 
@@ -54,12 +54,12 @@ class ChannelDraw:
         self.locked = True
         self.user = ctx.message.author
         self.queue.append(a)
-        self.mkqueue(a.timestamp, b.timestamp, a.channel)
+        self.mkqueue(a.timestamp, b.timestamp, b.channel)
         self.queue.append(b)
 
         self.settings['latest'] = b.timestamp.strftime("%Y%m%d%H%M")
         self.save_json()
-        await self.validate(ctx.message.channel)
+        await self.validate(b.channel)
 
     @draw.command(pass_context=True, name='bytimes')
     async def by_times(self, ctx, *, times):
@@ -171,7 +171,8 @@ class ChannelDraw:
         async for message in \
                 self.bot.logs_from(channel, limit=1000000,
                                    after=a, before=b, reverse=True):
-                await self.queue.append(message)
+                self.queue.append(message)
+                asyncio.sleep(1)
 
     async def get_msg(self, message_id: str, server=None):
         if server is not None:
