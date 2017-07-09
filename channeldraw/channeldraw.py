@@ -48,6 +48,8 @@ class ChannelDraw:
         if self.locked:
             return await self.bot.say("<@{}> has already started the drawing "
                                       .format(self.user.id))
+        if a.timestamp >= b.timestamp:
+            return await self.bot.send_cmd_help(ctx)
 
         self.locked = True
         self.user = ctx.message.author
@@ -55,7 +57,7 @@ class ChannelDraw:
         self.mkqueue(a, b, a.channel)
         self.queue.append(b)
 
-        self.settings['latest'] = b.timestamp
+        self.settings['latest'] = dt.strftime(b.timestamp, "%Y%m%d%H%M")
         self.save_json()
         await self.validate(ctx.message.channel)
 
@@ -86,7 +88,7 @@ class ChannelDraw:
         self.user = ctx.message.author
 
         await self.mkqueue(a, b, ctx.message.channel)
-        self.settings['latest'] = b
+        self.settings['latest'] = dt.strftime(b.timestamp, "%Y%m%d%H%M")
         self.save_json()
         await self.validate(ctx.message.channel)
 
@@ -115,7 +117,7 @@ class ChannelDraw:
         self.locked = True
         self.user = ctx.message.author
         await self.mkqueue(a, b, ctx.message.channel)
-        self.settings['latest'] = b
+        self.settings['latest'] = dt.strftime(b.timestamp, "%Y%m%d%H%M")
         self.save_json()
         await self.validate(ctx.message.channel)
 
@@ -131,11 +133,11 @@ class ChannelDraw:
 
         self.locked = True
         self.user = ctx.message.author
-        a = self.settings['latest']
+        a = dt.strptime(self.settings['latest'], "%Y%m%d%H%M")
         b = ctx.message.timestamp
         await self.mkqueue(a, b, ctx.message.channel)
         await self.validate(ctx.message.channel)
-        self.settings['latest'] = b
+        self.settings['latest'] = dt.strftime(b.timestamp, "%Y%m%d%H%M")
         self.save_json()
 
     async def validate(self, channel):
