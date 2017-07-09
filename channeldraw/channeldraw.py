@@ -54,7 +54,7 @@ class ChannelDraw:
         self.locked = True
         self.user = ctx.message.author
         self.queue.append(a)
-        self.mkqueue(a, b, a.channel)
+        self.mkqueue(a.timestamp, b.timestamp, a.channel)
         self.queue.append(b)
 
         self.settings['latest'] = b.timestamp.strftime("%Y%m%d%H%M")
