@@ -31,7 +31,7 @@ class ChannelDraw:
         if ctx.message.server.id != "108724760782888960":
             return await self.bot.say("This is not ready. "
                                       "Wait for Red v3, or finish it yourself")
-        if ctx.message.channel != "308106032507256832":
+        if ctx.message.channel.id != "308106032507256832":
             return await self.bot.say("You can't use that here.")
 
     @draw.command(pass_context=True, name='bymessages')
@@ -45,12 +45,12 @@ class ChannelDraw:
             return await self.bot.say("I could not find one or both of those")
         if a.channel.id != b.channel.id:
             return await self.bot.say("Those messages are in seperate rooms")
-        if self.settings.locked:
+        if self.locked:
             return await self.bot.say("<@{}> has already started the drawing "
                                       .format(self.user.id))
 
-        self.settings.locked = True
-        self.settings.user = ctx.message.author
+        self.locked = True
+        self.user = ctx.message.author
         self.queue.append(a)
         self.mkqueue(a, b, a.channel)
         self.queue.append(b)
@@ -78,12 +78,12 @@ class ChannelDraw:
         if a >= b:
             return await self.bot.send_cmd_help(ctx)
 
-        if self.settings.locked:
+        if self.locked:
             return await self.bot.say("<@{}> has already started the drawing "
                                       .format(self.user.id))
 
-        self.settings.locked = True
-        self.settings.user = ctx.message.author
+        self.locked = True
+        self.user = ctx.message.author
 
         await self.mkqueue(a, b, ctx.message.channel)
         self.settings['latest'] = b
@@ -108,12 +108,12 @@ class ChannelDraw:
         if a >= b:
             return await self.bot.send_cmd_help(ctx)
 
-        if self.settings.locked:
+        if self.locked:
             return await self.bot.say("<@{}> has already started the drawing "
                                       .format(self.user.id))
 
-        self.settings.locked = True
-        self.settings.user = ctx.message.author
+        self.locked = True
+        self.user = ctx.message.author
         await self.mkqueue(a, b, ctx.message.channel)
         self.settings['latest'] = b
         self.save_json()
@@ -125,11 +125,11 @@ class ChannelDraw:
         if not self.settings['latest']:
             return await self.bot.send_cmd_help(ctx)
 
-        if self.settings.locked:
+        if self.locked:
             return await self.bot.say("<@{}> has already started the drawing "
                                       .format(self.user.id))
 
-        self.settings.locked = True
+        self.locked = True
         self.user = ctx.message.author
         a = self.settings['latest']
         b = ctx.message.timestamp
