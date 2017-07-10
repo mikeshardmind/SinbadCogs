@@ -199,11 +199,11 @@ class ChannelDraw:
         return True if t > dt.utcnow() else False
 
     async def mkqueue(self, a, b, channel):
-
+        queue = []
         async for message in \
                 self.bot.logs_from(channel, limit=1000000,
                                    after=a, before=b, reverse=True):
-                self.queue.append(message)
+                queue.append(message)
 
     async def get_msg(self, message_id: str, server=None):
         if server is not None:
