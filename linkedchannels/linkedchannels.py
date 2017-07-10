@@ -58,9 +58,9 @@ class LinkedChannels:
         name = name.lower()
         if name in self.links:
             chans = self.links[name]
+            self.activechans = [c for c in self.activechans if c not in chans]
             self.links.pop(name, None)
             self.settings.pop(name, None)
-            self.activechans = [c for c in self.activechans if c not in chans]
             self.save_json()
             await self.bot.say("Link removed")
         else:
