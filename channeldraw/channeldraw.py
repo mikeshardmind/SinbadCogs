@@ -185,7 +185,7 @@ class ChannelDraw:
                 await self.bot.send_message(author,
                                             "I guess we're done here")
                 self.users.remove(author.id)
-        self.queues.remove([channel.id])
+        self.queues.pop(channel.id, None)
 
     async def mkqueue(self, a, b, channel):
         self.queues[channel.id] = []
