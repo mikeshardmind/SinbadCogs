@@ -55,6 +55,10 @@ class OneWayLink:
             await self.validate()
             if name in self.links:
                 await self.bot.say("Link formed.")
+            if bool(set(channels) & set(self.activechans)):
+                return await self.bot.say("Warning: One or more of these "
+                                          "channels is already "
+                                          "linked elsewhere")
         else:
             await self.bot.say("I did not get two or more unique channel IDs")
 
@@ -64,7 +68,7 @@ class OneWayLink:
         """unlinks two channels by link name"""
         name = name.lower()
         if name in self.links:
-            chans = self.links[name]
+            chans = list(*self.links[name].values())
             self.links.pop(name, None)
             self.settings.pop(name, None)
             self.save_json()
