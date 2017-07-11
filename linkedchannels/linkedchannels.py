@@ -57,7 +57,7 @@ class LinkedChannels:
         """unlinks two channels by link name"""
         name = name.lower()
         if name in self.links:
-            chans = list(*self.links[name].values())
+            chans = self.links[name]
             self.activechans = [c for c in self.activechans if c not in chans]
             self.links.pop(name, None)
             self.settings.pop(name, None)

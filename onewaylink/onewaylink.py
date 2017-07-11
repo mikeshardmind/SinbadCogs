@@ -68,7 +68,7 @@ class OneWayLink:
         """unlinks two channels by link name"""
         name = name.lower()
         if name in self.links:
-            chans = list(*self.links[name].values())
+            chans = self.links[name]
             self.links.pop(name, None)
             self.settings.pop(name, None)
             self.save_json()
@@ -139,6 +139,7 @@ class OneWayLink:
         em.set_author(name='{}'.format(author.name), icon_url=avatar)
         em.set_footer(text=footer)
         return em
+
 
 def check_folder():
     f = 'data/onewaylink'
