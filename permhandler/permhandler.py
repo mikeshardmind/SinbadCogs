@@ -14,7 +14,7 @@ class PermHandler:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.2"
+    __version__ = "1.3"
 
     def __init__(self, bot):
         self.bot = bot
@@ -39,7 +39,16 @@ class PermHandler:
                                         'activated': False,
                                         'proles': []
                                         }
-            self.save_json()
+        if 'chans' not in self.settings[server_id]:
+            self.settings[server_id]['chans'] = []
+        if 'roles' not in self.settings[server_id]:
+            self.settings[server_id]['roles'] = []
+        if 'activated' not in self.settings[server_id]:
+            self.settings[server_id]['chans'] = False
+        if 'proles' not in self.settings[server_id]:
+            self.settings[server_id]['proles'] = []
+        self.save_json()
+
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="configdump", pass_context=True, no_pm=True)
