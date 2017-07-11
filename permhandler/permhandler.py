@@ -253,7 +253,7 @@ class PermHandler:
             mrs = member.roles
             if not bool(set(mrs) & set(role_list)):
                 rems = list(set(mrs).intersection(prole_list))
-                await self.bot.remove_roles(member, rems)
+                await self.bot.remove_roles(member, *rems)
 
 
 def check_folder():
