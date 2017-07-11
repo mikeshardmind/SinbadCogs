@@ -57,7 +57,7 @@ class PermHandler:
         output = ""
         output += "Priveleged Roles: {}".format(rls)
         output += "\nProtected Voice Chats: {}".format(vcs)
-        output += "\nProtected Voice Chats: {}".format(tcs)
+        output += "\nProtected Text Chats: {}".format(tcs)
         for page in pagify(output, delims=["\n", ","]):
             await self.bot.send_message(ctx.message.author, box(page))
 
