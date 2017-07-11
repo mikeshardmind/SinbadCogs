@@ -58,7 +58,7 @@ class PermHandler:
         channels = server.channels
         channels = [c for c in channels if c.id in chans]
         roles = self.settings[server.id]['roles']
-        proles = self.settings[server.id]['sroles']
+        proles = self.settings[server.id]['proles']
         role_list = server.roles
         prole_list = server.roles
         rls = [r.name for r in role_list if r.id in roles]
