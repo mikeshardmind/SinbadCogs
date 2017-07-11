@@ -5,7 +5,6 @@ from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from .utils import checks
 from cogs.utils.chat_formatting import box, pagify
-import asyncio
 
 
 class PermHandler:
@@ -49,7 +48,6 @@ class PermHandler:
             self.settings[server_id]['proles'] = []
         self.save_json()
 
-
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="configdump", pass_context=True, no_pm=True)
     async def configdump(self, ctx):
@@ -60,11 +58,11 @@ class PermHandler:
         channels = server.channels
         channels = [c for c in channels if c.id in chans]
         roles = self.settings[server.id]['roles']
-        sroles = self.settings[server.id]['sroles']
+        proles = self.settings[server.id]['sroles']
         role_list = server.roles
         prole_list = server.roles
         rls = [r.name for r in role_list if r.id in roles]
-        pcs = [r.name for r in srole_list if r.id in sroles]
+        pcs = [r.name for r in prole_list if r.id in proles]
         vcs = [c.name for c in channels if c.type == discord.ChannelType.voice]
         tcs = [c.name for c in channels if c.type == discord.ChannelType.text]
 
@@ -254,7 +252,7 @@ class PermHandler:
         for member in members:
             mrs = member.roles
             if not bool(set(mrs) & set(role_list)):
-                rems = list(set(mrs).intersection(proles_list))
+                rems = list(set(mrs).intersection(prole_list))
                 await self.bot.remove_roles(member, rems)
 
 
