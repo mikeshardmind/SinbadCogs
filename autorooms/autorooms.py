@@ -58,7 +58,7 @@ class AutoRooms:
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="makeclone", pass_context=True, no_pm=True)
     async def settrigger(self, ctx, chan):
-        """makes a channel for cloning"""
+        """Takes a channel ID, turns that voice channel into a clone source"""
         server = ctx.message.server
         if server.id not in self.settings:
             self.initial_config(server.id)
@@ -103,33 +103,20 @@ class AutoRooms:
         if channel.id in cache:
             if len(channel.voice_members) == 0:
                 await self.bot.delete_channel(channel)
-                cache.remove(channel.id)
-                channels.remove(channel.id)
-                self.save_json()
+                self.settingscleanup(server)
 
-        for channel_id in cache:
-            channel = server.get_channel(channel_id)
-            if channel is not None:
-                if len(server.get_channel(channel_id).voice_members) == 0:
-                    await self.bot.delete_channel(channel)
-                    channels.remove(channel.id)
-                    self.save_json()
-                    await asyncio.sleep(1)
-
-        self.settingscleanup(server)
-
-    def autocleanup(self, server):
+    def settingscleanup(self, server):
         """cleanup of settings"""
         if server.id in self.settings:
-            channels = self.settings[server.id]['channels']
+            clones = self.settings[server.id]['clones']
             cache = self.settings[server.id]['cache']
-            for channel_id in channels:
+            for channel_id in clones:
                 channel = server.get_channel(channel_id)
                 if channel is None:
-                    channels.remove(channel_id)
+                    clones.remove(channel_id)
                     self.save_json()
             for channel_id in cache:
-                if channel_id not in channels:
+                if channel_id not in clones:
                     cache.remove(channel_id)
                     self.save_json()
 
@@ -151,4 +138,4 @@ def setup(bot):
     check_file()
     n = AutoRooms(bot)
     bot.add_listener(n.autorooms, 'on_voice_state_update')
-bot.add_cog(n)
+    bot.add_cog(n)
