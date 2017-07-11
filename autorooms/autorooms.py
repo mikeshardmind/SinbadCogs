@@ -13,7 +13,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-    __version__ = "1.7"
+    __version__ = "1.6"
 
     def __init__(self, bot):
         self.bot = bot
@@ -100,12 +100,11 @@ class AutoRooms:
                     cache.append(channel.id)
                     self.save_json()
 
-        if memb_before.voice.voice_channel is not None:
-            channel = memb_before.voice.voice_channel
-            if channel.id in cache:
-                if len(channel.voice_members) == 0:
-                    await self.bot.delete_channel(channel)
-                    self.settingscleanup(server)
+        channel = memb_before.voice.voice_channel
+        if channel.id in cache:
+            if len(channel.voice_members) == 0:
+                await self.bot.delete_channel(channel)
+                self.settingscleanup(server)
 
     def settingscleanup(self, server):
         """cleanup of settings"""
