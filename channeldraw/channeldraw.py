@@ -32,8 +32,6 @@ class ChannelDraw:
 
     @draw.command(pass_context=True, name='bymessageids', aliases=["bmids"])
     async def by_msgs(self, ctx, first: str, last: str):
-        if self.is_user_shamed(ctx.message.author):
-            return await("I'm Not letting you waste my time right now.")
         if ctx.message.author.id in self.users:
             return await self.bot.say("You already have a drawing in progress")
         a = await self.get_msg(first)
@@ -58,8 +56,6 @@ class ChannelDraw:
         """gets messages from the channel it was called from between 2 times.\n
         Format should be \nYYYY-MM-DDHH:mm\n
         In chronological order, with a space inbetween them"""
-        if self.is_user_shamed(ctx.message.author):
-            return await("I'm Not letting you waste my time right now.")
         try:
             t = str(times)
             start, end = t.split(' ')
@@ -90,8 +86,6 @@ class ChannelDraw:
         between now and a time (UTC).\n
         Format should be \n\`YYYY-MM-DDHH:mm\`\n
         """
-        if self.is_user_shamed(ctx.message.author):
-            return await("I'm Not letting you waste my time right now.")
         try:
             t = str(time)
             t = ''.join(c for c in t if c.isdigit())
