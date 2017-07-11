@@ -1,6 +1,4 @@
 import os
-import sys  # noqa: F401
-from datetime import date, datetime, timedelta  # noqa: F401
 import asyncio
 import discord
 from discord.ext import commands
@@ -78,7 +76,7 @@ class AutoRooms:
 
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="makeclone", pass_context=True, no_pm=True)
-    async def settrigger(self, ctx, chan):
+    async def setclone(self, ctx, chan):
         """makes a channel for cloning"""
         server = ctx.message.server
         if server.id not in self.settings:
@@ -153,4 +151,4 @@ def setup(bot):
     check_file()
     n = AutoRooms(bot)
     bot.add_listener(n.autorooms, 'on_voice_state_update')
-bot.add_cog(n)
+    bot.add_cog(n)
