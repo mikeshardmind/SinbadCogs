@@ -14,7 +14,7 @@ class LinkedChannels:
     who said what on both sides.\n supports multiple active links"""
 
     __author__ = "mikeshardmind"
-    __version__ = "2.1"
+    __version__ = "2.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -49,7 +49,7 @@ class LinkedChannels:
             if name in self.links:
                 await self.bot.say("Link formed.")
         else:
-            await self.bot.say("I did not get two or more unique channel IDs")
+            await self.bot.say("I did not get two unique channel IDs")
 
     @checks.is_owner()
     @commands.command(name="unlink", pass_context=True)
@@ -57,7 +57,7 @@ class LinkedChannels:
         """unlinks two channels by link name"""
         name = name.lower()
         if name in self.links:
-            chans = self.links[name]
+            chans = list(*self.links[name].values())
             self.activechans = [c for c in self.activechans if c not in chans]
             self.links.pop(name, None)
             self.settings.pop(name, None)
@@ -106,7 +106,7 @@ class LinkedChannels:
         """sends the thing"""
 
         if message:
-            self.qform(message)
+            em = self.qform(message)
             await self.bot.send_message(where, embed=em)
 
     def qform(self, message):
