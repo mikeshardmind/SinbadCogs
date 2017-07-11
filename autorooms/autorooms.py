@@ -58,7 +58,7 @@ class AutoRooms:
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="makeclone", pass_context=True, no_pm=True)
     async def settrigger(self, ctx, chan):
-        """Takes a channel ID, turns that voice channel into a clone source"""
+        """makes a channel for cloning"""
         server = ctx.message.server
         if server.id not in self.settings:
             self.initial_config(server.id)
