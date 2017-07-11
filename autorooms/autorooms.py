@@ -11,11 +11,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-<<<<<<< HEAD
-    __version__ = "1.6"
-=======
     __version__ = "1.2"
->>>>>>> parent of 77ba008... .
 
     def __init__(self, bot):
         self.bot = bot
@@ -108,27 +104,6 @@ class AutoRooms:
     async def autorooms(self, memb_before, memb_after):
         """This cog is Self Cleaning"""
         server = memb_before.server
-<<<<<<< HEAD
-        channels = self.settings[server.id]['channels']
-        cache = self.settings[server.id]['cache']
-        clones = self.settings[server.id]['clones']
-
-        if server.id in self.settings:
-            if self.settings[server.id]['toggleactive']:
-                if memb_after.voice.voice_channel is not None:
-                    chan = memb_after.voice.voice_channel
-                    if chan.id in channels:
-                        overwrites = chan.overwrites
-                        cname = "Auto: {}".format(chan.name)
-                        channel = await self.bot.create_channel(
-                                server, cname, type=discord.ChannelType.voice)
-                        for overwrite in overwrites:
-                            await self.bot.edit_channel_permissions(channel,
-                                                                    overwrite)
-                            await self.bot.move_member(memb_after, channel)
-                        self.settings[server.id]['clones'].append(channel.id)
-                        self.save_json()
-=======
         if self.settings[server.id]['toggleactive']:
             if memb_after.voice.voice_channel is not None:
                 chan = memb_after.voice.voice_channel
@@ -142,7 +117,6 @@ class AutoRooms:
                     await self.bot.move_member(memb_after, channel)
                     self.settings[server.id]['clones'].append(channel.id)
                 self.save_json()
->>>>>>> parent of 77ba008... .
 
         if memb_after.voice.voice_channel is not None:
             channel = memb_after.voice.voice_channel
@@ -155,28 +129,9 @@ class AutoRooms:
         if channel.id in self.settings[server.id]['cache']:
             if len(channel.voice_members) == 0:
                 await self.bot.delete_channel(channel)
-<<<<<<< HEAD
-                self.settingscleanup(server)
-
-    def settingscleanup(self, server):
-        """cleanup of settings"""
-        if server.id in self.settings:
-            clones = self.settings[server.id]['clones']
-            cache = self.settings[server.id]['cache']
-            for channel_id in clones:
-                channel = server.get_channel(channel_id)
-                if channel is None:
-                    clones.remove(channel_id)
-                    self.save_json()
-            for channel_id in cache:
-                if channel_id not in clones:
-                    cache.remove(channel_id)
-                    self.save_json()
-=======
                 self.settings[server.id]['cache'].remove(channel.id)
                 self.settings[server.id]['clones'].remove(channel.id)
                 self.save_json()
->>>>>>> parent of 77ba008... .
 
 
 def check_folder():
@@ -196,4 +151,4 @@ def setup(bot):
     check_file()
     n = AutoRooms(bot)
     bot.add_listener(n.autorooms, 'on_voice_state_update')
-    bot.add_cog(n)
+bot.add_cog(n)
