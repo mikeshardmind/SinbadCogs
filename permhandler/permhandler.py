@@ -197,6 +197,11 @@ class PermHandler:
         await self.validate(server)
         await self.bot.say("Channel removed")
 
+    @checks.admin_or_permissions(Manage_server=True)
+    @permhandle.command(name="validate", pass_context=True, no_pm=True)
+    async def manual_validate(self, ctx):
+        await self.validate(ctx.message.server)
+
     async def validate(self, server):
         if not self.settings[server.id]['activated']:
             return
