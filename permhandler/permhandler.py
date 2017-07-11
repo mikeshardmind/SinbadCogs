@@ -257,7 +257,7 @@ class PermHandler:
         for member in members:
             mrs = member.roles
             if not bool(set(mrs) & set(role_list)):
-                rems = [r for r in mrs if element in proles_list]
+                rems = [r for r in mrs if r in proles_list]
                 await self.bot.remove_roles(member, *rems)
 
 
