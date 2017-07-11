@@ -5,6 +5,7 @@ from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from .utils import checks
 from cogs.utils.chat_formatting import box, pagify
+import asyncio
 
 
 class PermHandler:
@@ -35,7 +36,8 @@ class PermHandler:
         if server_id not in self.settings:
             self.settings[server_id] = {'chans': [],
                                         'roles': [],
-                                        'activated': False
+                                        'activated': False,
+                                        'proles': []
                                         }
             self.save_json()
 
@@ -49,13 +51,17 @@ class PermHandler:
         channels = server.channels
         channels = [c for c in channels if c.id in chans]
         roles = self.settings[server.id]['roles']
+        sroles = self.settings[server.id]['sroles']
         role_list = server.roles
+        prole_list = server.roles
         rls = [r.name for r in role_list if r.id in roles]
+        pcs = [r.name for r in srole_list if r.id in sroles]
         vcs = [c.name for c in channels if c.type == discord.ChannelType.voice]
         tcs = [c.name for c in channels if c.type == discord.ChannelType.text]
 
         output = ""
         output += "Priveleged Roles: {}".format(rls)
+        output += "\nProtected Roles: {}".format(pcs)
         output += "\nProtected Voice Chats: {}".format(vcs)
         output += "\nProtected Text Chats: {}".format(tcs)
         for page in pagify(output, delims=["\n", ","]):
@@ -104,6 +110,23 @@ class PermHandler:
         await self.bot.say("Role added.")
 
     @checks.admin_or_permissions(Manage_server=True)
+    @permhandle.command(name="addprole", pass_context=True, no_pm=True)
+    async def addprole(self, ctx, role_id: str):
+            """add a role that can only be owned by those with
+            priveleged roles roles"""
+            server = ctx.message.server
+            self.initial_config(server.id)
+            r = [r for r in server.roles if r.id == role_id]
+            if not r:
+                return await self.bot.say("No such role")
+            if role_id in self.settings[server.id]['proles']:
+                return await self.bot.say("Already in roles")
+            self.settings[server.id]['proles'].append(role_id)
+            self.save_json()
+            await self.validate(server)
+            await self.bot.say("Role added.")
+
+    @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="remrole", pass_context=True, no_pm=True)
     async def remrole(self, ctx, role_id: str):
         """remove a priveleged role"""
@@ -115,6 +138,22 @@ class PermHandler:
         if role_id not in self.settings[server.id]['roles']:
             return await self.bot.say("Not in roles")
         self.settings[server.id]['roles'].remove(role_id)
+        self.save_json()
+        await self.validate(server)
+        await self.bot.say("Role removed.")
+
+    @checks.admin_or_permissions(Manage_server=True)
+    @permhandle.command(name="remprole", pass_context=True, no_pm=True)
+    async def remprole(self, ctx, role_id: str):
+        """remove a protected role"""
+        server = ctx.message.server
+        self.initial_config(server.id)
+        r = [r for r in server.roles if r.id == role_id]
+        if not r:
+            return await self.bot.say("No such role")
+        if role_id not in self.settings[server.id]['proles']:
+            return await self.bot.say("Not in roles")
+        self.settings[server.id]['proles'].remove(role_id)
         self.save_json()
         await self.validate(server)
         await self.bot.say("Role removed.")
@@ -159,8 +198,10 @@ class PermHandler:
         channels = server.channels
         channels = [c for c in channels if c.id in chans]
         roles = self.settings[server.id]['roles']
-        role_list = server.roles
-        role_list = [r for r in role_list if r.id in roles]
+        proles = self.settings[server.id]['proles']
+        role_list = [r for r in server.roles if r.id in roles]
+        prole_list = [r for r in server.roles if r.id in proles]
+        members = server.members
 
         vchans = [c for c in channels if c.type == discord.ChannelType.voice]
         tchans = [c for c in channels if c.type == discord.ChannelType.text]
@@ -200,6 +241,12 @@ class PermHandler:
                 await self.bot.edit_channel_permissions(tchan, role,
                                                         overwrite)
                 asyncio.sleep(1)
+
+        for member in members:
+            mrs = member.roles
+            if not bool(set(mrs) & set(role_list)):
+                rems = list(set(mrs).intersection(proles_list))
+                await self.bot.remove_roles(member, rems)
 
 
 def check_folder():
