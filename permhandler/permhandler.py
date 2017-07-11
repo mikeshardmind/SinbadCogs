@@ -201,6 +201,7 @@ class PermHandler:
     @permhandle.command(name="validate", pass_context=True, no_pm=True)
     async def manual_validate(self, ctx):
         await self.validate(ctx.message.server)
+        await self.bot.say("Permissions Verified")
 
     async def validate(self, server):
         if not self.settings[server.id]['activated']:
