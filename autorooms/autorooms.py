@@ -1,4 +1,6 @@
 import os
+import sys  # noqa: F401
+from datetime import date, datetime, timedelta  # noqa: F401
 import asyncio
 import discord
 from discord.ext import commands
@@ -76,7 +78,7 @@ class AutoRooms:
 
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="makeclone", pass_context=True, no_pm=True)
-    async def setclone(self, ctx, chan):
+    async def settrigger(self, ctx, chan):
         """makes a channel for cloning"""
         server = ctx.message.server
         if server.id not in self.settings:
