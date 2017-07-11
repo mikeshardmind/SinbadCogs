@@ -5,18 +5,19 @@ from cogs.utils.dataIO import dataIO
 import os
 from datetime import datetime as dt
 import random
+import asyncio
 
 
 class ChannelDraw:
     """Draws a random message from a set"""
 
     __author__ = "mikeshardmind"
-    __version__ = "2.0"
+    __version__ = "2.1a"
 
     def __init__(self, bot):
         self.bot = bot
         self.users = []
-        self.locks = []
+        self.queues = {}
         self.settings = dataIO.load_json('data/channeldraw/settings.json')
 
     def save_json(self):
@@ -41,15 +42,16 @@ class ChannelDraw:
             return await self.bot.say("I could not find one or both of those")
         if a.channel.id != b.channel.id:
             return await self.bot.say("Those messages are in seperate rooms")
-        if a.channel.id in self.locks:
+        if a.channel.id in self.queues:
             return await self.bot.say("That channel has a drawing in progress")
         if a.timestamp >= b.timestamp:
             a, b = b, a  # Because I can't trust people to use things correctly
 
-        msgs = await self.mkqueue(a.timestamp, b.timestamp, b.channel)
-        msgs.append(a)
-        msgs.append(b)
-        await self.validate(msgs, ctx.message.author)
+        await self.mkqueue(a.timestamp, b.timestamp, b.channel)
+        self.queues[a.channel.id].append(a)
+        self.queues[b.channel.id].append(b)
+        self.users.append(ctx.message.author.id)
+        await self.validate(b.channel, ctx.message.author)
 
     @draw.command(pass_context=True, name='bytimes')
     async def by_times(self, ctx, *, times):
@@ -73,13 +75,14 @@ class ChannelDraw:
             b = ctx.message.timestamp
         if a >= ctx.message.timestamp:
             return await self.bot.say("I can't read the future.")
-        if ctx.channel.id in self.locks:
+        if ctx.channel.id in self.queues:
             return await self.bot.say("That channel has a drawing in progress")
         if ctx.message.author.id in self.users:
             return await self.bot.say("You already have a drawing in progress")
 
-        msgs = await self.mkqueue(a, b, ctx.message.channel)
-        await self.validate(msgs, ctx.message.author)
+        await self.mkqueue(a, b, ctx.message.channel)
+        self.users.append(ctx.message.author.id)
+        await self.validate(ctx.message.channel, ctx.message.author)
 
     @draw.command(pass_context=True, name='fromdate')
     async def by_interval(self, ctx, *, time):
@@ -101,11 +104,12 @@ class ChannelDraw:
             return await self.bot.send_cmd_help(ctx)
         if ctx.message.author.id in self.users:
             return await self.bot.say("You already have a drawing in progress")
-        if ctx.message.channel.id in self.locks:
+        if ctx.message.channel.id in self.queues:
             return await self.bot.say("That channel has a drawing in progress")
 
-        msgs = await self.mkqueue(a, b, ctx.message.channel)
-        await self.validate(msgs, ctx.message.author)
+        await self.mkqueue(a, b, ctx.message.channel)
+        self.users.append(ctx.message.author.id)
+        await self.validate(ctx.message.channel, ctx.message.author)
 
     @draw.command(name="auto", pass_context=True)
     async def autodraw(self, ctx):
@@ -116,49 +120,51 @@ class ChannelDraw:
             return await self.bot.send_cmd_help(ctx)
         if ctx.message.author.id in self.users:
             return await self.bot.say("You already have a drawing in progress")
-        if ctx.message.channel.id in self.locks:
+        if ctx.message.channel.id in self.queues:
             return await self.bot.say("That channel has a drawing in progress")
 
-        a = dt.strptime(self.settings['latest'][ctx.message.channel.id],
+        a = dt.strptime(str(self.settings['latest'][ctx.message.channel.id]),
                         "%Y%m%d%H%M")
         b = ctx.message.timestamp
-        msgs = await self.mkqueue(a, b, ctx.message.channel)
-        await self.validate(msgs, ctx.message.author)
+        await self.mkqueue(a, b, ctx.message.channel)
+        self.users.append(ctx.message.author.id)
+        await self.validate(ctx.message.channel, ctx.message.author)
 
-        self.settings['latest'][ctx.channel.id] = \
-            ctx.message.timestamp.strftime("%Y%m%d%H%M")
-        self.save_json()
-
-    async def validate(self, msgs=[], author=None):
-        temp_latest = msgs[-1].timestamp
-        channel = msgs[0].channel
+    async def validate(self, channel, author):
+        latest = self.queues[channel.id][-1].timestamp.strftime("%Y%m%d%H%M")
         fail_count = 0
         random.seed()
-        random.shuffle(msgs)
+        random.shuffle(self.queues[channel.id])
 
-        while author.id in self.locks:
+        while author.id in self.users:
             if fail_count == 1:
+                asyncio.sleep(1)
                 await self.bot.send_message(author, "Quit wasting my time.")
             if fail_count == 2:
+                asyncio.sleep(1)
                 await self.bot.send_message(author, "Next one either quit "
                                             "or do it correctly")
             if fail_count == 3:
-                await self.shame(channel, author)
+                asyncio.sleep(1)
+                await self.bot.send_message(author, "We are done here.")
+                self.users.remove(author.id)
                 break
-            if len(msgs) == 0:
+            if len(self.queues[channel.id]) == 0:
+                asyncio.sleep(1)
                 await self.bot.send_message(author, "That's all folks")
+                self.users.remove(author.id)
                 break
-            dm = await self.bot.send_message(author,
-                                             "Is the following a valid entry?"
-                                             "(yes/no/quit)")
-            entry = self.queue.pop()
+            entry = self.queues[channel.id].pop()
             em = self.qform(entry)
             await self.bot.send_message(author, embed=em)
-            timeout = None if self.bot.settings.owner.id == author.id \
-                else 60
+            asyncio.sleep(1)
+            dm = await self.bot.send_message(author,
+                                             "Is this a valid entry?"
+                                             "(yes/no/quit)")
+
             message = await self.bot.wait_for_message(
                                                 channel=dm.channel,
-                                                author=author, timeout=timeout)
+                                                author=author, timeout=60)
             if message is None:
                 fail_count += 1
                 continue
@@ -170,40 +176,23 @@ class ChannelDraw:
                                             "the following entry"
                                             "".format(entry.author.mention))
                 await self.bot.send_message(channel, embed=em)
-                self.settings['latest'][channel.id] = \
-                    temp_latest.strftime("%Y%m%d%H%M")
+                self.settings['latest'][channel.id] = int(latest) + 1
+                self.users.remove(author.id)
                 self.save_json()
             if reply[0] == 'n':
-                await self.bot.send_message(self.user, "Ok then...")
+                await self.bot.send_message(author, "Ok then...")
             if reply[0] == 'q':
-                await self.bot.send_message(self.user,
+                await self.bot.send_message(author,
                                             "I guess we're done here")
-                break
-        self.users.remove(author)
-        self.locks.remove(channel)
-
-    async def shame(self, channel, user):
-
-        self.bot.send_message(channel, "{} is incapable of answering a prompt "
-                              "of 'yes/no/quit?' and will be unable to use "
-                              "the draw for 1 week."
-                              "".format(user.mention))
-        self.settings['shame']['user.id'] = dt.utcnow().strftime("%Y%m%d%H%M")
-        self.save_json()
-
-    def is_user_shamed(self, user):
-        if user.id not in self.settings:
-            return False
-        t = dt.strptime(self.settings['shame']['user.id'], "%Y%m%d%H%M") \
-            + dt.timedelta(weeks=1)
-        return True if t > dt.utcnow() else False
+                self.users.remove(author.id)
+        self.queues.remove([channel.id])
 
     async def mkqueue(self, a, b, channel):
-        queue = []
+        self.queues[channel.id] = []
         async for message in \
                 self.bot.logs_from(channel, limit=1000000,
                                    after=a, before=b, reverse=True):
-                queue.append(message)
+                self.queues[channel.id].append(message)
 
     async def get_msg(self, message_id: str, server=None):
         if server is not None:
