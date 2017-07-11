@@ -24,7 +24,7 @@ class PermHandler:
 
     @checks.admin_or_permissions(Manage_server=True)
     @commands.group(name="permhandle", aliases=["phandle"],
-                    pass_context=True, no_pm=True, hidden=True)
+                    pass_context=True, no_pm=True)
     async def permhandle(self, ctx):
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
