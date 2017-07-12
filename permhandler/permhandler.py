@@ -256,8 +256,9 @@ class PermHandler:
                 asyncio.sleep(1)
 
         for member in members:
-            if not any(map(lambda v: v in member.roles, role_list)):
-                self.bot.remove_roles(member, prole_list)
+            if set(role_list).isdisjoint(member.roles):
+                rms = [r for r in member.roles if r.id in proles]
+                await self.bot.remove_roles(member, rms)
 
 
 def check_folder():
