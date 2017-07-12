@@ -214,7 +214,7 @@ class PermHandler:
         proles = self.settings[server.id]['proles']
         role_list = [r for r in server.roles if r.id in roles]
         prole_list = [r for r in server.roles if r.id in proles]
-        members = server.members
+        members = list(server.members)
 
         vchans = [c for c in channels if c.type == discord.ChannelType.voice]
         tchans = [c for c in channels if c.type == discord.ChannelType.text]
