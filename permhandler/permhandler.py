@@ -258,7 +258,7 @@ class PermHandler:
         for member in members:
             if set(role_list).isdisjoint(member.roles):
                 rms = [r for r in member.roles if r.id in proles]
-                await self.bot.remove_roles(member, rms)
+                await self.bot.remove_roles(member, *rms)
 
 
 def check_folder():
