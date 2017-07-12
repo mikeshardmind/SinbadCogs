@@ -225,7 +225,7 @@ class PermHandler:
             for e_role in e_roles:
                 if e_role not in role_list:
                     overwrite = discord.PermissionOverwrite()
-                    overwrite.connect = False
+                    overwrite.connect = None
                     await self.bot.edit_channel_permissions(vchan, e_role,
                                                             overwrite)
                     asyncio.sleep(1)
@@ -243,7 +243,7 @@ class PermHandler:
             for e_role in e_roles:
                 if e_role not in role_list:
                     overwrite = discord.PermissionOverwrite()
-                    overwrite.read_messages = False
+                    overwrite.read_messages = None
                     await self.bot.edit_channel_permissions(tchan, e_role,
                                                             overwrite)
                     asyncio.sleep(1)
@@ -256,11 +256,8 @@ class PermHandler:
                 asyncio.sleep(1)
 
         for member in members:
-            memrs = list(set(member.roles).intersection(role_list))
-            memps = list(set(member.roles).intersection(prole_list))
-            if not memrs:
-                if memps:
-                    await self.bot.remove_roles(member, memps)
+            if not any(map(lambda v: v in member.roles, role_list)):
+                self.bot.remove_roles(member, prole_list)
 
 
 def check_folder():
