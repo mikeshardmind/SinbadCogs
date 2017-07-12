@@ -256,8 +256,8 @@ class PermHandler:
                 asyncio.sleep(1)
 
         for member in members:
-            memrs = list(set(member.roles).intersection(roles))
-            memps = list(set(member.roles).intersection(proles))
+            memrs = list(set(member.roles).intersection(role_list))
+            memps = list(set(member.roles).intersection(prole_list))
             if not memrs:
                 if memps:
                     await self.bot.remove_roles(member, memps)
