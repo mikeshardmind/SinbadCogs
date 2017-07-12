@@ -203,6 +203,16 @@ class PermHandler:
         await self.validate(ctx.message.server)
         await self.bot.say("Permissions Verified")
 
+    @checks.admin_or_permissions(Manage_server=True)
+    @permhandle.command(name="audit", pass_context=True,
+                        no_pm=True, hidden=True)
+    async def manual_audit(self, ctx):
+        await self.validate(ctx.message.server)
+        await self.bot.say("Permissions Verified")
+        await self.bot.say("this next step will take a while...")
+        await self.audit(ctx.message.server)
+        await self.bot.say("Audit complete.")
+
     async def validate(self, server):
         if not self.settings[server.id]['activated']:
             return
@@ -211,11 +221,7 @@ class PermHandler:
         channels = server.channels
         channels = [c for c in channels if c.id in chans]
         roles = self.settings[server.id]['roles']
-        proles = self.settings[server.id]['proles']
         role_list = [r for r in server.roles if r.id in roles]
-        prole_list = [r for r in server.roles if r.id in proles]
-        await self.bot.request_offline_members(server)
-        members = list(server.members)
 
         vchans = [c for c in channels if c.type == discord.ChannelType.voice]
         tchans = [c for c in channels if c.type == discord.ChannelType.text]
@@ -256,10 +262,18 @@ class PermHandler:
                                                         overwrite)
                 asyncio.sleep(1)
 
+    async def audit(self, server):
+        roles = self.settings[server.id]['roles']
+        role_list = [r for r in server.roles if r.id in roles]
+        proles = self.settings[server.id]['proles']
+        await self.bot.request_offline_members(server)
+        members = list(server.members)
+
         for member in members:
             if set(role_list).isdisjoint(member.roles):
                 rms = [r for r in member.roles if r.id in proles]
                 await self.bot.remove_roles(member, *rms)
+            asyncio.sleep(1)
 
 
 def check_folder():
