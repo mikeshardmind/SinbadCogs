@@ -257,7 +257,7 @@ class PermHandler:
 
         for member in members:
             memrs = list(set(member.roles).intersection(roles))
-            mps = list(set(member.roles).intersection(proles))
+            memps = list(set(member.roles).intersection(proles))
             if not memrs:
                 if memps:
                     await self.bot.remove_roles(member, memps)
