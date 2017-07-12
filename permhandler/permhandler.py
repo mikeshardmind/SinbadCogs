@@ -212,8 +212,8 @@ class PermHandler:
         channels = [c for c in channels if c.id in chans]
         roles = self.settings[server.id]['roles']
         proles = self.settings[server.id]['proles']
-        role_list = [r for r in server.roles if r.id in roles]
-        prole_list = [r for r in server.roles if r.id in proles]
+        roles = [r for r in server.roles if r.id in roles]
+        proles = [r for r in server.roles if r.id in proles]
         members = server.members
 
         vchans = [c for c in channels if c.type == discord.ChannelType.voice]
@@ -256,10 +256,11 @@ class PermHandler:
                 asyncio.sleep(1)
 
         for member in members:
-            mrs = member.roles
-            if not bool(set(mrs) & set(role_list)):
-                rems = [r for r in mrs if r in prole_list]
-                await self.bot.remove_roles(member, *rems)
+            memrs = list(set(member.roles).intersection(roles))
+            mps = list(set(member.roles).intersection(proles))
+            if not memrs:
+                if memps:
+                    await self.bot.remove_roles(member, memps)
 
 
 def check_folder():
