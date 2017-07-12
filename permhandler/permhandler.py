@@ -214,6 +214,7 @@ class PermHandler:
         proles = self.settings[server.id]['proles']
         role_list = [r for r in server.roles if r.id in roles]
         prole_list = [r for r in server.roles if r.id in proles]
+        await self.bot.request_offline_members(server)
         members = list(server.members)
 
         vchans = [c for c in channels if c.type == discord.ChannelType.voice]
