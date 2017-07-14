@@ -337,7 +337,6 @@ class PermHandler:
                     asyncio.sleep(1)
 
 
-
 def check_folder():
     f = 'data/permhandler'
     if not os.path.exists(f):
