@@ -263,6 +263,9 @@ class PermHandler:
                 asyncio.sleep(1)
 
     async def audit(self, server):
+        if not self.settings[server.id]['activated']:
+            return
+        await self.validate(server)
         roles = self.settings[server.id]['roles']
         role_list = [r for r in server.roles if r.id in roles]
         proles = self.settings[server.id]['proles']
