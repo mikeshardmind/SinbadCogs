@@ -13,7 +13,7 @@ class PermHandler:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.3"
+    __version__ = "1.4"
 
     def __init__(self, bot):
         self.bot = bot
@@ -142,8 +142,7 @@ class PermHandler:
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="addprole", pass_context=True, no_pm=True)
     async def addprole(self, ctx, role_id: str):
-            """add a role that can only be owned by those with
-            priveleged roles roles"""
+            """add role that can only be held by users with priveleged roles"""
             server = ctx.message.server
             self.initial_config(server.id)
             r = [r for r in server.roles if r.id == role_id]
@@ -238,6 +237,7 @@ class PermHandler:
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="validate", pass_context=True, no_pm=True)
     async def manual_validate(self, ctx):
+        """manually revalidate everything"""
         await self.validate(ctx.message.server)
         await self.reorder_roles(server)
         await self.bot.say("Permissions Verified")
