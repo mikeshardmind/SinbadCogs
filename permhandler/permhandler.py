@@ -46,7 +46,27 @@ class PermHandler:
             self.settings[server_id]['chans'] = False
         if 'proles' not in self.settings[server_id]:
             self.settings[server_id]['proles'] = []
+        if 'floor' not in self.settings[server_id]:
+            self.settings[server_id]['floor'] = None
         self.save_json()
+
+    @checks.admin_or_permissions(Manage_server=True)
+    @permhandle.command(name="newrole", pass_context=True, no_pm=True)
+    async def make_role(self, ctx, *, name):
+        """makes a new role and adds it to the priveleged role list"""
+        rname = str(name)
+        if not all(x.isalpha() or x.isspace() for x in rname):
+            return await self.bot.say("Guild names must be made "
+                                      "of letters and spaces")
+        server = ctx.message.server
+
+        r = await self.bot.create_role(server, name=rname, hoist=True,
+                                       mentionable=True)
+        self.settings[server.id]['roles'].append(r.id)
+        self.save_json()
+        await self.validate(server)
+        await self.reorder_roles(server)
+        await self.bot.say("Guild role made and configured")
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="configdump", pass_context=True, no_pm=True)
@@ -65,12 +85,15 @@ class PermHandler:
         pcs = [r.name for r in prole_list if r.id in proles]
         vcs = [c.name for c in channels if c.type == discord.ChannelType.voice]
         tcs = [c.name for c in channels if c.type == discord.ChannelType.text]
+        floor_role = [r.name for r in role_list
+                      if r.id == self.settings[server.id]['floor']]
 
         output = ""
         output += "Priveleged Roles: {}".format(rls)
         output += "\nProtected Roles: {}".format(pcs)
         output += "\nProtected Voice Chats: {}".format(vcs)
         output += "\nProtected Text Chats: {}".format(tcs)
+        output += "\nFloor Role: {}".format(floor_role)
         for page in pagify(output, delims=["\n", ","]):
             await self.bot.send_message(ctx.message.author, box(page))
 
@@ -198,9 +221,25 @@ class PermHandler:
         await self.bot.say("Channel removed")
 
     @checks.admin_or_permissions(Manage_server=True)
+    @permhandle.command(name="setfloor", pass_context=True, no_pm=True)
+    async def set_floor(self, ctx, role_id: str):
+        """sets the role all protected and priveleged roles should be above"""
+        server = ctx.message.server
+        self.initial_config(server.id)
+        r = [r for r in server.roles if r.id == role_id][0]
+        if not r:
+            return await self.bot.say("No such role")
+        self.settings[server.id]['floor'] = r.id
+        self.save_json()
+        await self.bot.say("Floor set, I will now validate settings.")
+        await self.validate(server)
+        await self.bot.say("Settings validated: you are good to go.")
+
+    @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="validate", pass_context=True, no_pm=True)
     async def manual_validate(self, ctx):
         await self.validate(ctx.message.server)
+        await self.reorder_roles(server)
         await self.bot.say("Permissions Verified")
 
     @checks.admin_or_permissions(Manage_server=True)
@@ -211,6 +250,7 @@ class PermHandler:
         await self.bot.say("Permissions Verified")
         await self.bot.say("this next step will take a while...")
         await self.audit(ctx.message.server)
+        await self.reorder_roles(server)
         await self.bot.say("Audit complete.")
 
     async def validate(self, server):
@@ -221,8 +261,10 @@ class PermHandler:
         channels = server.channels
         channels = [c for c in channels if c.id in chans]
         roles = self.settings[server.id]['roles']
-        role_list = [r for r in server.roles if r.id in roles]
+        proles = self.settings[server.id]['proles']
 
+        role_list = [r for r in server.roles if r.id in roles]
+        prole_list = [r for r in server.roles if r.id in proles]
         vchans = [c for c in channels if c.type == discord.ChannelType.voice]
         tchans = [c for c in channels if c.type == discord.ChannelType.text]
 
@@ -277,6 +319,23 @@ class PermHandler:
                 rms = [r for r in member.roles if r.id in proles]
                 await self.bot.remove_roles(member, *rms)
             asyncio.sleep(1)
+
+    async def reorder_roles(self, server):
+        roles = self.settings[server.id]['roles']
+        proles = self.settings[server.id]['proles']
+        role_list = [r for r in server.roles if r.id in roles]
+        prole_list = [r for r in server.roles if r.id in proles]
+        server_roles = server.role_hierarchy[::-1]
+        floor_role = [r for r in server.roles
+                      if r.id == self.settings[server.id]['floor']][0]
+        for r in server_roles:
+            if r.is_everyone:
+                continue
+            if r in role_list:
+                if r.position < floor_role.position:
+                    await self.bot.move_role(server, r, floor_role.position)
+                    asyncio.sleep(1)
+
 
 
 def check_folder():
