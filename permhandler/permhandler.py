@@ -277,14 +277,14 @@ class PermHandler:
                     overwrite.connect = None
                     await self.bot.edit_channel_permissions(vchan, e_role,
                                                             overwrite)
-                    asyncio.sleep(1)
+                    await asyncio.sleep(1)
 
             for role in role_list:
                 overwrite = discord.PermissionOverwrite()
                 overwrite.connect = True
                 await self.bot.edit_channel_permissions(vchan, role,
                                                         overwrite)
-                asyncio.sleep(1)
+                await asyncio.sleep(1)
 
         for tchan in tchans:
             e_overwrites = tchan.overwrites
@@ -295,14 +295,14 @@ class PermHandler:
                     overwrite.read_messages = None
                     await self.bot.edit_channel_permissions(tchan, e_role,
                                                             overwrite)
-                    asyncio.sleep(1)
+                    await asyncio.sleep(1)
 
             for role in role_list:
                 overwrite = discord.PermissionOverwrite()
                 overwrite.read_messages = True
                 await self.bot.edit_channel_permissions(tchan, role,
                                                         overwrite)
-                asyncio.sleep(1)
+                await asyncio.sleep(1)
 
     async def audit(self, server):
         if not self.settings[server.id]['activated']:
@@ -318,7 +318,7 @@ class PermHandler:
             if set(role_list).isdisjoint(member.roles):
                 rms = [r for r in member.roles if r.id in proles]
                 await self.bot.remove_roles(member, *rms)
-            asyncio.sleep(1)
+            await asyncio.sleep(1)
 
     async def reorder_roles(self, server):
         roles = self.settings[server.id]['roles']
@@ -334,7 +334,7 @@ class PermHandler:
             if r in role_list:
                 if r.position < floor_role.position:
                     await self.bot.move_role(server, r, floor_role.position)
-                    asyncio.sleep(1)
+                    await asyncio.sleep(1)
 
 
 def check_folder():

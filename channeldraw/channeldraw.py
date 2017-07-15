@@ -132,26 +132,26 @@ class ChannelDraw:
 
         while author.id in self.users:
             if fail_count == 1:
-                asyncio.sleep(1)
+                await asyncio.sleep(1)
                 await self.bot.send_message(author, "Quit wasting my time.")
             if fail_count == 2:
-                asyncio.sleep(1)
+                await asyncio.sleep(1)
                 await self.bot.send_message(author, "Next one either quit "
                                             "or do it correctly")
             if fail_count == 3:
-                asyncio.sleep(1)
+                await asyncio.sleep(1)
                 await self.bot.send_message(author, "We are done here.")
                 self.users.remove(author.id)
                 break
             if len(self.queues[channel.id]) == 0:
-                asyncio.sleep(1)
+                await asyncio.sleep(1)
                 await self.bot.send_message(author, "That's all folks")
                 self.users.remove(author.id)
                 break
             entry = self.queues[channel.id].pop()
             em = self.qform(entry)
             await self.bot.send_message(author, embed=em)
-            asyncio.sleep(1)
+            await asyncio.sleep(1)
             dm = await self.bot.send_message(author,
                                              "Is this a valid entry?"
                                              "(yes/no/quit)")

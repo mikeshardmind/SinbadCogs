@@ -131,7 +131,7 @@ class MultiQuote:
                 self.bot.logs_from(channel, limit=1000000,
                                    after=a, before=b, reverse=True):
             await self.sendifallowed(auth, chan, m)
-            asyncio.sleep(1)
+            await asyncio.sleep(1)
         await self.sendifallowed(auth, chan, b)
 
     @commands.command(pass_context=True, name='crossmultiquote',
@@ -165,7 +165,7 @@ class MultiQuote:
             await self.init_settings(server)
         for message_id in args:
             message = await self.get_msg(message_id, server)
-            asyncio.sleep(1)
+            await asyncio.sleep(1)
             if message is not None:
                 await self.sendifallowed(ctx.message.author,
                                          ctx.message.channel, message)
