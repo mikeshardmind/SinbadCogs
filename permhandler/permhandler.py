@@ -64,7 +64,7 @@ class PermHandler:
         self.settings[server.id]['roles'].append(r.id)
         self.save_json()
         await self.validate(server)
-        await self.reorder_roles(server)
+#        await self.reorder_roles(server)
         await self.bot.say("Guild role made and configured")
 
     @checks.admin_or_permissions(Manage_server=True)
@@ -238,7 +238,7 @@ class PermHandler:
     async def manual_validate(self, ctx):
         """manually revalidate everything"""
         await self.validate(ctx.message.server)
-        await self.reorder_roles(ctx.message.server)
+#        await self.reorder_roles(ctx.message.server)
         await self.bot.say("Permissions Verified")
 
     @checks.admin_or_permissions(Manage_server=True)
@@ -249,7 +249,7 @@ class PermHandler:
         await self.bot.say("Permissions Verified")
         await self.bot.say("this next step will take a while...")
         await self.audit(ctx.message.server)
-        await self.reorder_roles(ctx.message.server)
+#        await self.reorder_roles(ctx.message.server)
         await self.bot.say("Audit complete.")
 
     async def validate(self, server):
