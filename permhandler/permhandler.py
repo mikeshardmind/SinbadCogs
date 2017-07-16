@@ -1,5 +1,6 @@
 import os
 import discord
+import asyncio
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from .utils import checks
@@ -12,7 +13,7 @@ class PermHandler:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.4"
+    __version__ = "1.5"
 
     def __init__(self, bot):
         self.bot = bot
@@ -64,7 +65,7 @@ class PermHandler:
         self.settings[server.id]['roles'].append(r.id)
         self.save_json()
         await self.validate(server)
-#        await self.reorder_roles(server)
+        await self.reorder_roles(server)
         await self.bot.say("Guild role made and configured")
 
     @checks.admin_or_permissions(Manage_server=True)
@@ -136,6 +137,7 @@ class PermHandler:
         self.settings[server.id]['roles'].append(role_id)
         self.save_json()
         await self.validate(server)
+        await self.reorder_roles(server)
         await self.bot.say("Role added.")
 
     @checks.admin_or_permissions(Manage_server=True)
@@ -160,7 +162,7 @@ class PermHandler:
         """remove a priveleged role"""
         server = ctx.message.server
         self.initial_config(server.id)
-        r = [r for r in server.roles if r.id == role_id]
+        r = [r for r in server.roles if r.id == role_id][0]
         if not r:
             return await self.bot.say("No such role")
         if role_id not in self.settings[server.id]['roles']:
@@ -169,6 +171,9 @@ class PermHandler:
         self.save_json()
         await self.validate(server)
         await self.bot.say("Role removed.")
+        if self.settings[server.id]['floor'] is not None:
+            if server.me.top_role > r:
+                await self.bot.move_role(server, r, 1)
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="remprole", pass_context=True, no_pm=True)
@@ -238,7 +243,7 @@ class PermHandler:
     async def manual_validate(self, ctx):
         """manually revalidate everything"""
         await self.validate(ctx.message.server)
-#        await self.reorder_roles(ctx.message.server)
+        await self.reorder_roles(ctx.message.server)
         await self.bot.say("Permissions Verified")
 
     @checks.admin_or_permissions(Manage_server=True)
@@ -249,7 +254,7 @@ class PermHandler:
         await self.bot.say("Permissions Verified")
         await self.bot.say("this next step will take a while...")
         await self.audit(ctx.message.server)
-#        await self.reorder_roles(ctx.message.server)
+        await self.reorder_roles(ctx.message.server)
         await self.bot.say("Audit complete.")
 
     async def validate(self, server):
@@ -276,12 +281,14 @@ class PermHandler:
                     overwrite.connect = None
                     await self.bot.edit_channel_permissions(vchan, e_role,
                                                             overwrite)
+                    await asyncio.sleep(1)
 
             for role in role_list:
                 overwrite = discord.PermissionOverwrite()
                 overwrite.connect = True
                 await self.bot.edit_channel_permissions(vchan, role,
                                                         overwrite)
+                await asyncio.sleep(1)
 
         for tchan in tchans:
             e_overwrites = tchan.overwrites
@@ -292,12 +299,14 @@ class PermHandler:
                     overwrite.read_messages = None
                     await self.bot.edit_channel_permissions(tchan, e_role,
                                                             overwrite)
+                    await asyncio.sleep(1)
 
             for role in role_list:
                 overwrite = discord.PermissionOverwrite()
                 overwrite.read_messages = True
                 await self.bot.edit_channel_permissions(tchan, role,
                                                         overwrite)
+                await asyncio.sleep(1)
 
     async def audit(self, server):
         if not self.settings[server.id]['activated']:
@@ -313,21 +322,23 @@ class PermHandler:
             if set(role_list).isdisjoint(member.roles):
                 rms = [r for r in member.roles if r.id in proles]
                 await self.bot.remove_roles(member, *rms)
+                await asyncio.sleep(1)
 
     async def reorder_roles(self, server):
+        if self.settings[server.id]['floor'] is None:
+            return
         roles = self.settings[server.id]['roles']
-        proles = self.settings[server.id]['proles']
         role_list = [r for r in server.roles if r.id in roles]
-        prole_list = [r for r in server.roles if r.id in proles]
-        server_roles = server.role_hierarchy[::-1]
         floor_role = [r for r in server.roles
                       if r.id == self.settings[server.id]['floor']][0]
-        for r in server_roles:
-            if r.is_everyone:
-                continue
-            if r in role_list:
-                if r.position < floor_role.position:
-                    await self.bot.move_role(server, r, floor_role.position)
+        bot_top_role = server.me.top_role
+        f_position = floor_role.position
+        for role in role_list:
+            await asyncio.sleep(1)
+            if role < floor_role:
+                if floor_role < bot_top_role:
+                    await self.bot.move_role(server, role, floor_role.position)
+
 
 def check_folder():
     f = 'data/permhandler'
