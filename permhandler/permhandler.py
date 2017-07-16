@@ -69,7 +69,21 @@ class PermHandler:
         await self.bot.say("Guild role made and configured")
 
     @checks.admin_or_permissions(Manage_server=True)
-    @permhandle.command(name="configdump", pass_context=True, no_pm=True)
+    @permhandle.command(name="roleinfo", pass_context=True, no_pm=True)
+    async def r_info(self, ctx, *, role):
+        """get info about a role by name or ID"""
+        nameID = str(role).strip().lower()
+        rn = [r for r in ctx.message.server.roles
+              if r.name.strip().lower() == nameID or r.id == nameID]
+        if rn:
+            if len(rn) == 1:
+                return await self.bot.say("Role name: `{}`\nRole ID: `{}`"
+                                          "".format(rn[0].name, rn[0].id))
+        await self.bot.say("There was not a unique exact match.")
+
+    @checks.admin_or_permissions(Manage_server=True)
+    @permhandle.command(name="configdump", pass_context=True,
+                        no_pm=True, hidden=True)
     async def configdump(self, ctx):
         """lists current config info"""
         server = ctx.message.server
