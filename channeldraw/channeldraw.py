@@ -108,8 +108,6 @@ class ChannelDraw:
     @draw.command(name="auto", pass_context=True)
     async def autodraw(self, ctx):
         """only works if there is a prior draw on record"""
-        if self.is_user_shamed(ctx.message.author):
-            return await("I'm Not letting you waste my time right now.")
         if not self.settings['latest'][ctx.message.channel.id]:
             return await self.bot.send_cmd_help(ctx)
         if ctx.message.author.id in self.users:
@@ -239,7 +237,7 @@ def check_folder():
 def check_file():
     f = 'data/channeldraw/settings.json'
     if dataIO.is_valid_json(f) is False:
-        dataIO.save_json(f, {'latest': {}, 'shame': {}})
+        dataIO.save_json(f, {'latest': {}})
 
 
 def setup(bot):
