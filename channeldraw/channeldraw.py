@@ -134,6 +134,7 @@ class ChannelDraw:
 
     async def validate(self, channel, author):
         if len(self.queues[channel.id]) == 0:
+            self.users.remove(author.id)
             return await self.bot.send_message(author, "No new messages.")
         latest = self.queues[channel.id][-1].timestamp.strftime("%Y%m%d%H%M")
         fail_count = 0
