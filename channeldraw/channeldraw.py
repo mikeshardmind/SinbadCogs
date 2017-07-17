@@ -12,7 +12,7 @@ class ChannelDraw:
     """Draws a random message from a set"""
 
     __author__ = "mikeshardmind"
-    __version__ = "2.1a"
+    __version__ = "2.2a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -45,6 +45,7 @@ class ChannelDraw:
         if a.timestamp >= b.timestamp:
             a, b = b, a  # Because I can't trust people to use things correctly
 
+        self.initialize(a.channel.id)
         await self.mkqueue(a.timestamp, b.timestamp, b.channel)
         self.queues[a.channel.id].append(a)
         self.queues[b.channel.id].append(b)
@@ -76,6 +77,7 @@ class ChannelDraw:
         if ctx.message.author.id in self.users:
             return await self.bot.say("You already have a drawing in progress")
 
+        self.initialize(a.channel.id)
         await self.mkqueue(a, b, ctx.message.channel)
         self.users.append(ctx.message.author.id)
         await self.validate(ctx.message.channel, ctx.message.author)
@@ -101,6 +103,7 @@ class ChannelDraw:
         if ctx.message.channel.id in self.queues:
             return await self.bot.say("That channel has a drawing in progress")
 
+        self.initialize(ctx.message.channel.id)
         await self.mkqueue(a, b, ctx.message.channel)
         self.users.append(ctx.message.author.id)
         await self.validate(ctx.message.channel, ctx.message.author)
@@ -108,7 +111,8 @@ class ChannelDraw:
     @draw.command(name="auto", pass_context=True)
     async def autodraw(self, ctx):
         """only works if there is a prior draw on record"""
-        if not self.settings['latest'][ctx.message.channel.id]:
+        self.initialize(ctx.message.channel.id)
+        if self.settings['latest'][ctx.message.channel.id] == 0:
             return await self.bot.send_cmd_help(ctx)
         if ctx.message.author.id in self.users:
             return await self.bot.say("You already have a drawing in progress")
@@ -118,9 +122,15 @@ class ChannelDraw:
         a = dt.strptime(str(self.settings['latest'][ctx.message.channel.id]),
                         "%Y%m%d%H%M")
         b = ctx.message.timestamp
+
         await self.mkqueue(a, b, ctx.message.channel)
         self.users.append(ctx.message.author.id)
         await self.validate(ctx.message.channel, ctx.message.author)
+
+    def initialize(self, chan_id: str):
+        if chan_id not in self.settings['latest']:
+            self.settings['latest'][chan_id] = 0
+            self.save_json()
 
     async def validate(self, channel, author):
         latest = self.queues[channel.id][-1].timestamp.strftime("%Y%m%d%H%M")
