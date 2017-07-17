@@ -133,6 +133,8 @@ class ChannelDraw:
             self.save_json()
 
     async def validate(self, channel, author):
+        if len(self.queues[channel.id]) == 0:
+            return await self.bot.send_message(author, "No new messages.")
         latest = self.queues[channel.id][-1].timestamp.strftime("%Y%m%d%H%M")
         fail_count = 0
         random.seed()
