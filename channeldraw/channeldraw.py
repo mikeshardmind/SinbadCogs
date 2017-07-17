@@ -90,7 +90,7 @@ class ChannelDraw:
             t = str(time)
             t = ''.join(c for c in t if c.isdigit())
             a = dt.strptime(t, "%Y%m%d%H%M")
-            b = dt.utcnow
+            b = dt.utcnow()
             pass
         except ValueError:
             return await self.bot.send_cmd_help(ctx)
