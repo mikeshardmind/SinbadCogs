@@ -79,7 +79,13 @@ class PermHandler:
             if len(rn) == 1:
                 return await self.bot.say("Role name: `{}`\nRole ID: `{}`"
                                           "".format(rn[0].name, rn[0].id))
-        await self.bot.say("There was not a unique exact match.")
+            else:
+                output = "Multiple Matches found: "
+                for r in rn:
+                    output += "\nRole name: `{}` | Role ID: `{}`" \
+                              "".format(r.name, r.id)
+                return await self.bot.say(output)
+        await self.bot.say("There was not a match.")
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="configdump", pass_context=True,
@@ -281,10 +287,8 @@ class PermHandler:
         channels = server.channels
         channels = [c for c in channels if c.id in chans]
         roles = self.settings[server.id]['roles']
-        proles = self.settings[server.id]['proles']
 
         role_list = [r for r in server.roles if r.id in roles]
-        prole_list = [r for r in server.roles if r.id in proles]
         vchans = [c for c in channels if c.type == discord.ChannelType.voice]
         tchans = [c for c in channels if c.type == discord.ChannelType.text]
 
@@ -344,7 +348,6 @@ class PermHandler:
         floor_role = [r for r in server.roles
                       if r.id == self.settings[server.id]['floor']][0]
         bot_top_role = server.me.top_role
-        f_position = floor_role.position
         for role in role_list:
             await asyncio.sleep(1)
             if role < floor_role:
