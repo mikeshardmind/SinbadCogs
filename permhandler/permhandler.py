@@ -264,9 +264,11 @@ class PermHandler:
     @permhandle.command(name="audit", pass_context=True,
                         no_pm=True, hidden=True)
     async def manual_audit(self, ctx):
+        await self.bot.say("Verifying role permissions...")
         await self.validate(ctx.message.server)
         await self.bot.say("Permissions Verified")
-        await self.bot.say("this next step will take a while...")
+        await self.bot.say("Checking that nobody has roles they shouldn't\n"
+                           "This may take a few minutes")
         await self.audit(ctx.message.server)
         await self.reorder_roles(ctx.message.server)
         await self.bot.say("Audit complete.")
@@ -295,14 +297,12 @@ class PermHandler:
                     overwrite.connect = None
                     await self.bot.edit_channel_permissions(vchan, e_role,
                                                             overwrite)
-                    await asyncio.sleep(1)
 
             for role in role_list:
                 overwrite = discord.PermissionOverwrite()
                 overwrite.connect = True
                 await self.bot.edit_channel_permissions(vchan, role,
                                                         overwrite)
-                await asyncio.sleep(1)
 
         for tchan in tchans:
             e_overwrites = tchan.overwrites
@@ -313,14 +313,12 @@ class PermHandler:
                     overwrite.read_messages = None
                     await self.bot.edit_channel_permissions(tchan, e_role,
                                                             overwrite)
-                    await asyncio.sleep(1)
 
             for role in role_list:
                 overwrite = discord.PermissionOverwrite()
                 overwrite.read_messages = True
                 await self.bot.edit_channel_permissions(tchan, role,
                                                         overwrite)
-                await asyncio.sleep(1)
 
     async def audit(self, server):
         if not self.settings[server.id]['activated']:
