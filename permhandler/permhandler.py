@@ -79,7 +79,7 @@ class PermHandler:
             if len(rn) == 1:
                 return await self.bot.say("Role name: `{}`\nRole ID: `{}`"
                                           "".format(rn[0].name, rn[0].id))
-            else:
+            elif len(rn) > 1:
                 output = "Multiple Matches found: "
                 for r in rn:
                     output += "\nRole name: `{}` | Role ID: `{}`" \
