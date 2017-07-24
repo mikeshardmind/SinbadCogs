@@ -42,7 +42,9 @@ class ChannelDraw:
             return await self.bot.say("Those messages are in seperate rooms")
         if a.channel.id in self.queues:
             return await self.bot.say("That channel has a drawing in progress")
-        if a.timestamp >= b.timestamp:
+        if a.timestamp == b.timestamp:  # Because QA
+            return await self.bot.say("Those message(s) are at the same time")
+        if a.timestamp > b.timestamp:
             a, b = b, a  # Because I can't trust people to use things correctly
 
         self.initialize(a.channel.id)
