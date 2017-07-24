@@ -130,6 +130,7 @@ class LinkedChannels:
         em.set_footer(text=footer)
         return em
 
+
 def check_folder():
     f = 'data/linkedchannels'
     if not os.path.exists(f):
