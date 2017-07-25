@@ -317,7 +317,7 @@ class PermHandler:
             for e_role in e_roles:
                 if e_role not in role_list:
                     overwrite = discord.PermissionOverwrite()
-                    overwrite.connect = None
+                    overwrite.connect = False
                     await self.bot.edit_channel_permissions(vchan, e_role,
                                                             overwrite)
 
@@ -333,7 +333,7 @@ class PermHandler:
             for e_role in e_roles:
                 if e_role not in role_list:
                     overwrite = discord.PermissionOverwrite()
-                    overwrite.read_messages = None
+                    overwrite.read_messages = False
                     await self.bot.edit_channel_permissions(tchan, e_role,
                                                             overwrite)
 
