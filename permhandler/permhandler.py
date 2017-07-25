@@ -108,11 +108,23 @@ class PermHandler:
         floor_role = [r.name for r in role_list
                       if r.id == self.settings[server.id]['floor']]
 
-        output = ""
-        output += "Priveleged Roles: {}".format(rls)
-        output += "\nProtected Roles: {}".format(pcs)
-        output += "\nProtected Voice Chats: {}".format(vcs)
-        output += "\nProtected Text Chats: {}".format(tcs)
+        output = "+"
+        output += "Priveleged Roles: "
+        for r in rls:
+            output += "\n{}".format(r)
+        output += "\n+"
+        output += "\nProtected Roles"
+        for r in pcs:
+            output += "\n{}".format(r)
+        output += "\n+"
+        output += "\nProtected Voice Chats: "
+        for c in vcs:
+            output += "\n{}".format(c)
+        output += "\n+"
+        output += "\nProtected Text Chats: "
+        for c in tcs:
+            output += "\n{}".format(c)
+        output += "\n+"
         output += "\nFloor Role: {}".format(floor_role)
         for page in pagify(output, delims=["\n", ","]):
             await self.bot.send_message(ctx.message.author, box(page))
