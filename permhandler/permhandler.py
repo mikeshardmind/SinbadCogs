@@ -290,9 +290,9 @@ class PermHandler:
 
         # Roles can't be self protecting, this fixes for prior versions
         proles = self.settings[server.id]['proles']
-        intersection = list(set(roles) &= set(proles))
-        for i in intersection:
-            self.settings[server.id]['roles'].remove(i)
+        self.settings[server.id]['proles'] = \
+            [r for r in proles if r not in roles]
+
         self.save_json()
 
         role_list = [r for r in server.roles if r.id in roles]
