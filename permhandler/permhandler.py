@@ -300,13 +300,6 @@ class PermHandler:
         channels = [c for c in channels if c.id in chans]
         roles = self.settings[server.id]['roles']
 
-        # Roles can't be self protecting, this fixes for prior versions
-        proles = self.settings[server.id]['proles']
-        self.settings[server.id]['proles'] = \
-            [r for r in proles if r not in roles]
-
-        self.save_json()
-
         role_list = [r for r in server.roles if r.id in roles]
         vchans = [c for c in channels if c.type == discord.ChannelType.voice]
         tchans = [c for c in channels if c.type == discord.ChannelType.text]
@@ -350,6 +343,8 @@ class PermHandler:
         roles = self.settings[server.id]['roles']
         role_list = [r for r in server.roles if r.id in roles]
         proles = self.settings[server.id]['proles']
+        # better fix
+        proles = [r for r in proles if r not in roles]
         await self.bot.request_offline_members(server)
         members = list(server.members)
 
