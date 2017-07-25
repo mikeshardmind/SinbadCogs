@@ -108,23 +108,11 @@ class PermHandler:
         floor_role = [r.name for r in role_list
                       if r.id == self.settings[server.id]['floor']]
 
-        output = "+"
-        output += "Priveleged Roles: "
-        for r in rls:
-            output += "\n{}".format(r)
-        output += "\n+"
-        output += "\nProtected Roles"
-        for r in pcs:
-            output += "\n{}".format(r)
-        output += "\n+"
-        output += "\nProtected Voice Chats: "
-        for c in vcs:
-            output += "\n{}".format(c)
-        output += "\n+"
-        output += "\nProtected Text Chats: "
-        for c in tcs:
-            output += "\n{}".format(c)
-        output += "\n+"
+        output = ""
+        output += "Priveleged Roles: {}".format(rls)
+        output += "\nProtected Roles: {}".format(pcs)
+        output += "\nProtected Voice Chats: {}".format(vcs)
+        output += "\nProtected Text Chats: {}".format(tcs)
         output += "\nFloor Role: {}".format(floor_role)
         for page in pagify(output, delims=["\n", ","]):
             await self.bot.send_message(ctx.message.author, box(page))
@@ -166,8 +154,6 @@ class PermHandler:
             return await self.bot.say("No such role")
         if role_id in self.settings[server.id]['roles']:
             return await self.bot.say("Already in roles")
-        if role_id in self.settings[server.id]['proles']:
-            return await self.bot.say("Roles can't be self protecting")
         self.settings[server.id]['roles'].append(role_id)
         self.save_json()
         await self.validate(server)
@@ -185,9 +171,6 @@ class PermHandler:
                 return await self.bot.say("No such role")
             if role_id in self.settings[server.id]['proles']:
                 return await self.bot.say("Already in roles")
-            if role_id in self.settings[server.id]['roles']:
-                return await self.bot.say("Roles can't be self protecting")
-
             self.settings[server.id]['proles'].append(role_id)
             self.save_json()
             await self.validate(server)
@@ -252,7 +235,7 @@ class PermHandler:
         self.initial_config(server.id)
         c = [c for c in server.channels if c.id == chan_id]
         if not c:
-            return await self.bot.say("No such channel")
+            return await self.bot.say("No such role")
         if chan_id not in self.settings[server.id]['chans']:
             return await self.bot.say("Not in channels")
         self.settings[server.id]['chans'].remove(chan_id)
@@ -353,8 +336,8 @@ class PermHandler:
             return
         await self.validate(server)
         roles = self.settings[server.id]['roles']
-        proles = self.settings[server.id]['proles']
         role_list = [r for r in server.roles if r.id in roles]
+        proles = self.settings[server.id]['proles']
         await self.bot.request_offline_members(server)
         members = list(server.members)
 
