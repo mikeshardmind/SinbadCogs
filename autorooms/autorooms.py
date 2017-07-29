@@ -13,7 +13,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-    __version__ = "2.0"
+    __version__ = "3.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -83,11 +83,8 @@ class AutoRooms:
                 if chan.id in channels:
                     overwrites = chan.overwrites
                     cname = "Auto: {}".format(chan.name)
-                    channel = await self.bot.create_channel(
-                            server, cname, type=discord.ChannelType.voice)
-                    for overwrite in overwrites:
-                        await self.bot.edit_channel_permissions(channel,
-                                                                overwrite)
+                    channel = await self.bot.create_channel(server, cname,
+                              *overwrites, type=discord.ChannelType.voice)
                     await self.bot.move_member(memb_after, channel)
                     self.settings[server.id]['clones'].append(channel.id)
                 self.save_json()
