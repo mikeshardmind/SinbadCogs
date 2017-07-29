@@ -13,7 +13,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-    __version__ = "2.1"
+    __version__ = "2.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -72,23 +72,15 @@ class AutoRooms:
 
     async def autorooms(self, memb_before, memb_after):
         """This cog is Self Cleaning"""
-
-        server_after = memb_after.server
-        if server_after is not None:
-            sa_channels = self.settings[server_after.id]['channels']
-            sa_cache = self.settings[server_after.id]['cache']
-            sa_clones = self.settings[server_after.id]['clones']
-
-        server_before = memb_before.server
-        if server_before is not None:
-            sb_channels = self.settings[server_before.id]['channels']
-            sb_cache = self.settings[server_before.id]['cache']
-            sb_clones = self.settings[server_before.id]['clones']
+        server = memb_before.server
+        channels = self.settings[server.id]['channels']
+        cache = self.settings[server.id]['cache']
+        clones = self.settings[server.id]['clones']
 
         if self.settings[server.id]['toggleactive']:
             if memb_after.voice.voice_channel is not None:
                 chan = memb_after.voice.voice_channel
-                if chan.id in sa_channels:
+                if chan.id in channels:
                     overwrites = chan.overwrites
                     cname = "Auto: {}".format(chan.name)
                     channel = await self.bot.create_channel(
@@ -97,23 +89,35 @@ class AutoRooms:
                         await self.bot.edit_channel_permissions(channel,
                                                                 overwrite)
                     await self.bot.move_member(memb_after, channel)
-                    sa_clones.append(channel.id)
-                    self.save_json()
+                    self.settings[server.id]['clones'].append(channel.id)
+                self.save_json()
 
         if memb_after.voice.voice_channel is not None:
             channel = memb_after.voice.voice_channel
-            if channel.id in sa_clones:
-                if channel.id not in sa_cache:
-                    sa_cache.append(channel.id)
+            if channel.id in clones:
+                if channel.id not in cache:
+                    cache.append(channel.id)
                     self.save_json()
 
-        if memb_before.voice.voice_channel is not None:
-            channel = memb_before.voice.voice_channel
-            if channel.id in sb_cache:
-                if len(channel.voice_members) == 0:
-                    await self.bot.delete_channel(channel)
-                    sb_clones.remove(channel.id)
-                    sb_cache.remove(channel.id)
+        channel = memb_before.voice.voice_channel
+        if channel.id in cache:
+            if len(channel.voice_members) == 0:
+                await self.bot.delete_channel(channel)
+                self.settingscleanup(server)
+
+    def settingscleanup(self, server):
+        """cleanup of settings"""
+        if server.id in self.settings:
+            clones = self.settings[server.id]['clones']
+            cache = self.settings[server.id]['cache']
+            for channel_id in clones:
+                channel = server.get_channel(channel_id)
+                if channel is None:
+                    clones.remove(channel_id)
+                    self.save_json()
+            for channel_id in cache:
+                if channel_id not in clones:
+                    cache.remove(channel_id)
                     self.save_json()
 
 
