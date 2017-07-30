@@ -89,7 +89,7 @@ class OneWayLink:
         channels = [c for c in channels if c.type == discord.ChannelType.text]
 
         for name in self.settings:
-            chan_ids = list(*self.settings[name].values())
+            chan_ids = list(self.settings[name].values())
             chans = [c for c in channels if c.id in chan_ids]
             self.links[name] = chans
 
