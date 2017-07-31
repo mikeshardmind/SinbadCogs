@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "Thanks for installing. Hopefully you find this helpful. ",
+    "NAME" : "StreamAnnouncer",
+    "SHORT" : "announces streams",
+    "DESCRIPTION" : "announce when someone in the discord is streaming in a configureable channel if they have a specific role"
+}
