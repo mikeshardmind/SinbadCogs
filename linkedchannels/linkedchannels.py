@@ -38,7 +38,7 @@ class LinkedChannels:
         channels = [c for c in channels if c.type == discord.ChannelType.text]
         channels = [c.id for c in channels if c.id == chan1 or c.id == chan2]
 
-        if any(i in self.settings.activechans for i in channels):
+        if any(i in self.activechans for i in channels):
             return await self.bot.say("One or more of these channels is "
                                       "already linked elsewhere")
 
