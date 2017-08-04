@@ -14,7 +14,7 @@ class LinkedChannels:
     who said what on both sides.\n supports multiple active links"""
 
     __author__ = "mikeshardmind"
-    __version__ = "2.2"
+    __version__ = "2.3"
 
     def __init__(self, bot):
         self.bot = bot
@@ -38,7 +38,7 @@ class LinkedChannels:
         channels = [c for c in channels if c.type == discord.ChannelType.text]
         channels = [c.id for c in channels if c.id == chan1 or c.id == chan2]
 
-        if bool(set(channels) & set(self.activechans)):
+        if any(i in self.settings.activechans for i in channels):
             return await self.bot.say("One or more of these channels is "
                                       "already linked elsewhere")
 
