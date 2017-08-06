@@ -120,18 +120,9 @@ class LongTermPolling:
         message = ctx.message
         server = message.server
 
-        for channel in server.channels:
-            try:
-                msg = await self.bot.get_message(channel, poll_ID)
-                if msg:
-                    p = self.getPollByMessage(message)
-                    if p:
-                        return await p.endPoll()
-                    else:
-                        return await self.bot.say("No such poll")
-                    break
-            except Exception:
-                pass
+        for p in self.poll_sessions:
+            if p.message.id == poll_ID:
+                return await p.endPoll()
 
         await self.bot.say("I couldn't find that poll")
 
