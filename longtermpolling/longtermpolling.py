@@ -1,10 +1,8 @@
 import discord
 import asyncio
-import re
 from discord.ext import commands
 from cogs.utils import checks
-from cogs.utils.dataIO import fileIO
-from cogs.utils.chat_formatting import *
+
 
 # This cog is basically a fork of flapjack's ReactPoll
 # which itself is basically a fork of the poll function in Red Bot's general.py
@@ -108,9 +106,6 @@ class LongTermPolling:
         the question and each answer should be seperated by a semicolon
         """
         message = ctx.message
-        channel = message.channel
-        server = message.server
-        author = message.author
 
         p = NewReactPoll(message, " ".join(poll), self)
         if p.valid:
