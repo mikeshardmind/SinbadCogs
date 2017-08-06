@@ -91,7 +91,8 @@ class LongTermPolling:
 
     def __init__(self, bot):
         self.bot = bot
-        self.polls = dataIO.load_json('data/longtermpolling/polls.json')
+        #  self.polls = dataIO.load_json('data/longtermpolling/polls.json')
+        #  Todo: implement persistence across bot restarts
         self.poll_sessions = []
 
     @commands.group(no_pm=True, pass_context=True)
