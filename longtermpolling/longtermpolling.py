@@ -47,8 +47,7 @@ class NewReactPoll():
 
     # Override NewPoll methods for starting and stopping polls
     async def start(self):
-        msg = "**POLL STARTED! UID:{} **\n\n{}\n\n".format(self.message.id,
-                                                           self.question)
+        msg = "**POLL STARTED!**\n\n{}\n\n".format(self.question)
         for id, data in self.answers.items():
             msg += "{}\n".format(data["ANSWER"])
         msg += ("\nSelect the number to vote!")
@@ -116,7 +115,7 @@ class LongTermPolling:
 
     @ltp.command(pass_context=True, no_pm=True, name="close")
     async def _rem_rpoll(self, ctx, poll_ID: str):
-        """closes a poll by the UID of the poll.
+        """closes a poll by the message ID of the poll.
         """
         message = ctx.message
         server = message.server
