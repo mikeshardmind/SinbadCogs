@@ -1,11 +1,11 @@
 import os
-import sys  # noqa: F401
-from datetime import date, datetime, timedelta  # noqa: F401
 import asyncio
 import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from .utils import checks
+from discord.utils import find
+from cogs.utils.chat_formatting import box, pagify
 
 
 class AutoRooms:
@@ -13,7 +13,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-    __version__ = "3.0"
+    __version__ = "3.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -30,6 +30,7 @@ class AutoRooms:
 
         if server_id not in self.settings:
             self.settings[server_id] = {'toggleactive': False,
+                                        'toggleowner': False,
                                         'channels': [],
                                         'clones': [],
                                         'cache': []
@@ -57,22 +58,102 @@ class AutoRooms:
 
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="makeclone", pass_context=True, no_pm=True)
-    async def settrigger(self, ctx, chan):
+    async def makeclone(self, ctx, chan):
         """Takes a channel ID, turns that voice channel into a clone source"""
         server = ctx.message.server
         if server.id not in self.settings:
             self.initial_config(server.id)
+        if chan in self.settings[server.id]['channels']:
+            return await self.bot.say("Channel already set.")
         if chan is not None:
-            self.settings[server.id]['channels'].append(chan)
+            channel = find(lambda m: m.id == chan, server.channels)
+            if channel is not None:
+                if channel.type == discord.ChannelType.voice:
+                    self.settings[server.id]['channels'].append(chan)
+                    self.save_json()
+                    await self.bot.say('Channel set.')
+                else:
+                    await self.bot.say("That isn't a voice channel.")
+            else:
+                await self.bot.say("No channel with that ID on this server.")
+        else:
+            await self.bot.send_cmd_help(ctx)
+
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="remclone", pass_context=True, no_pm=True)
+    async def remclone(self, ctx, chan):
+        """Takes a channel ID, removes that channel from the clone list"""
+        server = ctx.message.server
+        prefix = ctx.prefix
+        if server.id not in self.settings:
+            self.initial_config(server.id)
+        if chan in self.settings[server.id]['channels']:
+            self.settings[server.id]['channels'].remove(chan)
             self.save_json()
-            await self.bot.say('channel set')
+            await self.bot.say('Channel unset.')
+        else:
+            await self.bot.say("No channel with that ID currently set. "
+                               "\nHint: Use {}autoroomset listclones "
+                               "for a current list.".format(prefix))
+
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="listclones", pass_context=True, no_pm=True)
+    async def listclones(self, ctx):
+        """Lists the current autoroms"""
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.initial_config(server.id)
+
+        channels = self.settings[server.id]['channels']
+        if len(channels) == 0:
+            return await self.bot.say("No autorooms set for this server")
+
+        fix_list = []
+        output = "Current Auto rooms\nChannel ID: Channel Name"
+        for c in channels:
+            channel = find(lambda m: m.id == c, server.channels)
+            if channel is None:
+                fix_list.append(c)
+            else:
+                output += "\n{}: {}".format(c, channel.name)
+        for page in pagify(output, delims=["\n", ","]):
+            await self.bot.send_message(ctx.message.author, box(page))
+        for c in fix_list:
+            channels.remove(c)
+            self.save_json
 
     def save_json(self):
         dataIO.save_json("data/autorooms/settings.json", self.settings)
 
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="toggleowner", pass_context=True, no_pm=True)
+    async def toggleowner(self, ctx):
+        """toggles if the creator of the autoroom owns it
+        requires the "Manage Channels" permission
+        Defaults to false"""
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.initial_config(server.id)
+
+        if 'toggleowner' not in self.settings[server.id]:
+            self.settings[server.id]['toggleowner'] = False
+            # Let's avoid breaking upgrades.
+
+        if self.settings[server.id]['toggleowner'] is True:
+            self.settings[server.id]['toggleowner'] = False
+            self.save_json()
+            await self.bot.say('Users no longer own the autorooms '
+                               ' they make.')
+        else:
+            self.settings[server.id]['toggleowner'] = True
+            self.save_json()
+            await self.bot.say('Users now own the autorooms they make.')
+
     async def autorooms(self, memb_before, memb_after):
         """This cog is Self Cleaning"""
         server = memb_before.server
+        if server.id not in self.settings:
+            return
         channels = self.settings[server.id]['channels']
         cache = self.settings[server.id]['cache']
         clones = self.settings[server.id]['clones']
@@ -82,10 +163,24 @@ class AutoRooms:
                 chan = memb_after.voice.voice_channel
                 if chan.id in channels:
                     overwrites = chan.overwrites
+                    bit_rate = chan.bitrate
+                    u_limit = chan.user_limit
                     cname = "Auto: {}".format(chan.name)
-                    channel = await self.bot.create_channel(server, cname,
-                              *overwrites, type=discord.ChannelType.voice)
+                    channel = await \
+                        self.bot.create_channel(server, cname, *overwrites,
+                                                type=discord.ChannelType.voice)
+                    await self.bot.edit_channel(channel, bitrate=bit_rate,
+                                                user_limit=u_limit)
                     await self.bot.move_member(memb_after, channel)
+                    if self.settings[server.id].get('toggleowner', False):
+                        # Avoids breaking upgrades
+                        overwrite = discord.PermissionOverwrite()
+                        overwrite.manage_channels = True
+                        overwrite.manage_roles = True
+                        await asyncio.sleep(0.5)
+                        await self.bot.edit_channel_permissions(channel,
+                                                                memb_after,
+                                                                overwrite)
                     self.settings[server.id]['clones'].append(channel.id)
                 self.save_json()
 
