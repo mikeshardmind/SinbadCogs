@@ -164,7 +164,7 @@ class AutoRooms:
                 if chan.id in channels:
                     overwrites = chan.overwrites
                     bit_rate = chan.bitrate
-                    u_limit = chan.u_limit
+                    u_limit = chan.user_limit
                     cname = "Auto: {}".format(chan.name)
                     channel = await \
                         self.bot.create_channel(server, cname, *overwrites,
