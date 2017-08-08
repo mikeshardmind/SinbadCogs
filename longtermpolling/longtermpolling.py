@@ -100,9 +100,10 @@ class LongTermPolling:
 
     @ltp.command(pass_context=True, no_pm=True, name="start")
     async def _add_rpoll(self, ctx, *poll):
-        """Add a poll
-        poll should be in the form of a question, followed by answers
-        the question and each answer should be seperated by a semicolon
+        """
+        Start a poll a poll in the current channel
+         poll should be in the form of a question, followed by answers
+         the question and each answer should be seperated by semicolons
         """
         message = ctx.message
 
