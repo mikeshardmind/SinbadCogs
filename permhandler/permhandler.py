@@ -13,7 +13,7 @@ class PermHandler:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.5"
+    __version__ = "1.6"
 
     def __init__(self, bot):
         self.bot = bot
@@ -48,7 +48,67 @@ class PermHandler:
             self.settings[server_id]['proles'] = []
         if 'floor' not in self.settings[server_id]:
             self.settings[server_id]['floor'] = None
+        if 'registers' not in self.settings[server_id]:
+            self.settings[server_id]['registers'] = []
         self.save_json()
+
+    @commands.command(name="signup", pass_context=True,
+                      no_pm=True, hidden=True)
+    async def signup(self, ctx, role_id: str):
+        """Lets you sign up for certain roles if you have a priveleged role"""
+
+        author = ctx.message.author
+        server = ctx.message.server
+        self.initial_config(server.id)
+        roles = self.settings[server.id]['roles']
+        registers = self.settings[server.id]['registers']
+        role_list = [r for r in server.roles if r.id in roles]
+        register_list = [r for r in server.roles if r.id in registers]
+        r = [r for r in server.roles if r.id == role_id]
+
+        if set(role_list).isdisjoint(author.roles):
+            return await self.bot.say("Only alliance members may sign up for "
+                                      "this role.")
+        if r[0] is None:
+            return await self.bot.say("That role doesn't exist here.")
+        if r[0] in author.roles:
+            return await self.bot.say("You already have that role!")
+        if r[0] not in register_list:
+            return await self.bot.say("That role is not available for signup.")
+
+        await self.bot.add_roles(author, *r)
+        await self.bot.say("Role assigned.")
+
+    @checks.admin_or_permissions(Manage_server=True)
+    @permhandle.command(name="addregister", pass_context=True, no_pm=True)
+    async def addregister(self, ctx, role_id: str):
+        """adds a register-able role"""
+
+        server = ctx.message.server
+        self.initial_config(server.id)
+        r = [r for r in server.roles if r.id == role_id]
+        if not r:
+            return await self.bot.say("No such role")
+        if role_id in self.settings[server.id]['registers']:
+            return await self.bot.say("Already in roles")
+        self.settings[server.id]['registers'].append(role_id)
+        self.save_json()
+        await self.bot.say("Register-able role added.")
+
+    @checks.admin_or_permissions(Manage_server=True)
+    @permhandle.command(name="remregister", pass_context=True, no_pm=True)
+    async def remregister(self, ctx, role_id: str):
+        """remove a register-able role"""
+        server = ctx.message.server
+        self.initial_config(server.id)
+        r = [r for r in server.roles if r.id == role_id][0]
+        if not r:
+            return await self.bot.say("No such role")
+        if role_id not in self.settings[server.id]['registers']:
+            return await self.bot.say("Not in roles")
+        self.settings[server.id]['registers'].remove(role_id)
+        self.save_json()
+        await self.bot.say("Register-able role removed.")
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="newrole", pass_context=True, no_pm=True)
