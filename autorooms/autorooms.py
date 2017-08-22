@@ -210,52 +210,52 @@ class AutoRooms:
         """This cog is Self Cleaning"""
         server = memb_after.server
         b_server = memb_before.server
-        if server.id not in self.settings and b_server.id not in self.settings:
-            return
-        channels = self.settings[server.id]['channels']
-        cache = self.settings[server.id]['cache']
-        clones = self.settings[server.id]['clones']
-        b_cache = self.settings[b_server.id]['cache']
 
-        if self.settings[server.id]['toggleactive']:
-            if memb_after.voice.voice_channel is not None:
-                chan = memb_after.voice.voice_channel
-                if chan.id in channels:
-                    overwrites = chan.overwrites
-                    bit_rate = chan.bitrate
-                    u_limit = chan.user_limit
-                    cname = "Auto: {}".format(chan.name)
-                    channel = await \
-                        self.bot.create_channel(server, cname, *overwrites,
+        if server.id in self.settings:
+            channels = self.settings[server.id]['channels']
+            cache = self.settings[server.id]['cache']
+            clones = self.settings[server.id]['clones']
+            if self.settings[server.id]['toggleactive']:
+                if memb_after.voice.voice_channel is not None:
+                    chan = memb_after.voice.voice_channel
+                    if chan.id in channels:
+                        overwrites = chan.overwrites
+                        bit_rate = chan.bitrate
+                        u_limit = chan.user_limit
+                        cname = "Auto: {}".format(chan.name)
+                        channel = await \
+                            self.bot.create_channel(server, cname, *overwrites,
                                                 type=discord.ChannelType.voice)
-                    await self.bot.edit_channel(channel, bitrate=bit_rate,
-                                                user_limit=u_limit)
-                    await self.bot.move_member(memb_after, channel)
-                    if self.settings[server.id].get('toggleowner', False):
-                        # Avoids breaking upgrades
-                        overwrite = discord.PermissionOverwrite()
-                        overwrite.manage_channels = True
-                        overwrite.manage_roles = True
-                        await asyncio.sleep(0.5)
-                        await self.bot.edit_channel_permissions(channel,
-                                                                memb_after,
-                                                                overwrite)
-                    self.settings[server.id]['clones'].append(channel.id)
-                self.save_json()
-
-        if memb_after.voice.voice_channel is not None:
-            channel = memb_after.voice.voice_channel
-            if channel.id in clones:
-                if channel.id not in cache:
-                    cache.append(channel.id)
+                        await self.bot.edit_channel(channel, bitrate=bit_rate,
+                                                    user_limit=u_limit)
+                        await self.bot.move_member(memb_after, channel)
+                        if self.settings[server.id].get('toggleowner', False):
+                            # Avoids breaking upgrades
+                            overwrite = discord.PermissionOverwrite()
+                            overwrite.manage_channels = True
+                            overwrite.manage_roles = True
+                            await asyncio.sleep(0.5)
+                            await self.bot.edit_channel_permissions(channel,
+                                                                    memb_after,
+                                                                    overwrite)
+                        self.settings[server.id]['clones'].append(channel.id)
                     self.save_json()
 
-        if memb_before.voice.voice_channel is not None:
-            channel = memb_before.voice.voice_channel
-            if channel.id in b_cache:
-                if len(channel.voice_members) == 0:
-                    await self.bot.delete_channel(channel)
-                    self.settingscleanup(server)
+            if memb_after.voice.voice_channel is not None:
+                channel = memb_after.voice.voice_channel
+                if channel.id in clones:
+                    if channel.id not in cache:
+                        cache.append(channel.id)
+                        self.save_json()
+
+        if b_server.id in self.settings:
+            b_cache = self.settings[b_server.id]['cache']
+            if memb_before.voice.voice_channel is not None:
+                channel = memb_before.voice.voice_channel
+                if channel.id in b_cache:
+                    if len(channel.voice_members) == 0:
+                        await self.bot.delete_channel(channel)
+                        self.settingscleanup(b_server)
 
     def settingscleanup(self, server):
         """cleanup of settings"""
