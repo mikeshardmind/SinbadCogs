@@ -149,14 +149,73 @@ class AutoRooms:
             self.save_json()
             await self.bot.say('Users now own the autorooms they make.')
 
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="purge", pass_context=True,
+                         no_pm=True, hidden=True)
+    """
+    removes all empty generated autorooms to assist with people intentionally
+    trying to break things.
+    """
+    async def purge(self, ctx):
+        await self._purge(ctx.message.server)
+        await self.bot.say("Empty autorooms purged")
+
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="purgeall", pass_context=True,
+                         no_pm=True, hidden=True)
+    """
+    removes all generated autorooms. Use with caution
+    """
+    async def purgeall(self, ctx):
+        await self.bot.say("Warning: This will delete all cloned autorooms "
+                           "whether they are in use or not. You should "
+                           "probably use `{}autoroomset purge` instead. "
+                           "Do you want to continue anyway? "
+                           "(y/n)".format(ctx.prefix))
+
+        message = await self.bot.wait_for_message(channel=ctx.messsage.channel,
+                                                  author=ctx.messsage.author,
+                                                  timeout=30)
+
+        if message.content.lower() == "y":
+            await self.bot.say("I guess you know best...")
+            await self._purge(ctx.message.server, True)
+            await self.bot.say("Cloned rooms purged.")
+        elif message.content.lower() == "n":
+            await self.bot.say("Probably for the best.")
+        else:
+            await self.bot.say("That was not an expected answer, "
+                               "aborting purge procedure")
+
+    async def _purge(self, server, delete_all=False):
+        if server.id not in self.settings:
+            return
+
+        clones = self.settings[server.id]['clones']
+        del_list = []
+        for c in clones:
+            channel = find(lambda m: m.id == c, server.channels)
+            if channel is None:
+                del_list.append(c)
+            else:
+                if len(channel.voice_members) == 0 or delete_all:
+                    await self.bot.delete_channel(channel)
+                    del_list.append(c)
+
+        for c in del_list:
+            clones.remove(c)
+            self.save_json
+
     async def autorooms(self, memb_before, memb_after):
         """This cog is Self Cleaning"""
-        server = memb_before.server
-        if server.id not in self.settings:
+        server = memb_after.server
+        b_server = memb_before.server
+        if server.id not in self.settings and b_server.id not in self.settings:
             return
         channels = self.settings[server.id]['channels']
         cache = self.settings[server.id]['cache']
         clones = self.settings[server.id]['clones']
+        b_cache = self.settings[b_server.id]['cache']
 
         if self.settings[server.id]['toggleactive']:
             if memb_after.voice.voice_channel is not None:
@@ -193,7 +252,7 @@ class AutoRooms:
 
         if memb_before.voice.voice_channel is not None:
             channel = memb_before.voice.voice_channel
-            if channel.id in cache:
+            if channel.id in b_cache:
                 if len(channel.voice_members) == 0:
                     await self.bot.delete_channel(channel)
                     self.settingscleanup(server)
