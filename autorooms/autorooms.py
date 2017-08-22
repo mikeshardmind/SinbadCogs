@@ -13,7 +13,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-    __version__ = "3.1"
+    __version__ = "3.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -149,54 +149,113 @@ class AutoRooms:
             self.save_json()
             await self.bot.say('Users now own the autorooms they make.')
 
-    async def autorooms(self, memb_before, memb_after):
-        """This cog is Self Cleaning"""
-        server = memb_before.server
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="purge", pass_context=True,
+                         no_pm=True, hidden=True)
+    """
+    removes all empty generated autorooms to assist with people intentionally
+    trying to break things.
+    """
+    async def purge(self, ctx):
+        await self._purge(ctx.message.server)
+        await self.bot.say("Empty autorooms purged")
+
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="purgeall", pass_context=True,
+                         no_pm=True, hidden=True)
+    """
+    removes all generated autorooms. Use with caution
+    """
+    async def purgeall(self, ctx):
+        await self.bot.say("Warning: This will delete all cloned autorooms "
+                           "whether they are in use or not. You should "
+                           "probably use `{}autoroomset purge` instead. "
+                           "Do you want to continue anyway? "
+                           "(y/n)".format(ctx.prefix))
+
+        message = await self.bot.wait_for_message(channel=ctx.messsage.channel,
+                                                  author=ctx.messsage.author,
+                                                  timeout=30)
+
+        if message.content.lower() == "y":
+            await self.bot.say("I guess you know best...")
+            await self._purge(ctx.message.server, True)
+            await self.bot.say("Cloned rooms purged.")
+        elif message.content.lower() == "n":
+            await self.bot.say("Probably for the best.")
+        else:
+            await self.bot.say("That was not an expected answer, "
+                               "aborting purge procedure")
+
+    async def _purge(self, server, delete_all=False):
         if server.id not in self.settings:
             return
-        channels = self.settings[server.id]['channels']
-        cache = self.settings[server.id]['cache']
+
         clones = self.settings[server.id]['clones']
+        del_list = []
+        for c in clones:
+            channel = find(lambda m: m.id == c, server.channels)
+            if channel is None:
+                del_list.append(c)
+            else:
+                if len(channel.voice_members) == 0 or delete_all:
+                    await self.bot.delete_channel(channel)
+                    del_list.append(c)
 
-        if self.settings[server.id]['toggleactive']:
-            if memb_after.voice.voice_channel is not None:
-                chan = memb_after.voice.voice_channel
-                if chan.id in channels:
-                    overwrites = chan.overwrites
-                    bit_rate = chan.bitrate
-                    u_limit = chan.user_limit
-                    cname = "Auto: {}".format(chan.name)
-                    channel = await \
-                        self.bot.create_channel(server, cname, *overwrites,
+        for c in del_list:
+            clones.remove(c)
+            self.save_json
+
+    async def autorooms(self, memb_before, memb_after):
+        """This cog is Self Cleaning"""
+        server = memb_after.server
+        b_server = memb_before.server
+
+        if server.id in self.settings:
+            channels = self.settings[server.id]['channels']
+            cache = self.settings[server.id]['cache']
+            clones = self.settings[server.id]['clones']
+            if self.settings[server.id]['toggleactive']:
+                if memb_after.voice.voice_channel is not None:
+                    chan = memb_after.voice.voice_channel
+                    if chan.id in channels:
+                        overwrites = chan.overwrites
+                        bit_rate = chan.bitrate
+                        u_limit = chan.user_limit
+                        cname = "Auto: {}".format(chan.name)
+                        channel = await \
+                            self.bot.create_channel(server, cname, *overwrites,
                                                 type=discord.ChannelType.voice)
-                    await self.bot.edit_channel(channel, bitrate=bit_rate,
-                                                user_limit=u_limit)
-                    await self.bot.move_member(memb_after, channel)
-                    if self.settings[server.id].get('toggleowner', False):
-                        # Avoids breaking upgrades
-                        overwrite = discord.PermissionOverwrite()
-                        overwrite.manage_channels = True
-                        overwrite.manage_roles = True
-                        await asyncio.sleep(0.5)
-                        await self.bot.edit_channel_permissions(channel,
-                                                                memb_after,
-                                                                overwrite)
-                    self.settings[server.id]['clones'].append(channel.id)
-                self.save_json()
-
-        if memb_after.voice.voice_channel is not None:
-            channel = memb_after.voice.voice_channel
-            if channel.id in clones:
-                if channel.id not in cache:
-                    cache.append(channel.id)
+                        await self.bot.edit_channel(channel, bitrate=bit_rate,
+                                                    user_limit=u_limit)
+                        await self.bot.move_member(memb_after, channel)
+                        if self.settings[server.id].get('toggleowner', False):
+                            # Avoids breaking upgrades
+                            overwrite = discord.PermissionOverwrite()
+                            overwrite.manage_channels = True
+                            overwrite.manage_roles = True
+                            await asyncio.sleep(0.5)
+                            await self.bot.edit_channel_permissions(channel,
+                                                                    memb_after,
+                                                                    overwrite)
+                        self.settings[server.id]['clones'].append(channel.id)
                     self.save_json()
 
-        if memb_before.voice.voice_channel is not None:
-            channel = memb_before.voice.voice_channel
-            if channel.id in cache:
-                if len(channel.voice_members) == 0:
-                    await self.bot.delete_channel(channel)
-                    self.settingscleanup(server)
+            if memb_after.voice.voice_channel is not None:
+                channel = memb_after.voice.voice_channel
+                if channel.id in clones:
+                    if channel.id not in cache:
+                        cache.append(channel.id)
+                        self.save_json()
+
+        if b_server.id in self.settings:
+            b_cache = self.settings[b_server.id]['cache']
+            if memb_before.voice.voice_channel is not None:
+                channel = memb_before.voice.voice_channel
+                if channel.id in b_cache:
+                    if len(channel.voice_members) == 0:
+                        await self.bot.delete_channel(channel)
+                        self.settingscleanup(b_server)
 
     def settingscleanup(self, server):
         """cleanup of settings"""
