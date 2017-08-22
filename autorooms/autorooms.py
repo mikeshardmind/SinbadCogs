@@ -152,21 +152,21 @@ class AutoRooms:
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="purge", pass_context=True,
                          no_pm=True, hidden=True)
-    """
-    removes all empty generated autorooms to assist with people intentionally
-    trying to break things.
-    """
     async def purge(self, ctx):
+        """
+        removes all empty generated autorooms to assist with people
+        intentionally trying to break things.
+        """
         await self._purge(ctx.message.server)
         await self.bot.say("Empty autorooms purged")
 
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="purgeall", pass_context=True,
                          no_pm=True, hidden=True)
-    """
-    removes all generated autorooms. Use with caution
-    """
     async def purgeall(self, ctx):
+        """
+        removes all generated autorooms. Use with caution
+        """
         await self.bot.say("Warning: This will delete all cloned autorooms "
                            "whether they are in use or not. You should "
                            "probably use `{}autoroomset purge` instead. "
