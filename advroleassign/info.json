@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.",
+    "NAME" : "AdvRoleAssign",
+    "SHORT" : "highly configureable role self assignment",
+    "DESCRIPTION" : "Role self assignment cog featuring mutualy exclusive roles, roles that require other roles, and a configurable lockout on switching between mutually exclusive roles "
+}
