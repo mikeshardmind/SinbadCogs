@@ -15,7 +15,7 @@ class AdvRoleAssign:
     with optional lockout
     """
     __author__ = "mikeshardmind"
-    __version__ = "1.0"
+    __version__ = "1.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -81,6 +81,10 @@ class AdvRoleAssign:
         """add a role that anyone can self assign"""
 
         server = ctx.message.server
+        user = ctx.message.author
+        if user.top_role < role:
+            return await self.bot.say("you can't give away roles higher "
+                                      "than yourself")
         if server.id not in self.settings:
             self.initial_config(server.id)
         if role.id not in self.settings[server.id]['selfroles']:
@@ -97,7 +101,12 @@ class AdvRoleAssign:
         configureable role can self assign
         """
 
+        user = ctx.message.author
         server = ctx.message.server
+        if user.top_role < role:
+            return await self.bot.say("you can't give away roles higher "
+                                      "than yourself")
+
         if server.id not in self.settings:
             self.initial_config(server.id)
         if role.id not in self.settings[server.id]['memberselfroles']:
