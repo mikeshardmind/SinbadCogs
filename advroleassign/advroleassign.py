@@ -15,7 +15,7 @@ class AdvRoleAssign:
     with optional lockout
     """
     __author__ = "mikeshardmind"
-    __version__ = "1.1"
+    __version__ = "1.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -64,7 +64,7 @@ class AdvRoleAssign:
     async def set_lockout(self, ctx, seconds: int):
         """
         sets the minimum amount of time inbetween switching from one exclusive
-        role to another
+        role to another (-1 to disallow switching)
         """
 
         server = ctx.message.server
@@ -73,8 +73,11 @@ class AdvRoleAssign:
         self.settings[server.id]['lockout'] = seconds
         self.save_json()
 
-        await self.bot.say("Lockout on switching between exclusive roles "
-                           "is set to {} second(s)".format(seconds))
+        if seconds == -1:
+            await self.bot.say("Lockout is indefinite")
+        else:
+            await self.bot.say("Lockout on switching between exclusive roles "
+                               "is set to {} second(s)".format(seconds))
 
     @advroleset.command(name="addselfrole", no_pm=True, pass_context=True)
     async def advset_add_selfrole(self, ctx, role: discord.Role):
@@ -243,6 +246,10 @@ class AdvRoleAssign:
                                       "available to you")
 
         output = "The following roles are available to you:\n"
+        if self.settings[server.id]['lockout'] == -1:
+            if not set(exclusive_roles).isdisjoint(user.roles):
+                self_roles = [r for r in self_roles
+                              if r not in exclusive_roles]
 
         for role in self_roles:
             if role not in user.roles:
@@ -251,7 +258,8 @@ class AdvRoleAssign:
         exclusive_roles = [r for r in exclusive_roles if r in self_roles]
 
         if not set(exclusive_roles).isdisjoint(user.roles) \
-                and len(exclusive_roles) > 1:
+                and len(exclusive_roles) > 1 and \
+                self.settings[server.id]['lockout'] != -1:
             owned = list(set(exclusive_roles).intersection(user.roles))[0]
             output += "\n\nWarning: You currently hold the role: {}\n" \
                       "If you try to assign any of the following roles, " \
@@ -290,6 +298,11 @@ class AdvRoleAssign:
 
         if not set(membership_roles).isdisjoint(user.roles):
             self_roles.extend(member_roles)
+
+        if self.settings[server.id]['lockout'] == -1:
+            if not set(exclusive_roles).isdisjoint(user.roles):
+                self_roles = [r for r in self_roles
+                              if r not in exclusive_roles]
 
         if role in user.roles:
             return await self.bot.say("You already have that role.")
