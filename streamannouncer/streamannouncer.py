@@ -58,7 +58,6 @@ class StreamAnnouncer:
             self.settings[server.id] = {"output": None,
                                         "role_id": None}
 
-
         if self.settings[server.id]["role_id"] == role.id:
             self.settings[server.id]["role_id"] = None
             self.save_json()
@@ -67,7 +66,6 @@ class StreamAnnouncer:
             self.settings[server.id]["role_id"] = role.id
             self.save_json()
             await self.bot.say("Role required to be announced set")
-
 
     async def on_stream(self, memb_before,  memb_after):
         if memb_after.game is None:
