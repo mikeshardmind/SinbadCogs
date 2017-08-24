@@ -12,7 +12,7 @@ class ReportTool:
 #   this is basically just a quick mod of my suggestionbox cog
 
     __author__ = "mikeshardmind"
-    __version__ = "1.2"
+    __version__ = "1.3"
 
     def __init__(self, bot):
         self.bot = bot
@@ -51,26 +51,26 @@ class ReportTool:
 
     @checks.admin_or_permissions(Manage_server=True)
     @setreport.command(name="output", pass_context=True, no_pm=True)
-    async def setoutput(self, ctx, chan=None):
-        """sets the output channel(s) by id"""
+    async def setoutput(self, ctx, chan: discord.Channel):
+        """sets the output channel(s)"""
         server = ctx.message.server
         if server.id not in self.settings:
             self.initial_config(server.id)
-
-        if chan in self.settings[server.id]['output']:
+        if server != chan.server:
+            return await self.bot.say("Stop trying to break this")
+        if chan.type != discord.ChannelType.text:
+            return await self.bot.say("That isn't a text channel")
+        if chan.id in self.settings[server.id]['output']:
             return await self.bot.say("Channel already set as output")
-        for channel in server.channels:
-            if str(chan) == str(channel.id):
-                if self.settings[server.id]['multiout']:
-                    self.settings[server.id]['output'].append(chan)
-                    self.save_json()
-                    return await self.bot.say("Channel added to output list")
-                else:
-                    self.settings[server.id]['output'] = [chan]
-                    self.save_json()
-                    return await self.bot.say("Channel set as output")
 
-        await self.bot.say("I couldn\'t find a channel with that id")
+        if self.settings[server.id]['multiout']:
+            self.settings[server.id]['output'].append(chan.id)
+            self.save_json()
+            return await self.bot.say("Channel added to output list")
+        else:
+            self.settings[server.id]['output'] = [chan.id]
+            self.save_json()
+            return await self.bot.say("Channel set as output")
 
     @checks.admin_or_permissions(Manage_server=True)
     @setreport.command(name="toggleactive", pass_context=True, no_pm=True)

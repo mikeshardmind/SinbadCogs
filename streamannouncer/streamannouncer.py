@@ -11,7 +11,7 @@ class StreamAnnouncer:
 
     """Configureable stream announcements"""
     __author__ = "mikeshardmind"
-    __version__ = "0.1"
+    __version__ = "0.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -49,7 +49,7 @@ class StreamAnnouncer:
 
     @checks.admin_or_permissions(Manage_server=True)
     @_strset.command(name="role", pass_context=True, no_pm=True)
-    async def strset_role(self, ctx, role: str):
+    async def strset_role(self, ctx, role: discord.Role):
         """set the role required to get an announcement on stream start"""
 
         server = ctx.message.server
@@ -58,23 +58,16 @@ class StreamAnnouncer:
             self.settings[server.id] = {"output": None,
                                         "role_id": None}
 
-        role = str(role).strip().lower()
-        rn = [r for r in server.roles
-              if r.name.strip().lower() == role or r.id == role]
-        if rn:
-            if len(rn) == 1:
-                if self.settings[server.id]["role_id"] == rn[0].id:
-                    self.settings[server.id]["role_id"] = None
-                    self.save_json()
-                    await self.bot.say("That role was set before, removing it")
-                else:
-                    self.settings[server.id]["role_id"] = rn[0].id
-                    self.save_json()
-                    await self.bot.say("Role required to be announced set")
-            elif len(rn) > 1:
-                await self.bot.say("Multiple matches found, use an ID")
+
+        if self.settings[server.id]["role_id"] == role.id:
+            self.settings[server.id]["role_id"] = None
+            self.save_json()
+            await self.bot.say("That role was set before, removing it")
         else:
-            await self.bot.say("There was not a matching role.")
+            self.settings[server.id]["role_id"] = role.id
+            self.save_json()
+            await self.bot.say("Role required to be announced set")
+
 
     async def on_stream(self, memb_before,  memb_after):
         if memb_after.game is None:
