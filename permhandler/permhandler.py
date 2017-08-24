@@ -13,7 +13,7 @@ class PermHandler:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.6"
+    __version__ = "1.7"
 
     def __init__(self, bot):
         self.bot = bot
@@ -428,6 +428,27 @@ class PermHandler:
                 if floor_role < bot_top_role:
                     await self.bot.move_role(server, role, floor_role.position)
 
+    async def verify_on_update(self, memb_before, memb_after):
+        if memb_before.roles == memb_after.roles:
+            return
+        server = memb_after.server
+        if server.id not in self.settings:
+            return
+        if not self.settings[server.id]['activated']:
+            return
+
+        roles = self.settings[server.id]['roles']
+        role_list = [r for r in server.roles if r.id in roles]
+        proles = self.settings[server.id]['proles']
+        proles = [r for r in proles if r not in roles]
+
+        if set(role_list).isdisjoint(memb_after.roles):
+            rms = [r for r in memb_after.roles if r.id in proles]
+            try:
+                await self.bot.remove_roles(memb_after, *rms)
+            except discord.Forbidden:
+                pass
+
 
 def check_folder():
     f = 'data/permhandler'
@@ -445,4 +466,5 @@ def setup(bot):
     check_folder()
     check_file()
     n = PermHandler(bot)
+    bot.add_listener(n.verify_on_update, "on_member_update")
     bot.add_cog(n)
