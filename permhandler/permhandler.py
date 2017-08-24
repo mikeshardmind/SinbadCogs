@@ -5,6 +5,9 @@ from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from .utils import checks
 from cogs.utils.chat_formatting import box, pagify
+import logging
+
+log = logging.getLogger("red.PermHandler")
 
 
 class PermHandler:
@@ -13,7 +16,7 @@ class PermHandler:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.7"
+    __version__ = "2.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -54,7 +57,7 @@ class PermHandler:
 
     @commands.command(name="signup", pass_context=True,
                       no_pm=True, hidden=True)
-    async def signup(self, ctx, role_id: str):
+    async def signup(self, ctx, role: discord.Role):
         """Lets you sign up for certain roles if you have a priveleged role"""
 
         author = ctx.message.author
@@ -64,49 +67,41 @@ class PermHandler:
         registers = self.settings[server.id]['registers']
         role_list = [r for r in server.roles if r.id in roles]
         register_list = [r for r in server.roles if r.id in registers]
-        r = [r for r in server.roles if r.id == role_id]
 
         if set(role_list).isdisjoint(author.roles):
             return await self.bot.say("Only alliance members may sign up for "
                                       "this role.")
-        if r[0] is None:
-            return await self.bot.say("That role doesn't exist here.")
-        if r[0] in author.roles:
+
+        if role in author.roles:
             return await self.bot.say("You already have that role!")
-        if r[0] not in register_list:
+        if role not in register_list:
             return await self.bot.say("That role is not available for signup.")
 
-        await self.bot.add_roles(author, *r)
+        await self.bot.add_roles(author, role)
         await self.bot.say("Role assigned.")
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="addregister", pass_context=True, no_pm=True)
-    async def addregister(self, ctx, role_id: str):
+    async def addregister(self, ctx, role: discord.Role):
         """adds a register-able role"""
 
         server = ctx.message.server
         self.initial_config(server.id)
-        r = [r for r in server.roles if r.id == role_id]
-        if not r:
-            return await self.bot.say("No such role")
-        if role_id in self.settings[server.id]['registers']:
+        if role.id in self.settings[server.id]['registers']:
             return await self.bot.say("Already in roles")
-        self.settings[server.id]['registers'].append(role_id)
+        self.settings[server.id]['registers'].append(role.id)
         self.save_json()
         await self.bot.say("Register-able role added.")
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="remregister", pass_context=True, no_pm=True)
-    async def remregister(self, ctx, role_id: str):
+    async def remregister(self, ctx, role: discord.Role):
         """remove a register-able role"""
         server = ctx.message.server
         self.initial_config(server.id)
-        r = [r for r in server.roles if r.id == role_id][0]
-        if not r:
-            return await self.bot.say("No such role")
-        if role_id not in self.settings[server.id]['registers']:
+        if role.id not in self.settings[server.id]['registers']:
             return await self.bot.say("Not in roles")
-        self.settings[server.id]['registers'].remove(role_id)
+        self.settings[server.id]['registers'].remove(role.id)
         self.save_json()
         await self.bot.say("Register-able role removed.")
 
@@ -217,16 +212,13 @@ class PermHandler:
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="addrole", pass_context=True, no_pm=True)
-    async def addrole(self, ctx, role_id: str):
+    async def addrole(self, ctx, role: discord.Role):
         """add a priveleged role"""
         server = ctx.message.server
         self.initial_config(server.id)
-        r = [r for r in server.roles if r.id == role_id]
-        if not r:
-            return await self.bot.say("No such role")
-        if role_id in self.settings[server.id]['roles']:
+        if role.id in self.settings[server.id]['roles']:
             return await self.bot.say("Already in roles")
-        self.settings[server.id]['roles'].append(role_id)
+        self.settings[server.id]['roles'].append(role.id)
         self.save_json()
         await self.validate(server)
         await self.reorder_roles(server)
@@ -234,97 +226,79 @@ class PermHandler:
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="addprole", pass_context=True, no_pm=True)
-    async def addprole(self, ctx, role_id: str):
+    async def addprole(self, ctx, role: discord.Role):
             """add role that can only be held by users with priveleged roles"""
             server = ctx.message.server
             self.initial_config(server.id)
-            r = [r for r in server.roles if r.id == role_id]
-            if not r:
-                return await self.bot.say("No such role")
-            if role_id in self.settings[server.id]['proles']:
+            if role.id in self.settings[server.id]['proles']:
                 return await self.bot.say("Already in roles")
-            self.settings[server.id]['proles'].append(role_id)
+            self.settings[server.id]['proles'].append(role.id)
             self.save_json()
             await self.validate(server)
             await self.bot.say("Role added.")
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="remrole", pass_context=True, no_pm=True)
-    async def remrole(self, ctx, role_id: str):
+    async def remrole(self, ctx, role: discord.Role):
         """remove a priveleged role"""
         server = ctx.message.server
         self.initial_config(server.id)
-        r = [r for r in server.roles if r.id == role_id][0]
-        if not r:
-            return await self.bot.say("No such role")
-        if role_id not in self.settings[server.id]['roles']:
+        if role.id not in self.settings[server.id]['roles']:
             return await self.bot.say("Not in roles")
-        self.settings[server.id]['roles'].remove(role_id)
+        self.settings[server.id]['roles'].remove(role.id)
         self.save_json()
         await self.validate(server)
         await self.bot.say("Role removed.")
         if self.settings[server.id]['floor'] is not None:
-            if server.me.top_role > r:
-                await self.bot.move_role(server, r, 1)
+            if server.me.top_role > role:
+                await self.bot.move_role(server, role, 1)
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="remprole", pass_context=True, no_pm=True)
-    async def remprole(self, ctx, role_id: str):
+    async def remprole(self, ctx, role: discord.Role):
         """remove a protected role"""
         server = ctx.message.server
         self.initial_config(server.id)
-        r = [r for r in server.roles if r.id == role_id]
-        if not r:
-            return await self.bot.say("No such role")
-        if role_id not in self.settings[server.id]['proles']:
+        if role.id not in self.settings[server.id]['proles']:
             return await self.bot.say("Not in roles")
-        self.settings[server.id]['proles'].remove(role_id)
+        self.settings[server.id]['proles'].remove(role.id)
         self.save_json()
         await self.validate(server)
         await self.bot.say("Role removed.")
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="addchan", pass_context=True, no_pm=True)
-    async def addchan(self, ctx, chan_id: str):
+    async def addchan(self, ctx, chan: discord.Channel):
         """add a restricted channel"""
         server = ctx.message.server
         self.initial_config(server.id)
-        c = [c for c in server.channels if c.id == chan_id]
-        if not c:
-            return await self.bot.say("No such channel")
-        if chan_id in self.settings[server.id]['chans']:
+        if chan.id in self.settings[server.id]['chans']:
             return await self.bot.say("Already in channels")
-        self.settings[server.id]['chans'].append(chan_id)
+        self.settings[server.id]['chans'].append(chan.id)
         self.save_json()
         await self.validate(server)
         await self.bot.say("Channel added.")
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="remchan", pass_context=True, no_pm=True)
-    async def remchan(self, ctx, chan_id: str):
+    async def remchan(self, ctx, chan: discord.Channel):
         """remove a restricted channel"""
         server = ctx.message.server
         self.initial_config(server.id)
-        c = [c for c in server.channels if c.id == chan_id]
-        if not c:
-            return await self.bot.say("No such role")
-        if chan_id not in self.settings[server.id]['chans']:
+        if chan.id not in self.settings[server.id]['chans']:
             return await self.bot.say("Not in channels")
-        self.settings[server.id]['chans'].remove(chan_id)
+        self.settings[server.id]['chans'].remove(chan.id)
         self.save_json()
         await self.validate(server)
         await self.bot.say("Channel removed")
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="setfloor", pass_context=True, no_pm=True)
-    async def set_floor(self, ctx, role_id: str):
+    async def set_floor(self, ctx, role: discord.Role):
         """sets the role all protected and priveleged roles should be above"""
         server = ctx.message.server
         self.initial_config(server.id)
-        r = [r for r in server.roles if r.id == role_id][0]
-        if not r:
-            return await self.bot.say("No such role")
-        self.settings[server.id]['floor'] = r.id
+        self.settings[server.id]['floor'] = role.id
         self.save_json()
         await self.bot.say("Floor set, I will now validate settings.")
         await self.validate(server)
@@ -400,19 +374,16 @@ class PermHandler:
         if not self.settings[server.id]['activated']:
             return
         await self.validate(server)
-        roles = self.settings[server.id]['roles']
-        role_list = [r for r in server.roles if r.id in roles]
-        proles = self.settings[server.id]['proles']
-        # roles cannot be self protecting
-        proles = [r for r in proles if r not in roles]
         await self.bot.request_offline_members(server)
         members = list(server.members)
 
         for member in members:
-            if set(role_list).isdisjoint(member.roles):
-                rms = [r for r in member.roles if r.id in proles]
-                await self.bot.remove_roles(member, *rms)
-                await asyncio.sleep(1)
+            try:
+                await self.check_member(server, member)
+            except discord.Forbidden:
+                await self.bot.say("I could not remove roles from {}"
+                                   "".format(member.mention))
+            await asyncio.sleep(0.5)
 
     async def reorder_roles(self, server):
         if self.settings[server.id]['floor'] is None:
@@ -437,17 +408,24 @@ class PermHandler:
         if not self.settings[server.id]['activated']:
             return
 
+        try:
+            await self.check_member(server, memb_after)
+        except discord.Forbidden:
+            log.debug("Failed to remove a role from UID: {} in ServerID: {}"
+                      "".format(memb_after.id, server.id))
+
+    async def check_member(self, server: discord.Server, memb: discord.Member):
         roles = self.settings[server.id]['roles']
         role_list = [r for r in server.roles if r.id in roles]
         proles = self.settings[server.id]['proles']
         proles = [r for r in proles if r not in roles]
 
-        if set(role_list).isdisjoint(memb_after.roles):
-            rms = [r for r in memb_after.roles if r.id in proles]
+        if set(role_list).isdisjoint(memb.roles):
+            rms = [r for r in memb.roles if r.id in proles]
             try:
-                await self.bot.remove_roles(memb_after, *rms)
+                await self.bot.remove_roles(memb, *rms)
             except discord.Forbidden:
-                pass
+                raise
 
 
 def check_folder():
