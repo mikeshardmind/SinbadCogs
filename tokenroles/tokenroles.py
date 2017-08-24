@@ -4,7 +4,6 @@ from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils.chat_formatting import box, pagify
 from .utils import checks
-from discord.utils import find
 import random
 import string
 
@@ -27,8 +26,11 @@ class TokenRoles:
                                         }
             self.save_json()
 
+    def save_json(self):
+        dataIO.save_json("data/tokenroles/settings.json", self.settings)
+
     @checks.admin_or_permissions(manage_roles=True)
-    @command.group(name="tokenset", no_pm=True, pass_context=True)
+    @commands.group(name="tokenset", no_pm=True, pass_context=True)
     async def tokenset(self, ctx):
         """Configuration options"""
         if ctx.invoked_subcommand is None:
@@ -49,7 +51,7 @@ class TokenRoles:
         else:
             await self.bot.say("Yeah, probably for the best.")
 
-    @commands.cooldown(1, 5, Buckettype.server)  # lets avoid race conditions
+    @commands.cooldown(1, 5, commands.BucketType.server)
     @commands.command(name="usetoken", no_pm=True, pass_context=True)
     async def usetoken(self, ctx, token: str):
         """use a role token"""
@@ -61,12 +63,12 @@ class TokenRoles:
 
         rid = self.settings[server.id]['tokens'].get(token, None)
         if rid:
-            role = find(lambda m: m.id == rid, server.roles)
-            self.settings[server.id]['tokens'].remove(token)
-            if role:
-                await self.bot.add_roles(author, role)
+            role = [r for r in server.roles if r.id == rid]
+            self.settings[server.id]['tokens'].pop(token, None)
+            self.save_json()
+            await self.bot.add_roles(author, *role)
 
-    @commands.cooldown(1, 300, Buckettype.user)  # no brute force allowed
+    @commands.cooldown(1, 300, commands.BucketType.user)
     @commands.command(name="usepasscode", no_pm=True, pass_context=True)
     async def use_passcode(self, ctx):
         """
@@ -85,12 +87,12 @@ class TokenRoles:
                                               author=author, timeout=60)
 
         if msg:
-            code = msg.content
-            rid = self.settings[server.id]['passcode'].get(code, None)
+            code = msg.content.strip()
+            rid = self.settings[server.id]['passcodes'].get(code, None)
             if rid:
-                role = find(lambda m: m.id == rid, server.roles)
+                role = [r for r in server.roles if r.id == rid]
                 if role:
-                    await self.bot.add_roles(author, role)
+                    await self.bot.add_roles(author, *role)
                 else:
                     await self.bot.send_message(author, "Failure.")
             else:
@@ -116,7 +118,7 @@ class TokenRoles:
                                       " for a role higher than yourself")
 
         token = ''.join([random.choice(string.ascii_letters + string.digits)
-                         for n in xrange(32)])
+                         for n in range(32)])
 
         self.initial_config(server.id)
         self.settings[server.id]['tokens'][token] = role.id
@@ -131,17 +133,11 @@ class TokenRoles:
         self.initial_config(server.id)
         if not self.settings[server.id]['active']:
             return await self.bot.say("This is inactive.")
-        try:
-            self.settings[server.id]['tokens'].remove(code)
-            self.save_json()
-        except ValueError:
-            pass
+        self.settings[server.id]['tokens'].pop(code, None)
+        self.save_json()
 
-        try:
-            self.settings[server.id]['passcodes'].remove(code)
-            self.save_json()
-        except ValueError:
-            pass
+        self.settings[server.id]['passcodes'].pop(code, None)
+        self.save_json()
 
     @checks.admin_or_permissions(manage_roles=True)
     @tokenset.command(name="makepasscode", no_pm=True, pass_context=True)
@@ -162,16 +158,16 @@ class TokenRoles:
         if rand:
             passcode = ''.join([random.choice(string.ascii_letters
                                               + string.digits)
-                                for n in xrange(32)])
+                                for n in range(32)])
             await self.bot.send_message(author, "random passcode"
                                         "\n`{}`".format(token))
         else:
-            dm = await self.bot.send_message(author, "enter desired passcode")
+            dm = await self.bot.send_message(author, "enter desired passcode.")
 
             msg = await self.bot.wait_for_message(channel=dm.channel,
                                                   author=author, timeout=60)
             if msg is not None:
-                passcode = msg.content
+                passcode = msg.content.strip()
             else:
                 return await self.bot.say("Try again when you are ready")
 
@@ -194,5 +190,5 @@ def check_file():
 def setup(bot):
     check_folder()
     check_file()
-    n = AdvRoleAssign(bot)
+    n = TokenRoles(bot)
     bot.add_cog(n)
