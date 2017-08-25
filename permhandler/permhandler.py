@@ -16,7 +16,7 @@ class PermHandler:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "2.0"
+    __version__ = "2.1a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -54,6 +54,28 @@ class PermHandler:
         if 'registers' not in self.settings[server_id]:
             self.settings[server_id]['registers'] = []
         self.save_json()
+
+    @permhandle.command(name="listrolemembers", pass_context=True, no_pm=True)
+    async def listrolemembers(self, ctx, role: discord.Role):
+        """retrieves a list of all members of a role"""
+
+        server = ctx.message.server
+        author = ctx.message.author
+
+        await self.bot.request_offline_members(server)
+        members = list(server.members)
+        members = [m for m in members if role in m.roles]
+        output = "Members of role named: {}".format(role.name)
+
+        for member in members:
+            output += "\nID: {} Name: {}#{}".format(member.id, member.name,
+                                                    member.discriminator)
+            if member.nick:
+                output +=" Nick: {}".format(member.nick)
+
+        for page in pagify(output, delims=["\n", ","]):
+            await self.bot.send_message(author, box(page))
+
 
     @commands.command(name="signup", pass_context=True,
                       no_pm=True, hidden=True)
