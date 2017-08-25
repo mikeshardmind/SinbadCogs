@@ -13,7 +13,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-    __version__ = "3.2"
+    __version__ = "4.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -35,7 +35,127 @@ class AutoRooms:
                                         'clones': [],
                                         'cache': []
                                         }
-            self.save_json()
+        # backwards compatability for installs prior to 3.3
+        if 'chansettings' not in self.settings[server_id]:
+            self.settings[server_id]['chansettings'] = {}
+        for channel in self.settings[server_id]['channels']:
+            if channel not in self.settings[server_id]['chansettings']:
+                self.settings[server_id]['chansettings'][channel] = \
+                    {'gameroom': False,
+                     'atype': None,  # None, "descrim", "author"
+                     'ownership': None,  # None for default, T/F overrides
+                     }
+        if 'prepend' not in self.settings[server_id]:
+            self.settings[server_id]['prepend'] = "Auto:"
+
+        self.save_json()
+
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="setprepend", pass_context=True, no_pm=True)
+    async def setprepend(self, ctx, prepend: str):
+        """
+        sets the prepend value for non game room autorooms
+        Calling without a prepend value removes the prepend.
+        The default value for this if unchanged is "Auto:"
+        prepend values will be truncated if longer than 8 characters
+        if you wish to include spaces, surround your prepend value with quotes
+        """
+
+        server = ctx.message.server
+
+        self.initial_config(server.id)
+        self.settings[server_id]['prepend'] = prepend[:8]
+        self.save_json()
+        await self.bot.say("Prepend set.")
+
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="channelsettings", pass_context=True, no_pm=True)
+    async def setnamesettings(self, ctx, chan: str):
+        """
+        Interactive prompt for editing the autoroom behavior for specific
+        channels
+        """
+
+        server = ctx.message.server
+        ctx_channel = ctx.message.channel
+        author = ctx.message.author
+
+        self.initial_config(server.id)
+        if chan is not None:
+            channel = find(lambda m: m.id == chan, server.channels)
+            if channel is None:
+                return await self.bot.say("That doesn't appear "
+                                          "to be a valid channel ID")
+        if channel.id not in self.settings[server.id]['channels']:
+            return await self.bot.say("That isn't an autoroom")
+
+        await self.bot.say("Game rooms require the user joining to be playing "
+                           "a game, but get a base name of the game discord "
+                           "detects them playing. Game rooms also do not get"
+                           "anything prepended to their name."
+                           "\nIs this a game room?(y/n)")
+
+        message = await self.bot.wait_for_message(channel=ctx_channel,
+                                                  author=author, timeout=30)
+        if message is None:
+            await self.bot.say("I can't wait forever, lets get to the next"
+                               "question.")
+        elif message.clean_content.lower()[:1] == 'y':
+            self.settings[server.id]['chansettings'][channel.id]['gameroom'] \
+                = True
+        else:
+            self.settings[server.id]['chansettings'][channel.id]['gameroom'] \
+                = False
+
+        await self.bot.say("I can append values to the names of rooms in one "
+                           "of a few ways. \n1. By room creator name "
+                           "\n2. By user descriminator (the 4 digit "
+                           "number discord displays after a username)"
+                           "\n3. No appended value (this is the default)\n"
+                           "Please respond with the corresponding number "
+                           "to the behavior desired")
+
+        message = await self.bot.wait_for_message(channel=ctx_channel,
+                                                  author=author, timeout=30)
+
+        if message is None:
+            await self.bot.say("I can't wait forever, lets get to the next"
+                               "question.")
+        elif message.clean_content.lower()[:1] == '1':
+            self.settings[server.id]['chansettings'][channel.id]['atype'] \
+                = "author"
+        elif message.clean_content.lower()[:1] == '2':
+            self.settings[server.id]['chansettings'][channel.id]['atype'] \
+                = "descrim"
+        else:
+            self.settings[server.id]['chansettings'][channel.id]['atype'] \
+                = None
+
+        await self.bot.say("There are three options for channel ownership\n"
+                           "1. Use the server default\n"
+                           "2. Override the default granting ownership\n"
+                           "3. Override the default denying ownership\n"
+                           "Please respond with the corresponding number to "
+                           "the desired behavior")
+
+        message = await self.bot.wait_for_message(channel=ctx_channel,
+                                                  author=author, timeout=30)
+
+        if message is None:
+            await self.bot.say("I can't wait forever, "
+                               "I am not changing this setting")
+        elif message.clean_content.lower()[:1] == '2':
+            self.settings[server.id]['chansettings'][channel.id]['ownership'] \
+                = True
+        elif message.clean_content.lower()[:1] == '3':
+            self.settings[server.id]['chansettings'][channel.id]['ownership'] \
+                = False
+        else:
+            self.settings[server.id]['chansettings'][channel.id]['ownership'] \
+                = None
+
+        self.save_json()
+        await self.bot.say("Channel specific settings have been updated")
 
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="toggleactive", pass_context=True, no_pm=True)
@@ -97,9 +217,9 @@ class AutoRooms:
                                "for a current list.".format(prefix))
 
     @checks.admin_or_permissions(Manage_channels=True)
-    @autoroomset.command(name="listclones", pass_context=True, no_pm=True)
+    @autoroomset.command(name="listautorooms", pass_context=True, no_pm=True)
     async def listclones(self, ctx):
-        """Lists the current autoroms"""
+        """Lists the current autorooms"""
         server = ctx.message.server
         if server.id not in self.settings:
             self.initial_config(server.id)
@@ -211,42 +331,57 @@ class AutoRooms:
         server = memb_after.server
         b_server = memb_before.server
 
-        if server.id in self.settings:
-            channels = self.settings[server.id]['channels']
-            cache = self.settings[server.id]['cache']
-            clones = self.settings[server.id]['clones']
-            if self.settings[server.id]['toggleactive']:
-                if memb_after.voice.voice_channel is not None:
-                    chan = memb_after.voice.voice_channel
-                    if chan.id in channels:
-                        overwrites = chan.overwrites
-                        bit_rate = chan.bitrate
-                        u_limit = chan.user_limit
-                        cname = "Auto: {}".format(chan.name)
-                        channel = await \
-                            self.bot.create_channel(server, cname, *overwrites,
-                                                type=discord.ChannelType.voice)
-                        await self.bot.edit_channel(channel, bitrate=bit_rate,
-                                                    user_limit=u_limit)
-                        await self.bot.move_member(memb_after, channel)
-                        if self.settings[server.id].get('toggleowner', False):
-                            # Avoids breaking upgrades
-                            overwrite = discord.PermissionOverwrite()
-                            overwrite.manage_channels = True
-                            overwrite.manage_roles = True
-                            await asyncio.sleep(0.5)
-                            await self.bot.edit_channel_permissions(channel,
-                                                                    memb_after,
-                                                                    overwrite)
-                        self.settings[server.id]['clones'].append(channel.id)
-                    self.save_json()
-
+        self.initial_config(server.id)
+        channels = self.settings[server.id]['channels']
+        cache = self.settings[server.id]['cache']
+        clones = self.settings[server.id]['clones']
+        if self.settings[server.id]['toggleactive']:
             if memb_after.voice.voice_channel is not None:
-                channel = memb_after.voice.voice_channel
-                if channel.id in clones:
-                    if channel.id not in cache:
-                        cache.append(channel.id)
-                        self.save_json()
+                chan = memb_after.voice.voice_channel
+                if chan.id in channels:
+                    overwrites = chan.overwrites
+                    bit_rate = chan.bitrate
+                    u_limit = chan.user_limit
+                    prepend = self.settings[server.id]['prepend']
+                    if self.settings[server.id]['chansettings'][chan.id]['gameroom']:
+                        if memb_after.game is not None:
+                            cname = memb_after.game.name
+                        else:
+                            cname = "???"
+                    else:
+                        cname = "{} {}".format(prepend, chan.name)
+                    if self.settings[server.id]['chansettings'][chan.id]['atype'] is None:
+                        pass
+                    elif self.settings[server.id]['chansettings'][chan.id]['atype'] == "author":
+                        cname += " "
+                        cname += memb_after.nick if memb_after.nick else memb_after.name
+                    elif self.settings[server.id]['chansettings'][chan.id]['atype'] == "descrim":
+                        cname += " {}".format(memb_after.discriminator)
+                    channel = await \
+                        self.bot.create_channel(server, cname, *overwrites,
+                                                type=discord.ChannelType.voice)
+                    await self.bot.edit_channel(channel, bitrate=bit_rate,
+                                                user_limit=u_limit)
+                    await self.bot.move_member(memb_after, channel)
+
+                    ownership = self.settings[server.id]['chansettings'][chan.id]['ownership']
+                    if ownership is None:
+                        ownership = self.settings[server.id].get('toggleowner', False)
+                    if ownership:
+                        overwrite = discord.PermissionOverwrite()
+                        overwrite.manage_channels = True
+                        overwrite.manage_roles = True
+                        await asyncio.sleep(0.5)
+                        await self.bot.edit_channel_permissions(channel, memb_after, overwrite)
+                    self.settings[server.id]['clones'].append(channel.id)
+                self.save_json()
+
+        if memb_after.voice.voice_channel is not None:
+            channel = memb_after.voice.voice_channel
+            if channel.id in clones:
+                if channel.id not in cache:
+                    cache.append(channel.id)
+                    self.save_json()
 
         if b_server.id in self.settings:
             b_cache = self.settings[b_server.id]['cache']
