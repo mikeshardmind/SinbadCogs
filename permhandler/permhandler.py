@@ -102,7 +102,8 @@ class PermHandler:
         await self.bot.say("Role assigned.")
 
     @checks.admin_or_permissions(Manage_server=True)
-    @permhandle.command(name="addregister", pass_context=True, no_pm=True)
+    @permhandle.command(name="addregister", pass_context=True,
+                        no_pm=True, hidden=True)
     async def addregister(self, ctx, role: discord.Role):
         """adds a register-able role"""
 
@@ -113,9 +114,12 @@ class PermHandler:
         self.settings[server.id]['registers'].append(role.id)
         self.save_json()
         await self.bot.say("Register-able role added.")
+        await self.bot.say("This command is being deprecated in favor of "
+                           "the advroleassign cog's commands")
 
     @checks.admin_or_permissions(Manage_server=True)
-    @permhandle.command(name="remregister", pass_context=True, no_pm=True)
+    @permhandle.command(name="remregister", pass_context=True,
+                        no_pm=True, hidden=True)
     async def remregister(self, ctx, role: discord.Role):
         """remove a register-able role"""
         server = ctx.message.server
@@ -314,16 +318,20 @@ class PermHandler:
         await self.bot.say("Channel removed")
 
     @checks.admin_or_permissions(Manage_server=True)
-    @permhandle.command(name="setfloor", pass_context=True, no_pm=True)
+    @permhandle.command(name="setfloor", pass_context=True,
+                        no_pm=True, hidden=True)
     async def set_floor(self, ctx, role: discord.Role):
-        """sets the role all protected and priveleged roles should be above"""
-        server = ctx.message.server
-        self.initial_config(server.id)
-        self.settings[server.id]['floor'] = role.id
-        self.save_json()
-        await self.bot.say("Floor set, I will now validate settings.")
-        await self.validate(server)
-        await self.bot.say("Settings validated: you are good to go.")
+        """
+        This isn't working yet
+        """
+        await self.bot.send_cmd_help(ctx)
+        # server = ctx.message.server
+        # self.initial_config(server.id)
+        # self.settings[server.id]['floor'] = role.id
+        # self.save_json()
+        # await self.bot.say("Floor set, I will now validate settings.")
+        # await self.validate(server)
+        # await self.bot.say("Settings validated: you are good to go.")
 
     @checks.admin_or_permissions(Manage_server=True)
     @permhandle.command(name="validate", pass_context=True, no_pm=True)
@@ -343,7 +351,7 @@ class PermHandler:
         await self.bot.say("Checking that nobody has roles they shouldn't\n"
                            "This may take a few minutes")
         await self.audit(ctx.message.server)
-        await self.reorder_roles(ctx.message.server)
+        # await self.reorder_roles(ctx.message.server)
         await self.bot.say("Audit complete.")
 
     async def validate(self, server):
