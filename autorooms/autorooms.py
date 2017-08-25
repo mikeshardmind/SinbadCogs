@@ -80,7 +80,7 @@ class AutoRooms:
         ctx_channel = ctx.message.channel
         author = ctx.message.author
 
-        initial_config(server.id)
+        self.initial_config(server.id)
         if chan is not None:
             channel = find(lambda m: m.id == chan, server.channels)
             if channel is None:
@@ -111,7 +111,7 @@ class AutoRooms:
                            "of a few ways. \n1. By room creator name "
                            "\n2. By user descriminator (the 4 digit "
                            "number discord displays after a username)"
-                           "3. No appended value (this is the default)\n"
+                           "\n3. No appended value (this is the default)\n"
                            "Please respond with the corresponding number "
                            "to the behavior desired")
 
@@ -345,9 +345,9 @@ class AutoRooms:
                     prepend = self.settings[server.id]['prepend']
                     if self.settings[server.id]['chansettings'][chan.id]['gameroom']:
                         if memb_after.game is not None:
-                            cname = memb_after.game
+                            cname = memb_after.game.name
                         else:
-                            cname = "I joined a game room without playing a game"
+                            cname = "???"
                     else:
                         cname = "{} {}".format(prepend, chan.name)
                     if self.settings[server.id]['chansettings'][chan.id]['atype'] is None:
