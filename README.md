@@ -70,4 +70,8 @@ Log a range of messages by the ID of the first and last message in range
 
 # PermHandler
 
-I'm not explaining or supporting this one. Use at own risk.
+[Basic usage doc](https://github.com/mikeshardmind/SinbadCogs/wiki/permhandler)
+
+# AdvRoleAssign
+
+Configureable cog for conditionally allowing people to register for roles. Intended to be used in tandem with PermHandler, but not strictly neccessary to do so.
