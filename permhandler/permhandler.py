@@ -90,8 +90,8 @@ class PermHandler:
         register_list = [r for r in server.roles if r.id in registers]
 
         if set(role_list).isdisjoint(author.roles):
-            return await self.bot.say("Only alliance members may sign up for "
-                                      "this role.")
+            return await self.bot.say("You do not meet the requirements  "
+                                      "to signup for this role.")
 
         if role in author.roles:
             return await self.bot.say("You already have that role!")
