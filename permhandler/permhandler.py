@@ -71,11 +71,10 @@ class PermHandler:
             output += "\nID: {} Name: {}#{}".format(member.id, member.name,
                                                     member.discriminator)
             if member.nick:
-                output +=" Nick: {}".format(member.nick)
+                output += " Nick: {}".format(member.nick)
 
         for page in pagify(output, delims=["\n", ","]):
             await self.bot.send_message(author, box(page))
-
 
     @commands.command(name="signup", pass_context=True,
                       no_pm=True, hidden=True)
