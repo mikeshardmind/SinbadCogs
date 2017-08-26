@@ -58,7 +58,8 @@ class LinkedChannels:
         name = name.lower()
         if name in self.links:
             chans = self.links[name]
-            self.activechans = [c for c in self.activechans if c not in chans]
+            self.activechans = [c for c in self.activechans
+                                if c.id not in chans]
             self.links.pop(name, None)
             self.settings.pop(name, None)
             self.save_json()

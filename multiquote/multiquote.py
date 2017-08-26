@@ -237,6 +237,7 @@ class MultiQuote:
         em.set_footer(text=footer)
         return em
 
+
 def check_folder():
     f = 'data/multiquote'
     if not os.path.exists(f):
