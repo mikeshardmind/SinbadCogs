@@ -74,7 +74,7 @@ class InJokes:
         if content[1:] != "20" and content[1:] != str(d[1]):
             return
 
-        if d[1] == content[1:]:
+        if str(d[1]) == content[1:]:
             output = "Yeah, I'd blow you for {} {}. ".format(d[1], d[0])
             if author.id in self.settings["canadian"] and currency == "$":
                 output += "Real dollars, not canadian monopoly money."
