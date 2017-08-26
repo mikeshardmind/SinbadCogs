@@ -23,11 +23,11 @@ class InJokes:
         self.is_valid = False
         self.sids = ["78634202018357248", "322594330541948928"]
         self.checked = False
-        self.currencies = {"$": ("dollars", 20),
-                           "€": ("euros", 20),
-                           "£": ("pounds", 20),
-                           "¥": ("yen", 2200),
-                           "₽": ("rubles", 1200)
+        self.currencies = {"$": ("dollars", "20"),
+                           "€": ("euros", "20"),
+                           "£": ("pounds", "20"),
+                           "¥": ("yen", "2200"),
+                           "₽": ("rubles", "1200")
                            }
 
     def save_json(self):
@@ -74,7 +74,7 @@ class InJokes:
         if content[1:] != "20" and content[1:] != str(d[1]):
             return
 
-        if str(d[1]) == content[1:]:
+        if d[1] == content[1:]:
             output = "Yeah, I'd blow you for {} {}. ".format(d[1], d[0])
             if author.id in self.settings["canadian"] and currency == "$":
                 output += "Real dollars, not canadian monopoly money."
