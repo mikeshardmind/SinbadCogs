@@ -315,13 +315,14 @@ class AdvRoleAssign:
                 self.lockouts[server.id] = {}
             if user.id in self.lockouts[server.id]:
                 tdelta = now - self.lockouts[server.id][user.id]
+                remain = self.settings[server.id]['lockout'] - tdelta.seconds
                 if tdelta.seconds < self.settings[server.id]['lockout']:
                     return await self.bot.say("You can't switch to that role "
                                               "right now; you assigned a "
                                               "role mutually exclusive to it "
                                               "too recently. You can switch "
                                               "again in {} seconds"
-                                              "".format((self.settings[server.id]['lockout'] - tdelta.seconds)))
+                                              "".format(remain))
 
             owned = list(set(exclusive_roles).intersection(user.roles))
             if len(owned) > 0:
