@@ -179,7 +179,10 @@ class CrossQuote:
     def qform(self, message):
         channel = message.channel
         server = channel.server
-        content = message.clean_content
+        if message.content is None and message.embeds[0]:
+            content = message.embeds[0].description
+        else:
+            content = message.clean_content
         author = message.author
         sname = server.name
         cname = channel.name
