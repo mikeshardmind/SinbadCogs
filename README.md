@@ -56,9 +56,6 @@ Configureable reporting tool
 
 links 2 channels to each other
 
-# OneWayLink
-
-links 1 channel to another
 
 # EmbedMaker
 
