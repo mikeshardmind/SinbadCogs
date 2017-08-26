@@ -12,7 +12,7 @@ class ReportTool:
 #   this is basically just a quick mod of my suggestionbox cog
 
     __author__ = "mikeshardmind"
-    __version__ = "1.3"
+    __version__ = "1.4"
 
     def __init__(self, bot):
         self.bot = bot
@@ -87,6 +87,7 @@ class ReportTool:
         else:
             await self.bot.say("Reporting enabled.")
 
+    @commands.cooldown(1, 300, commands.BucketType.user)
     @commands.command(name="report", pass_context=True)
     async def makereport(self, ctx):
         "Follow the prompts to make a report"
@@ -130,7 +131,6 @@ class ReportTool:
 
         author = message.author
         report = message.clean_content
-        timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
         avatar = author.avatar_url if author.avatar \
             else author.default_avatar_url
 
@@ -138,7 +138,7 @@ class ReportTool:
                            color=discord.Color.purple())
         em.set_author(name='Report from {}'.format(author.name),
                       icon_url=avatar)
-        em.set_footer(text='Report made at {} UTC'.format(timestamp))
+        em.set_footer(text=''.format(author.id))
 
         for output in self.settings[server.id]['output']:
             where = server.get_channel(output)
