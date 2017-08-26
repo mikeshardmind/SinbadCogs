@@ -11,7 +11,7 @@ class SuggestionBox:
     """custom cog for a configureable suggestion box"""
 
     __author__ = "mikeshardmind"
-    __version__ = "1.3"
+    __version__ = "1.4"
 
     def __init__(self, bot):
         self.bot = bot
@@ -86,6 +86,7 @@ class SuggestionBox:
         else:
             await self.bot.say("Suggestions enabled.")
 
+    @commands.cooldown(1, 300, commands.BucketType.user)
     @commands.command(name="suggest", pass_context=True)
     async def makesuggestion(self, ctx):
         "make a suggestion by following the prompts"
@@ -130,7 +131,6 @@ class SuggestionBox:
 
         author = message.author
         suggestion = message.clean_content
-        timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
         avatar = author.avatar_url if author.avatar \
             else author.default_avatar_url
 
@@ -138,7 +138,7 @@ class SuggestionBox:
                            color=discord.Color.purple())
         em.set_author(name='Suggestion from {}'.format(author.name),
                       icon_url=avatar)
-        em.set_footer(text='Suggestion made at {} UTC'.format(timestamp))
+        em.set_footer(text=''.format(author.id))
 
         for output in self.settings[server.id]['output']:
             where = server.get_channel(output)
