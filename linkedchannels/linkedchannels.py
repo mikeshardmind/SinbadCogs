@@ -121,6 +121,7 @@ class LinkedChannels:
         timestamp = datetime.utcnow()
         if before.clean_content == after.clean_content:
             return  # This shouldn't be possible, but lets be certain
+        destination = None
         for link in self.links:
             if channel in self.links[link]:
                 destination = [c for c in self.links[link] if c != channel][0]
