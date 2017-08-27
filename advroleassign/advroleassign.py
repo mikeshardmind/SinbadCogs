@@ -187,16 +187,14 @@ class AdvRoleAssign:
         user = ctx.message.author
 
         to_add = [r for r in roles if user.top_role >= r]
-        to_add = [r for r in to_add if self.bot.user.top_role > r]
 
         if len(to_add) == 0:
             return await self.bot.say("I could not add any of those roles. "
-                                      "All of them were either above you "
-                                      "or above me.")
+                                      "All of them were either above you ")
+
         elif len(to_add) != len(roles):
             await self.bot.say("One or more of those roles was not added."
-                               "Any unadded roles were either above you "
-                               "or above me.")
+                               "Any unadded roles were above you.")
 
         self.initial_config(server)
         for role in roles:
