@@ -419,7 +419,8 @@ class AdvRoleAssign:
         conflicting_roles = unique(conflicting_roles)
         if len(conflicting_roles) > 0 and not locked_out:
             try:
-                await self.bot.remove_roles(user, *conflicting_roles)
+                rms = [r for r in user.roles if r in conflicting_roles]
+                await self.bot.remove_roles(user, *rms)
             except discord.Forbidden:
                 return await self.bot.say("I don't seem to have the "
                                           "permissions required, contact "
