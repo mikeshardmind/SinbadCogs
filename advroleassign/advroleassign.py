@@ -187,7 +187,7 @@ class AdvRoleAssign:
         user = ctx.message.author
 
         to_add = [r for r in roles if user.top_role >= r]
-        to_add = [r for r in to_add if self.bot.client.top_role > r]
+        to_add = [r for r in to_add if self.bot.user.top_role > r]
 
         if len(to_add) == 0:
             return await self.bot.say("I could not add any of those roles. "
