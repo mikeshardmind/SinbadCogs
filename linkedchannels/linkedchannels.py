@@ -110,6 +110,33 @@ class LinkedChannels:
             em = self.qform(message)
             await self.bot.send_message(where, embed=em)
 
+    async def on_message_edit(self, before, after):
+        """ let's show message edits"""
+        if not self.initialized:
+            await self.validate()
+            self.initialized = True
+        server = after.server
+        member = after.author
+        channel = after.channel
+        timestamp = datetime.utcnow()
+        if before.clean_content == after.clean_content:
+            return  # This shouldn't be possible, but lets be certain
+        for link in self.links:
+            if channel in self.links[link]:
+                destination = [c for c in self.links[link] if c != channel][0]
+
+        if destination is not None:
+            embed = discord.Embed(color=discord.Color.purple())
+            avatar = member.avatar_url if member.avatar \
+                else member.default_avatar_url
+            embed.set_author(name='Message edited'.format(member), icon_url=avatar)
+            embed.add_field(name='**Member**', value='{0.display_name}#{0.discriminator}'.format(member))
+            embed.add_field(name='**Original timestamp**', value=before.timestamp.strftime('%Y-%m-%d %H:%M'))
+            embed.add_field(name='**Edit timestamp**', value=timestamp.strftime('%Y-%m-%d %H:%M'))
+            embed.add_field(name='**Before**', value=before.content, inline=False)
+            embed.add_field(name='**After**', value=after.content, inline=False)
+            await self.bot.send_message(destination, embed=embed)
+
     def qform(self, message):
         channel = message.channel
         server = channel.server
