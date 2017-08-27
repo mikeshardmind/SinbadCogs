@@ -4,6 +4,7 @@ from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils.chat_formatting import box, pagify
 from .utils import checks
+import itertools
 from datetime import datetime, timedelta
 assert timedelta  # Pyflakes, shut up; I'm using it implicitly
 
@@ -39,25 +40,42 @@ class AdvRoleAssign:
         self.save_json()
 
     def backwards_compatability(self):
-        for k, v in self.settings:
+        for k, v in self.settings.items():
             if v.get('version', None) is None:
                 self.upgrade_v1_to_v2(k)
 
     def upgrade_v1_to_v2(self, server_id):
-        srv_settings = self.settings[server_id]
-        srv_settings['rolerules'] = {}
-        srv_settings['ignoredroles'] = []
-        for role in srv_settings['selfroles']:
-            srv_settings['rolerules'][role] = {'exclusiveto': [],
+        srv_sets = self.settings[server_id]
+        srv_sets['rolerules'] = {}
+        srv_sets['ignoredroles'] = []
+        for role in srv_sets['selfroles']:
+            srv_sets['rolerules'][role] = {'exclusiveto': [],
+                                           'requiresany': [],
+                                           'lockoutoverride': None
+                                           }
+            if role in srv_sets['exclusiveroles']:
+                srv_sets['rolerules'][role]['exclusiveto'] = \
+                    [r for r in srv_sets['exclusiveroles'] if r != role]
+
+        for role in srv_sets['memberselfroles']:
+            if role not in srv_sets['selfroles']:
+                srv_sets['selfroles'].append(role)
+                srv_sets['rolerules'][role] = {'exclusiveto': [],
                                                'requiresany': [],
                                                'lockoutoverride': None
                                                }
-            if role in srv_settings['exclusiveroles']:
-                srv_settings['rolerules'][role]['exclusiveto'] = \
-                    [r for r in srv_settings['exclusiveroles'] if r != role]
-            if role in srv_settings['memberselfroles']:
-                srv_settings['rolerules'][role]['requiresany'] = \
-                    [r for r in srv_settings['membershiproles'] if r != role]
+                if role in srv_sets['exclusiveroles']:
+                    srv_sets['rolerules'][role]['exclusiveto'] = \
+                        [r for r in srv_sets['exclusiveroles'] if r != role]
+
+                srv_sets['rolerules'][role]['requiresany'] = \
+                    [r for r in srv_sets['membershiproles'] if r != role]
+
+        srv_sets.pop('exclusiveroles', None)
+        srv_sets.pop('memberselfroles', None)
+        srv_sets.pop('membershiproles', None)
+        srv_sets.update({'version': 2})
+
         self.save_json()
 
     @checks.mod_or_permissions(manage_roles=True)
@@ -66,6 +84,36 @@ class AdvRoleAssign:
         """settings for advroleassign"""
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
+
+    @advroleset.command(name="viewconfig", no_pm=True, pass_context=True)
+    async def viewconfig(self, ctx):
+        """sends you info on the current config"""
+        server = ctx.message.server
+        self.initial_config(server)
+        srv_sets = self.settings[server.id]
+        output = ""
+
+        output += "Enabled: {}".format(srv_sets['active'])
+        output += "\n\n+ Information about self assignable roles"
+
+        for role in server.roles:
+            if role.id in srv_sets['selfroles']:
+                output += "\n\n- Role name: {}".format(role.name)
+                reqs = [r for r in server.roles if r.id in
+                        srv_sets['rolerules'][role.id]['requiresany']]
+                if len(reqs) > 0:
+                    output += "\nRequires any of the following roles:"
+                    for req in reqs:
+                        output += "\n{}".format(req.name)
+                excls = [r for r in server.roles if r.id in
+                         srv_sets['rolerules'][role.id]['exclusiveto']]
+                if len(excls) > 0:
+                    output += "\nMutually exclusive to all of these roles:"
+                    for excl in excls:
+                        output += "\n{}".format(excl.name)
+
+        for page in pagify(output, delims=["\n", ","]):
+            await self.bot.send_message(ctx.message.author, box(page, "diff"))
 
     @advroleset.command(name="toggleactive", no_pm=True, pass_context=True)
     async def toggle_active(self, ctx):
@@ -143,8 +191,8 @@ class AdvRoleAssign:
             return await self.bot.say("I will be unable to do this do to the "
                                       "role being above me in the role "
                                       "heirarchy")
-        if server.id not in self.settings:
-            self.initial_config(server)
+
+        self.initial_config(server)
         if role.id not in self.settings[server.id]['selfroles']:
             self.settings[server.id]['selfroles'].append(role.id)
             self.save_json()
@@ -162,7 +210,7 @@ class AdvRoleAssign:
         """
 
         server = ctx.message.server
-        self.initial_config(server.id)
+        self.initial_config(server)
         if role.id not in self.settings[server.id]['selfroles']:
             return await self.bot.say("This role is not self assignable ")
         if role in roles:
@@ -175,7 +223,7 @@ class AdvRoleAssign:
                  'requiresany': []
                  }
         self.settings[server.id]['rolerules'][role.id]['requiresany'] = \
-            list(set([r.id for r in roles]))
+            unique([r.id for r in roles])
         if len(roles) == 0:
             await self.bot.say("This role has no requirements")
         else:
@@ -193,29 +241,29 @@ class AdvRoleAssign:
 
         server = ctx.message.server
         self.initial_config(server)
-        srv_settings = self.settings[server.id]
-        roles = list(set(roles))
+        srv_sets = self.settings[server.id]
+        roles = unique(roles)
         if len(roles) == 0:
             return await self.bot.send_cmd_help(ctx)
         if len(roles) == 1:
             role = roles[0]
-            if role.id in srv_settings['rolerules']:
-                srv_settings['rolerules'][role.id]['exclusiveto'] = []
-            for k, v in srv_settings['rolerules']:
+            if role.id in srv_sets['rolerules']:
+                srv_sets['rolerules'][role.id]['exclusiveto'] = []
+            for k, v in srv_sets['rolerules'].items():
                 if role.id in v['exclusiveto']:
                     v['exclusiveto'].remove(role.id)
             await self.bot.say("Exclusivity settings for that role cleared.")
         else:
             for role in roles:
                 a = [r.id for r in roles if r != role]
-                if role.id not in srv_settings['rolerules']:
-                    srv_settings['rolerules'][role.id] = \
+                if role.id not in srv_sets['rolerules']:
+                    srv_sets['rolerules'][role.id] = \
                         {'exclusiveto': [],
                          'requiresany': []
                          }
-                srv_settings['rolerules'][role.id]['exclusiveto'].extend(a)
-                srv_settings['rolerules'][role.id]['exclusiveto'] = \
-                    set(list(srv_settings['rolerules'][role.id]['exclusiveto']))
+                srv_sets['rolerules'][role.id]['exclusiveto'].extend(a)
+                srv_sets['rolerules'][role.id]['exclusiveto'] = \
+                    unique(srv_sets['rolerules'][role.id]['exclusiveto'])
 
             await self.bot.say("Exclusivity set")
         self.save_json()
@@ -225,7 +273,7 @@ class AdvRoleAssign:
         """remove a role from the self assignable list"""
 
         server = ctx.message.server
-        self.initial_config(server.id)
+        self.initial_config(server)
         if role.id in self.settings[server.id]['selfroles']:
             self.settings[server.id]['selfroles'].remove(role.id)
             self.save_json()
@@ -250,68 +298,59 @@ class AdvRoleAssign:
         server = ctx.message.server
         server_roles = server.roles
         now = datetime.utcnow()
-        self.initial_config(server.id)
-        srv_settings = self.settings[server.id]
+        self.initial_config(server)
+        srv_sets = self.settings[server.id]
+        ignoredroles = [r for r in server_roles
+                        if r.id in srv_sets['ignoredroles']]
         locked_out = False
-        exclusive_roles = []
+        conflicting_roles = []
+        unqualified_roles = []
 
-        if not srv_settings['active']:
+        if not srv_sets['active']:
             return await self.bot.say("No roles currently self assignable.")
 
+        if not set(ignoredroles).isdisjoint(user.roles):
+            return await self.bot.say("You aren't allowed to assign a role")
+
         self_roles = [r for r in server_roles if r.id in
-                      srv_settings['selfroles']]
+                      srv_sets['selfroles']]
 
         self_roles = [r for r in self_roles if r not in user.roles]
 
         if server.id not in self.lockouts:
             self.lockouts[server.id] = {}
         if user.id in self.lockouts[server.id]:
-            tdelta = now - srv_settings[user.id]
-            if tdelta.seconds < srv_settings['lockout']:
+            tdelta = now - srv_sets[user.id]
+            if tdelta.seconds < srv_sets['lockout']:
                 locked_out = True
-        if srv_settings['lockout'] == -1:
+        if srv_sets['lockout'] == -1:
             locked_out = True
 
-        for k, v in srv_settings['rolerules']:
-            test_roles = [r for r in server_roles
-                          if r.id in v['exclusiveto']]
+        for x in self_roles:
+            test_exclusive = [r for r in server_roles if r.id in
+                              srv_sets['rolerules'][x.id]['exclusiveto']]
 
-            if not set(test_roles).isdisjoint(user.roles):
-                exclusive_roles.extend(test_roles)
+            if not set(test_exclusive).isdisjoint(user.roles):
+                conflicting_roles.append(x)
 
-            needed_roles = [r for r in server_roles
-                            if r.id in v['requiresany']]
+            req_for_x = [r for r in server_roles if r.id in
+                         srv_sets['rolerules'][x.id]['requiresany']]
 
-            if set(needed_roles).isdisjoint(user.roles):
-                self_roles = [r for r in server_roles
-                              if r not in needed_roles]
+            if len(req_for_x) > 0 and set(req_for_x).isdisjoint(user.roles):
+                unqualified_roles.append(x)
 
-        exclusive_roles = list(set(exclusive_roles))
+        self_roles = [r for r in self_roles if r not in unqualified_roles]
 
         if locked_out:
-            if not set(exclusive_roles).isdisjoint(user.roles):
-                self_roles = [r for r in self_roles
-                              if r not in exclusive_roles]
+            self_roles = [r for r in self_roles if r not in conflicting_roles]
 
         output = "The following roles are available to you:\n"
         for role in self_roles:
             if role not in user.roles:
                 output += "\n{}".format(role.name)
 
-        if not locked_out and len(exclusive_roles) > 0:
-            output += "\n\nWarning: some of the roles you currently have " \
-                      "are incompatible with some of the roles listed"
-
-            for role in exclusive_roles:
-                x_list = srv_settings['rolerules'][role.id]['exclusiveto']
-                x_roles = [r for r in server_roles if r.id in x_list]
-                owned = list(set(x_roles).intersection(user.roles))
-                output += "\n{} is incompatible with: ".format(role.name)
-                for o in owned:
-                    output += "{}, ".format(role.name)
-
         for page in pagify(output, delims=["\n", ","]):
-            await self.bot.send_message(user, box(page))
+            await self.bot.say(box(page))
 
     @advrole.command(name="join", no_pm=True, pass_context=True)
     async def joinrole(self, ctx, role: discord.Role):
@@ -320,66 +359,73 @@ class AdvRoleAssign:
         server = ctx.message.server
         server_roles = server.roles
         now = datetime.utcnow()
-        self.initial_config(server.id)
-        srv_settings = self.settings[server.id]
+        self.initial_config(server)
+        srv_sets = self.settings[server.id]
+        ignoredroles = [r for r in server_roles
+                        if r.id in srv_sets['ignoredroles']]
         locked_out = False
-        exclusive_roles = []
+        conflicting_roles = []
+        unqualified_roles = []
 
-        if not srv_settings['active']:
+        if not srv_sets['active']:
             return await self.bot.say("No roles currently self assignable.")
 
         if role in user.roles:
             return await self.bot.say("You already have that role.")
 
+        if not set(ignoredroles).isdisjoint(user.roles):
+            return await self.bot.say("You aren't allowed to assign a role")
+
         self_roles = [r for r in server_roles if r.id in
-                      srv_settings['selfroles']]
+                      srv_sets['selfroles']]
 
         self_roles = [r for r in self_roles if r not in user.roles]
 
         if server.id not in self.lockouts:
             self.lockouts[server.id] = {}
         if user.id in self.lockouts[server.id]:
-            tdelta = now - srv_settings[user.id]
-            if tdelta.seconds < srv_settings['lockout']:
+            tdelta = now - srv_sets[user.id]
+            if tdelta.seconds < srv_sets['lockout']:
                 locked_out = True
-        if srv_settings['lockout'] == -1:
+        if srv_sets['lockout'] == -1:
             locked_out = True
 
-        for k, v in srv_settings['rolerules']:
-            test_roles = [r for r in server_roles
-                          if r.id in v['exclusiveto']]
+        for x in self_roles:
+            if x == role:
+                test_exclusive = [r for r in server_roles if r.id in
+                                  srv_sets['rolerules'][x.id]['exclusiveto']]
+                rms = list(set(test_exclusive).intersection(user.roles))
+                conflicting_roles.append(rms)
+            elif x in user.roles:
+                test_exclusive = [r for r in server_roles if r.id in
+                                  srv_sets['rolerules'][role.id]['exclusiveto']]
+                if x in test_exclusive:
+                    conflicting_roles.append(x)
 
-            if not set(test_roles).isdisjoint(user.roles):
-                exclusive_roles.extend(test_roles)
+            req_for_x = [r for r in server_roles if r.id in
+                         srv_sets['rolerules'][x.id]['requiresany']]
 
-            needed_roles = [r for r in server_roles
-                            if r.id in v['requiresany']]
+            if len(req_for_x) > 0 and set(req_for_x).isdisjoint(user.roles):
+                unqualified_roles.append(x)
 
-            if set(needed_roles).isdisjoint(user.roles):
-                self_roles = [r for r in server_roles
-                              if r not in needed_roles]
-
-        exclusive_roles = list(set(exclusive_roles))
+        self_roles = [r for r in self_roles if r not in unqualified_roles]
 
         if locked_out:
-            if not set(exclusive_roles).isdisjoint(user.roles):
-                self_roles = [r for r in self_roles
-                              if r not in exclusive_roles]
+            self_roles = [r for r in self_roles if r not in conflicting_roles]
 
         if role not in self_roles:
             return await self.bot.say("You can't assign yourself that role.")
 
-        if role in exclusive_roles:
-            owned = list(set(exclusive_roles).intersection(user.roles))
-            if len(owned) > 0:
-                try:
-                    await self.bot.remove_roles(user, *owned)
-                except discord.Forbidden:
-                    return await self.bot.say("I don't seem to have the "
-                                              "permissions required, contact "
-                                              "a server admin to remedy this")
-                except discord.HTTPException:
-                    return await self.bot.say("Something went wrong")
+        conflicting_roles = unique(conflicting_roles)
+        if len(conflicting_roles) > 0 and not locked_out:
+            try:
+                await self.bot.remove_roles(user, *conflicting_roles)
+            except discord.Forbidden:
+                return await self.bot.say("I don't seem to have the "
+                                          "permissions required, contact "
+                                          "a server admin to remedy this")
+            except discord.HTTPException:
+                return await self.bot.say("Something went wrong")
 
         try:
             await self.bot.add_roles(user, role)
@@ -391,8 +437,15 @@ class AdvRoleAssign:
             return await self.bot.say("Something went wrong")
         else:
             await self.bot.say("Role assigned.")
-            if role in exclusive_roles:
+            if role in conflicting_roles:
                 self.lockouts[server.id][user.id] = now
+
+
+def unique(a):
+    indices = sorted(range(len(a)), key=a.__getitem__)
+    indices = set(next(it) for k, it in
+                  itertools.groupby(indices, key=a.__getitem__))
+    return [x for i, x in enumerate(a) if i in indices]
 
 
 def check_folder():
