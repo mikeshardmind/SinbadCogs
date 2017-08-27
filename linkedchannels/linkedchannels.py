@@ -175,6 +175,6 @@ def setup(bot):
     check_folder()
     check_file()
     n = LinkedChannels(bot)
-    bot.add_listener(n.do_, "on_message")
+    bot.add_listener(n.do_stuff_on_message, "on_message")
 #    bot.add_listener(n.do_stuff_on_edit, "on_message_edit")
     bot.add_cog(n)
