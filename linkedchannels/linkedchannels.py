@@ -85,7 +85,7 @@ class LinkedChannels:
             self.links[name] = chans
             self.activechans += chan_ids
 
-    async def on_message(self, message):
+    async def do_stuff_on_message(self, message):
         """Do stuff based on settings"""
         if not self.initialized:
             await self.validate()
@@ -110,7 +110,7 @@ class LinkedChannels:
             em = self.qform(message)
             await self.bot.send_message(where, embed=em)
 
-    async def on_message_edit(self, before, after):
+    async def do_stuff_on_edit(self, before, after):
         """ let's show message edits"""
         if not self.initialized:
             await self.validate()
@@ -133,8 +133,8 @@ class LinkedChannels:
             embed.add_field(name='**Member**', value='{0.display_name}#{0.discriminator}'.format(member))
             embed.add_field(name='**Original timestamp**', value=before.timestamp.strftime('%Y-%m-%d %H:%M'))
             embed.add_field(name='**Edit timestamp**', value=timestamp.strftime('%Y-%m-%d %H:%M'))
-            embed.add_field(name='**Before**', value=before.content, inline=False)
-            embed.add_field(name='**After**', value=after.content, inline=False)
+            embed.add_field(name='**Before**', value=before.clean_content, inline=False)
+            embed.add_field(name='**After**', value=after.clean_content, inline=False)
             await self.bot.send_message(destination, embed=embed)
 
     def qform(self, message):
@@ -175,4 +175,6 @@ def setup(bot):
     check_folder()
     check_file()
     n = LinkedChannels(bot)
+    bot.add_listener(n.do_stuff_on_message, "on_message")
+    bot.add_listener(n.do_stuff_on_edit, "on_message_edit")
     bot.add_cog(n)
