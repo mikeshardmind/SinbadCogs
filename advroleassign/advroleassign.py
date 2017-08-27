@@ -5,6 +5,7 @@ from cogs.utils.dataIO import dataIO
 from cogs.utils.chat_formatting import box, pagify
 from .utils import checks
 import itertools
+import asyncio
 from datetime import datetime, timedelta
 assert timedelta  # Pyflakes, shut up; I'm using it implicitly
 
@@ -16,7 +17,7 @@ class AdvRoleAssign:
     with optional lockout
     """
     __author__ = "mikeshardmind"
-    __version__ = "2.0"
+    __version__ = "2.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -179,26 +180,31 @@ class AdvRoleAssign:
                                "is set to {} second(s)".format(seconds))
 
     @advroleset.command(name="addselfrole", no_pm=True, pass_context=True)
-    async def advset_add_selfrole(self, ctx, role: discord.Role):
-        """add a role that anyone can self assign"""
+    async def advset_add_selfrole(self, ctx, *roles: discord.Role):
+        """add role(s) that anyone can self assign"""
 
         server = ctx.message.server
         user = ctx.message.author
-        if user.top_role < role:
-            return await self.bot.say("you can't give away roles higher "
-                                      "than yourself")
-        if role > self.bot.client.top_role:
-            return await self.bot.say("I will be unable to do this do to the "
-                                      "role being above me in the role "
-                                      "heirarchy")
+
+        to_add = [r for r in roles if user.top_role >= r]
+        to_add = [r for r in to_add if self.bot.client.top_role > r]
+
+        if len(to_add) == 0:
+            return await self.bot.say("I could not add any of those roles. "
+                                      "All of them were either above you "
+                                      "or above me.")
+        elif len(to_add) != len(roles):
+            await self.bot.say("One or more of those roles was not added."
+                               "Any unadded roles were either above you "
+                               "or above me.")
 
         self.initial_config(server)
-        if role.id not in self.settings[server.id]['selfroles']:
-            self.settings[server.id]['selfroles'].append(role.id)
-            self.save_json()
-            await self.bot.say("Role added to self assignable list")
-        else:
-            await self.bot.say("That role is already self assignable")
+        for role in roles:
+            if role.id not in self.settings[server.id]['selfroles']:
+                self.settings[server.id]['selfroles'].append(role.id)
+        self.save_json()
+        await asyncio.sleep(3)
+        await self.bot.say("Finished adding roles.")
 
     @advroleset.command(name="requirerole", no_pm=True, pass_context=True)
     async def advset_requireroles(self, ctx, role: discord.Role,
