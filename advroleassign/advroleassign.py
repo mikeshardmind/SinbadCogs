@@ -189,14 +189,15 @@ class AdvRoleAssign:
         if user != server.owner:
             to_add = [r for r in roles if user.top_role >= r]
 
-        if len(to_add) == 0:
-            return await self.bot.say("I could not add any of those roles. "
-                                      "All of them were above you ")
+            if len(to_add) == 0:
+                return await self.bot.say("I could not add any of those roles. "
+                                          "All of them were above you ")
 
-        elif len(to_add) != len(roles):
-            await self.bot.say("One or more of those roles was not added."
-                               "Any unadded roles were above you.")
-
+            elif len(to_add) != len(roles):
+                await self.bot.say("One or more of those roles was not added."
+                                   "Any unadded roles were above you.")
+        else:
+            to_add = roles
         self.initial_config(server)
         for role in roles:
             if role.id not in self.settings[server.id]['selfroles']:
