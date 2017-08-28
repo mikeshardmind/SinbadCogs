@@ -6,7 +6,6 @@ Slowly growing collection of cogs for
 
 I'm Sinbad#0413 on Discord
 
-
 # Announcer
 
 Cog for server owners to broadcast to a specific manual set of channels
@@ -60,10 +59,6 @@ links 2 channels to each other
 # EmbedMaker
 
 Tool for making embed objects, storing them, and recalling them
-
-# RangeLog
-
-Log a range of messages by the ID of the first and last message in range
 
 # PermHandler
 
