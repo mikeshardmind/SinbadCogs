@@ -59,7 +59,7 @@ class CrossQuote:
     @checks.is_owner()
     @commands.command(name="remmsg", pass_context=True, hidden=True)
     async def rem_msg(self, ctx, server: discord.Server,
-                      channel, discord.Channel, message_id: str):
+                      channel: discord.Channel, message_id: str):
 
         try:
             message = await self.bot.get_message(channel,  message_id)
