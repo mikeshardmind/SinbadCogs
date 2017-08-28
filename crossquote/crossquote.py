@@ -58,28 +58,19 @@ class CrossQuote:
 
     @checks.is_owner()
     @commands.command(name="remmsg", pass_context=True, hidden=True)
-    async def rem_msg(self, ctx, *message_ids: str):
+    async def rem_msg(self, ctx, server: discord.Server,
+                      channel, discord.Channel, message_id: str):
 
-        for message_id in message_ids:
-            found = False
-            for server in self.bot.servers:
-                if server.id not in self.settings:
-                    await self.init_settings(server)
-                for channel in server.channels:
-                    if not found:
-                        try:
-                            message = await self.bot.get_message(channel,
-                                                                 message_id)
-                            if message:
-                                found = True
-                        except Exception:
-                            pass
-            if found:
-                try:
-                    await self.bot.delete_message(message)
-                    asyncio.sleep(0.5)
-                except Exception:
-                    pass
+        try:
+            message = await self.bot.get_message(channel,  message_id)
+        except Exception:
+            pass
+        if message:
+            try:
+                await self.bot.delete_message(message)
+                asyncio.sleep(0.5)
+            except Exception:
+                pass
 
     @checks.is_owner()
     @crossquoteset.command(name="init", hidden=True)
