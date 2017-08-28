@@ -354,10 +354,9 @@ class AutoRooms:
                     if chan_settings[chan.id]['atype'] is None:
                         pass
                     elif chan_settings[chan.id]['atype'] == "author":
-                        cname += " "
-                        cname += memb_after.display_name
+                        cname += " {0.display_name}".format(memb_after)
                     elif chan_settings[chan.id]['atype'] == "descrim":
-                        cname += " {}".format(memb_after.discriminator)
+                        cname += " {0.discriminator}".format(memb_after)
                     channel = await \
                         self.bot.create_channel(server, cname, *overwrites,
                                                 type=discord.ChannelType.voice)
