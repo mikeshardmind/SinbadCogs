@@ -335,6 +335,7 @@ class AutoRooms:
         channels = self.settings[server.id]['channels']
         cache = self.settings[server.id]['cache']
         clones = self.settings[server.id]['clones']
+        chan_settings = self.settings[server.id]['chansettings']
         if self.settings[server.id]['toggleactive']:
             if memb_after.voice.voice_channel is not None:
                 chan = memb_after.voice.voice_channel
@@ -343,19 +344,19 @@ class AutoRooms:
                     bit_rate = chan.bitrate
                     u_limit = chan.user_limit
                     prepend = self.settings[server.id]['prepend']
-                    if self.settings[server.id]['chansettings'][chan.id]['gameroom']:
+                    if chan_settings[chan.id]['gameroom']:
                         if memb_after.game is not None:
                             cname = memb_after.game.name
                         else:
                             cname = "???"
                     else:
                         cname = "{} {}".format(prepend, chan.name)
-                    if self.settings[server.id]['chansettings'][chan.id]['atype'] is None:
+                    if chan_settings[chan.id]['atype'] is None:
                         pass
-                    elif self.settings[server.id]['chansettings'][chan.id]['atype'] == "author":
+                    elif chan_settings[chan.id]['atype'] == "author":
                         cname += " "
-                        cname += memb_after.nick if memb_after.nick else memb_after.name
-                    elif self.settings[server.id]['chansettings'][chan.id]['atype'] == "descrim":
+                        cname += memb_after.display_name
+                    elif chan_settings[chan.id]['atype'] == "descrim":
                         cname += " {}".format(memb_after.discriminator)
                     channel = await \
                         self.bot.create_channel(server, cname, *overwrites,
@@ -364,15 +365,18 @@ class AutoRooms:
                                                 user_limit=u_limit)
                     await self.bot.move_member(memb_after, channel)
 
-                    ownership = self.settings[server.id]['chansettings'][chan.id]['ownership']
+                    ownership = chan_settings[chan.id]['ownership']
                     if ownership is None:
-                        ownership = self.settings[server.id].get('toggleowner', False)
+                        ownership = self.settings[server.id].get('toggleowner',
+                                                                 False)
                     if ownership:
                         overwrite = discord.PermissionOverwrite()
                         overwrite.manage_channels = True
                         overwrite.manage_roles = True
                         await asyncio.sleep(0.5)
-                        await self.bot.edit_channel_permissions(channel, memb_after, overwrite)
+                        await self.bot.edit_channel_permissions(channel,
+                                                                memb_after,
+                                                                overwrite)
                     self.settings[server.id]['clones'].append(channel.id)
                 self.save_json()
 

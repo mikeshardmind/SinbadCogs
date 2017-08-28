@@ -190,8 +190,8 @@ class AdvRoleAssign:
             to_add = [r for r in roles if user.top_role >= r]
 
             if len(to_add) == 0:
-                return await self.bot.say("I could not add any of those roles. "
-                                          "All of them were above you ")
+                return await self.bot.say("I could not add any of those roles."
+                                          " All of them were above you ")
 
             elif len(to_add) != len(roles):
                 await self.bot.say("One or more of those roles was not added."
@@ -333,10 +333,10 @@ class AdvRoleAssign:
             locked_out = True
 
         for x in self_roles:
-            test_exclusive = [r for r in server_roles if r.id in
-                              srv_sets['rolerules'][x.id]['exclusiveto']]
+            tst_exclusive = [r for r in server_roles if r.id in
+                             srv_sets['rolerules'][x.id]['exclusiveto']]
 
-            if not set(test_exclusive).isdisjoint(user.roles):
+            if not set(tst_exclusive).isdisjoint(user.roles):
                 conflicting_roles.append(x)
 
             req_for_x = [r for r in server_roles if r.id in
@@ -398,14 +398,14 @@ class AdvRoleAssign:
 
         for x in self_roles:
             if x == role:
-                test_exclusive = [r for r in server_roles if r.id in
-                                  srv_sets['rolerules'][x.id]['exclusiveto']]
-                rms = list(set(test_exclusive).intersection(user.roles))
+                tst_exclusive = [r for r in server_roles if r.id in
+                                 srv_sets['rolerules'][x.id]['exclusiveto']]
+                rms = list(set(tst_exclusive).intersection(user.roles))
                 conflicting_roles.append(rms)
             elif x in user.roles:
-                test_exclusive = [r for r in server_roles if r.id in
-                                  srv_sets['rolerules'][role.id]['exclusiveto']]
-                if x in test_exclusive:
+                tst_exclusive = [r for r in server_roles if r.id in
+                                 srv_sets['rolerules'][role.id]['exclusiveto']]
+                if x in tst_exclusive:
                     conflicting_roles.append(x)
 
             req_for_x = [r for r in server_roles if r.id in
