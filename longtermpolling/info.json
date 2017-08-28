@@ -5,5 +5,6 @@
     "DESCRIPTION" : "Go support Flapjack, this is his with my modifications for personal guild needs.",
     "INSTALL_MSG" : "No, seriously use his, I'm not supporting this : <https://github.com/flapjax/FlapJack-Cogs>",
     "REQUIREMENTS" : [],
-    "DISABLED" : false
+    "DISABLED" : false,
+    "HIDDEN": true
 }

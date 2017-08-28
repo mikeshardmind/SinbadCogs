@@ -3,5 +3,6 @@
     "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.",
     "NAME" : "Logger",
     "SHORT" : "Cog for logging",
-    "DESCRIPTION" : "Meh, good enough"
+    "DESCRIPTION" : "Meh, good enough",
+    "HIDDEN": true
 }

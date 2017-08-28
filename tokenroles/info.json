@@ -3,5 +3,6 @@
     "INSTALL_MSG" : "This cog has not yet been fully tested, and is also less secure than other possible solutions. I suggest you use extreme caution when deciding if this is the right option for solving whatever problem you may be having. If you need help, I lurk in in this discord <https://discord.gg/GET4DVk> : If you find a bug, either leave an issue on github, or submit a pull request.",
     "NAME" : "TokenRoles",
     "SHORT" : "Temporary Based access",
-    "DESCRIPTION" : "Tool for generating role tokens"
+    "DESCRIPTION" : "Tool for generating role tokens",
+    "HIDDEN": true
 }
