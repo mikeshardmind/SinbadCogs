@@ -54,19 +54,34 @@ class ServerBlacklist:
                         if serv_id in self.blacklist:
                             in_server = True
                     if in_server:
-                        server = self.bot.get_server(server_id)
-                        channel = server.default_channel
+                        srv = self.bot.get_server(server_id)
                         msg = self.settings.get('msg', None)
                         if msg:
-                            if channel.permissions_for(
-                                                      server.me).send_messages:
-                                await self.bot.send_message(channel,
+                            try:
+                                await self.bot.send_message(srv,
                                                             "{}".format(msg))
-                            else:
+                            except discord.Forbidden:
                                 log.debug("Did not have permission to "
                                           "leave exit message for"
-                                          "server named {} with an ID of {}"
-                                          .format(server.name, server.id))
+                                          "server named {0.name} "
+                                          "with an ID of {0.id}"
+                                          .format(server))
+                            except discord.HTTPException:
+                                log.debug("HTTPException encountered "
+                                          "when attempting to leave "
+                                          "exit message for server named "
+                                          "{0.name} with an ID of {0.id}"
+                                          "".format(server))
+                            except discord.NotFound:
+                                log.debug("Somehow, I tried to leave a server"
+                                          " I wasn't in, despite checking "
+                                          "for membership")
+                            except discord.InvalidArgument:
+                                log.debug("Unable to leave exit message "
+                                          "for server named"
+                                          "{0.name} with ID {0.id}"
+                                          "error indicates this server "
+                                          "does not have a default channel")
                         await asyncio.sleep(1)
                         await self.bot.leave_server(server)
                         await self.bot.say("I was in that server. Was.")
@@ -76,9 +91,9 @@ class ServerBlacklist:
         else:
             try:
                 await self.bot.say("You can't use that here")
-            except discord.errors.Forbidden:
-                log.debug("Some Dumbass didn't RTFM and tried to use me in a "
-                          "place I couldn't resond")
+            except discord.Forbidden:
+                log.debug("Some Dumbass tried to use me in a "
+                          "place I couldn't repsond")
 
     @checks.is_owner()
     @serverblacklist.command(name="remove", pass_context=True)
@@ -144,17 +159,18 @@ class ServerBlacklist:
 
     async def blacklist_routine(self, server):
         """do the thing"""
-        channel = server.default_channel
 
         if server.id in self.blacklist:
             msg = self.settings.get('msg', None)
             if msg:
-                if channel.permissions_for(server.me).send_messages:
-                    await self.bot.send_message(channel, "{}".format(msg))
-                else:
+                try:
+                    await self.bot.send_message(server, "{}".format(msg))
+                except discord.Forbidden:
                     log.debug("Did not have permission to leave exit message "
-                              "for server named {} with an ID of {} "
-                              "".format(server.name, server.id))
+                              "for server named {0.name} with ID of {0.id} "
+                              "".format(server))
+                except Exception as e:
+                    log.debug(e)
             await asyncio.sleep(1)
             await self.bot.leave_server(server)
             log.debug("I left a server named {} with an ID of {} "
