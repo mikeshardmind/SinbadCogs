@@ -60,7 +60,9 @@ class CrossQuote:
     @commands.command(name="remmsg", pass_context=True, hidden=True)
     async def rem_msg(self, channel_id: str, message_id: str):
 
-        channel = self.bot.get_channel(channel_id)
+        channels = self.bot.get_all_channels()
+
+        channel = [c for c in channels if c.id == channel_id][0]
 
         try:
             message = await self.bot.get_message(channel,  message_id)
