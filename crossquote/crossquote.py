@@ -57,6 +57,31 @@ class CrossQuote:
                                " messages")
 
     @checks.is_owner()
+    @commands.command(name="remmsg", pass_context=True, hidden=True)
+    async def rem_msg(self, ctx, *message_ids: str):
+
+        for message_id in message_ids:
+            found = False
+            for server in self.bot.servers:
+                if server.id not in self.settings:
+                    await self.init_settings(server)
+                for channel in server.channels:
+                    if not found:
+                        try:
+                            message = await self.bot.get_message(channel,
+                                                                 message_id)
+                            if message:
+                                found = True
+                        except Exception:
+                            pass
+            if found:
+                try:
+                    await self.bot.delete_message(message)
+                    asyncio.sleep(0.5)
+                except Exception:
+                    pass
+
+    @checks.is_owner()
     @crossquoteset.command(name="init", hidden=True)
     async def manual_init_settings(self):
         """adds default settings for all servers the bot is in
@@ -199,6 +224,7 @@ class CrossQuote:
         em.set_author(name='{}'.format(author.name), icon_url=avatar)
         em.set_footer(text=footer)
         return em
+
 
 def check_folder():
     f = 'data/crossquote'
