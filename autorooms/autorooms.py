@@ -13,7 +13,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind"
-    __version__ = "4.0"
+    __version__ = "4.1"
 
     def __init__(self, bot):
         self.bot = bot
