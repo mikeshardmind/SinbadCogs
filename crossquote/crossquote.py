@@ -15,7 +15,7 @@ class CrossQuote:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "2.0"
+    __version__ = "2.1"
 
     def __init__(self, bot):
 
@@ -55,18 +55,6 @@ class CrossQuote:
         else:
             await self.bot.say("Quoting from this server again requires manage"
                                " messages")
-
-    @checks.is_owner()
-    @commands.command(name="remmsg", pass_context=True, hidden=True)
-    async def rem_msg(self, channel_id: str, message_id: str):
-
-        channel = self.bot.get_channel(channel_id)
-
-        try:
-            message = await self.bot.get_message(channel,  message_id)
-            await self.bot.delete_message(message)
-        except Exception:
-            pass
 
     @checks.is_owner()
     @crossquoteset.command(name="init", hidden=True)
@@ -194,7 +182,7 @@ class CrossQuote:
         if message.content is None and message.embeds[0]:
             content = message.embeds[0].description
         else:
-            content = message.clean_content
+            content = message.content
         author = message.author
         sname = server.name
         cname = channel.name
@@ -208,7 +196,7 @@ class CrossQuote:
             content += "\nUploaded: [{}]({})".format(fname, url)
         footer = 'Said in {} #{} at {} UTC'.format(sname, cname, timestamp)
         em = discord.Embed(description=content, color=discord.Color.purple())
-        em.set_author(name='{}'.format(author.name), icon_url=avatar)
+        em.set_author(name='{}'.format(author.display_name), icon_url=avatar)
         em.set_footer(text=footer)
         return em
 

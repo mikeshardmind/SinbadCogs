@@ -12,7 +12,7 @@ class ReportTool:
 #   this is basically just a quick mod of my suggestionbox cog
 
     __author__ = "mikeshardmind"
-    __version__ = "1.4"
+    __version__ = "1.4.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -129,16 +129,16 @@ class ReportTool:
 
     async def send_report(self, message, server):
 
-        author = message.author
+        author = server.get_member(message.author.id)
         report = message.clean_content
         avatar = author.avatar_url if author.avatar \
             else author.default_avatar_url
 
         em = discord.Embed(description=report,
                            color=discord.Color.purple())
-        em.set_author(name='Report from {}'.format(author.name),
+        em.set_author(name='Report from {0.display_name}'.format(author),
                       icon_url=avatar)
-        em.set_footer(text=''.format(author.id))
+        em.set_footer(text='{0.id}'.format(author))
 
         for output in self.settings[server.id]['output']:
             where = server.get_channel(output)
