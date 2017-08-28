@@ -113,7 +113,7 @@ class LinkedChannels:
     def qform(self, message):
         channel = message.channel
         server = channel.server
-        content = message.clean_content
+        content = message.content
         author = message.author
         sname = server.name
         cname = channel.name
