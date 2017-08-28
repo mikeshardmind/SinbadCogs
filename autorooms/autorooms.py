@@ -64,7 +64,7 @@ class AutoRooms:
         server = ctx.message.server
 
         self.initial_config(server.id)
-        self.settings[server_id]['prepend'] = prepend[:8]
+        self.settings[server.id]['prepend'] = prepend[:8]
         self.save_json()
         await self.bot.say("Prepend set.")
 
