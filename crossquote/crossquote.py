@@ -64,13 +64,9 @@ class CrossQuote:
 
         try:
             message = await self.bot.get_message(channel,  message_id)
+            await self.bot.delete_message(message)
         except Exception:
             pass
-        if message:
-            try:
-                await self.bot.delete_message(message)
-            except Exception:
-                pass
 
     @checks.is_owner()
     @crossquoteset.command(name="init", hidden=True)
