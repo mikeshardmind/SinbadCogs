@@ -92,14 +92,13 @@ class AdvRoleAssign:
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
-    @advroleset.group(name="verification", no_pm=True, pass_context=True,
-                      aliases=['verify'])
-    async def verificationset(self, ctx):
+    @advroleset.group(name="verify", no_pm=True, pass_context=True)
+    async def verify(self, ctx):
         """settings for server verification roles"""
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
-    @verificationset.command(name="role", no_pm=True, pass_context=True)
+    @verify.command(name="role", no_pm=True, pass_context=True)
     async def setverificationrole(self, ctx, role: discord.Role=None):
         """
         set the verification role
@@ -116,7 +115,7 @@ class AdvRoleAssign:
         else:
             await self.bot.say("Verification role cleared")
 
-    @verificationset.command(name="togglestrict", no_pm=True,
+    @verify.command(name="togglestrict", no_pm=True,
                              pass_context=True)
     async def strictverificationtoggle(self, ctx):
         """
@@ -133,7 +132,7 @@ class AdvRoleAssign:
         self.bot.say("Strict mode enabled: {}"
                      "".format(srv_sets['strictverification']))
 
-    @verificationset.command(name="channel", no_pm=True, pass_context=True)
+    @verify.command(name="channel", no_pm=True, pass_context=True)
     async def setverificationchan(self, ctx, channel: discord.Channel=None):
         """sets the channel in which verification occurs"""
         server = ctx.message.server
@@ -155,7 +154,7 @@ class AdvRoleAssign:
             await self.bot.say("Verification channel set to {0.mention}"
                                .format(channel))
 
-    @verificationset.command(name="requiredmsg", no_pm=True, pass_context=True)
+    @verify.command(name="requiredmsg", no_pm=True, pass_context=True)
     async def setverificationmsg(self, ctx, *, message):
         """sets the message content to wait for to verify new members"""
         server = ctx.message.server
