@@ -115,8 +115,7 @@ class AdvRoleAssign:
         else:
             await self.bot.say("Verification role cleared")
 
-    @verify.command(name="togglestrict", no_pm=True,
-                             pass_context=True)
+    @verify.command(name="togglestrict", no_pm=True, pass_context=True)
     async def strictverificationtoggle(self, ctx):
         """
         toggles strict mode for verification. Defaults to strict.
@@ -128,9 +127,10 @@ class AdvRoleAssign:
         srv_sets['strictverification'] = \
             not srv_sets.get('strictverification', True)
         self.save_json()
-
-        self.bot.say("Strict mode enabled: {}"
-                     "".format(srv_sets['strictverification']))
+        if srv_sets['strictverification']:
+            self.bot.say("Strict mode enabled")
+        else:
+            self.bot.say("Strict mode disabled")
 
     @verify.command(name="channel", no_pm=True, pass_context=True)
     async def setverificationchan(self, ctx, channel: discord.Channel=None):
