@@ -147,9 +147,10 @@ class ServerBlacklist:
                         chan = ch
                         break
                 else:
-                    og.debug("Did not have permission to leave exit message "
-                             "for any channel in server named {0.name} "
-                             "with ID of {0.id} ".format(server))
+                    log.debug("Did not have permission to leave exit message "
+                              "for any channel in server named {0.name} "
+                              "with ID of {0.id} ".format(server))
+                    return
 
             msg = self.settings.get('msg', None)
 
