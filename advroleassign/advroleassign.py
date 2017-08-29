@@ -727,7 +727,7 @@ class AdvRoleAssign:
         if message.channel != v_chan:
             return
 
-        if message.content == v_msg:
+        if message.clean_content == v_msg:
             if v_role not in member.roles:
                 try:
                     await self.bot.add_roles(member, v_role)
