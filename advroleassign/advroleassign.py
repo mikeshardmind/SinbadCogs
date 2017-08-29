@@ -478,8 +478,7 @@ class AdvRoleAssign:
         for page in pagify(output, delims=["\n", ","]):
             await self.bot.say(box(page))
 
-    async def _check_verified(self, server: discord.Server,
-                              member: discord.Member):
+    def _check_verified(self, server: discord.Server, member: discord.Member):
         """
         quick check to see if a member has been verified
         returns True if verification role has not been set
@@ -487,12 +486,8 @@ class AdvRoleAssign:
         self.initial_config(server)
         srv_sets = self.settings[server.id]
 
-        v_role_id = srv_sets.get('verificationrole', None)
-
-        if v_role_id is None:
-            return True
-
-        v_role = discord.utils.get(server.roles, id=v_role_id)
+        v_role = discord.utils.get(server.roles,
+                                   id=srv_sets.get('verificationrole', "00"))
         if v_role is None:
             return True
 
@@ -502,7 +497,7 @@ class AdvRoleAssign:
             else:
                 return False
         else:
-            if member.top_role >= v_role[0]:
+            if member.top_role >= v_role:
                 return True
 
         return False
