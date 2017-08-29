@@ -17,7 +17,7 @@ class AdvRoleAssign:
     with optional lockout
     """
     __author__ = "mikeshardmind"
-    __version__ = "2.1"
+    __version__ = "2.3"
 
     def __init__(self, bot):
         self.bot = bot
@@ -113,6 +113,11 @@ class AdvRoleAssign:
                     for excl in excls:
                         output += "\n{}".format(excl.name)
 
+                output += \
+                    "\nIs removable: {}" \
+                    "".format(srv_sets['rolerules'][role.id].get('removable',
+                                                                 False))
+
         for page in pagify(output, delims=["\n", ","]):
             await self.bot.send_message(ctx.message.author, box(page, "diff"))
 
@@ -131,6 +136,51 @@ class AdvRoleAssign:
             await self.bot.say("Activated.")
         else:
             await self.bot.say("Deactivated.")
+
+    @advroleset.command(name="toggleremovable", no_pm=True, pass_context=True)
+    async def toggleremovable(self, ctx, *roles: discord.Role):
+        """
+        takes a list of roles and toggles their removability
+        default is that roles can not be self removed
+        you can only set this for roles below yourself
+        """
+        server = ctx.message.server
+        user = ctx.message.author
+        self.initial_config(server)
+        srv_sets = self.settings[server.id]
+
+        if len(roles) == 0:
+            return await self.bot.say("I need at least one role")
+
+        valid_roles = [r for r in roles if r.id in srv_sets['selfroles']]
+
+        if len(valid_roles) == 0:
+            return await self.bot.say("None of those roles are self "
+                                      "Assignable")
+
+        if user != server.owner:
+            valid_roles = [r for r in valid_roles if user.top_role >= r]
+
+        if len(valid_roles) == 0:
+            return await self.bot.say("All of those roles are above you, "
+                                      "you can't change their settings")
+
+        output = "List of edited roles and their removability:"
+        for role in valid_roles:
+            srv_sets['rolerules'][role.id]['removable'] = \
+                not srv_sets['rolerules'][role.id].get('removable', False)
+            output += "\n{0.name}: ".format(role)
+            output += "{}".format(srv_sets['rolerules'][role.id]['removable'])
+
+        if len(valid_roles) != len(roles):
+            output += "\n\nThe following roles were unchanged as they were "
+            output += "you: "
+            roles = [r for r in roles if r not in valid_roles]
+            for role in roles:
+                output += "\n{0.name}".format(role)
+
+        for page in pagify(output, delims=["\n", ","]):
+            await self.bot.say(box(page))
 
     @advroleset.command(name="ignorerole", pass_context=True, no_pm=True)
     async def ignorerole(self, ctx, role: discord.Role):
@@ -357,6 +407,56 @@ class AdvRoleAssign:
 
         for page in pagify(output, delims=["\n", ","]):
             await self.bot.say(box(page))
+
+    @advrole.command(name="remove", no_pm=True, pass_context=True)
+    async def leaverole(self, ctx, role: discord.Role=None):
+        """
+        leaves a role if possible
+        use without a role to see which of your roles you can remove
+        """
+        user = ctx.message.author
+        server = ctx.message.server
+        self.initial_config(server)
+        srv_sets = self.settings[server.id]
+
+        if not srv_sets['active']:
+            return await self.bot.say("Selfrole management is currently "
+                                      "disabled.")
+
+        removable_roles = [r for r in user.roles if
+                           srv_sets['rolerules'][role.id].get('removable',
+                                                              False)]
+
+        removable_roles = [r for r in removable_roles if
+                           r < server.me.top_role]
+
+        if role is None:
+            if len(removable_roles) == 0:
+                return await self.bot.say("None of your roles are available "
+                                          "for self removal")
+
+            output = "The following roles are self removable:"
+            for r in removable_roles:
+                output += "\n{0.name}".format(r)
+
+            for page in pagify(output, delims=["\n", ","]):
+                await self.bot.say(box(page))
+
+        elif role not in removable_roles:
+            return await self.bot.say("You can't remove that role. "
+                                      "For a list of removable roles, use "
+                                      "`{0.prefix}advrole remove` (without "
+                                      "a role following it)".format(ctx))
+
+        else:
+            try:
+                await self.bot.remove_roles(user, role)
+            except discord.Forbidden:
+                return await self.bot.say("I don't seem to have the "
+                                          "permissions required, contact "
+                                          "a server admin to remedy this")
+            except discord.HTTPException:
+                return await self.bot.say("Something went wrong")
 
     @advrole.command(name="join", no_pm=True, pass_context=True)
     async def joinrole(self, ctx, role: discord.Role):
