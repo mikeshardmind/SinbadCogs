@@ -98,7 +98,7 @@ class LongTermPolling:
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
-    @ltp.command(pass_context=True, no_pm=True, name="start")
+    @ltp.command(pass_context=True, no_pm=True, name="start", hidden=True)
     async def _add_rpoll(self, ctx, *poll):
         """
         Start a poll a poll in the current channel
@@ -114,7 +114,7 @@ class LongTermPolling:
         else:
             await self.bot.send_cmd_help(ctx)
 
-    @ltp.command(pass_context=True, no_pm=True, name="close")
+    @ltp.command(pass_context=True, no_pm=True, name="close", hidden=True)
     async def _rem_rpoll(self, ctx, poll_ID: str):
         """closes a poll by the message ID of the poll.
         """
