@@ -132,43 +132,6 @@ class AdvRoleAssign:
         else:
             await self.bot.say("Strict mode disabled")
 
-    @verify.command(name="channel", no_pm=True, pass_context=True)
-    async def setverificationchan(self, ctx, channel: discord.Channel=None):
-        """sets the channel in which verification occurs"""
-        server = ctx.message.server
-        self.initial_config(server)
-        srv_sets = self.settings[server.id]
-
-        if channel is None:
-            chanid = None
-        elif channel not in server.channels \
-                or channel.type == discord.ChannelType.voice:
-            return await self.bot.say("That's not a valid channel")
-        else:
-            chanid = channel.id
-        srv_sets.update({'verificationchannel': chanid})
-
-        if chanid is None:
-            await self.bot.say("Verification channel unset.")
-        else:
-            await self.bot.say("Verification channel set to {0.mention}"
-                               .format(channel))
-
-    @verify.command(name="requiredmsg", no_pm=True, pass_context=True)
-    async def setverificationmsg(self, ctx, *, message):
-        """sets the message content to wait for to verify new members"""
-        server = ctx.message.server
-        self.initial_config(server)
-        srv_sets = self.settings[server.id]
-
-        v_msg = str(message)
-        if len(v_msg) == 0:
-            await self.bot.say("Try giving me info on what "
-                               "I should be listening for")
-        else:
-            srv_sets.update({'verificationmessage': v_msg})
-            await self.bot.say("Verification message set")
-
     @advroleset.command(name="viewconfig", no_pm=True, pass_context=True)
     async def viewconfig(self, ctx):
         """sends you info on the current config"""
@@ -178,8 +141,14 @@ class AdvRoleAssign:
         output = ""
 
         output += "Enabled: {}".format(srv_sets['active'])
-        output += "\n\n+ Information about self assignable roles"
+        v_id = srv_sets.get('verificationrole', "00")
+        v_role = discord.utils.get(server.roles, id=v_id)
+        if v_role is not None:
+            output += "\nVerification Role: {0.name}".format(v_role)
+            output += "\nStrict Verification: {}" \
+                      "".format(srv_sets.get('strictverification', True))
 
+        output += "\n\n+ Information about self assignable roles"
         for role in server.roles:
             if role.id in srv_sets['selfroles']:
                 output += "\n\n- Role name: {}".format(role.name)
@@ -434,11 +403,8 @@ class AdvRoleAssign:
         self.initial_config(server)
         if role.id in self.settings[server.id]['selfroles']:
             self.settings[server.id]['selfroles'].remove(role.id)
+            self.settings[server.id]['rolerules'].pop(role.id, None)
             self.save_json()
-            try:
-                self.settings[server.id]['rolerules'].remove(role.id)
-            except ValueError:
-                pass
             await self.bot.say("That role is no longer self assignable")
         else:
             await self.bot.say("That role was not self assignable")
@@ -699,45 +665,6 @@ class AdvRoleAssign:
             if role in conflicting_roles:
                 self.lockouts[server.id][user.id] = now
 
-    async def _authenticate(self, message):
-        server = message.server
-        member = message.author
-        if server is None:
-            return
-        if server.id not in self.settings:
-            return
-        if not self.settings[server.id]['active']:
-            return
-        v_role_id = self.settings[server.id].get('verificationrole', None)
-        if v_role_id is None:
-            return
-        v_role = [r for r in server.roles if r.id == v_role_id]
-        if len(v_role) != 1:
-            return
-        v_chan = \
-            server.get_channel(self.settings[server.id].get('verificationchan',
-                                                            "00"))
-        if v_chan is None:
-            return
-
-        v_msg = self.settings[server.id].get('verificationmessage', None)
-        if v_msg is None:
-            return
-
-        if message.channel != v_chan:
-            return
-
-        if message.clean_content == v_msg:
-            if v_role not in member.roles:
-                try:
-                    await self.bot.add_roles(member, v_role)
-                except discord.Forbidden:
-                    log.debug("error auto assigning {0.name} to {1.name} in "
-                              "{2.name} ({2.id})"
-                              "".format(v_role, member, server))
-                except discord.HTTPException as e:
-                    log.debug("{}".format(e))
-
 
 def unique(a):
     indices = sorted(range(len(a)), key=a.__getitem__)
@@ -762,5 +689,4 @@ def setup(bot):
     check_folder()
     check_file()
     n = AdvRoleAssign(bot)
-    bot.add_listener(n._authenticate, "on_message")
     bot.add_cog(n)
