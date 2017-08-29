@@ -459,6 +459,8 @@ class AdvRoleAssign:
                                           "a server admin to remedy this")
             except discord.HTTPException:
                 return await self.bot.say("Something went wrong")
+            else:
+                await self.bot.say("Role removed")
 
     @advrole.command(name="join", no_pm=True, pass_context=True)
     async def joinrole(self, ctx, role: discord.Role):
