@@ -493,12 +493,12 @@ class AdvRoleAssign:
         if v_role_id is None:
             return True
 
-        v_role = [r for r in server.roles if r.id == v_role_id]
-        if len(v_role) == 0:
+        v_role = discord.utils.get(server.roles, id=v_role_id)
+        if v_role is None:
             return True
 
         if v_strict:
-            if v_role[0] in member.roles:
+            if v_role in member.roles:
                 return True
             else:
                 return False
