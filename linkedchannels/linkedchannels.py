@@ -14,7 +14,7 @@ class LinkedChannels:
     who said what on both sides.\n supports multiple active links"""
 
     __author__ = "mikeshardmind"
-    __version__ = "2.3"
+    __version__ = "2.4"
 
     def __init__(self, bot):
         self.bot = bot
@@ -58,8 +58,8 @@ class LinkedChannels:
         name = name.lower()
         if name in self.links:
             chans = self.links[name]
-            self.activechans = [c for c in self.activechans
-                                if c.id not in chans]
+            self.activechans = [cid for cid in self.activechans
+                                if cid not in [c.id for c in chans]]
             self.links.pop(name, None)
             self.settings.pop(name, None)
             self.save_json()
