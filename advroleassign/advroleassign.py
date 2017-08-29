@@ -488,7 +488,6 @@ class AdvRoleAssign:
         srv_sets = self.settings[server.id]
 
         v_role_id = srv_sets.get('verificationrole', None)
-        v_strict = srv_sets.get('strictverification', True)
 
         if v_role_id is None:
             return True
@@ -497,12 +496,11 @@ class AdvRoleAssign:
         if v_role is None:
             return True
 
-        if v_strict:
+        if srv_sets.get('strictverification', True):
             if v_role in member.roles:
                 return True
             else:
                 return False
-
         else:
             if member.top_role >= v_role[0]:
                 return True
