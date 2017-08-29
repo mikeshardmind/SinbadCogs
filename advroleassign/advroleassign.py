@@ -23,6 +23,9 @@ class AdvRoleAssign:
         self.bot = bot
         self.settings = dataIO.load_json('data/advroleassign/settings.json')
         self.lockouts = {}
+        self.permerror = "I don't seem to have the " \
+                         "permissions required, contact " \
+                         "a server admin to remedy this"
 
     def save_json(self):
         dataIO.save_json('data/advroleassign/settings.json', self.settings)
@@ -136,6 +139,23 @@ class AdvRoleAssign:
             await self.bot.say("Activated.")
         else:
             await self.bot.say("Deactivated.")
+
+    @advroleset.command(name="togglejoinremove", no_pm=True, pass_context=True)
+    async def togglejoinremove(self, ctx):
+        """
+        toggles the default behavior of trying to join a role you
+        own already. Default is to tell you you own, toggles to
+        attempting to remove it if removable
+        """
+        server = ctx.message.server
+        self.initial_config(server)
+        srv_sets = self.settings[server.id]
+
+        srv_sets['jointoremove'] = not srv_sets.get('jointoremove', False)
+        if srv_sets['jointoremove']:
+            await self.bot.say("Join now doubles as removal command")
+        else:
+            await self.bot.say("Join no longer doubles as removal command")
 
     @advroleset.command(name="toggleremovable", no_pm=True, pass_context=True)
     async def toggleremovable(self, ctx, *roles: discord.Role):
@@ -454,9 +474,7 @@ class AdvRoleAssign:
             try:
                 await self.bot.remove_roles(user, role)
             except discord.Forbidden:
-                return await self.bot.say("I don't seem to have the "
-                                          "permissions required, contact "
-                                          "a server admin to remedy this")
+                return await self.bot.say(self.permerror)
             except discord.HTTPException:
                 return await self.bot.say("Something went wrong")
             else:
@@ -481,7 +499,23 @@ class AdvRoleAssign:
             return await self.bot.say("No roles currently self assignable.")
 
         if role in user.roles:
-            return await self.bot.say("You already have that role.")
+            if srv_sets.get('jointoremove', False):
+                if role.id in srv_sets['selfroles']:
+                    if srv_sets['rolerules'][role.id].get('removable', False):
+                        try:
+                            await self.bot.remove_roles(user, role)
+                        except discord.Forbidden:
+                            return await self.bot.say(self.permerror)
+                        except discord.HTTPException:
+                            return await self.bot.say("Something went wrong")
+                        else:
+                            await self.bot.say("Role removed")
+                    else:
+                        return await self.bot.say("You can't remove that role")
+                else:
+                    return await self.bot.say("You can't remove that role")
+            else:
+                return await self.bot.say("You already have that role.")
 
         if not set(ignoredroles).isdisjoint(user.roles):
             return await self.bot.say("You aren't allowed to assign a role")
@@ -532,18 +566,14 @@ class AdvRoleAssign:
                 rms = [r for r in user.roles if r in conflicting_roles]
                 await self.bot.remove_roles(user, *rms)
             except discord.Forbidden:
-                return await self.bot.say("I don't seem to have the "
-                                          "permissions required, contact "
-                                          "a server admin to remedy this")
+                return await self.bot.say(self.permerror)
             except discord.HTTPException:
                 return await self.bot.say("Something went wrong")
 
         try:
             await self.bot.add_roles(user, role)
         except discord.Forbidden:
-            return await self.bot.say("I don't seem to have the "
-                                      "permissions required, contact "
-                                      "a server admin to remedy this")
+            return await self.bot.say(self.permerror)
         except discord.HTTPException:
             return await self.bot.say("Something went wrong")
         else:
