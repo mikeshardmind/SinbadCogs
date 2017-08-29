@@ -48,42 +48,10 @@ class ServerBlacklist:
                     self.save_json()
                     await self.bot.say("Server with ID: {} "
                                        "blacklisted.".format(server_id))
-                    in_server = False
-                    serv_ids = map(lambda s: s.id, self.bot.servers)
-                    for serv_id in serv_ids:
-                        if serv_id in self.blacklist:
-                            in_server = True
-                    if in_server:
-                        srv = self.bot.get_server(server_id)
-                        msg = self.settings.get('msg', None)
-                        if msg:
-                            try:
-                                await self.bot.send_message(srv,
-                                                            "{}".format(msg))
-                            except discord.Forbidden:
-                                log.debug("Did not have permission to "
-                                          "leave exit message for"
-                                          "server named {0.name} "
-                                          "with an ID of {0.id}"
-                                          .format(server))
-                            except discord.HTTPException:
-                                log.debug("HTTPException encountered "
-                                          "when attempting to leave "
-                                          "exit message for server named "
-                                          "{0.name} with an ID of {0.id}"
-                                          "".format(server))
-                            except discord.NotFound:
-                                log.debug("Somehow, I tried to leave a server"
-                                          " I wasn't in, despite checking "
-                                          "for membership")
-                            except discord.InvalidArgument:
-                                log.debug("Unable to leave exit message "
-                                          "for server named"
-                                          "{0.name} with ID {0.id}"
-                                          "error indicates this server "
-                                          "does not have a default channel")
+
+                    if server in self.bot.servers:
+                        await self.blacklist_routine(server)
                         await asyncio.sleep(1)
-                        await self.bot.leave_server(server)
                         await self.bot.say("I was in that server. Was.")
                 else:
                     await self.bot.say("That server is already "
@@ -161,10 +129,33 @@ class ServerBlacklist:
         """do the thing"""
 
         if server.id in self.blacklist:
+            channel = server.default_channel
+            if channel is None:
+                chan_list = [
+                    c for c in sorted(
+                        server.channels, key=lambda ch: ch.position
+                    ) if c.type.name == "text"
+                ]
+                for ch in chan_list:
+                    roleless_member = [
+                        m for m in server.members if m.roles == [
+                            server.default_role
+                        ]
+                    ][0]
+                    if ch.permissions_for(roleless_member).read_messages and\
+                            ch.permissions_for(server.me).send_messages:
+                        chan = ch
+                        break
+                else:
+                    og.debug("Did not have permission to leave exit message "
+                             "for any channel in server named {0.name} "
+                             "with ID of {0.id} ".format(server))
+
             msg = self.settings.get('msg', None)
+
             if msg:
                 try:
-                    await self.bot.send_message(server, "{}".format(msg))
+                    await self.bot.send_message(channel, "{}".format(msg))
                 except discord.Forbidden:
                     log.debug("Did not have permission to leave exit message "
                               "for server named {0.name} with ID of {0.id} "
