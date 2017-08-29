@@ -92,7 +92,7 @@ class LongTermPolling:
         #  Todo: implement persistence across bot restarts
         self.poll_sessions = []
 
-    @commands.group(no_pm=True, pass_context=True)
+    @commands.group(no_pm=True, pass_context=True, hidden=True)
     @checks.mod_or_permissions(manage_messages=True)
     async def ltp(self, ctx):
         if ctx.invoked_subcommand is None:
