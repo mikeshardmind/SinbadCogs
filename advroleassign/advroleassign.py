@@ -423,9 +423,11 @@ class AdvRoleAssign:
             return await self.bot.say("Selfrole management is currently "
                                       "disabled.")
 
-        removable_roles = [r for r in user.roles if
-                           srv_sets['rolerules'][role.id].get('removable',
-                                                              False)]
+        removable_roles = [r for r in user.roles if r.id in
+                           srv_sets['selfroles']]
+
+        removable_roles = [r for r in removable_roles if
+                           srv_sets['rolerules'][r.id].get('removable', False)]
 
         removable_roles = [r for r in removable_roles if
                            r < server.me.top_role]
