@@ -17,7 +17,7 @@ class AdvRoleAssign:
     with optional lockout
     """
     __author__ = "mikeshardmind"
-    __version__ = "2.3"
+    __version__ = "2.4"
 
     def __init__(self, bot):
         self.bot = bot
@@ -509,7 +509,7 @@ class AdvRoleAssign:
                         except discord.HTTPException:
                             return await self.bot.say("Something went wrong")
                         else:
-                            await self.bot.say("Role removed")
+                            return await self.bot.say("Role removed")
                     else:
                         return await self.bot.say("You can't remove that role")
                 else:
