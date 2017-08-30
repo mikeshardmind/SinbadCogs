@@ -126,7 +126,7 @@ class LinkedChannels:
             url = a['url']
             content += "\nUploaded: [{}]({})".format(fname, url)
         footer = 'Said in {} #{} at {} UTC'.format(sname, cname, timestamp)
-        em = discord.Embed(description=content, color=discord.Color.purple())
+        em = discord.Embed(description=content, color=author.color)
         em.set_author(name='{}'.format(author.display_name), icon_url=avatar)
         em.set_footer(text=footer)
         return em
