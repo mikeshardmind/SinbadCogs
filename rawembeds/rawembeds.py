@@ -1,5 +1,4 @@
 import os
-import asyncio  # noqa: F401
 import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
@@ -68,5 +67,5 @@ def check_file():
 def setup(bot):
     check_folder()
     check_file()
-    n = EmbedMaker(bot)
+    n = RawEmbeds(bot)
     bot.add_cog(n)
