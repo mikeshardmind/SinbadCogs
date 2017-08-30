@@ -453,6 +453,8 @@ class AdvRoleAssign:
             locked_out = True
 
         for x in self_roles:
+            if x.id not in srv_sets['rolerules']:
+                continue
             tst_exclusive = [r for r in server_roles if r.id in
                              srv_sets['rolerules'][x.id]['exclusiveto']]
 
@@ -612,17 +614,19 @@ class AdvRoleAssign:
             locked_out = True
 
         for x in self_roles:
-            if x == role:
+            if x == role and x.id in srv_sets['rolerules']:
                 tst_exclusive = [r for r in server_roles if r.id in
                                  srv_sets['rolerules'][x.id]['exclusiveto']]
                 rms = list(set(tst_exclusive).intersection(user.roles))
                 conflicting_roles.append(rms)
-            elif x in user.roles:
+            elif x in user.roles and role.id in srv_sets['rolerules']:
                 tst_exclusive = [r for r in server_roles if r.id in
                                  srv_sets['rolerules'][role.id]['exclusiveto']]
                 if x in tst_exclusive:
                     conflicting_roles.append(x)
 
+            if x.id not in srv_sets['rolerules']:
+                continue
             req_for_x = [r for r in server_roles if r.id in
                          srv_sets['rolerules'][x.id]['requiresany']]
 
