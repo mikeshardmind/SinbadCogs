@@ -42,6 +42,8 @@ class AdvRoleAssign:
                                         'ignoredroles': [],
                                         'version': 2
                                         }
+        if 'silent' not in self.settings[server.id]:
+            self.settings[server.id].update({'silent': []})
         if self.settings[server.id].get('version', None) != 2:
             self.backwards_compatability()
         self.save_json()
@@ -131,6 +133,26 @@ class AdvRoleAssign:
             await self.bot.say("Strict mode enabled")
         else:
             await self.bot.say("Strict mode disabled")
+
+    @advroleset.command(name="silentchannels", no_pm=True, pass_context=True)
+    async def set_silent_channels(self, ctx, *channels: discord.Channel):
+        """
+        takes a list of channels and sets them to silent. non admin commands
+        that issue feedback only will not work in silent channels
+        non admin commands that do things,
+        will do them silently in silent channels
+        Use with no arguments to clear the list of silent channels
+        """
+
+        server = ctx.message.server
+        self.initial_config(server)
+        self.settings[server.id]['silent'] = \
+            [c.id for c in channels if c in server.channels]
+
+        if len(self.settings[server.id]['silent']) == 0:
+            await self.bot.say("Silent channel list cleared")
+        else:
+            await self.bot.say("Silent channels set")
 
     @advroleset.command(name="viewconfig", no_pm=True, pass_context=True)
     async def viewconfig(self, ctx):
@@ -420,12 +442,15 @@ class AdvRoleAssign:
         """list roles which are available to you for self assignment"""
         user = ctx.message.author
         server = ctx.message.server
+        channel = ctx.message.channel
         server_roles = server.roles
         now = datetime.utcnow()
         self.initial_config(server)
         if not self._check_verified(server, user):
             return
         srv_sets = self.settings[server.id]
+        if channel.id in srv_sets['silent']:
+            return
         ignoredroles = [r for r in server_roles
                         if r.id in srv_sets['ignoredroles']]
         locked_out = False
@@ -512,11 +537,14 @@ class AdvRoleAssign:
         """
         user = ctx.message.author
         server = ctx.message.server
+        channel = ctx.message.channel
         self.initial_config(server)
         srv_sets = self.settings[server.id]
         if not self._check_verified(server, user):
             return
         if not srv_sets['active']:
+            if channel.id in srv_sets['silent']:
+                return
             return await self.bot.say("Selfrole management is currently "
                                       "disabled.")
 
@@ -530,6 +558,8 @@ class AdvRoleAssign:
                            r < server.me.top_role]
 
         if role is None:
+            if channel.id in srv_sets['silent']:
+                return
             if len(removable_roles) == 0:
                 return await self.bot.say("None of your roles are available "
                                           "for self removal")
@@ -542,6 +572,8 @@ class AdvRoleAssign:
                 await self.bot.say(box(page))
 
         elif role not in removable_roles:
+            if channel.id in srv_sets['silent']:
+                return
             return await self.bot.say("You can't remove that role. "
                                       "For a list of removable roles, use "
                                       "`{0.prefix}advrole remove` (without "
@@ -551,10 +583,16 @@ class AdvRoleAssign:
             try:
                 await self.bot.remove_roles(user, role)
             except discord.Forbidden:
+                if channel.id in srv_sets['silent']:
+                    return
                 return await self.bot.say(self.permerror)
             except discord.HTTPException:
+                if channel.id in srv_sets['silent']:
+                    return
                 return await self.bot.say("Something went wrong")
             else:
+                if channel.id in srv_sets['silent']:
+                    return
                 await self.bot.say("Role removed")
 
     @advrole.command(name="join", no_pm=True, pass_context=True)
@@ -562,6 +600,7 @@ class AdvRoleAssign:
         """joins a role which is available to you for self assignment"""
         user = ctx.message.author
         server = ctx.message.server
+        channel = ctx.message.channel
         server_roles = server.roles
         now = datetime.utcnow()
         self.initial_config(server)
@@ -575,6 +614,8 @@ class AdvRoleAssign:
         unqualified_roles = []
 
         if not srv_sets['active']:
+            if channel.id in srv_sets['silent']:
+                return
             return await self.bot.say("No roles currently self assignable.")
 
         if role in user.roles:
@@ -584,19 +625,33 @@ class AdvRoleAssign:
                         try:
                             await self.bot.remove_roles(user, role)
                         except discord.Forbidden:
+                            if channel.id in srv_sets['silent']:
+                                return
                             return await self.bot.say(self.permerror)
                         except discord.HTTPException:
+                            if channel.id in srv_sets['silent']:
+                                return
                             return await self.bot.say("Something went wrong")
                         else:
+                            if channel.id in srv_sets['silent']:
+                                return
                             return await self.bot.say("Role removed")
                     else:
+                        if channel.id in srv_sets['silent']:
+                            return
                         return await self.bot.say("You can't remove that role")
                 else:
+                    if channel.id in srv_sets['silent']:
+                        return
                     return await self.bot.say("You can't remove that role")
             else:
+                if channel.id in srv_sets['silent']:
+                    return
                 return await self.bot.say("You already have that role.")
 
         if not set(ignoredroles).isdisjoint(user.roles):
+            if channel.id in srv_sets['silent']:
+                return
             return await self.bot.say("You aren't allowed to assign a role")
 
         self_roles = [r for r in server_roles if r.id in
@@ -647,20 +702,30 @@ class AdvRoleAssign:
                 rms = [r for r in user.roles if r in conflicting_roles]
                 await self.bot.remove_roles(user, *rms)
             except discord.Forbidden:
+                if channel.id in srv_sets['silent']:
+                    return
                 return await self.bot.say(self.permerror)
             except discord.HTTPException:
+                if channel.id in srv_sets['silent']:
+                    return
                 return await self.bot.say("Something went wrong")
 
         try:
             await self.bot.add_roles(user, role)
         except discord.Forbidden:
+            if channel.id in srv_sets['silent']:
+                return
             return await self.bot.say(self.permerror)
         except discord.HTTPException:
+            if channel.id in srv_sets['silent']:
+                return
             return await self.bot.say("Something went wrong")
         else:
-            await self.bot.say("Role assigned.")
             if role in conflicting_roles:
                 self.lockouts[server.id][user.id] = now
+            if channel.id in srv_sets['silent']:
+                return
+            await self.bot.say("Role assigned.")
 
 
 def unique(a):
