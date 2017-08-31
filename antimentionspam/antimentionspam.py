@@ -68,7 +68,6 @@ class AntiMentionSpam:
                 if self.settings[server.id]['max'] > 0:
                     if len(message.mentions) > self.settings[server.id]['max']:
                         await self.bot.delete_message(message)
-        await self.bot.process_commands(message)
 
 
 def check_folder():

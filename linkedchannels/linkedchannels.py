@@ -101,7 +101,6 @@ class LinkedChannels:
 
             if destination is not None:
                 await self.sender(destination, message)
-        await self.bot.process_commands(message)
 
     async def sender(self, where, message=None):
         """sends the thing"""
