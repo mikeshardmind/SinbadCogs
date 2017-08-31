@@ -104,6 +104,9 @@ class AdvRoleAssign:
     async def setverificationrole(self, ctx, role: discord.Role=None):
         """
         set the verification role
+        Note: verification role is not checked for itself, so if you dont
+        want people to be able to self assign this, make sure it isnt a self
+        role
         """
         server = ctx.message.server
         self.initial_config(server)
@@ -520,7 +523,8 @@ class AdvRoleAssign:
         for page in pagify(output, delims=["\n", ","]):
             await self.bot.say(box(page))
 
-    def _check_verified(self, server: discord.Server, member: discord.Member):
+    def _check_verified(self, server: discord.Server, member: discord.Member,
+                        role: discord.Role=None):
         """
         quick check to see if a member has been verified
         returns True if verification role has not been set
@@ -534,7 +538,7 @@ class AdvRoleAssign:
             return True
 
         if srv_sets.get('strictverification', True):
-            if v_role in member.roles:
+            if v_role in member.roles or v_role == role:
                 return True
             else:
                 return False
@@ -630,7 +634,7 @@ class AdvRoleAssign:
                 await self.bot.delete_message(ctx.message)
             except Exception:
                 pass
-        if not self._check_verified(server, user):
+        if not self._check_verified(server, user, role):
             return
         ignoredroles = [r for r in server_roles
                         if r.id in srv_sets['ignoredroles']]
