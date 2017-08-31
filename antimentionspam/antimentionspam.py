@@ -54,22 +54,21 @@ class AntiMentionSpam:
             else:
                 return False
 
-    async def on_message(self, message):
+    async def check_msg_for_spam(self, message):
         if message.channel.is_private or self.bot.user == message.author \
          or not isinstance(message.author, discord.Member):
-            return
+            pass
+        else:
+            server = message.server
+            can_delete = \
+                message.channel.permissions_for(server.me).manage_messages
 
-        server = message.server
-        sid = server.id
-        can_delete = message.channel.permissions_for(server.me).manage_messages
-
-        if self.immune(message) or not can_delete:
-            return
-
-        if server.id in self.settings:
-            if self.settings[server.id]['max'] > 0:
-                if len(message.mentions) > self.settings[server.id]['max']:
-                    await self.bot.delete_message(message)
+            if server.id in self.settings and \
+                    not (self.immune(message) or not can_delete):
+                if self.settings[server.id]['max'] > 0:
+                    if len(message.mentions) > self.settings[server.id]['max']:
+                        await self.bot.delete_message(message)
+        await self.bot.process_commands(message)
 
 
 def check_folder():
@@ -88,4 +87,5 @@ def setup(bot):
     check_folder()
     check_file()
     n = AntiMentionSpam(bot)
+    bot.add_listener(n.check_msg_for_spam, "on_message")
     bot.add_cog(n)

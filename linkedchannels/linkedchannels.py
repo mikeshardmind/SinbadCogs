@@ -1,5 +1,4 @@
 import os
-import asyncio  # noqa: F401
 import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
@@ -91,17 +90,18 @@ class LinkedChannels:
             await self.validate()
             self.initialized = True
 
-        if message.author == self.bot.user:
-            return
+        if message.author != self.bot.user:
 
-        channel = message.channel
-        destination = None
-        for link in self.links:
-            if channel in self.links[link]:
-                destination = [c for c in self.links[link] if c != channel][0]
+            channel = message.channel
+            destination = None
+            for link in self.links:
+                if channel in self.links[link]:
+                    destination = [c for c in self.links[link]
+                                   if c != channel][0]
 
-        if destination is not None:
-            await self.sender(destination, message)
+            if destination is not None:
+                await self.sender(destination, message)
+        await self.bot.process_commands(message)
 
     async def sender(self, where, message=None):
         """sends the thing"""
