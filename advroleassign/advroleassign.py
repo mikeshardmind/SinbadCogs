@@ -20,7 +20,7 @@ class AdvRoleAssign:
     with optional lockout
     """
     __author__ = "mikeshardmind"
-    __version__ = "2.5"
+    __version__ = "2.6"
 
     def __init__(self, bot):
         self.bot = bot
@@ -435,6 +435,16 @@ class AdvRoleAssign:
     async def advrole(self, ctx):
         """commands for self assigning roles"""
         if ctx.invoked_subcommand is None:
+            server = ctx.message.server
+            channel = ctx.message.channel
+            self.initial_config(server)
+            srv_sets = self.settings[server.id]
+            if channel.id in srv_sets['silent']:
+                try:
+                    await self.bot.delete_message(ctx.message)
+                except Exception:
+                    pass
+                return
             await self.bot.send_cmd_help(ctx)
 
     @advrole.command(name="list", no_pm=True, pass_context=True)
@@ -446,11 +456,16 @@ class AdvRoleAssign:
         server_roles = server.roles
         now = datetime.utcnow()
         self.initial_config(server)
-        if not self._check_verified(server, user):
-            return
         srv_sets = self.settings[server.id]
         if channel.id in srv_sets['silent']:
+            try:
+                await self.bot.delete_message(ctx.message)
+            except Exception:
+                pass
             return
+        if not self._check_verified(server, user):
+            return
+
         ignoredroles = [r for r in server_roles
                         if r.id in srv_sets['ignoredroles']]
         locked_out = False
@@ -540,6 +555,11 @@ class AdvRoleAssign:
         channel = ctx.message.channel
         self.initial_config(server)
         srv_sets = self.settings[server.id]
+        if channel.id in srv_sets['silent']:
+            try:
+                await self.bot.delete_message(ctx.message)
+            except Exception:
+                pass
         if not self._check_verified(server, user):
             return
         if not srv_sets['active']:
@@ -604,9 +624,14 @@ class AdvRoleAssign:
         server_roles = server.roles
         now = datetime.utcnow()
         self.initial_config(server)
+        srv_sets = self.settings[server.id]
+        if channel.id in srv_sets['silent']:
+            try:
+                await self.bot.delete_message(ctx.message)
+            except Exception:
+                pass
         if not self._check_verified(server, user):
             return
-        srv_sets = self.settings[server.id]
         ignoredroles = [r for r in server_roles
                         if r.id in srv_sets['ignoredroles']]
         locked_out = False
