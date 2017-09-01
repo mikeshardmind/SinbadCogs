@@ -121,7 +121,7 @@ class CrossQuote:
             await self.bot.send_message(ctx.message.channel, embed=em)
 
     @commands.command(pass_context=True, name='crossservquote',
-                      aliases=["csq"])
+                      aliases=["csq", "crossquote"])
     async def _csq(self, ctx, message_id: int):
         """
         Quote someone with the message id.
