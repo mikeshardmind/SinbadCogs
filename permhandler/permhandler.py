@@ -16,7 +16,7 @@ class PermHandler:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "2.1a"
+    __version__ = "2.2a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -412,7 +412,6 @@ class PermHandler:
             except discord.Forbidden:
                 await self.bot.say("I could not remove roles from {}"
                                    "".format(member.mention))
-            await asyncio.sleep(0.5)
 
     async def reorder_roles(self, server):
         if self.settings[server.id]['floor'] is None:
@@ -429,8 +428,6 @@ class PermHandler:
                     await self.bot.move_role(server, role, floor_role.position)
 
     async def verify_on_update(self, memb_before, memb_after):
-        if memb_before.roles == memb_after.roles:
-            return
         server = memb_after.server
         if server.id not in self.settings:
             return
@@ -453,6 +450,7 @@ class PermHandler:
             rms = [r for r in memb.roles if r.id in proles]
             try:
                 await self.bot.remove_roles(memb, *rms)
+                await asyncio.sleep(0.5)
             except discord.Forbidden:
                 raise
 

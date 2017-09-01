@@ -19,6 +19,8 @@ class ChannelDraw:
         self.users = []
         self.queues = {}
         self.settings = dataIO.load_json('data/channeldraw/settings.json')
+        self.utilities = self.bot.get_cog("SinbadUtilities")
+
 
     def save_json(self):
         dataIO.save_json("data/channeldraw/settings.json", self.settings)
