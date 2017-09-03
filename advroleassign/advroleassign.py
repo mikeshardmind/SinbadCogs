@@ -496,19 +496,19 @@ class AdvRoleAssign:
             locked_out = True
 
         for x in self_roles:
-            if x.id in srv_sets['rolerules']:
-                tst_exclusive = [r for r in server_roles if r.id in
-                                 srv_sets['rolerules'][x.id]['exclusiveto']]
+            if x.id not in srv_sets['rolerules']:
+                continue
+            tst_exclusive = [r for r in server_roles if r.id in
+                             srv_sets['rolerules'][x.id]['exclusiveto']]
 
-                if not set(tst_exclusive).isdisjoint(user.roles):
-                    conflicting_roles.append(x)
+            if not set(tst_exclusive).isdisjoint(user.roles):
+                conflicting_roles.append(x)
 
-                req_for_x = [r for r in server_roles if r.id in
-                             srv_sets['rolerules'][x.id]['requiresany']]
+            req_for_x = [r for r in server_roles if r.id in
+                         srv_sets['rolerules'][x.id]['requiresany']]
 
-                if len(req_for_x) > 0 and \
-                        set(req_for_x).isdisjoint(user.roles):
-                    unqualified_roles.append(x)
+            if len(req_for_x) > 0 and set(req_for_x).isdisjoint(user.roles):
+                unqualified_roles.append(x)
 
         self_roles = [r for r in self_roles if r not in unqualified_roles]
 
@@ -709,14 +709,13 @@ class AdvRoleAssign:
                 if x in tst_exclusive:
                     conflicting_roles.append(x)
 
-            if x.id in srv_sets['rolerules']:
+            if x.id not in srv_sets['rolerules']:
+                continue
+            req_for_x = [r for r in server_roles if r.id in
+                         srv_sets['rolerules'][x.id]['requiresany']]
 
-                req_for_x = [r for r in server_roles if r.id in
-                             srv_sets['rolerules'][x.id]['requiresany']]
-
-                if len(req_for_x) > 0 and \
-                        set(req_for_x).isdisjoint(user.roles):
-                    unqualified_roles.append(x)
+            if len(req_for_x) > 0 and set(req_for_x).isdisjoint(user.roles):
+                unqualified_roles.append(x)
 
         self_roles = [r for r in self_roles if r not in unqualified_roles]
 
