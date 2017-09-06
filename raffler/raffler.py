@@ -320,7 +320,7 @@ class Raffler:
         server = who.server
         count = 0
         if server.id in self.raffles:
-            for name, raffle in self.raffles[server.id]:
+            for name, raffle in self.raffles[server.id].items():
                 if raffle.author == who.id:
                     count += 1
         return count

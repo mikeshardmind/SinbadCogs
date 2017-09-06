@@ -49,8 +49,10 @@ class ServerBlacklist:
                     await self.bot.say("Server with ID: {} "
                                        "blacklisted.".format(server_id))
 
-                    if server in self.bot.servers:
-                        await self.blacklist_routine(server)
+                    if server_id in [s.id for s in self.bot.servers]:
+                        await self.blacklist_routine([s for s in
+                                                      self.bot.servers
+                                                      if s.id == server_id][0])
                         await asyncio.sleep(1)
                         await self.bot.say("I was in that server. Was.")
                 else:
