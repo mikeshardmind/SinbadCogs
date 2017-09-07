@@ -358,7 +358,7 @@ class AdvRoleAssign:
         ignore = [i for i in ignore if not self.is_ignored(i)]
         if len(ignore) == 0:
             return await self.bot.say("I was already ignoring all of them")
-        ignore = self.advroleset_filter(ignore)
+        ignore = self.advroleset_filter(author, ignore)
         if len(ignore) == 0:
             return await self.bot.say("You can't have me ignore people higher "
                                       "than you in the heirarchy")
@@ -382,7 +382,7 @@ class AdvRoleAssign:
         unignore = [i for i in unignore if self.is_ignored(i)]
         if len(unignore) == 0:
             return await self.bot.say("I wasn't ignoring any of them")
-        unignore = self.advroleset_filter(unignore)
+        unignore = self.advroleset_filter(author, unignore)
         if len(unignore) == 0:
             return await self.bot.say("You can't have me unignore people "
                                       "higher than you in the heirarchy")
@@ -450,7 +450,7 @@ class AdvRoleAssign:
         if self.is_ignored(author):
             return
 
-        if len(author, self.advroleset_filter(role)) == 0:
+        if len(author, self.advroleset_filter(author, role)) == 0:
             return await self.bot.say("You can't modify roles above you")
 
         if role not in self.settings[server.id]['selfroles']:
@@ -477,7 +477,7 @@ class AdvRoleAssign:
         if len(roles) == 0:
             return await self.bot.send_cmd_help(ctx)
 
-        if not all(roles in self.advroleset_filter(author)):
+        if not set(roles) >= set(self.advroleset_filter(author, roles)):
             return await self.bot.say("I can't let you make modifications "
                                       "involving roles higher than you")
 
