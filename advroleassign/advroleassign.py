@@ -767,7 +767,7 @@ class AdvRoleAssign:
             return True
         if isinstance(who, discord.Member):
             for role in who.roles:
-                if self.is_blacklisted(role):
+                if self.is_ignored(role):
                     return True
             return False
 
