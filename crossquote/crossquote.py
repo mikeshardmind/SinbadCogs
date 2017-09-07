@@ -120,6 +120,28 @@ class CrossQuote:
                                'that message', color=discord.Color.red())
             await self.bot.send_message(ctx.message.channel, embed=em)
 
+    @checks.is_owner()
+    @commands.command(pass_context=True, name="getmsgcontent", hidden=True)
+    async def _gmsgcontent(self, ctx, x: str):
+        """debugging tool"""
+        found = False
+        server = ctx.message.channel.server
+        if server.id not in self.settings:
+            await self.init_settings(server)
+        for channel in server.channels:
+            if not found:
+                try:
+                    message = await self.bot.get_message(channel,
+                                                         str(message_id))
+                    if message:
+                        found = True
+                except Exception:
+                    pass
+        if found:
+            await self.bot.say("```{}```".format(message.content))
+            await self.bot.say("```{}```".format(message.clean_content))
+
+
     @commands.command(pass_context=True, name='crossservquote',
                       aliases=["csq", "crossquote"])
     async def _csq(self, ctx, message_id: int):
