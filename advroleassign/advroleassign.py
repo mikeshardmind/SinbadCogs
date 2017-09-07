@@ -27,7 +27,8 @@ class RoleSetting:
         return not set(self.requiresany).isdisjoint([r.id for r in who.roles])
 
     def exclusive_overlap(self, who: discord.Member):
-        return [r for r in who.roles if r.id in self.exclusiveto]
+        return [r for r in who.roles if r.id in self.exclusiveto
+                and r.id != self.id]
 
     def is_exclusive_to_role(self, role: discord.Role):
         return role.id in self.exclusiveto
@@ -721,14 +722,7 @@ class AdvRoleAssign:
         roles = []
         if role.id in rules:
             roles.extend(rules[role.id].exclusive_overlap(who))
-        for r in who.roles:
-            if r.id in rules:
-                if rules[r.id].is_exclusive_to_role(role):
-                    roles.extend(r)
         roles = unique(roles)
-
-        roles = unique(roles)
-
         return roles
 
     def is_locked_out(self, who: discord.Member, role: discord.Role):
