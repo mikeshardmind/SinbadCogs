@@ -125,22 +125,12 @@ class CrossQuote:
     async def _gmsgcontent(self, ctx, x: str):
         """debugging tool"""
         found = False
-        server = ctx.message.channel.server
-        if server.id not in self.settings:
-            await self.init_settings(server)
-        for channel in server.channels:
-            if not found:
-                try:
-                    message = await self.bot.get_message(channel,
-                                                         str(message_id))
-                    if message:
-                        found = True
-                except Exception:
-                    pass
-        if found:
+
+        message = await self.bot.get_message(ctx.message.channel, x)
+
+        if message:
             await self.bot.say("```{}```".format(message.content))
             await self.bot.say("```{}```".format(message.clean_content))
-
 
     @commands.command(pass_context=True, name='crossservquote',
                       aliases=["csq", "crossquote"])
