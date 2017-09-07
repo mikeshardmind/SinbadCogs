@@ -685,7 +685,7 @@ class AdvRoleAssign:
                           *flist: Union[discord.Role, discord.Member]):
         server = who.server
         flist = unique(flist)
-        if not server.permissions_for(who).administrator:
+        if not who.server_permissions.administrator:
             roles = [r for r in flist if isinstance(r, discord.Role)]
             users = [u for u in flist if u not in roles]
             users = [u for u in users if u.top_role < who.top_role]
