@@ -722,7 +722,12 @@ class AdvRoleAssign:
         roles = []
         if role.id in rules:
             roles.extend(rules[role.id].exclusive_overlap(who))
+        for r in who.roles:
+            if r.id in rules:
+                if rules[r.id].is_exclusive_to_role(role):
+                    roles.extend(r)
         roles = unique(roles)
+
         return roles
 
     def is_locked_out(self, who: discord.Member, role: discord.Role):
@@ -741,7 +746,7 @@ class AdvRoleAssign:
         now = datetime.utcnow()
         if timestamp + \
             timedelta(minutes=self.settings[role.server.id]['lockout']) \
-                > now:
+                < now:
             return True
         return False
 
