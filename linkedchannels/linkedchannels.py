@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
+import re
 
 
 class LinkedChannels:
@@ -109,10 +110,28 @@ class LinkedChannels:
             em = self.qform(message)
             await self.bot.send_message(where, embed=em)
 
+    def role_mention_cleanup(self, message):
+
+        if message.server is None:
+            return message.content
+
+        transformations = {
+            re.escape('<@&{0.id}>'.format(role)): '@' + role.name
+            for role in self.role_mentions
+        }
+
+        def repl(obj):
+            return transformations.get(re.escape(obj.group(0)), '')
+
+        pattern = re.compile('|'.join(transformations.keys()))
+        result = pattern.sub(repl, message.content)
+
+        return result
+
     def qform(self, message):
         channel = message.channel
         server = channel.server
-        content = message.content
+        content = self.role_mention_cleanup(message)
         author = message.author
         sname = server.name
         cname = channel.name
