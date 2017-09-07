@@ -117,7 +117,7 @@ class LinkedChannels:
 
         transformations = {
             re.escape('<@&{0.id}>'.format(role)): '@' + role.name
-            for role in self.role_mentions
+            for role in message.role_mentions
         }
 
         def repl(obj):
