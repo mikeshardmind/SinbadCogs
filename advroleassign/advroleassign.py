@@ -477,7 +477,7 @@ class AdvRoleAssign:
         if len(roles) == 0:
             return await self.bot.send_cmd_help(ctx)
 
-        if not set(roles) >= set(self.advroleset_filter(author, roles)):
+        if not set(roles) < set(self.advroleset_filter(author, roles)):
             return await self.bot.say("I can't let you make modifications "
                                       "involving roles higher than you")
 
