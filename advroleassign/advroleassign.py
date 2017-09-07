@@ -477,7 +477,7 @@ class AdvRoleAssign:
         if len(roles) == 0:
             return await self.bot.send_cmd_help(ctx)
 
-        if not all(unique(roles) in self.advroleset_filter(author)):
+        if not all(roles in self.advroleset_filter(author)):
             return await self.bot.say("I can't let you make modifications "
                                       "involving roles higher than you")
 
@@ -683,7 +683,6 @@ class AdvRoleAssign:
 
     def advroleset_filter(self, who: discord.Member,
                           *flist: Union[discord.Role, discord.Member]):
-        server = who.server
         flist = unique(flist)
         if not who.server_permissions.administrator:
             roles = [r for r in flist if isinstance(r, discord.Role)]
