@@ -691,7 +691,8 @@ class AdvRoleAssign:
             users = [u for u in users if u.top_role < who.top_role]
             roles = [r for r in roles if r < who.top_role]
             returnlist = users + roles
-
+        else:
+            return flist
         return returnlist
 
     def get_joinable(self, who: discord.Member):
