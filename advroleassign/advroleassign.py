@@ -750,7 +750,7 @@ class AdvRoleAssign:
             return True
         return False
 
-    def add_or_update_role(self, role: discord.Role, data):
+    def add_or_update_role(self, role: discord.Role, data=None):
         if role.id not in self.settings[role.server.id]['selfroles']:
             self.settings[role.server.id]['selfroles'].append(role.id)
         if role.id not in self.rolerules[role.server.id]:
