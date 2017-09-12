@@ -155,13 +155,13 @@ class MultiWayRelay:
 
 
 def check_folder():
-    f = 'data/linkedchannels'
+    f = 'data/multiwayrelay'
     if not os.path.exists(f):
         os.makedirs(f)
 
 
 def check_file():
-    f = 'data/linkedchannels/settings.json'
+    f = 'data/multiwayrelay/settings.json'
     if dataIO.is_valid_json(f) is False:
         dataIO.save_json(f, {})
 
