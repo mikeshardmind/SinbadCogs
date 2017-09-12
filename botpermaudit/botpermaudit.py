@@ -47,7 +47,7 @@ class BotPermAudit:
         loop.run_forever()
 
     async def perm_check_loop(self):
-        while self == self.bot.get_cog("BotPermAudit"):
+        while True:
             for server in self.bot.servers:
                 output = "Permissions for: {0.id} || {0.name}".format(server)
                 my_perms = server.me.server_permissions
