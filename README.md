@@ -60,10 +60,7 @@ links 2 channels to each other
 
 Tool for making embed objects, storing them, and recalling them
 
-# PermHandler
-
-[Basic usage doc](https://github.com/mikeshardmind/SinbadCogs/wiki/permhandler)
 
 # AdvRoleAssign
 
-Configureable cog for conditionally allowing people to register for roles. Intended to be used in tandem with PermHandler, but not strictly neccessary to do so.
+Configureable cog for conditionally allowing people to register for roles. This is not working fully yet!!
