@@ -306,11 +306,9 @@ class Raffler:
         self.save_raffles()
 
     def is_blacklisted(self, who: Union[discord.Member, discord.Role]):
-        if isinstance(who, discord.Role):
-            return who.id in self.settings[who.server.id]['blacklisted']
+        if who.id in self.settings[who.server.id]['blacklisted']:
+            return True
         if isinstance(who, discord.Member):
-            if who.id in self.settings[who.server.id]['blacklisted']:
-                return True
             for role in who.roles:
                 if self.is_blacklisted(role):
                     return True
