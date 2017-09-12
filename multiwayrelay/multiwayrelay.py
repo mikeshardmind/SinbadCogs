@@ -28,12 +28,12 @@ class MultiWayRelay:
         dataIO.save_json("data/multiwayrelay/settings.json", self.settings)
 
     @checks.is_owner()
-    @commands.command(name="makelink", pass_context=True)
+    @commands.command(name="makerelay", pass_context=True)
     async def makelink(self, ctx, name: str, *chanids: str):
         """takes a name (no whitespace) and a list of channel ids"""
         name = name.lower()
         if name in self.settings:
-            return await self.bot.say("there is an existing link of that name")
+            return await self.bot.say("that name is in use")
 
         channels = self.bot.get_all_channels()
         channels = [c for c in channels if c.type == discord.ChannelType.text]
@@ -48,14 +48,14 @@ class MultiWayRelay:
             self.save_json()
             await self.validate()
             if name in self.links:
-                await self.bot.say("Link formed.")
+                await self.bot.say("Relay formed.")
         else:
-            await self.bot.say("I did not get two unique channel IDs")
+            await self.bot.say("I did not get two or more valid channel IDs")
 
     @checks.is_owner()
-    @commands.command(name="unlink", pass_context=True)
+    @commands.command(name="remrelay", pass_context=True)
     async def unlink(self, ctx, name: str):
-        """unlinks two channels by link name"""
+        """removes a relay by name"""
         name = name.lower()
         if name in self.links:
             chans = self.links[name]
@@ -64,17 +64,17 @@ class MultiWayRelay:
             self.links.pop(name, None)
             self.settings.pop(name, None)
             self.save_json()
-            await self.bot.say("Link removed")
+            await self.bot.say("Relay removed")
         else:
-            await self.bot.say("No such link")
+            await self.bot.say("No such relay")
 
     @checks.is_owner()
-    @commands.command(name="listlinks", pass_context=True)
+    @commands.command(name="listrelays", pass_context=True)
     async def list_links(self, ctx):
         """lists the channel links by name"""
 
         links = list(self.settings.keys())
-        await self.bot.say("Active link names:\n {}".format(links))
+        await self.bot.say("Active relay names:\n {}".format(links))
 
     async def validate(self):
         channels = self.bot.get_all_channels()
