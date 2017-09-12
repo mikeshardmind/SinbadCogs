@@ -12,44 +12,6 @@ from datetime import datetime, timedelta
 log = logging.getLogger('red.AdvRoleAssign')
 
 
-class RoleSetting:
-
-    def __init__(self, data=None):
-        self.id = data.pop('id')
-        self.exclusiveto = data.pop('exclusiveto', [])
-        self.lockoutoverride = data.pop('lockoutoverride', False)
-        self.requiresany = data.pop('requiresany', [])
-        self.removable = data.pop('removable', False)
-
-    def has_req(self, who: discord.Member):
-        if len(self.requiresany) == 0:
-            return True
-        return not set(self.requiresany).isdisjoint([r.id for r in who.roles])
-
-    def exclusive_overlap(self, who: discord.Member):
-        return [r for r in who.roles if r.id in self.exclusiveto
-                and r.id != self.id]
-
-    def is_exclusive_to_role(self, role: discord.Role):
-        return role.id in self.exclusiveto
-
-    def update(self, changed=None):
-        self.exclusiveto = changed.pop('exclusiveto', self.exclusiveto)
-        self.lockoutoverride = changed.pop('lockoutoverride',
-                                           self.lockoutoverride)
-        self.requiresany = changed.pop('requiresany', self.requiresany)
-        self.removable = changed.pop('removable', self.removable)
-
-    def to_dict(self):
-        data = {'id': self.id,
-                'exclusiveto': self.exclusiveto,
-                'lockoutoverride': self.lockout,
-                'requiresany': self.requiresany,
-                'removable': self.removable
-                }
-        return data
-
-
 class AdvRoleAssign:
 
     """
@@ -57,15 +19,13 @@ class AdvRoleAssign:
     with optional lockout
     """
     __author__ = "mikeshardmind"
-    __version__ = "3.0"
+    __version__ = "4.0"
 
     def __init__(self, bot):
         self.bot = bot
         self.settings = dataIO.load_json('data/advroleassign/settings.json')
         self.lockouts = {}
-        self.rolerules = {}
         self.permerror = "I don't have the permissions needed to do that"
-        self._graceful_load()
 
     def save_json(self):
         dataIO.save_json('data/advroleassign/settings.json', self.settings)
@@ -77,7 +37,7 @@ class AdvRoleAssign:
                                         'lockout': 0,
                                         'rolerules': {},
                                         'ignored': [],
-                                        'version': 3
+                                        'version': 4
                                         }
         if 'silent' not in self.settings[server.id]:
             self.settings[server.id].update({'silent': []})
@@ -85,28 +45,19 @@ class AdvRoleAssign:
             self.backwards_compatability()
         self.save_json()
 
-    def _graceful_load(self):
-        self.backwards_compatability()
-        self.save_json()
-        for k, v in self.settings.items():
-            if k not in self.rolerules:
-                self.rolerules[k] = {}
-            for l, b in v['rolerules'].items():
-                data = {'exclusiveto': b.get('exclusiveto', None),
-                        'requiresany': b.get('requiresany', None),
-                        'lockoutoverride': b.get('lockoutoverride', False),
-                        'id': l,
-                        'removable': b.get('removable', False)
-                        }
-                r = RoleSetting(data)
-                self.rolerules[k][l] = r
-
     def backwards_compatability(self):
         for k, v in self.settings.items():
             if v.get('version', None) is None:
                 self.upgrade_v1_to_v2(k)
             if v.get('version') == 2:
                 self.upgrade_v2_to_v3(k)
+            if v.get('version') == 3:
+                self.upgrade_v3_to_v4(k)
+
+    def upgrade_v3_to_v4(self, server_id):
+        srv_sets = self.settings[server_id]
+        srv_sets.update({'lockouts': {}})
+        srv_sets.update({'version': 4})
 
     def upgrade_v2_to_v3(self, server_id):
         srv_sets = self.settings[server_id]
@@ -473,6 +424,7 @@ class AdvRoleAssign:
         self.initial_config(server)
         if self.is_ignored(author):
             return
+        srv_sets = self.settings[server.id]
 
         if len(roles) == 0:
             return await self.bot.send_cmd_help(ctx)
@@ -487,8 +439,8 @@ class AdvRoleAssign:
 
         for role in roles:
             ex = [r.id for r in roles if r != role]
-            if role.id in self.settings[server.id]['selfroles']:
-                ex.extend(self.rolerules[server.id][role.id].exclusiveto)
+            if role.id in srv_sets['selfroles']:
+                ex.extend(srv_sets['rolerules'][role.id]['exclusiveto'])
                 ex = unique(ex)
                 self.add_or_update_role(role, {'exclusiveto': ex})
 
@@ -511,8 +463,8 @@ class AdvRoleAssign:
         output = ""
         roles = self.advroleset_filter(author, roles)
         for role in roles:
-            x = self.rolerules[server.id].pop(role.id, None)
-            if x is not None:
+            if role in self.settings[server.id]['selfroles']:
+                self.settings[server.id]['selfroles'].remove(role.id)
                 output += "\n{0.name}".format(role)
         if output == "":
             return await self.bot.say("You can't modify roles higher than "
@@ -592,8 +544,8 @@ class AdvRoleAssign:
         if role is None:
             output = ""
             for role in author.roles:
-                if role.id in self.rolerules[server.id]:
-                    if self.rolerules[server.id][role.id].removable:
+                if role.id in srv_sets['selfroles']:
+                    if srv_sets['rolerules'][role.id]['removable']:
                         output += "\n{0.name}".format(role)
             if output == "":
                 return await self.bot.say("None of your roles are removable")
@@ -604,8 +556,8 @@ class AdvRoleAssign:
             return
 
         output = "Role not removable"
-        if role.id in self.rolerules[server.id]:
-            if self.rolerules[server.id][role.id].removable:
+        if role.id in srv_sets['selfroles']:
+            if srv_sets['rolerules'][role.id]['removable']:
                 try:
                     await self.bot.remove_roles(author, role)
                 except discord.Forbidden:
@@ -683,83 +635,95 @@ class AdvRoleAssign:
 
     def advroleset_filter(self, who: discord.Member,
                           *flist: Union[discord.Role, discord.Member]):
-        flist = unique(flist)
-        if not who.server_permissions.administrator:
-            roles = [r for r in flist if isinstance(r, discord.Role)]
-            users = [u for u in flist if u not in roles]
-            users = [u for u in users if u.top_role < who.top_role]
-            roles = [r for r in roles if r < who.top_role]
-            returnlist = users + roles
-        else:
+        if who.server_permissions.administrator:
             return flist
-        return returnlist
+
+        ret_list = []
+        for x in flist:
+            if isinstance(x, discord.Role):
+                if who.top_role > x:
+                    ret_list.append(x)
+            else:
+                if who.top_role > x.top_role:
+                    ret_list.append(x)
+        return ret_list
 
     def get_joinable(self, who: discord.Member):
         server = who.server
-        sid = server.id
-        roles = [r for r in server.roles
-                 if r.id in self.settings[sid]['selfroles']
-                 and r not in who.roles]
-        roles = [r for r in roles if not
-                 set(self.rolerules[sid][r.id].requiresany).isdisjoint(
-                                                [x.id for x in who.roles])]
-        if not self.has_verification_role(who):
-            roles = [r for r in roles
-                     if r.id == self.settings[sid]['verificationrole']]
+        srv_sets = self.settings[server.id]
+        rrs = srv_sets['rolerules']
 
-        return roles
+        roles = [r for r in server.roles if r.id in srv_sets['selfroles']]
+        if not self.has_verification_role(who):
+            return [r for r in server.roles
+                    if r.id == srv_sets['verificationrole']]
+
+        ret_list = []
+        for role in roles:
+            if role.id in rrs:
+                if (not set(
+                     rrs[role.id]['requiresany']).isdisjoint([r.id for r
+                                                              in who.roles]
+                                                             )
+                    ) \
+                        or len(rrs[role.id]['requiresany']) == 0:
+                    if not self.is_locked_out(who, role):
+                        ret_list.append(role)
+        return ret_list
 
     def has_verification_role(self, who: discord.Member):
         server = who.server
         vid = self.settings[server.id].get('verificationrole', None)
         if vid is None:
             return True
-        return vid in [r.id for r in who.roles]
+        v_role = [r for r in server.roles if r.id == vid][0]
+        if self.settings[server.id].get('strictverification', True):
+            return v_role in who.roles
+        else:
+            return who.top_role >= v_role
 
     def get_conflicting(self, who: discord.Member, role: discord.Role):
         server = who.server
-        rules = self.rolerules[server.id]
-        roles = []
-        if role.id in rules:
-            roles.extend(rules[role.id].exclusive_overlap(who))
-        for r in who.roles:
-            if r.id in rules:
-                if rules[r.id].is_exclusive_to_role(role):
-                    roles.extend(r)
-        roles = unique(roles)
+        rrs = self.settings[server.id]['rolerules']
 
-        return roles
+        return set(who.roles).intersection([r for r in server.roles if r.id
+                                            in rrs[role.id]['exclusiveto']])
 
     def is_locked_out(self, who: discord.Member, role: discord.Role):
-        if role.server.id not in self.lockouts:
-            self.lockouts[role.server.id] = {}
-        if role.id in self.rolerules[role.server.id]:
-            if self.rolerules[role.server.id][role.id].lockoutoverride:
+        server = who.server
+        srv_sets = self.settings[server.id]
+        rrs = srv_sets['rolerules']
+
+        if not set([r for r in server.roles if r.id in
+                    rrs[role.id]['exclusiveto']]).isdisjoint(who.roles):
+            if rrs[role.id].get('lockoutoverride', False):
                 return False
-        if len(self.get_conflicting(who, role)) == 0:
-            return False
-        timestamp = self.lockouts[role.server.id].get(who.id, None)
-        if timestamp is None:
-            return False
-        if self.settings[role.server.id]['lockout'] == -1:
-            return True
-        now = datetime.utcnow()
-        if timestamp + \
-            timedelta(minutes=self.settings[role.server.id]['lockout']) \
-                < now:
-            return True
+            if srv_sets['lockout'] == -1:
+                return True
+            if who.id not in srv_sets['lockouts']:
+                return False
+            x = datetime.strptime(srv_sets['lockouts'][who.id], "%Y%m%d%H%M")
+            x += timedelta(minutes=srv_sets['lockout'])
+            return x > datetime.utcnow()
         return False
 
     def add_or_update_role(self, role: discord.Role, data=None):
-        if role.id not in self.settings[role.server.id]['selfroles']:
-            self.settings[role.server.id]['selfroles'].append(role.id)
-        if role.id not in self.rolerules[role.server.id]:
-            r = RoleSetting(data)
-            self.rolerules[role.server.id][role.id] = r
+        server = role.server
+        srv_sets = self.settings[server.id]
+        rrs = srv_sets['rolerules']
+
+        if role.id not in srv_sets['selfroles']:
+            srv_sets['selfroles'].append(role.id)
+        if role.id not in rrs:
+            rrs[role.id] = {'id': role.id,
+                            'exclusiveto': data.pop('exclusiveto', []),
+                            'lockoutoverride': data.pop('lockoutoverride',
+                                                        False),
+                            'requiresany': data.pop('requiresany', []),
+                            'removable': data.pop('removable', False)
+                            }
         else:
-            self.rolerules[role.server.id][role.id].update(data)
-        self.settings[role.server.id]['rolerules'][role.id] = \
-            self.rolerules[role.server.id][role.id].to_dict()
+            rrs[role.id].update(data)
         self.save_json()
 
     def is_ignored(self, who: Union[discord.Member, discord.Role]):
