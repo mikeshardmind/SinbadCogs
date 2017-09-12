@@ -5,6 +5,7 @@ from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 import re
 import logging
+import itertools
 
 log = logging.getLogger('red.MultiWayRelay')
 
@@ -15,7 +16,7 @@ class MultiWayRelay:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0"
+    __version__ = "1.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -43,6 +44,8 @@ class MultiWayRelay:
             await self.bot.say("Warning: One or more of these channels is "
                                "already linked elsewhere")
 
+        channels = unique(channels)
+
         if len(channels) >= 2:
             self.settings[name] = {'chans': channels}
             self.save_json()
@@ -51,6 +54,49 @@ class MultiWayRelay:
                 await self.bot.say("Relay formed.")
         else:
             await self.bot.say("I did not get two or more valid channel IDs")
+
+    @checks.is_owner()
+    @commands.command(name="addtorelay", pass_context=True)
+    async def addtorelay(self, ctx, name: str, *chanids: str):
+        """add chans to a relay"""
+
+        name = name.lower()
+        if name in self.settings:
+            return await self.bot.say("that relay doesnt exist")
+
+        chanids += self.settings[name]['chans']
+        channels = self.bot.get_all_channels()
+        channels = [c for c in channels if c.type == discord.ChannelType.text]
+        channels = [c.id for c in channels if c.id in chanids]
+
+        if any(i in self.activechans for i in channels):
+            await self.bot.say("Warning: One or more of these channels is "
+                               "already linked elsewhere")
+
+        channels = unique(channels)
+
+        self.settings[name] = {'chans': channels}
+        self.save_json()
+        await self.validate()
+        await self.bot.say("Relay updated.")
+
+    @checks.is_owner()
+    @commands.command(name="remfromrelay", pass_context=True)
+    async def remfromrelay(self, ctx, name: str, *chanids: str):
+        """remove chans from a relay"""
+
+        name = name.lower()
+        if name in self.settings:
+            return await self.bot.say("that relay doesnt exist")
+
+        self.settings[name]['chans']
+        for cid in chanids:
+            if cid in self.settings[name]['chans']:
+                self.settings[name]['chans'].remove(cid)
+
+        self.save_json()
+        await self.validate()
+        await self.bot.say("Relay updated.")
 
     @checks.is_owner()
     @commands.command(name="remrelay", pass_context=True)
@@ -152,6 +198,13 @@ class MultiWayRelay:
         em.set_author(name='{}'.format(author.display_name), icon_url=avatar)
         em.set_footer(text=footer, icon_url=server.icon_url)
         return em
+
+
+def unique(a):
+    indices = sorted(range(len(a)), key=a.__getitem__)
+    indices = set(next(it) for k, it in
+                  itertools.groupby(indices, key=a.__getitem__))
+    return [x for i, x in enumerate(a) if i in indices]
 
 
 def check_folder():
