@@ -35,8 +35,8 @@ class BotPermAudit:
         t = Thread(target=self.start_loop, args=(self.loop,))
         t.start()
         chan_id = self.settings.get('logchannel', None)
-        if settings.owner not in self.settings['whitelist']:
-            self.settings['whitelist'].append(settings.owner)
+        if settings.owner not in self.settings['whitelisted']:
+            self.settings['whitelisted'].append(settings.owner)
         if chan_id is not None:
             self.output = self.bot.get_channel(chan_id)
         asyncio.run_coroutine_threadsafe(self.perm_check_loop, self.loop)
@@ -80,8 +80,8 @@ class BotPermAudit:
         """
         whitelist servers or server owners by ID
         """
-        self.settings['whitelist'].extend(ids)
-        self.settings['whitelist'] = unique(self.settings['whitelist'])
+        self.settings['whitelisted'].extend(ids)
+        self.settings['whitelisted'] = unique(self.settings['whitelisted'])
         self.save_json()
         await self.bot.say("k")
 
@@ -91,8 +91,8 @@ class BotPermAudit:
         unwhitelist servers or server owners by ID
         """
         for val in ids:
-            if val in self.settings['whitelist']:
-                self.settings['whitelist'].remove(val)
+            if val in self.settings['whitelisted']:
+                self.settings['whitelisted'].remove(val)
         self.save_json()
         await self.bot.say("k")
 
