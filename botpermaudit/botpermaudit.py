@@ -39,7 +39,8 @@ class BotPermAudit:
             self.settings['whitelisted'].append(settings.owner)
         if chan_id is not None:
             self.output = self.bot.get_channel(chan_id)
-        asyncio.run_coroutine_threadsafe(self.perm_check_loop, self.loop)
+        coro = self.perm_check_loop()
+        asyncio.run_coroutine_threadsafe(coro, self.loop)
 
     def start_loop(self, loop):
         asyncio.set_event_loop(loop)
