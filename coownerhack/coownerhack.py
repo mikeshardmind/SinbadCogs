@@ -44,7 +44,8 @@ class CoownerHack:
     @checks.is_owner()
     @commands.group(name="setcoownerhack", pass_context=True)
     async def co_owner(self, ctx):
-        pass
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_cmd_help(ctx)
 
     @co_owner.command(name="protectcommands", pass_context=True)
     async def protectcommands(self, ctx, *coms: str):
