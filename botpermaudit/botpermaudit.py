@@ -4,8 +4,8 @@ from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from .utils import checks
 import logging
-import asyncio
-from threading import Thread
+# import asyncio
+# from threading import Thread
 from cogs.utils.chat_formatting import box, pagify
 from __main__ import settings
 import itertools
@@ -23,50 +23,72 @@ class BotPermAudit:
     def __init__(self, bot):
         self.bot = bot
         self.settings = dataIO.load_json('data/botpermaudit/settings.json')
-        self.loop = None
+#        self.loop = None
         self.output = None
-        self.initialize()
+        self.initialized = False
 
     def save_json(self):
         dataIO.save_json('data/botpermaudit/settings.json', self.settings)
 
-    def initialize(self):
-        self.loop = asyncio.new_event_loop()
-        t = Thread(target=self.start_loop, args=(self.loop,))
-        t.start()
+    async def async_initialize(self):
+        """
+        """
+#        self.loop = asyncio.new_event_loop()
+#        t = Thread(target=self.start_loop, args=(self.loop,))
+#        t.start()
         chan_id = self.settings.get('logchannel', None)
         if settings.owner not in self.settings['whitelisted']:
             self.settings['whitelisted'].append(settings.owner)
         if chan_id is not None:
             self.output = self.bot.get_channel(chan_id)
-        coro = self.perm_check_loop()
-        asyncio.run_coroutine_threadsafe(coro, self.loop)
+        else:
+            self.output = (await self.bot.get_user_info(settings.owner))
+#        coro = self.perm_check_loop()
+#        asyncio.run_coroutine_threadsafe(coro, self.loop)
 
-    def start_loop(self, loop):
-        asyncio.set_event_loop(loop)
-        loop.run_forever()
+#    def start_loop(self, loop):
+#        asyncio.set_event_loop(loop)
+#        loop.run_forever()
 
-    async def perm_check_loop(self):
-        while True:
-            for server in self.bot.servers:
-                output = "Permissions for: {0.id} || {0.name}".format(server)
-                my_perms = server.me.server_permissions
-                for p in iter(my_perms):
-                    output += "\n{}".format(p)
+#    async def perm_check_loop(self):
+#        while True:
+#            for server in self.bot.servers:
+#                output = "Permissions for: {0.id} || {0.name}".format(server)
+#                my_perms = server.me.server_permissions
+#                for p in iter(my_perms):
+#                    output += "\n{}".format(p)
+#
+#                if self.output is None:
+#                    dest = await self.bot.get_user_info(settings.owner)
+#                else:
+#                    dest = self.output
+#                for page in pagify(output, delims=["\n", ","]):
+#                    try:
+#                        await self.bot.send_message(dest, box(page))
+#                    except Exception:
+#                        log.debug("Failed to send output, appending to log:\n"
+#                                  "{}".format(page))
+#
+#            time = self.settings['hours'] * 60 * 60
+#            asyncio.sleep(time)
 
-                if self.output is None:
-                    dest = await self.bot.get_user_info(settings.owner)
-                else:
-                    dest = self.output
-                for page in pagify(output, delims=["\n", ","]):
-                    try:
-                        await self.bot.send_message(dest, box(page))
-                    except Exception:
-                        log.debug("Failed to send output, appending to log:\n"
-                                  "{}".format(page))
+    @checks.is_owner()
+    @commands.command(name="manualaudit", pass_context=True)
+    async def manualaudit(self, ctx):
+        """
+        manual audit
+        """
+        if not self.initialized:
+            await self.async_initialize()
+        output = "Audit Details"
+        for server in self.bot.servers:
+            output += "\n{0.id} || {0.name}".format(server)
+            perms = server.me.server_permissions
+            for perm in iter(perms):
+                output += "\n{}".format(perm)
 
-            time = self.settings['hours'] * 60 * 60
-            asyncio.sleep(time)
+        for page in pagify(output, delims=["\n", ","]):
+            await self.bot.send_message(self.output, box(page))
 
     @checks.is_owner()
     @commands.group(name="botauditset", pass_context=True)
