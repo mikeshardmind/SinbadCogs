@@ -82,7 +82,7 @@ class BotPermAudit:
             await self.async_initialize()
         output = "Audit Details"
         for server in self.bot.servers:
-            output += "\n{0.id} || {0.name}".format(server)
+            output += "\n\n{0.id} || {0.name}".format(server)
             perms = server.me.server_permissions
             for perm in iter(perms):
                 output += "\n{}".format(perm)
