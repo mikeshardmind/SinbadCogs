@@ -26,7 +26,7 @@ class SinbadUtils:
             user = await self.bot.get_user_info(uid)
             if user is None:
                 return await self.bot.say("No such user")
-            col = discord.Color.purple
+            col = discord.Color.purple()
             desc = "Not a member of this server"
             name = "{0.name} #{0.discriminator}".format(user)
 
