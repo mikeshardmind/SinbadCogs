@@ -13,6 +13,7 @@ class SinbadUtils:
     @commands.command(pass_context=True, no_pm=True)
     async def userinfobyid(self, ctx, uid: str):
         """Shows users's information"""
+        server = ctx.message.server
         user = server.get_member(uid)
         user_created = user.created_at.strftime("%d %b %Y %H:%M")
         if member is not None:
