@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from cogs.utils import checks
-
+from discord.utils import snowflake_time
 
 class SinbadUtils:
     """personal utils"""
@@ -15,7 +15,7 @@ class SinbadUtils:
         """Shows users's information"""
         server = ctx.message.server
         user = server.get_member(uid)
-        user_created = user.created_at.strftime("%d %b %Y %H:%M")
+        user_created = snowflake_time(uid).strftime("%d %b %Y %H:%M")
         if member is not None:
             desc = "Is a member of this server"
             col = user.color
