@@ -16,7 +16,7 @@ class SinbadUtils:
         server = ctx.message.server
         user = server.get_member(uid)
         user_created = snowflake_time(uid).strftime("%d %b %Y %H:%M")
-        if member is not None:
+        if user is not None:
             desc = "Is a member of this server"
             col = user.color
             name = "{0.name} #{0.descriminator}".format(user)
