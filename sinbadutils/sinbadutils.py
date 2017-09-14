@@ -19,7 +19,7 @@ class SinbadUtils:
         if user is not None:
             desc = "Is a member of this server"
             col = user.color
-            name = "{0.name} #{0.descriminator}".format(user)
+            name = "{0.name} #{0.discriminator}".format(user)
             if user.nick is not None:
                 name += " AKA: {0.nick}".format(user)
         else:
@@ -28,7 +28,7 @@ class SinbadUtils:
                 return await self.bot.say("No such user")
             col = discord.Color.purple
             desc = "Not a member of this server"
-            name = "{0.name} #{0.descriminator}".format(user)
+            name = "{0.name} #{0.discriminator}".format(user)
 
         data = discord.Embed(description=desc, colour=col)
         if user.avatar_url:
