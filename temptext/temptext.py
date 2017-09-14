@@ -48,6 +48,9 @@ class TempTextChannel:
 
 class TempText:
 
+    __author__ = "mikeshardmind"
+    __version__ = "1.0"
+
     def __init__(self, bot):
         self.bot = bot
         self.settings = dataIO.load_json('data/temptext/settings.json')
@@ -57,11 +60,27 @@ class TempText:
         self.to_kill = {}
         self._load()
 
+    def update_settings(self, server: discord.Server, data=None):
+        if server.id not in self.settings:
+            self.settings[server.id] = {'active': False,
+                                        'ignored': [],  # Future feature
+                                        'rid': None,
+                                        'strict': True,
+                                        'schan_limit': 50,  # Future feature
+                                        'uchan_limit': 2,  # Future feature
+                                        'min_time': 1800,  # 30m in s
+                                        'max_time': 604800,  # 1w in s
+                                        'default_time': 10800  # 3h in s
+                                        }
+        if data is not None:
+            self.settings[server.id].update(data)
+        self.save_settings()
+
     def save_settings(self):
         dataIO.save_json("data/temptext/settings.json", self.settings)
 
     def save_channels(self):
-        dataIO.save_json("data/temptext/channels.json", self.embeds)
+        dataIO.save_json("data/temptext/channels.json", self.channels)
 
     def _parse_time(self, time):
         translate = {'s': 1, 'm': 60, 'h': 3600, 'd': 86400, 'w': 604800}
@@ -70,6 +89,103 @@ class TempText:
             raise ValueError
         timeint = int(time[:-1])
         return timeint * translate.get(timespec)
+
+    @checks.admin_or_permissions(manage_server=True)
+    @commands.group(name="tmptxtset", pass_context=True, no_pm=True)
+    async def tmptxtset(self, ctx):
+        """configuration settings for temporary temp channels"""
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_cmd_help(ctx)
+
+    @tmptxtset.command(name="toggleactive", pass_context=True, no_pm=True)
+    async def toggleactive(self, ctx):
+        """
+        toggles it on/off
+        """
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.update_settings(server)
+
+        active = not self.settings[server.id]['active']
+        self.update_settings(server, {'active': active})
+        await self.bot.say("Active: {}".format(active))
+
+    @tmptxtset.command(name="togglestrict", pass_context=True, no_pm=True)
+    async def togglestrict(self, ctx):
+        """
+        toggles strict role checking on/off
+        when off, the required role or any above it will work
+        """
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.update_settings(server)
+
+        strict = not self.settings[server.id]['strict']
+        self.update_settings(server, {'strict': strict})
+        await self.bot.say("Strict mode: {}".format(strict))
+
+    @tmptxtset.command(name="defaultime", pass_context=True, no_pm=True)
+    async def setdefaulttime(self, ctx, default_time):
+        """
+        sets the time used for autotxt
+        times should be between 30 minutes and 1 week
+        Time format: 30m, 3h, 5d, 1w
+        default is 3h
+        """
+        try:
+            seconds = self._parse_time(default_time)
+        except ValueError:
+            return await self.bot.send_cmd_help(ctx)
+
+        if not self._is_valid_interval(seconds):
+            return await self.bot.send_cmd_help(ctx)
+
+        self.update_settings(ctx.message.server, {'default_time': seconds})
+        await self.bot.say("Default set")
+
+    @tmptxtset.command(name="validtimerange", pass_context=True, no_pm=True)
+    async def setvalidtimerange(self, ctx, min_time, max_time):
+        """
+        times should be between 30 minutes and 1 week
+        Time format: 30m, 3h, 5d, 1w
+        """
+        try:
+            min_seconds = self._parse_time(min_time)
+        except ValueError:
+            return await self.bot.send_cmd_help(ctx)
+        try:
+            max_seconds = self._parse_time(max_time)
+        except ValueError:
+            return await self.bot.send_cmd_help(ctx)
+
+        if (not self._is_valid_interval(min_seconds)) or \
+                (not self._is_valid_interval(max_seconds)):
+            return await self.bot.send_cmd_help(ctx)
+
+        if min_seconds > max_seconds:
+            await self.bot.say("You dun goofed. Swapping your min and max "
+                               "so that the smaller of the two is the minimum")
+            min_seconds, max_seconds = max_seconds, min_seconds
+
+        self.update_settings(ctx.message.server, {'min_time': min_seconds,
+                                                  'max_time': max_seconds})
+
+        await self.bot.say("Times set")
+
+    @tmptxtset.command(name="requiredrole", pass_context=True, no_pm=True)
+    async def setrequiredrole(self, ctx, role: discord.Role=None):
+        """
+        sets the required role this can be set as the lowest role required
+        rather than a strict requirement
+        clear setting by using without a role
+        """
+
+        rid = None
+        if role is not None:
+            rid = role.id
+
+        self.update_settings(ctx.message.server, {'rid': rid})
+        await self.bot.say("Settings updated.")
 
     @checks.serverowner()
     @commands.command(name="tmptxtdeletion", hidden=True,
@@ -169,21 +285,45 @@ class TempText:
         await self._schedule_deletion(t)
         self.save_channels()
 
-    @commands.command(pass_context=True, name="tmptxt")
-    async def _scheduler_add(self, ctx, time_interval: str, name: str,
-                             role: discord.Role=None):
+    @commands.cooldown(1, 300, commands.BucketType.user)
+    @commands.command(pass_context=True, name="autotxt")
+    async def _quick_add(self, ctx):
         """
-        Makes a channel to be deleted in [time_interval].
-        Time format: 1s, 2m, 3h, 5d, 1w
+        Makes a temp channel using the automatic time settings
+        """
+
+        author = ctx.message.author
+        if not self._is_allowed(author):
+            return
+        time_interval = self.settings[author.server.id]['default_time']
+        try:
+            x = await self._process_temp(ctx.prefix, author,
+                                         time_interval, "1111")
+        except TmpTxtError as e:
+            await self.bot.say("{}".format(e))
+        else:
+            await self.bot.say("Channel made -> {0.mention}".format(x))
+
+    @commands.cooldown(1, 300, commands.BucketType.user)
+    @commands.command(pass_context=True, name="tmptxt")
+    async def _temp_add(self, ctx, time_interval: str, name: str,
+                        role: discord.Role=None):
+        """
+        Makes a temp channel to be deleted in [time_interval].
+        Time format: 30m, 3h, 5d, 1w
         Optionally set a role requirement to be allowed to join the channel
         """
 
         author = ctx.message.author
         if not self._is_allowed(author):
             return
+        if role is not None:
+            rid = role.id
+        else:
+            rid = None
         try:
             x = await self._process_temp(ctx.prefix, author,
-                                         time_interval, name, role)
+                                         time_interval, name, rid)
         except TmpTxtError as e:
             await self.bot.say("{}".format(e))
         else:
@@ -198,10 +338,10 @@ class TempText:
         try:
             seconds = self._parse_time(time_interval)
         except ValueError:
-            raise TmpTxtError("Time format: 2m, 3h, 5d, 1w ")
+            raise TmpTxtError("Time format: 30m, 3h, 5d, 1w ")
             return
 
-        if not self.is_valid_interval(server, seconds):
+        if not self._is_valid_interval(seconds, server):
             raise TmpTxtError("That time was not within the valid range "
                               "for this server")
             return
@@ -240,19 +380,22 @@ class TempText:
             return False
         if self._is_ignored(author):
             return False
+        if self._at_channel_limit(author):
+            return False
         if chan_id is not None:
             rid = self.channels[server.id][chan_id].get('rid', None)
             if rid is not None:
                 role = [r for r in server.roles if r.id == rid][0]
                 if role not in author.roles:
                     return False
-        rid = self.settings[server.id].get('role', None)
+        rid = self.settings[server.id].get('rid', None)
         if rid is not None:
             role = [r for r in server.roles if r.id == rid][0]
             if self.settings[server.id].get('strictrole', True):
                 return role in author.roles
             else:
                 return author.top_role >= role
+        return True
 
     def _is_ignored(self, author: Union[discord.Member, discord.Role]):
         ignored = self.settings[author.server.id].get('ignored', [])
@@ -263,6 +406,28 @@ class TempText:
                 if self._is_ignored(role):
                     return True
         return False
+
+    def _is_valid_interval(self, seconds: int, server: discord.Server=None):
+        min_t = 1800
+        max_t = 604800
+        if server is not None:
+            min_t = self.settings[server.id].get('min_time', 1800)
+            max_t = self.settings[server.id].get('max_time', 604800)
+        return min_t <= seconds <= max_t
+
+    def _at_channel_limit(self, author: discord.Member):
+        server = author.server
+        if server.id in self.channels:
+            if len(self.channels[server.id]) >= \
+                    self.settings[server.id]['schan_limit']:
+                return False
+            count = 0
+            for k, v in self.channels[server.id].items():
+                if v['owner'] == author.id:
+                    count += 1
+                if count >= self.settings[server.id]['uchan_limit']:
+                    return False
+        return True
 
     async def _manager(self):
         while self == self.bot.get_cog('TempText'):
