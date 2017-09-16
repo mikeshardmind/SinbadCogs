@@ -138,6 +138,16 @@ class ServerWhitelist:
         else:
             await self.bot.say("You can't use that here.")
 
+    @checks.is_owner()
+    @serverwhitelist.command(name="runnow", pass_context=True)
+    async def runnow(self, ctx, msg=None):
+        """
+        processes all servers the bot is in
+        """
+
+        for server in self.bot.servers:
+            await self.whitelist_routine(server)
+
     async def whitelist_routine(self, server):
         """do the thing"""
 
