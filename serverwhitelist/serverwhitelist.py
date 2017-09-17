@@ -140,7 +140,7 @@ class ServerWhitelist:
 
     @checks.is_owner()
     @serverwhitelist.command(name="runnow", pass_context=True)
-    async def runnow(self, ctx, msg=None):
+    async def runnow(self, ctx):
         """
         processes all servers the bot is in
         """

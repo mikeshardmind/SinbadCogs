@@ -5,14 +5,14 @@ import logging
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
+from cogs.utils.chat_formatting import box, pagify
 
 
 class ReportTool:
     """custom cog for a configureable report system."""
-#   this is basically just a quick mod of my suggestionbox cog
 
     __author__ = "mikeshardmind"
-    __version__ = "1.4.1"
+    __version__ = "1.4.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -92,7 +92,12 @@ class ReportTool:
     async def makereport(self, ctx):
         "Follow the prompts to make a report"
         author = ctx.message.author
-        server = ctx.message.server
+        try:
+            server = author.server
+        except AttributeError:
+            server = await self.discover_server(author)
+        if server is None:
+            return
 
         if server.id not in self.settings:
             return await self.bot.say("Reporting is not currently  "
@@ -126,6 +131,42 @@ class ReportTool:
             await self.send_report(message, server)
 
             await self.bot.send_message(author, "Your report was submitted.")
+
+    async def discover_server(self, author: discord.User):
+
+        shared_servers = []
+        for server in self.bot.servers:
+            x = server.get_member(author.id)
+            if x is not None:
+                shared_servers.append(server)
+        output = ""
+        servers = sorted(shared_servers, key=lambda s: s.name)
+        for i, server in enumerate(servers, 1):
+            output += "{}: {}\n".format(i, server.name)
+        output += "\npick the server to make a report in by its number."
+
+        for page in pagify(output, delims=["\n"]):
+            dm = await self.bot.send_message(author, box(page))
+
+        message = await self.bot.wait_for_message(channel=dm.channel,
+                                                  author=author, timeout=15)
+        if message is not None:
+            try:
+                message = int(message.content.strip())
+                server = servers[message - 1]
+            except ValueError:
+                await self.bot.send_message(author,
+                                            "That wasn't a valid choice")
+                return None
+            except IndexError:
+                await self.bot.send_message(author,
+                                            "That wasn't a valid choice")
+                return None
+            else:
+                return server
+        else:
+            await self.bot.say("You took too long, try again later")
+            return None
 
     async def send_report(self, message, server):
 
