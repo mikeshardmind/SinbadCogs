@@ -36,7 +36,6 @@ class TempText:
                                                        send_messages=True,
                                                        manage_channels=True,
                                                        manage_roles=True)
-        self.loaded = False
         self._load()
 
     def update_settings(self, server: discord.Server, data=None):
@@ -78,7 +77,6 @@ class TempText:
             coro = self._temp_deletion(channel.id)
             self.bot.loop.call_later(sec, self.bot.loop.create_task, coro)
 
-        self.loaded = True
 
     @checks.admin_or_permissions(manage_server=True)
     @commands.group(name="tmptxtset", pass_context=True, no_pm=True)
@@ -258,12 +256,14 @@ class TempText:
                                'server': server.id}
         self.save_channels()
 
-        coro = self._temp_deletion(x.id)
-        self.bot.loop.call_later(seconds, self.bot.loop.create_task, coro)
-
+        self._scheduling_things_sucks(x.id, seconds)
         await self.bot.send_message(x, creationmessage.format(author, prefix,
                                                               x))
         return x
+
+    def _scheduling_things_sucks(self, chan_id, seconds):
+        coro = self._temp_deletion(chan_id)
+        self.bot.loop.call_later(seconds, self.bot.loop.create_task, coro)
 
     async def _temp_deletion(self, *channel_ids: str):
 
@@ -273,7 +273,8 @@ class TempText:
         disappeared = [cid for cid in channel_ids
                        if cid not in [c.id for c in channels]]
         self.channels = \
-            {k: v for k, v in self.channels.items() if k not in disappeared}
+            {k: v for k, v in self.channels.items()
+             if v['id'] not in disappeared}
 
         for channel in channels:
             try:
