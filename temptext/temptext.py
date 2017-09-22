@@ -58,7 +58,7 @@ class TempText:
         dataIO.save_json("data/temptext/channels.json", self.channels)
 
     def _load(self):
-        now = datetime.now()
+        now = datetime.utcnow()
         channel_ids = [c.id for c in self.bot.get_all_channels()]
         self.channels = {k: v for k, v in self.channels.items()
                          if v['id'] in channel_ids}
@@ -66,13 +66,14 @@ class TempText:
                        if c.id in self.channels.keys()]
         for channel in valid_chans:
 
-            delete_in = channel.created_at + \
-                timedelta(seconds=self.channels[channel.id]['lifetime']) - now
-
-            if delete_in.seconds < 0:
+            if channel.created_at + \
+                timedelta(seconds=self.channels[channel.id]['lifetime']) > \
+                    now:
                 sec = 0
             else:
-                sec = delete_in.seconds
+                sec = (channel.created_at +
+                       timedelta(seconds=self.channels[channel.id]['lifetime'])
+                       - nowdelete_in).seconds
 
             coro = self._temp_deletion(channel.id)
             self.bot.loop.call_later(sec, self.bot.loop.create_task, coro)
