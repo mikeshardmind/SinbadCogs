@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "Thanks for installing. Hopefully you find this helpful. use ```[p]help serverwhitelist``` for more info",
+    "NAME" : "ServerWhitelist",
+    "SHORT" : "cog for whitelisting servers",
+    "DESCRIPTION" : "Lets the owner whitelist servers by ID"
+}

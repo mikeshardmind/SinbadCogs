@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "No help provided on this one",
-    "NAME" : "RawEmbeds",
+    "INSTALL_MSG" : "Not supporting this, use at your own risk",
+    "NAME" : "SinbadUtils",
     "SHORT" : "",
     "DESCRIPTION" : "",
     "HIDDEN" : true
