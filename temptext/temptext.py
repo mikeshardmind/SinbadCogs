@@ -302,7 +302,7 @@ class TempText:
             rid = self.settings[server.id].get('rid', None)
             if rid is not None:
                 role = [r for r in server.roles if r.id == rid][0]
-                if self.settings[server.id].get('strictrole', True):
+                if self.settings[server.id].get('strict', True):
                     return role in author.roles
                 else:
                     return author.top_role >= role
