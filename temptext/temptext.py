@@ -6,7 +6,6 @@ import logging
 import os
 import asyncio
 from datetime import datetime, timedelta
-from typing import Union
 assert asyncio  # shakes fist at linter
 
 
@@ -16,13 +15,6 @@ creationmessage = "Hi {0.mention}, I've created your channel here. " \
                   "People eligible to join can do so by using the following " \
                   "command.\n`{1}jointxt {2.id}`"  # author, prefix, channel
 
-
-# TODO in future versions
-# ====================
-# configuration options for channel limits
-# possible global limits?
-# add additional rate limit option beyond the sanity ones currently in use
-# add an ignore option not reliant on the bot's own ignore?
 
 class TmpTxtError(Exception):
     pass
@@ -38,21 +30,22 @@ class TempText:
         self.settings = dataIO.load_json('data/temptext/settings.json')
         self.channels = dataIO.load_json('data/temptext/channels.json')
         self.everyone_perms = discord.PermissionOverwrite(read_messages=False)
-        self.joined_perms = discord.PermissionOverwrite(read_messages=True)
+        self.joined_perms = discord.PermissionOverwrite(read_messages=True,
+                                                        send_messages=True)
         self.owner_perms = discord.PermissionOverwrite(read_messages=True,
+                                                       send_messages=True,
                                                        manage_channels=True,
                                                        manage_roles=True)
+        self.loaded = False
         self._load()
 
     def update_settings(self, server: discord.Server, data=None):
         if server.id not in self.settings:
             self.settings[server.id] = {'active': False,
-                                        'ignored': [],  # Todo
                                         'rid': None,
                                         'strict': True,
-                                        'schan_limit': 250,  # Todo
-                                        'uchan_limit': 3,  # also, Todo
-                                        'default_time': 14400  # 4h in s
+                                        'default_time': 14400,  # 4h in s,
+                                        'author_is_owner': False
                                         }
         if data is not None:
             self.settings[server.id].update(data)
@@ -65,15 +58,14 @@ class TempText:
         dataIO.save_json("data/temptext/channels.json", self.channels)
 
     def _load(self):
-
         now = datetime.now()
+        channel_ids = [c.id for c in self.bot.get_all_channels()]
+        self.channels = {k: v for k, v in self.channels.items()
+                         if v['id'] in channel_ids}
         valid_chans = [c for c in self.bot.get_all_channels()
                        if c.id in self.channels.keys()]
-        self.channels = {k: v for k, v in self.channels.items()
-                         if k not in [c.id for c in valid_chans]}
-        self.save_channels()
-
         for channel in valid_chans:
+
             delete_in = channel.created_at + \
                 timedelta(seconds=self.channels[channel.id]['lifetime']) - now
 
@@ -84,6 +76,8 @@ class TempText:
 
             coro = self._temp_deletion(channel.id)
             self.bot.loop.call_later(sec, self.bot.loop.create_task, coro)
+
+        self.loaded = True
 
     @checks.admin_or_permissions(manage_server=True)
     @commands.group(name="tmptxtset", pass_context=True, no_pm=True)
@@ -122,6 +116,19 @@ class TempText:
         self.update_settings(server, {'strict': strict})
         await self.bot.say("Strict mode: {}".format(strict))
 
+    @tmptxtset.command(name="togglesownership", pass_context=True, no_pm=True)
+    async def toggleownership(self, ctx):
+        """
+        toggles whether someone owns the channels they make
+        """
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.update_settings(server)
+
+        ownership = not self.settings[server.id]['author_is_owner']
+        self.update_settings(server, {'author_is_owner': ownership})
+        await self.bot.say("Author is owner: {}".format(ownership))
+
     @tmptxtset.command(name="defaulttime", pass_context=True, no_pm=True)
     async def setdefaulttime(self, ctx, **timevalues):
         """
@@ -159,6 +166,10 @@ class TempText:
     async def _join_text(self, ctx, chan_id: str):
         """try to join a room"""
         author = ctx.message.author
+        try:
+            await self.bot.delete_message(ctx.message)
+        except Exception:
+            pass
         c = discord.utils.get(self.bot.get_all_channels(), id=chan_id,
                               server__id=author.server.id)
         if chan_id not in self.channels or c is None:
@@ -180,36 +191,30 @@ class TempText:
         else:
             await self.bot.say("Click this. It's a channel link, "
                                "not a hashtag."
-                               "\nIf it isn't clickable, it isn't for you"
+                               "\nIf it isn't clickable, it isn't for you. "
                                "{0.mention}".format(c))
 
-    @commands.cooldown(1, 300, commands.BucketType.user)
+    @commands.cooldown(5, 600, commands.BucketType.user)
     @commands.command(pass_context=True, name="tmptxt", no_pm=True)
-    async def _temp_add(self, ctx, name: str, role: discord.Role=None,
-                        **timevalues):
+    async def _temp_add(self, ctx, name: str, **args):
         """
         Makes a temp channel to be automagically deleted in anywhere between
         10 minutes and 2 days in the future
-        Optionally set a role requirement to be allowed to join the channel
 
         Time value is optional, defaulting to whatever your server's default is
         if none is provided
         takes time in mintes(m), hours (h), days (d) in the format
         interval=quantity
         example usage for 1 hour 30 minutes: [p]tmptxtset defaulttime h=1 m=30
+
         """
 
         author = ctx.message.author
         if not self._is_allowed(author):
             return
-        if role is not None:
-            rid = role.id
-        else:
-            rid = None
 
         try:
-            x = await self._process_temp(ctx.prefix, author,
-                                         timevalues, name, rid)
+            x = await self._process_temp(ctx.prefix, author, args, name)
         except TmpTxtError as e:
             await self.bot.say("{}".format(e))
         else:
@@ -228,12 +233,15 @@ class TempText:
             return
 
         try:
-            x = self.bot.create_channel(server, channel_name,
-                                        (server.default_role,
-                                         self.everyone_perms),
-                                        (author, self.owner_perms),
-                                        (server.me, self.joined_perms)
-                                        )
+            author_perms = self.owner_perms \
+                if self.settings[server.id]['author_is_owner'] \
+                else self.joined_perms
+            x = await self.bot.create_channel(server, channel_name,
+                                              (server.default_role,
+                                               self.everyone_perms),
+                                              (author, author_perms),
+                                              (server.me, self.joined_perms)
+                                              )
         except discord.Forbidden:
             raise TmpTxtError("I literally can't even")
             return
@@ -242,7 +250,8 @@ class TempText:
             raise TmpTxtError("Something unexpected happened. Try again later")
             return
 
-        self.channels[x.id] = {'rid': role_id,
+        self.channels[x.id] = {'id': x.id,
+                               'rid': role_id,
                                'lifetime': seconds,
                                'owner': author.id,
                                'server': server.id}
@@ -253,6 +262,7 @@ class TempText:
 
         await self.bot.send_message(x, creationmessage.format(author, prefix,
                                                               x))
+        return x
 
     async def _temp_deletion(self, *channel_ids: str):
 
@@ -281,8 +291,6 @@ class TempText:
             return False
         if not self.settings[server.id].get('active', False):
             return False
-        if self._is_ignored(author):
-            return False
         if chan_id is not None:
             rid = self.channels[chan_id].get('rid', None)
             if rid is not None:
@@ -290,8 +298,6 @@ class TempText:
                 if role not in author.roles:
                     return False
         else:
-            if self._at_channel_limit(author):
-                return False
             rid = self.settings[server.id].get('rid', None)
             if rid is not None:
                 role = [r for r in server.roles if r.id == rid][0]
@@ -306,30 +312,8 @@ class TempText:
                  + kwargs.pop('h', 0)) * 60
                 + kwargs.pop('m', 0)) * 60
 
-    def _is_ignored(self, author: Union[discord.Member, discord.Role]):
-        ignored = self.settings[author.server.id].get('ignored', [])
-        if author.id in ignored:
-            return True
-        if isinstance(author, discord.Member):
-            for role in author.roles:
-                if self._is_ignored(role):
-                    return True
-        return False
-
     def _is_valid_interval(self, seconds: int):
         return 600 <= seconds <= 172800  # 10m <= seconds <= 2d
-
-    def _at_channel_limit(self, author: discord.Member):
-        server = author.server
-        scount, ucount = 0, 0
-        for k, v in self.channels:
-            if v['owner'] == author.id:
-                ucount += 1
-            if v['server'] == server.id:
-                scount += 1
-
-        return (self.settings[server.id]['schan_limit'] > scount and
-                self.settings[server.id]['uchan_limit'] > ucount)
 
 
 def check_folder():
