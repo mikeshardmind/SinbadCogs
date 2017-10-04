@@ -77,7 +77,6 @@ class TempText:
             coro = self._temp_deletion(channel.id)
             self.bot.loop.call_later(sec, self.bot.loop.create_task, coro)
 
-
     @checks.admin_or_permissions(manage_server=True)
     @commands.group(name="tmptxtset", pass_context=True, no_pm=True)
     async def tmptxtset(self, ctx):
