@@ -1,6 +1,6 @@
 import os
-import asyncio  # noqa: F401
-import discord  # noqa: F401
+import asyncio
+import discord  # noqa
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
@@ -27,10 +27,27 @@ class Announcer:
         for server_id in server_ids:
             if server_id in self.settings:
                 server = self.bot.get_server(server_id)
-                channel = server.get_channel(
-                          self.settings[server_id]['channel'])
-                if channel.permissions_for(server.me).send_messages:
+                chan_id = self.settings[server_id]['channel']
+                channel = server.get_channel(chan_id)
+                if channel is None:
+                    await self.bot.say('Skipping a channel that either '
+                                       'no longer exists, or is inaccessible'
+                                       '\n**DETAILS**'
+                                       '\nChannel link: <#{0}>'
+                                       '  Channel ID: ({0})'
+                                       '\nServer Name(ID): {1.name}({1.id})'
+                                       ''.format(chan_id, server))
+                elif channel.permissions_for(server.me).send_messages:
                     await self.bot.send_message(channel, msg)
+                    await asyncio.sleep(.25)
+                else:
+                    await self.bot.say('I don\'t have permission to send to '
+                                       'a channel, skipping it:\n'
+                                       '\n**DETAILS**'
+                                       '\nChannel link: <#{0}>'
+                                       '  Channel ID: ({0})'
+                                       '\nServer Name(ID): {1.name}({1.id})'
+                                       ''.format(chan_id, server))
 
     @checks.is_owner()
     @commands.group(name="announcerset", pass_context=True)
