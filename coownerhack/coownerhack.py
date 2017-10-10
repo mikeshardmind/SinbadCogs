@@ -12,6 +12,8 @@ log = logging.getLogger('red.CoownerHack')
 
 DISCLAIMER = "This is a terrible idea. " \
              "Think very carefully before using this. " \
+             "There is almost no reason to use this anymore as red has " \
+             "gained real support for coowners since I wrote this."
              "If you still want to use it, then go ahead. You were warned. " \
              "Any consequences of the use or misuse of this are on you." \
              "\n\nIf you still want to use this anyway, you can enable it " \
