@@ -45,7 +45,7 @@ class Announcer:
     async def addchan(self, ctx, *, channel_id=None):
         """adds a channel to the announcer's channel list
         defaults to the current channel, can optionally be given
-        a server id & channel id
+        a channel id
         Will not announce to Direct Message"""
 
         channel = None
