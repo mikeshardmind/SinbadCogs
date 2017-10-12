@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "Might not work, should work though",
+    "NAME" : "RoleChecker",
+    "SHORT" : "global restriction of bot usage by role ownership",
+    "DESCRIPTION" : "might also break some commands in DMs"
+}
