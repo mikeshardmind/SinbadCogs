@@ -223,7 +223,7 @@ class MultiQuote:
         author = message.author
         sname = server.name
         cname = channel.name
-        timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
+        # timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
         avatar = author.avatar_url if author.avatar \
             else author.default_avatar_url
         if message.attachments:
@@ -231,8 +231,9 @@ class MultiQuote:
             fname = a['filename']
             url = a['url']
             content += "\nUploaded: [{}]({})".format(fname, url)
-        footer = 'Said in {} #{} at {} UTC'.format(sname, cname, timestamp)
-        em = discord.Embed(description=content, color=discord.Color.purple())
+        footer = 'Said in {} #{}'.format(sname, cname)
+        em = discord.Embed(description=content, color=author.color,
+                           timestamp=message.timestamp)
         em.set_author(name='{}'.format(author.name), icon_url=avatar)
         em.set_footer(text=footer)
         return em
