@@ -44,7 +44,7 @@ class RoleChecker:
         allowed = False
         author = ctx.message.author
         allowed |= author.id == settings.owner
-        if isinstance(ctx.author, discord.Member):
+        if isinstance(author, discord.Member):
             allowed |= len([r for r in author.roles
                             if r.name in self.roles]) > 0
         return allowed
