@@ -5,6 +5,7 @@ import logging
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
+from datetime import datetime
 
 log = logging.getLogger('red.EmbedMaker')
 
@@ -198,7 +199,6 @@ class EmbedMaker:
     @embed.command(name="fetchglobal", pass_context=True, no_pm=True)
     async def fetch_global(self, ctx, name: str):
         """fetches a global embed"""
-        server = ctx.message.server
 
         em = await self.get_embed(name.lower())
         if em is None:
@@ -222,7 +222,6 @@ class EmbedMaker:
     @embed.command(name="dmglobal", pass_context=True, no_pm=True)
     async def fetch_global_dm(self, ctx, name: str, user_id: str):
         """fetches a global embed, and DMs it to a user"""
-        server = ctx.message.server
 
         em = await self.get_embed(name.lower())
         if em is None:
@@ -278,16 +277,17 @@ class EmbedMaker:
                 if embed.get('name') == name:
                     title = embed.get('title')
                     content = embed.get('content')
-                    footer = embed.get('footer')
+                    timestamp = datetime.strptime(embed.get('timestamp'),
+                                                  '%Y-%m-%d %H:%M')
                     found = True
 
         if not found:
             return None
 
-        em = discord.Embed(description=content, color=discord.Color.purple())
+        em = discord.Embed(description=content, color=discord.Color.purple(),
+                           timestamp=timestamp)
         if title is not None:
             em.set_author(name='{}'.format(title))
-        em.set_footer(text=footer)
         return em
 
     async def save_embed(self, name, title, message, server=None):
@@ -297,13 +297,12 @@ class EmbedMaker:
         if title is not None:
             title = title.clean_content
         timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
-        footer = "created at {} UTC".format(timestamp)
         name = name.lower()
 
         embed = {'name': name,
                  'title': title,
                  'content': content,
-                 'footer': footer
+                 'timestamp': timestamp
                  }
 
         if server is not None:

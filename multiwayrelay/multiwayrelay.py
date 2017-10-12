@@ -181,23 +181,28 @@ class MultiWayRelay:
     def qform(self, message):
         channel = message.channel
         server = channel.server
-        content = self.role_mention_cleanup(message)
+        content = message.content
         author = message.author
         sname = server.name
         cname = channel.name
-        timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M')
         avatar = author.avatar_url if author.avatar \
             else author.default_avatar_url
+        footer = 'Said in {} #{}'.format(sname, cname)
+        em = discord.Embed(description=content, color=author.color,
+                           timestamp=message.timestamp)
+        em.set_author(name='{}'.format(author.name), icon_url=avatar)
+        em.set_footer(text=footer, icon_url=server.icon_url)
         if message.attachments:
             a = message.attachments[0]
             fname = a['filename']
             url = a['url']
-            content += "\nUploaded: [{}]({})".format(fname, url)
-        footer = 'Said in {} #{} at {} UTC'.format(sname, cname, timestamp)
-        em = discord.Embed(description=content, color=author.color)
-        em.set_author(name='{}'.format(author.display_name), icon_url=avatar)
-        em.set_footer(text=footer, icon_url=server.icon_url)
-        return em
+            if fname.split('.')[-1] in ['png', 'jpg', 'gif', 'jpeg']:
+                em.set_image(url=url)
+            else:
+                em.add_field(name='Message has an attachment',
+                             value='[{}]({})'.format(fname, url),
+                             inline=True)
+            return em
 
 
 def unique(a):
