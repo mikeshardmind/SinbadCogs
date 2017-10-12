@@ -277,8 +277,14 @@ class EmbedMaker:
                 if embed.get('name') == name:
                     title = embed.get('title')
                     content = embed.get('content')
-                    timestamp = datetime.strptime(embed.get('timestamp'),
-                                                  '%Y-%m-%d %H:%M')
+                    timestring = embed.get('timestamp', None)
+                    if timestring is None:
+                        # old footer:
+                        # message.timestamp.strftime('%Y-%m-%d %H:%M')
+                        # footer = "created at {} UTC".format(timestamp)
+                        # e.g. : "created at 2017-09-05 23:18 UTC"
+                        timestring = embed.get('footer')[11:-4]
+                    timestamp = datetime.strptime(timestring, '%Y-%m-%d %H:%M')
                     found = True
 
         if not found:
