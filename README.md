@@ -1,3 +1,5 @@
+Note: As of October 26, 2017, these cogs are feature locked. Cogs are being migrated to be compatible with Redv3. Any feature requests should target Redv3.
+
 # SinbadCogs
 
 Slowly growing collection of cogs for
@@ -60,7 +62,3 @@ links 2 channels to each other
 
 Tool for making embed objects, storing them, and recalling them
 
-
-# AdvRoleAssign
-
-Configureable cog for conditionally allowing people to register for roles. This is not working fully yet!!
