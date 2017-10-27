@@ -152,7 +152,7 @@ class LinkedChannels:
                 em.add_field(name='Message has an attachment',
                              value='[{}]({})'.format(fname, url),
                              inline=True)
-            return em
+        return em
 
 
 def check_folder():
