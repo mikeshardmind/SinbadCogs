@@ -16,7 +16,7 @@ class MultiWayRelay:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.1"
+    __version__ = "1.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -202,7 +202,7 @@ class MultiWayRelay:
                 em.add_field(name='Message has an attachment',
                              value='[{}]({})'.format(fname, url),
                              inline=True)
-            return em
+        return em
 
 
 def unique(a):
