@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "Use at own risk. This has not been thoroughly tested",
+    "NAME" : "PermBreaker",
+    "SHORT" : "Modify checks on existing commands",
+    "DESCRIPTION" : "Allows widening of access to commands restricted using owner, serveradmin, admin, or mod checks"
+}
