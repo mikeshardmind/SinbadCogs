@@ -101,6 +101,13 @@ class ExRoles:
                 "Role: {0.name} is not available to you, {1.mention}".format(
                     role, author))
 
+        try:
+            await self.bot.add_roles(author, role)
+        except Exception as e:
+            await self.bot.say("Something went wrong")
+        else:
+            await self.bot.say("Role assigned")
+
     @exroleset.command(name='audit', pass_context=True, no_pm=True)
     async def audit(self, ctx):
         """
