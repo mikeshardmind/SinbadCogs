@@ -1,9 +1,7 @@
 import discord
 import pathlib
-import json
-import time
-from copy import deepcopy
 from __main__ import settings
+from cogs.utils.dataIO import dataIO
 from discord.ext import commands
 from .utils import checks
 
@@ -18,12 +16,27 @@ class PermBreaker:
     when modifying a  x_or_perms check, the "or perms" portion will be dropped
     because I'm lazy af, and the use case where a command has that and still
     needs to be overridden for some people doesn't make sense.
+
+    Also being really lazy and rather than track down a pickle error being
+    raised by deepcopy, I'm going to hope anyone using this plans on it for
+    long term usage. Reload affected cogs after unloading this one to get
+    old checks back.
     """
 
     def __init__(self, bot):
         self.bot = bot
-        for command in oldcommands:
-            self.swap_command(command)
+        if dataIO.is_valid_json('data/permbreaker/commands.json'):
+            self.settings = dataIO.load_json('data/permbreaker/commands.json')
+        else:
+            self.settings = {}
+
+        for k, v in self.settings.items():
+            c = bot.get_command(k)
+            if c:
+                self.modify_command(c)
+
+    def save_json(self):
+        dataIO.save_json("data/permbreaker/commands.json", self.settings)
 
     @commands.command(name="modifycheck", pass_context=True)
     @checks.is_owner()  # just for help formatting, sanity check in func
@@ -41,95 +54,49 @@ class PermBreaker:
                 ctx.message.author.id not in ctx.bot.settings.co_owners:
             return
 
-        pathlib.Path('data/permbreaker').mkdir(parents=True, exist_ok=True)
-
-        if pathlib.Path('data/permbreaker/commands.json').is_file():
-            try:
-                with open('data/permbreaker/commands.json',
-                          encoding='utf-8', mode="r") as f:
-                    data = json.load(f)
-            except Exception:
-                data = {}
-
         command_object = self.bot.get_command(com.split()[-1])
         if command_object is None:
             return await self.bot.say("No such command")
+        self.settings[command_object.name] = IDs
+        self.modify_command(command_object)
 
-        if command_object.name not in oldcommands:
-            self.swap_command(command_object)
+        self.save_json()
+        await self.bot.say(
+            "checks modified. reload the cog containing the "
+            "command to restore old check")
 
-        with open('data/permbreaker/commands.json',
-                  encoding='utf-8', mode="w") as f:
-            json.dump(
-                data, f, indent=4, sort_keys=True, separators=(',', ' : '))
-
-    def __unload(self):
-        for command in oldcommands:
-            self.bot.add_command(command)
-
-    def swap_command(self, command):
-        if command not in oldcommands:
-            oldcommands.append(command)
-        nc = self.modify_command(command)
-        self.bot.remove_command(command.name)
-        self.bot.add_command(nc)
-
-    def modify_command(self, command, whitelisted_snowflake):
-        botowner, srvowner, admin, mod = False, False, False, False
-        new_com = deepcopy(command)
-        new_com.checks.clear()
-        for some_check in command.checks:
-            if some_check.__repr__().starts_with(
+    def modify_command(self, command):
+        for i in range(0, len(command.checks)):
+            some_check = command.checks.pop(i)
+            if some_check.__repr__().startswith(
                     '<function is_owner_check'):
-                botowner |= True
-            elif some_check.__repr__().starts_with(
+                command.checks.insert(i, NewOwnerCheck(command))
+            elif some_check.__repr__().startswith(
                     '<function serverowner_or_permissions.<locals>.predicate'):
-                srvowner |= True
-            elif some_check.__repr__().starts_with(
+                command.checks.insert(i, NewServerOwnerCheck(command))
+            elif some_check.__repr__().startswith(
                     '<function admin_or_permissions.<locals>.predicate'):
-                admin |= True
-            elif some_check.__repr__().starts_with(
+                command.checks.insert(i, NewAdminCheck(command))
+            elif some_check.__repr__().startswith(
                     '<function mod_or_permissions.<locals>.predicate'):
-                mod |= True
+                command.checks.insert(i, NewModCheck(command))
             else:
-                new_com.checks.append(some_check)
-
-        if botowner:
-            new_com.checks.append(NewOwnerCheck(command))
-        if srvowner:
-            new_com.checks.append(NewServerOwnerCheck(command))
-        if admin:
-            new_com.checks.append(NewAdminCheck(command))
-        if mod:
-            new_com.checks.append(NewModCheck(command))
-
-        return new_com
+                command.checks.insert(i, some_check)
 
     def is_listed(self, ctx):
 
         command = ctx.command.name
         author = ctx.message.author
 
-        if pathlib.Path('data/permbreaker/commands.json').is_file():
-            try:
-                with open('data/permbreaker/commands.json',
-                          encoding='utf-8', mode="r") as f:
-                    data = json.load(f)
-            except Exception:
-                return False
-            else:
-                if data:
-                    if command in data:
-                        snowflakes = data[command].get('snowflakes', [])
-        if not snowflakes:
-            return False
-        if len(snowflakes) == 0:
-            return False
-
-        author_snowflakes = [author.id]
+        snowflakes = self.settings[command]
         if isinstance(author, discord.Member):
-            author_snowflakes.extend([r.id for r in author.roles])
-        return not set(snowflakes).is_disjoint(author_snowflakes)
+            author_snowflakes = [r.id for r in author.roles]
+        else:
+            author_snowflakes = []
+        ret = not set(snowflakes).isdisjoint(author_snowflakes) \
+            or author.id in snowflakes
+
+        return ret
 
 
 class NewOwnerCheck:
@@ -143,9 +110,11 @@ class NewOwnerCheck:
         if pbreaker is None:
             return True
 
-        return _auth.id == settings.owner \
+        ret = _auth.id == settings.owner \
             or _auth.id in ctx.bot.settings.co_owners \
             or pbreaker.is_listed(ctx)
+
+        return ret
 
 
 class NewServerOwnerCheck:
@@ -162,7 +131,8 @@ class NewServerOwnerCheck:
         if pbreaker is None:
             return True
 
-        return _auth.id == _srv.owner.id or pbreaker.is_listed(ctx)
+        ret = _auth.id == _srv.owner.id or pbreaker.is_listed(ctx)
+        return ret
 
 
 class NewAdminCheck:
@@ -212,23 +182,5 @@ class NewModCheck:
 
 
 def setup(bot):
-    # make sure there's time for commands to be loaded (for restarts...)
-    time.sleep(10)
     pathlib.Path('data/permbreaker').mkdir(parents=True, exist_ok=True)
-    global oldcommands
-    oldcommands = []
-    if pathlib.Path('data/permbreaker/commands.json').is_file():
-        try:
-            with open('data/permbreaker/commands.json',
-                      encoding='utf-8', mode="r") as f:
-                data = json.load(f)
-        except Exception:
-            pass
-        else:
-            if data:
-                for k, v in data.items():
-                    old = bot.get_command(k)
-                    if old:
-                        oldcommands.append(old)
-
     bot.add_cog(PermBreaker(bot))
