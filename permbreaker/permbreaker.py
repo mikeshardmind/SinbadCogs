@@ -17,10 +17,7 @@ class PermBreaker:
     because I'm lazy af, and the use case where a command has that and still
     needs to be overridden for some people doesn't make sense.
 
-    Also being really lazy and rather than track down a pickle error being
-    raised by deepcopy, I'm going to hope anyone using this plans on it for
-    long term usage. Reload affected cogs after unloading this one to get
-    old checks back.
+    Danger: Unload this cog then restart the bot to get old checks back.
     """
 
     def __init__(self, bot):
@@ -29,11 +26,7 @@ class PermBreaker:
             self.settings = dataIO.load_json('data/permbreaker/commands.json')
         else:
             self.settings = {}
-
-        for k, v in self.settings.items():
-            c = bot.get_command(k)
-            if c:
-                self.modify_command(c)
+        self.modify_commands()
 
     def save_json(self):
         dataIO.save_json("data/permbreaker/commands.json", self.settings)
@@ -57,128 +50,91 @@ class PermBreaker:
         command_object = self.bot.get_command(com.split()[-1])
         if command_object is None:
             return await self.bot.say("No such command")
-        self.settings[command_object.name] = IDs
-        self.modify_command(command_object)
-
+        types = self.modify_command(command_object)
+        self.settings[command_object.name] = {'snowflakes': IDs,
+                                              'types': types}
         self.save_json()
-        await self.bot.say(
-            "checks modified. reload the cog containing the "
-            "command to restore old check")
+        await self.bot.say("checks modified.")
+
+    def modify_commands(self):
+        for k, v in self.settings.items():
+            command_object = self.bot.get_command(k)
+            if command_object is None:
+                continue
+            self.settings[k]['types'] = self.modify_command(command_object)
+            self.save_json()
 
     def modify_command(self, command):
+        own, srvown, adm, mod = False, False, False, False
         for i in range(0, len(command.checks)):
             some_check = command.checks.pop(i)
-            if some_check.__repr__().startswith(
-                    '<function is_owner_check'):
-                command.checks.insert(i, NewOwnerCheck(command))
+            if some_check.__repr__().startswith('<function is_owner_check'):
+                own = True
             elif some_check.__repr__().startswith(
                     '<function serverowner_or_permissions.<locals>.predicate'):
-                command.checks.insert(i, NewServerOwnerCheck(command))
+                srvown = True
             elif some_check.__repr__().startswith(
                     '<function admin_or_permissions.<locals>.predicate'):
-                command.checks.insert(i, NewAdminCheck(command))
+                adm = True
             elif some_check.__repr__().startswith(
                     '<function mod_or_permissions.<locals>.predicate'):
-                command.checks.insert(i, NewModCheck(command))
+                mod = True
             else:
                 command.checks.insert(i, some_check)
+            if own or srvown or adm or mod:
+                command.checks.insert(i, ModifiedCheck(command))
 
-    def is_listed(self, ctx):
+        return {'owner': own, "srv_owner": srvown, "admin": adm, "mod": mod}
 
+    def __check(self, ctx):
         command = ctx.command.name
         author = ctx.message.author
-
-        snowflakes = self.settings[command]
-        if isinstance(author, discord.Member):
-            author_snowflakes = [r.id for r in author.roles]
-        else:
-            author_snowflakes = []
-        ret = not set(snowflakes).isdisjoint(author_snowflakes) \
-            or author.id in snowflakes
-
-        return ret
-
-
-class NewOwnerCheck:
-
-    def __init__(self, command):
-        self.command = command
-
-    def __call__(self, ctx):
-        pbreaker = ctx.bot.get_cog('PermBreaker')
-        _auth = ctx.message.author
-        if pbreaker is None:
+        server = ctx.message.server
+        if command not in self.settings:
             return True
 
-        ret = _auth.id == settings.owner \
-            or _auth.id in ctx.bot.settings.co_owners \
-            or pbreaker.is_listed(ctx)
+        snowflakes = self.settings[command]['snowflakes']
+        types = self.settings[command]['types']
+        a_snowflakes = [author.id]
+        if server is not None:
+            a_snowflakes.extend([r.id for r in author.roles])
 
-        return ret
+        if not set(a_snowflakes).isdisjoint(snowflakes):
+            return True
+
+        if types['owner']:
+            return author.id == settings.owner or \
+                author.id in ctx.bot.settings.co_owners
+        if types['srv_owner']:
+            return ctx.message.server.owner.id == author.id
+        if server is not None:
+            if types['admin']:
+                admin_role = settings.get_server_admin(server).lower()
+                role = discord.utils.find(
+                    lambda r: r.name.lower() == admin_role, author.roles)
+                return role is not None
+            if types['mod']:
+                mod_role = settings.get_server_mod(server).lower()
+                admin_role = settings.get_server_admin(server).lower()
+                role = discord.utils.find(
+                    lambda r: r.name.lower()
+                    in (mod_role, admin_role), author.roles)
+                return role is not None
+
+        return False
 
 
-class NewServerOwnerCheck:
+class ModifiedCheck:
 
     def __init__(self, command):
         self.command = command
 
     def __call__(self, ctx):
+        self.ctx = ctx
         pbreaker = ctx.bot.get_cog('PermBreaker')
-        _auth = ctx.message.author
-        _srv = ctx.message.server
-        if _srv is None:
+        # Break commands rather than allow arbitrary usage
+        if pbreaker is None or not hasattr(pbreaker, '__check'):
             return False
-        if pbreaker is None:
-            return True
-
-        ret = _auth.id == _srv.owner.id or pbreaker.is_listed(ctx)
-        return ret
-
-
-class NewAdminCheck:
-
-    def __init__(self, command):
-        self.command = command
-
-    def __call__(self, ctx):
-        pbreaker = ctx.bot.get_cog('PermBreaker')
-        _auth = ctx.message.author
-        _srv = ctx.message.server
-        if _srv is None:
-            return False
-        if pbreaker is None:
-            return True
-
-        admin_role = settings.get_server_admin(_srv).lower()
-        allowed = False
-        allowed |= pbreaker.is_listed(ctx)
-        allowed |= len([r for r in _auth.roles
-                        if r.name.lower() == admin_role]) > 0
-        return allowed
-
-
-class NewModCheck:
-
-        def __init__(self, command):
-            self.command = command
-
-        def __call__(self, ctx):
-            pbreaker = ctx.bot.get_cog('PermBreaker')
-            _auth = ctx.message.author
-            _srv = ctx.message.server
-            if _srv is None:
-                return False
-            if pbreaker is None:
-                return True
-
-            mod_role = settings.get_server_mod(_srv).lower()
-            admin_role = settings.get_server_admin(_srv).lower()
-            allowed = False
-            allowed |= pbreaker.is_listed(ctx)
-            allowed |= len([r for r in _auth.roles
-                            if r.name.lower() == mod_role
-                            or r.name.lower() == admin_role]) > 0
-            return allowed
 
 
 def setup(bot):
