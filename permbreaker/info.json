@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "mikeshardmind",
-    "INSTALL_MSG" : "Use at own risk. Unload and restart bot to get old checks back.",
+    "INSTALL_MSG" : "Use at own risk. Unload to disable",
     "NAME" : "PermBreaker",
-    "SHORT" : "Modify checks on existing commands",
-    "DESCRIPTION" : "Allows widening of access to commands restricted using owner, serveradmin, admin, or mod checks"
+    "SHORT" : "Bypass checks on existing commands",
+    "DESCRIPTION" : "Allows bypassing of checks for specific users on a command by comand basis."
 }

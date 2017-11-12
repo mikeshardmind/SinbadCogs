@@ -1,142 +1,180 @@
 import discord
 import pathlib
-from __main__ import settings
 from cogs.utils.dataIO import dataIO
 from discord.ext import commands
 from .utils import checks
+from .utils.chat_formatting import pagify
+
+path = 'data/permbreaker'
 
 
 class PermBreaker:
     """
-    Intentionally modify the checks on commands
-    modifies owner, server_owner, admin, mod (+ x_or_perms)
-    to additionally check for any matching role ID or user ID
-    granular by command
-
-    when modifying a  x_or_perms check, the "or perms" portion will be dropped
-    because I'm lazy af, and the use case where a command has that and still
-    needs to be overridden for some people doesn't make sense.
-
-    Danger: Unload this cog then restart the bot to get old checks back.
+    cog for allowing bypass of checks on commands on a user by user basis
+    This has security implications, use with care
     """
 
     def __init__(self, bot):
         self.bot = bot
-        if dataIO.is_valid_json('data/permbreaker/commands.json'):
-            self.settings = dataIO.load_json('data/permbreaker/commands.json')
+        if dataIO.is_valid_json(path + '/settings.json'):
+            self.settings = dataIO.load_json(path + '/settings.json')
         else:
             self.settings = {}
-        self.modify_commands()
 
-    def save_json(self):
-        dataIO.save_json("data/permbreaker/commands.json", self.settings)
+    def save_settings(self):
+        dataIO.save_json(path + '/settings.json', self.settings)
 
-    @commands.command(name="modifycheck", pass_context=True)
-    @checks.is_owner()  # just for help formatting, sanity check in func
-    async def modifycheck(self, ctx, com: str, *IDs: str):
+    @checks.is_owner()
+    @commands.group(name='pbreak', pass_context=True)
+    async def pbreak(self, ctx):
         """
-        takes a command by name
-        (if its a multi word command i.e. a command that is part of a group,
-        use quotes around it)
-
-        and a list of valid IDs to be additionally allowed to use the command
-        IDs may be role IDs or User IDs
+        Settings for PermBreaker
         """
-        # Sanity check since this command should probably never be modified
-        if ctx.message.author.id != settings.owner and \
-                ctx.message.author.id not in ctx.bot.settings.co_owners:
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_cmd_help(ctx)
+
+    @pbreak.command(name='allow', pass_context=True)
+    async def pbreak_allow(
+            self, ctx, command_name, *who: discord.Member):
+        """
+        Allows a list of users use a command without needing
+        to meet the normal checks requirements of the command
+
+        multiword commands need to be enclosed in quotes
+
+        This has security implications, be careful with it
+        """
+        if len(who) == 0:
+            return await self.bot.send_cmd_help(ctx)
+        com = self.bot.get_command(command_name)
+        if com is None:
+            return await self.bot.say("No such command")
+        if com.cog_name == 'PermBreaker':
+            return await self.bot.say(
+                "If you are going to allow this, "
+                "you may as well just make them a coowner")
+
+        current = self.settings.get(com.name, [])
+        current.extend([x.id for x in who])
+        self.settings[com.name] = current
+        self.save_settings()
+
+        await self.bot.say('Bypass made')
+
+    @pbreak.command(name='disallow', pass_context=True)
+    async def pbreak_disallow(self, ctx, command_name, *who: discord.Member):
+        """
+        removes people from being allowed to use a command
+
+        multiword commands need to be enclosed in quotes
+
+        This has security implications, be careful with it
+        """
+        if len(who) == 0:
+            return await self.bot.send_cmd_help(ctx)
+        com = self.bot.get_command(command_name)
+        if com is None:
+            return await self.bot.say("No such command")
+
+        if com.name not in self.settings:
+            return await self.bot.say('No settings for this command to modify')
+
+        self.settings[com.name] = [x for x in self.settings[com.name]
+                                   if x not in [y.id for y in who]]
+        self.save_settings()
+
+        await self.bot.say('Settings updated')
+
+    @pbreak.command(name='disallowall', pass_context=True)
+    async def pbreak_disallowall(
+            self, ctx, *who: discord.Member):
+        """
+        removes any entries for a user
+        """
+        if len(who) == 0:
+            return await self.bot.send_cmd_help(ctx)
+
+        for k, v in self.settings.items():
+            self.settings[k] = [x for x in v if x not in [y.id for y in who]]
+
+        await self.bot.say('Settings updated')
+
+    @pbreak.command(name='clear', pass_context=True)
+    async def pbreak_clear(self, ctx, command_name):
+        """
+        clears the allowed list for a command
+        multiword commands need to be enclosed in quotes
+        """
+
+        com = self.bot.get_command(command_name)
+        if com is None:
+            return await self.bot.say("No such command")
+
+        self.settings[com.name] = []
+        self.save_settings()
+
+        await self.bot.say('Allowed list cleared')
+
+    @pbreak.command(name='clearall', pass_context=True)
+    async def pbreak_clearall(self, ctx):
+        """clears settings"""
+
+        self.settings = {}
+        self.save_settings()
+        await self.bot.say('Settings cleared')
+
+    @pbreak.command(name='showconfig', pass_context=True)
+    async def pbreak_showconfig(self, ctx):
+        """
+        gets the current bypasses and prints them
+        """
+
+        data = {}
+        who = [x for x in self.bot.get_all_members()]
+        for k, v in self.settings.items():
+            users = [u for u in who if u.id in v]
+            data[k] = {'u': users}
+
+        output = ""
+        for k, v in data.items():
+            output += "\n\nOverrides for '{}'".format(k)
+            output += "\nUsers: "
+            for user in v['u']:
+                output += "{} ".format(user.mention)
+
+        if len(output) == 0:
+            return await self.bot.say('No config set yet')
+        for page in pagify(output.strip()):
+            await self.bot.whisper(page)
+
+    async def maybe_run_anyway(self, error, ctx):
+        if not isinstance(error, commands.CheckFailure):
+            return
+        if ctx.cog == self:
+            # At the point where allowing others to use this, just make them
+            # a coowner
             return
 
-        command_object = self.bot.get_command(com.split()[-1])
-        if command_object is None:
-            return await self.bot.say("No such command")
-        types = self.modify_command(command_object)
-        self.settings[command_object.name] = {'snowflakes': IDs,
-                                              'types': types}
-        self.save_json()
-        await self.bot.say("checks modified.")
+        if self.can_bypass_checks(ctx.message.author, ctx.command):
+            await self.bypass_checks(ctx)
 
-    def modify_commands(self):
-        for k, v in self.settings.items():
-            command_object = self.bot.get_command(k)
-            if command_object is None:
-                continue
-            self.settings[k]['types'] = self.modify_command(command_object)
-            self.save_json()
+    def can_bypass_checks(self, who, com):
 
-    def modify_command(self, command):
-        own, srvown, adm, mod = False, False, False, False
-        for i in range(0, len(command.checks)):
-            some_check = command.checks.pop(i)
-            if some_check.__repr__().startswith('<function is_owner_check'):
-                own = True
-            elif some_check.__repr__().startswith(
-                    '<function serverowner_or_permissions.<locals>.predicate'):
-                srvown = True
-            elif some_check.__repr__().startswith(
-                    '<function admin_or_permissions.<locals>.predicate'):
-                adm = True
-            elif some_check.__repr__().startswith(
-                    '<function mod_or_permissions.<locals>.predicate'):
-                mod = True
-            else:
-                command.checks.insert(i, some_check)
-            if own or srvown or adm or mod:
-                command.checks.insert(i, ModifiedCheck(command))
-
-        return {'owner': own, "srv_owner": srvown, "admin": adm, "mod": mod}
-
-    def __check(self, ctx):
-        command = ctx.command.name
-        author = ctx.message.author
-        server = ctx.message.server
-        if command not in self.settings:
-            return True
-
-        snowflakes = self.settings[command]['snowflakes']
-        types = self.settings[command]['types']
-        a_snowflakes = [author.id]
-        if server is not None:
-            a_snowflakes.extend([r.id for r in author.roles])
-
-        if not set(a_snowflakes).isdisjoint(snowflakes):
-            return True
-
-        if types['owner']:
-            return author.id == settings.owner or \
-                author.id in ctx.bot.settings.co_owners
-        if types['srv_owner']:
-            return ctx.message.server.owner.id == author.id
-        if server is not None:
-            if types['admin']:
-                admin_role = settings.get_server_admin(server).lower()
-                role = discord.utils.find(
-                    lambda r: r.name.lower() == admin_role, author.roles)
-                return role is not None
-            if types['mod']:
-                mod_role = settings.get_server_mod(server).lower()
-                admin_role = settings.get_server_admin(server).lower()
-                role = discord.utils.find(
-                    lambda r: r.name.lower()
-                    in (mod_role, admin_role), author.roles)
-                return role is not None
-
-        return False
-
-
-class ModifiedCheck:
-
-    def __init__(self, command):
-        self.command = command
-
-    def __call__(self, ctx):
-        self.ctx = ctx
-        pbreaker = ctx.bot.get_cog('PermBreaker')
-        # Break commands rather than allow arbitrary usage
-        if pbreaker is None or not hasattr(pbreaker, '__check'):
+        if com.name not in self.settings:
             return False
+
+        flakes = self.settings[com.name]
+        return who.id in flakes
+
+    async def bypass_checks(self, ctx):
+        # please don't kill me Danny
+        await ctx.command._parse_arguments(ctx)
+        injected = commands.core.inject_context(ctx, ctx.command.callback)
+        await injected(*ctx.args, **ctx.kwargs)
 
 
 def setup(bot):
-    pathlib.Path('data/permbreaker').mkdir(parents=True, exist_ok=True)
-    bot.add_cog(PermBreaker(bot))
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+    n = PermBreaker(bot)
+    bot.add_listener(n.maybe_run_anyway, "on_command_error")
+    bot.add_cog(n)
