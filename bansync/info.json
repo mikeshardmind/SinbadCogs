@@ -1,0 +1,6 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.\nNote: This has not been tested heavily yet",
+    "NAME" : "BanSync",
+    "SHORT" : "Syncs Bans across discord servers"
+}
