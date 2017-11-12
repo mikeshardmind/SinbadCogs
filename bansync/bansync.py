@@ -79,6 +79,8 @@ class BanSync:
                                 user=user,
                                 reason="ban sync")
 
+        await self.bot.whisper('bans synced')
+
     async def discover_server(self, author: discord.User):
         output = ""
         servers = sorted(self.bot.servers, key=lambda s: s.name)
