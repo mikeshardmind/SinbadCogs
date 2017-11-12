@@ -4,6 +4,7 @@ import discord  # noqa: F401
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
+from .utils.chat_formatting import pagify
 
 
 class Announcer:
@@ -24,13 +25,60 @@ class Announcer:
         """Announces a message to all channels configured."""
 
         server_ids = map(lambda s: s.id, self.bot.servers)
+        cases = {'exceptions': [],
+                 'permissions': [],
+                 'not_found': [],
+                 'not_server': [],
+                 'successes': []}
         for server_id in server_ids:
             if server_id in self.settings:
                 server = self.bot.get_server(server_id)
                 channel = server.get_channel(
                           self.settings[server_id]['channel'])
+                if channel is None:
+                    cases['not_found'].append(server)
                 if channel.permissions_for(server.me).send_messages:
-                    await self.bot.send_message(channel, msg)
+                    try:
+                        await self.bot.send_message(channel, msg)
+                    except Exception:
+                        cases['exceptions'].append(channel)
+                    else:
+                        cases['successes'].append(channel)
+                else:
+                    cases['permissions'].append(channel)
+
+        for k, v in self.settings.items():
+            if k not in server_ids:
+                cases['not_server'].append(k)
+
+        output = "Succesfully sent announcements to {} of {} locations".format(
+            len(cases['successes']), len(self.settings))
+        if len(cases['successes']) > 0:
+            output += "\n\nSuccessful: \n"
+            for i in cases['successes']:
+                output += "{} ".format(i.mention)
+        if len(cases['permissions']) > 0:
+            output += "\n\nI lack permissions to send to these locations: \n"
+            for i in cases['permissions']:
+                output += "{} ".format(i.mention)
+        if len(cases['exceptions']) > 0:
+            output += "\n\nI ran into unknown issues while trying " \
+                "to send to the following channels \n"
+            for i in cases['exceptions']:
+                output += "{} ".format(i.mention)
+        if len(cases['not_found']) > 0:
+            output += "\n\nThe following servers have entries for " \
+                "channels that no longer exist"
+            for i in cases['not_found']:
+                output += "\n{} ".format(i.name)
+        if len(cases['not_server']) > 0:
+            output += "\n\nI have a few server IDs that I can't " \
+                "seem to find in my active servers:"
+            for i in cases['not_server']:
+                output += "{} ".format(i)
+
+        for page in pagify(output):
+            await self.bot.whisper(page)
 
     @checks.is_owner()
     @commands.group(name="announcerset", pass_context=True)
