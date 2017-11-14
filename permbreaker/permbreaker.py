@@ -1,5 +1,6 @@
 import discord
 import pathlib
+import itertools
 from cogs.utils.dataIO import dataIO
 from discord.ext import commands
 from .utils import checks
@@ -207,7 +208,7 @@ class PermBreaker:
         for server in self.bot.servers:
             roles.extend(server.roles)
         for k, v in self.settings.items():
-            users = [u for u in who if u.id in v]
+            users = unique([u for u in who if u.id in v])
             roles = [r for r in roles if r.id in v]
             data[k] = {'u': users, 'r': roles}
 
@@ -256,6 +257,13 @@ class PermBreaker:
         await ctx.command._parse_arguments(ctx)
         injected = commands.core.inject_context(ctx, ctx.command.callback)
         await injected(*ctx.args, **ctx.kwargs)
+
+
+def unique(a):
+    indices = sorted(range(len(a)), key=a.__getitem__)
+    indices = set(next(it) for k, it in
+                  itertools.groupby(indices, key=a.__getitem__))
+    return [x for i, x in enumerate(a) if i in indices]
 
 
 def setup(bot):
