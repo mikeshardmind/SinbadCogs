@@ -18,19 +18,23 @@ class BanSync:
 
     @checks.is_owner()
     @commands.group(name='bansync', pass_context=True)
-    async def bansync(self, ctx):
+    async def bansync(self, ctx, auto: bool=False):
         """
         syncs bans across servers
         """
         servers = []
-        while True:
-            s = await self.discover_server(ctx.message.author)
-            if s is -1:
-                break
-            elif s is None:
-                continue
-            else:
-                servers.append(s)
+        if not auto:
+            while True:
+                s = await self.discover_server(ctx.message.author)
+                if s is -1:
+                    break
+                elif s is None:
+                    continue
+                else:
+                    servers.append(s)
+        elif auto is True:
+            servers = [s for s in self.bot.servers
+                       if s.me.server_permissions.ban_members]
 
         if len(servers) < 2:
             return await self.bot.whisper('I need at least 2 servers to sync')
