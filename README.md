@@ -1,4 +1,5 @@
 # SinbadCogs
+[![Build Status](https://travis-ci.org/mikeshardmind/SinbadCogs.svg?branch=master)](https://travis-ci.org/mikeshardmind/SinbadCogs)
 
 Slowly growing collection of cogs for
 
