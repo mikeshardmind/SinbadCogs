@@ -19,14 +19,17 @@ class AdvStatus:
         except Exception:
             self.settings = None
         else:
-            self.bot.loop.run_until_complete(
-                self.settings['type'], self.settings['title'])
+            self.bot.loop.create_task(
+                self.modify_presence(
+                                  self.settings['type'], self.settings['title']
+                                  ))
 
     def save_settings(self):
         dataIO.save_json(path + '/settings.json', self.settings)
 
     @checks.is_owner()
-    @commands.command(name='changepresence', pass_context=True)
+    @commands.command(
+        name='changepresence', pass_context=True, aliases=['advstatus'])
     async def changepresence(self, ctx, gametype, *, gamename):
         """
         gametype should be a numeric value based on the below
