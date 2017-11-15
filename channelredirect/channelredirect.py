@@ -28,23 +28,22 @@ class ChannelRedirect:
 
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(name='blockcommandshere', no_pm=True, pass_context=True)
-    async def nocommandshere(self, ctx, redirect: discord.Channel=None):
+    async def nocommandshere(self, ctx, redirect: discord.Channel):
         """
-        blocks commands in the channel called in, optionally prompting users
+        blocks commands in the channel called in, prompting users
         where they should use the commands
         """
-        self.settings[ctx.message.channel.id] = \
-            redirect.id if redirect else None
+
+        self.settings[ctx.message.channel.id] = redirect.id
         self.save_settings()
         await self.bot.say('Channel blocked.')
 
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(
         name='unblockcommandshere', no_pm=True, pass_context=True)
-    async def reallowcommandshere(self, ctx, redirect: discord.Channel=None):
+    async def reallowcommandshere(self, ctx):
         """
-        unblocks commands in the channel called in, optionally prompting users
-        where they should use the commands
+        unblocks commands in the channel called in
         """
         if self.settings.pop(ctx.message.channel.id, False) is False:
             return await self.bot.say('That channel was not blocked')
@@ -52,22 +51,17 @@ class ChannelRedirect:
         await self.bot.say('Channel unblocked.')
 
     async def notify(self, ctx):
-        channel = ctx.message.channel
-        if channel.id in self.settings:
-            redirect = discord.utils.find(
-                lambda m: m.id == self.settings[channel.id],
-                self.bot.get_all_channels())
-            if redirect is not None:
-                x = await self.bot.send_message(
-                    channel,
-                    'Hey! {0.mention} Use commands in <#{1}>'.format(
-                        ctx.message.author, redirect))
-            if channel.permissions_for(channel.server.me).manage_messages:
-                await self.bot.delete_message(ctx.message)
-            await asyncio.sleep(30)
-            await self.bot.delete_message(x)
+        x = await self.bot.send_message(
+            ctx.message.channel,
+            'Hey! {0.mention} Use commands in <#{1}>'.format(
+                ctx.message.author, self.settings[ctx.message.channel.id]))
+        await asyncio.sleep(30)
+        await self.bot.delete_message(x)
+        if ctx.message.channel.permissions_for(
+                ctx.message.server.me).manage_messages:
+            await self.bot.delete_message(ctx.message)
 
-    def some_check(self, ctx):
+    def __check(self, ctx):
         allowed = False
         allowed |= ctx.message.author.id == settings.owner \
             or ctx.message.author.id in ctx.bot.settings.co_owners
@@ -80,5 +74,4 @@ class ChannelRedirect:
 def setup(bot):
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     n = ChannelRedirect(bot)
-    bot.add_check(n.some_check)
     bot.add_cog(n)
