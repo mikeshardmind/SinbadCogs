@@ -22,7 +22,7 @@ class AudioNotifier:
     async def task_notifier(self):
         for channel in self.active_server_chans:
             current = self.audiocog._get_queue_nowplaying(channel.server).title
-            if current == self.last_updates.get(channel.server.id, None):
+            if current == self.last_updates[channel.server.id]:
                 continue
             else:
                 await self.notify(channel)
@@ -36,6 +36,7 @@ class AudioNotifier:
             url = self.audiocog._get_queue_nowplaying(channel.server).url
         except AttributeError:
             return
+        self.last_updates[channel.server.id] = title
         em = discord.Embed(title="Now Playing",
                            description='[{}]({})'.format(title, url),
                            color=srv.me.color)
