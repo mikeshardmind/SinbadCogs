@@ -15,6 +15,9 @@ class PermBreaker:
     This has security implications, use with care
     """
 
+    __version__ = "1.0.0"
+    __author__ = "mikeshardmind (Sinbad#0413)"
+
     def __init__(self, bot):
         self.bot = bot
         if dataIO.is_valid_json(path + '/settings.json'):

@@ -1,5 +1,4 @@
 import os
-import asyncio
 import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
@@ -10,8 +9,8 @@ from discord.utils import find
 class StreamAnnouncer:
 
     """Configureable stream announcements"""
-    __author__ = "mikeshardmind"
-    __version__ = "0.2"
+    __version__ = "1.0.0"
+    __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
         self.bot = bot
@@ -53,7 +52,6 @@ class StreamAnnouncer:
         """set the role required to get an announcement on stream start"""
 
         server = ctx.message.server
-        channel = ctx.message.channel
         if server.id not in self.settings:
             self.settings[server.id] = {"output": None,
                                         "role_id": None}

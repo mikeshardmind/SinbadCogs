@@ -1,27 +1,31 @@
-import os
+import pathlib
 import asyncio  # noqa: F401
 import discord
-import logging
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 from cogs.utils.chat_formatting import box, pagify
 
+path = 'data/reportool'
+
 
 class ReportTool:
     """custom cog for a configureable report system."""
 
-    __author__ = "mikeshardmind"
+    __author__ = "mikeshardmind (Sinbad#0413)"
     __version__ = "1.4.2"
 
     def __init__(self, bot):
         self.bot = bot
-        self.settings = dataIO.load_json('data/reporttool/settings.json')
+        try:
+            self.settings = dataIO.load_json(path + 'settings.json')
+        except Exception:
+            self.settings = {}
         for s in self.settings:
             self.settings[s]['usercache'] = []
 
     def save_json(self):
-        dataIO.save_json("data/reporttool/settings.json", self.settings)
+        dataIO.save_json(path + 'settings.json', self.settings)
 
     @commands.group(name="setreport", pass_context=True, no_pm=True)
     async def setreport(self, ctx):
@@ -40,14 +44,6 @@ class ReportTool:
                                         'multiout': False
                                         }
             self.save_json()
-
-    @checks.admin_or_permissions(Manage_server=True)
-    @setreport.command(name="fixcache", pass_context=True, no_pm=True)
-    async def fix_cache(self, ctx):
-        """use this if the bot gets stuck not recording your response"""
-        self.initial_config(ctx.message.server.id)
-        self.settings[server.id]['usercache'] = []
-        self.save_json()
 
     @checks.admin_or_permissions(Manage_server=True)
     @setreport.command(name="output", pass_context=True, no_pm=True)
@@ -190,20 +186,7 @@ class ReportTool:
         self.save_json()
 
 
-def check_folder():
-    f = 'data/reporttool'
-    if not os.path.exists(f):
-        os.makedirs(f)
-
-
-def check_file():
-    f = 'data/reporttool/settings.json'
-    if dataIO.is_valid_json(f) is False:
-        dataIO.save_json(f, {})
-
-
 def setup(bot):
-    check_folder()
-    check_file()
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     n = ReportTool(bot)
     bot.add_cog(n)

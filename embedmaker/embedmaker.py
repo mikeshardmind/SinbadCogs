@@ -1,13 +1,12 @@
-import os
+import pathlib
 import asyncio  # noqa: F401
 import discord
-import logging
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 from datetime import datetime
 
-log = logging.getLogger('red.EmbedMaker')
+path = 'data/embedmaker'
 
 
 class EmbedMaker:
@@ -15,20 +14,20 @@ class EmbedMaker:
     Make embed objects. Recall them, remove them, reuse them (etc)
     """
 
-    __author__ = "mikeshardmind"
-    __version__ = "1.1"
+    __author__ = "mikeshardmind (Sinbad#0413)"
+    __version__ = "1.1.0"
 
     def __init__(self, bot):
 
         self.bot = bot
-        self.settings = dataIO.load_json('data/embedmaker/settings.json')
-        self.embeds = dataIO.load_json('data/embedmaker/embeds.json')
+        self.settings = dataIO.load_json(path + '/settings.json')
+        self.embeds = dataIO.load_json(path + '/embeds.json')
 
     def save_settings(self):
-        dataIO.save_json("data/embedmaker/settings.json", self.settings)
+        dataIO.save_json(path + '/settings.json', self.settings)
 
     def save_embeds(self):
-        dataIO.save_json("data/embedmaker/embeds.json", self.embeds)
+        dataIO.save_json(path + '/embeds.json', self.embeds)
 
     async def initial_config(self, server=None):
         """adds default settings for all servers the bot is in
@@ -322,23 +321,17 @@ class EmbedMaker:
         self.save_settings()
 
 
-def check_folder():
-    f = 'data/embedmaker'
-    if not os.path.exists(f):
-        os.makedirs(f)
-
-
 def check_file():
-    f = 'data/embedmaker/settings.json'
+    f = path + '/settings.json'
     if dataIO.is_valid_json(f) is False:
         dataIO.save_json(f, {})
-    f = 'data/embedmaker/embeds.json'
+    f = path + '/embeds.json'
     if dataIO.is_valid_json(f) is False:
         dataIO.save_json(f, {})
 
 
 def setup(bot):
-    check_folder()
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     check_file()
     n = EmbedMaker(bot)
     bot.add_cog(n)

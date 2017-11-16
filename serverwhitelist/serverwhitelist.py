@@ -16,8 +16,8 @@ class ServerWhitelist:
     Lets a bot owner create a list of servers that the bot will immediately
     leave any other server it joins. defaults to allowing
     It does not require you to make the bot private"""
-    __author__ = "mikeshardmind"
-    __version__ = "0.1"
+    __version__ = "1.0.0"
+    __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
         self.bot = bot

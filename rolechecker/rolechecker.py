@@ -1,9 +1,11 @@
-import os
+import pathlib
 import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 from __main__ import settings
+
+path = 'data/rolechecker'
 
 
 class RoleChecker:
@@ -11,55 +13,51 @@ class RoleChecker:
     Require a role to use the bot
     """
 
+    __version__ = "1.0.0"
+    __author__ = "mikeshardmind (Sinbad#0413)"
+
     def __init__(self, bot):
         self.bot = bot
         self.load_roles()
 
     def load_roles(self):
-        self.roles = dataIO.load_json('data/rolechecker/settings.json')
+        try:
+            self.roles = dataIO.load_json(path + '/settings.json')
+        except Exception:
+            self.roles = []
 
     def save_roles(self):
-        dataIO.save_json("data/rolechecker/settings.json", self.roles)
+        dataIO.save_json(path + '/settings.json', self.roles)
 
     @commands.command()
     @checks.is_owner()
-    async def set_required_role(self, ctx, *roles: str):
+    async def set_required_role(self, ctx, *roles: discord.Role):
         """
         sets the role(s) required to use the bot
         multi word roles should be surrounded with quotes
 
-        WARNING:this is checked by name, so be sure people cant assign
-        arbitrary role names to themselves with other bots
+        WARNING: make sure people cannot assign themselves any of these roles
+        with another bot or something
 
-        to disable this check, unload the cog
+        To disable this check, unload the cog
         """
         if len(roles) > 0:
-            self.roles = roles
+            self.roles = [r.id for r in roles]
             self.save_roles()
             await self.bot.say('Role set')
         else:
             await self.bot.send_cmd_help(ctx)
 
-    async def __check(self, ctx):
+    def __check(self, ctx):
         allowed = False
         author = ctx.message.author
         allowed |= author.id == settings.owner
         if isinstance(author, discord.Member):
             allowed |= len([r for r in author.roles
-                            if r.name in self.roles]) > 0
+                            if r.id in self.roles]) > 0
         return allowed
 
 
-def _ensure_fs():
-    f = 'data/rolechecker'
-    if not os.path.exists(f):
-        os.makedirs(f)
-
-    f = 'data/rolechecker/settings.json'
-    if dataIO.is_valid_json(f) is False:
-        dataIO.save_json(f, {})
-
-
 def setup(bot):
-    _ensure_fs()
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     bot.add_cog(RoleChecker(bot))
