@@ -1,4 +1,4 @@
-import pathlib
+import os
 import asyncio
 import discord
 import logging
