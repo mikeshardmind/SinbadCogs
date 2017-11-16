@@ -40,7 +40,7 @@ class AudioNotifier:
         em.add_field(name='Now playing',
                      value='[{}]({})'.format(title, url),
                      inline=True)
-        await self.bot.send_message(channel, em)
+        await self.bot.send_message(channel, embed=em)
 
     @checks.mod_or_permissions(manage_server=True)
     @commands.command(name="audionotify", no_pm=True, pass_context=True)
