@@ -20,14 +20,16 @@ class AudioNotifier:
         self.bot.loop.create_task(self.task_notifier())
 
     async def task_notifier(self):
-        for channel in self.active_server_chans:
-            current = self.audiocog._get_queue_nowplaying(channel.server).title
-            if current == self.last_updates[channel.server.id]:
-                continue
-            else:
-                await self.notify(channel)
-                self.last_updates[channel.server.id] = current
-        await asyncio.sleep(10)
+        while True:
+            for channel in self.active_server_chans:
+                current = \
+                    self.audiocog._get_queue_nowplaying(channel.server).title
+                if current == self.last_updates[channel.server.id]:
+                    continue
+                else:
+                    await self.notify(channel)
+                    self.last_updates[channel.server.id] = current
+            await asyncio.sleep(10)
 
     async def notify(self, channel: discord.Channel):
         srv = channel.server
