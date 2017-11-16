@@ -36,10 +36,9 @@ class AudioNotifier:
             url = self.audiocog._get_queue_nowplaying(channel.server).url
         except AttributeError:
             return
-        em = discord.Embed(description="\u200b", color=srv.me.color)
-        em.add_field(name='Now playing',
-                     value='[{}]({})'.format(title, url),
-                     inline=True)
+        em = discord.Embed(title="Now Playing",
+                           description='[{}]({})'.format(title, url),
+                           color=srv.me.color)
         await self.bot.send_message(channel, embed=em)
 
     @checks.mod_or_permissions(manage_server=True)
