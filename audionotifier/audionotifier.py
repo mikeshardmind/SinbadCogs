@@ -1,7 +1,11 @@
+import pathlib
+import asyncio
 import discord
 from discord.ext import commands
 from .utils import checks
-import asyncio
+from cogs.utils.dataIO import dataIO
+
+path = 'data/audionotifier'
 
 
 class AudioNotifier:
@@ -17,7 +21,16 @@ class AudioNotifier:
         self.audiocog = bot.get_cog('Audio')
         self.last_updates = {}
         self.active_chans = []
+        try:
+            self.settings = dataIO.load_json(path + '/settings.json')
+        except Exception:
+            self.settings = []
+        self.active_chans = [c for c in bot.get_all_channels
+                             if c.id in self.settings]
         self.bot.loop.create_task(self.task_notifier())
+
+    def save_settings(self):
+        dataIO.save_json(path + '/settings.json', self.settings)
 
     async def task_notifier(self):
         while True:
@@ -60,8 +73,11 @@ class AudioNotifier:
         self.active_chans = [c for c in self.active_chans
                              if c.server != ctx.message.server]
         self.active_chans.append(ctx.message.channel)
+        self.settings = [c.id for c in self.active_chans]
+        self.save_settings()
 
 
 def setup(bot):
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     n = AudioNotifier(bot)
     bot.add_cog(n)
