@@ -58,3 +58,8 @@ class AudioNotifier:
         self.active_chans = [c for c in self.active_chans
                              if c.server != ctx.message.server]
         self.active_chans.append(ctx.message.channel)
+
+
+def setup(bot):
+    n = AudioNotifier(bot)
+    bot.add_cog(n)
