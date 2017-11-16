@@ -1,0 +1,6 @@
+{
+    "AUTHOR" : "mikeshardmind",
+    "INSTALL_MSG" : "WARNING: Untested. \nIf you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.",
+    "NAME" : "AudioNotifier",
+    "SHORT" : "Notifies in a channel the current spell"
+}
