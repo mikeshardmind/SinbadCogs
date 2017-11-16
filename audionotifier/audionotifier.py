@@ -22,7 +22,7 @@ class AudioNotifier:
     async def task_notifier(self):
         for channel in self.active_server_chans:
             current = self.audiocog._get_queue_nowplaying(channel.server).title
-            if current == self.last_updates[channel.server.id]:
+            if current == self.last_updates.get(channel.server.id, None):
                 continue
             else:
                 await self.notify(channel)
