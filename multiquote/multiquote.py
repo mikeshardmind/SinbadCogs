@@ -1,12 +1,11 @@
-import os
+import pathlib
 import asyncio
 import discord
-import logging
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 
-log = logging.getLogger('red.Multiquote')
+path = 'data/multiquote'
 
 
 class MultiQuote:
@@ -14,21 +13,23 @@ class MultiQuote:
     Multiquote Activate
     """
 
-    __author__ = "mikeshardmind"
-    __version__ = "2.0"
+    __author__ = "mikeshardmind (Sinbad#0413)"
+    __version__ = "2.0.0"
 
     def __init__(self, bot):
 
         self.bot = bot
-        self.settings = dataIO.load_json('data/multiquote/settings.json')
+        try:
+            self.settings = dataIO.load_json(path + '/settings.json')
+        except Exception:
+            self.settings = {}
         if "global" not in self.settings:
             self.settings["global"] = {'csmq': False}
 
     def save_json(self):
-        dataIO.save_json("data/multiquote/settings.json", self.settings)
+        dataIO.save_json(path + '/settings.json', self.settings)
 
-    @commands.group(name="multiquoteset",
-                    pass_context=True, no_pm=True)
+    @commands.group(name="multiquoteset", pass_context=True, no_pm=True)
     async def multiquoteset(self, ctx):
         """configuration settings"""
         if ctx.invoked_subcommand is None:
@@ -75,13 +76,12 @@ class MultiQuote:
         self.save_json()
 
     @checks.is_owner()
-    @multiquoteset.command(name="csmqtoggle", hidden=True)
+    @multiquoteset.command(name="csmqtoggle")
     async def _csmq_setting(self):
         """
         Enables cross server multiquotes
         This has serious performance scaling issues
         Do not enable this on a public bot.
-        This feature is hidden for a reason. Use at your own risk
         """
         self.settings["global"]["csmq"] = \
             not self.settings["global"]["csmq"]
@@ -115,8 +115,8 @@ class MultiQuote:
                     self.save_json()
 
     @checks.is_owner()
-    @commands.command(pass_context=True, name='rangequote',
-                      aliases=["rmq"], hidden=True)
+    @commands.command(
+        pass_context=True, name='rangequote', aliases=["rmq"], hidden=True)
     async def _rmq(self, ctx, first: str, last: str):
         """quotes a range (inclusive)"""
         a = await self.get_msg(first)
@@ -134,8 +134,8 @@ class MultiQuote:
             await asyncio.sleep(1)
         await self.sendifallowed(auth, chan, b)
 
-    @commands.command(pass_context=True, name='crossmultiquote',
-                      aliases=["csmq"], hidden=True)
+    @commands.command(
+        pass_context=True, name='crossmultiquote', aliases=["csmq", "csq"])
     async def _csmq(self, ctx, *args):
         """
         Multiple Quotes by ID This version is slower the more servers it needs
@@ -155,7 +155,8 @@ class MultiQuote:
                                        color=discord.Color.red())
                     await self.bot.send_message(ctx.message.channel, embed=em)
 
-    @commands.command(pass_context=True, name='multiquote', aliases=["mq"])
+    @commands.command(
+        pass_context=True, name='multiquote', aliases=["mq", "ccq"])
     async def _mq(self, ctx, *args):
         """
         Multiple Quotes by message ID (same server only)
@@ -243,21 +244,8 @@ class MultiQuote:
         return em
 
 
-def check_folder():
-    f = 'data/multiquote'
-    if not os.path.exists(f):
-        os.makedirs(f)
-
-
-def check_file():
-    f = 'data/multiquote/settings.json'
-    if dataIO.is_valid_json(f) is False:
-        dataIO.save_json(f, {})
-
-
 def setup(bot):
-    check_folder()
-    check_file()
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     n = MultiQuote(bot)
     bot.add_listener(n.init_settings, "on_server_join")
     bot.add_cog(n)

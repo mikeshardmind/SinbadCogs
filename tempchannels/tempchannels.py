@@ -1,5 +1,5 @@
 import os
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta  # NOQA
 import asyncio
 import discord
 from discord.ext import commands
@@ -14,8 +14,8 @@ class TempChannels:
     requires server admin or manage channels to enable
     once enabled all users can use it
     """
-    __author__ = "mikeshardmind"
-    __version__ = "1.3"
+    __author__ = "mikeshardmind (Sinbad#0413)"
+    __version__ = "1.3.0"
 
     def __init__(self, bot):
         self.bot = bot

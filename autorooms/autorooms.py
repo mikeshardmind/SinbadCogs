@@ -1,4 +1,4 @@
-import os
+import pathlib
 import asyncio
 import discord
 from discord.ext import commands
@@ -7,17 +7,22 @@ from .utils import checks
 from discord.utils import find
 from cogs.utils.chat_formatting import box, pagify
 
+path = 'data/autorooms'
+
 
 class AutoRooms:
     """
     auto spawn rooms
     """
-    __author__ = "mikeshardmind"
-    __version__ = "4.1"
+    __author__ = "mikeshardmind (Sinbad#0413)"
+    __version__ = "4.1.0"
 
     def __init__(self, bot):
         self.bot = bot
-        self.settings = dataIO.load_json('data/autorooms/settings.json')
+        try:
+            self.settings = dataIO.load_json(path + 'settings.json')
+        except Exception:
+            self.settings = {}
 
     @commands.group(name="autoroomset", pass_context=True, no_pm=True)
     async def autoroomset(self, ctx):
@@ -243,7 +248,7 @@ class AutoRooms:
             self.save_json
 
     def save_json(self):
-        dataIO.save_json("data/autorooms/settings.json", self.settings)
+        dataIO.save_json(path + '/settings.json', self.settings)
 
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="toggleowner", pass_context=True, no_pm=True)
@@ -411,21 +416,8 @@ class AutoRooms:
                     self.save_json()
 
 
-def check_folder():
-    f = 'data/autorooms'
-    if not os.path.exists(f):
-        os.makedirs(f)
-
-
-def check_file():
-    f = 'data/autorooms/settings.json'
-    if dataIO.is_valid_json(f) is False:
-        dataIO.save_json(f, {})
-
-
 def setup(bot):
-    check_folder()
-    check_file()
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     n = AutoRooms(bot)
     bot.add_listener(n.autorooms, 'on_voice_state_update')
     bot.add_cog(n)

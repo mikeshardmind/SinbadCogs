@@ -1,22 +1,27 @@
 import discord
 from discord.ext import commands
-import os
+import pathlib
 from cogs.utils.dataIO import dataIO
 from .utils import checks
+
+path = 'data/antimentionspam'
 
 
 class AntiMentionSpam:
     """removes mass mention spam"""
 
-    __author__ = "mikeshardmind"
-    __version__ = "1.1"
+    __author__ = "mikeshardmind (Sinbad#0413)"
+    __version__ = "1.1.0"
 
     def __init__(self, bot):
         self.bot = bot
-        self.settings = dataIO.load_json('data/antimentionspam/settings.json')
+        try:
+            self.settings = dataIO.load_json(path + '/settings.json')
+        except Exception:
+            self.settings = {}
 
     def save_json(self):
-        dataIO.save_json("data/antimentionspam/settings.json", self.settings)
+        dataIO.save_json(path + '/settings.json', self.settings)
 
     @commands.group(name="antimentionspam",
                     pass_context=True, no_pm=True)
@@ -70,21 +75,8 @@ class AntiMentionSpam:
                         await self.bot.delete_message(message)
 
 
-def check_folder():
-    f = 'data/antimentionspam'
-    if not os.path.exists(f):
-        os.makedirs(f)
-
-
-def check_file():
-    f = 'data/antimentionspam/settings.json'
-    if dataIO.is_valid_json(f) is False:
-        dataIO.save_json(f, {})
-
-
 def setup(bot):
-    check_folder()
-    check_file()
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     n = AntiMentionSpam(bot)
     bot.add_listener(n.check_msg_for_spam, "on_message")
     bot.add_cog(n)

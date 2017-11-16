@@ -20,6 +20,9 @@ class ExRoles:
     Role exclusivity
     """
 
+    __version__ = "1.0.0"
+    __author__ = "mikeshardmind (Sinbad#0413)"
+
     def __init__(self, bot):
         self.bot = bot
         self.settings = dataIO.load_json('data/exroles/settings.json')

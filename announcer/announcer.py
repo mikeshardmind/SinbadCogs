@@ -1,4 +1,4 @@
-import os
+import pathlib
 import asyncio  # noqa: F401
 import discord  # noqa: F401
 from discord.ext import commands
@@ -6,18 +6,23 @@ from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 from .utils.chat_formatting import pagify
 
+path = 'data/announcer'
+
 
 class Announcer:
     """Configureable Announcements."""
-    __author__ = "mikeshardmind"
-    __version__ = "1.0"
+    __version__ = "1.0.0"
+    __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
         self.bot = bot
-        self.settings = dataIO.load_json('data/announcer/settings.json')
+        try:
+            self.settings = dataIO.load_json(path + '/settings.json')
+        except Exception:
+            self.settings = {}
 
     def save_settings(self):
-        dataIO.save_json('data/announcer/settings.json', self.settings)
+        dataIO.save_json(path + '/settings.json', self.settings)
 
     @checks.is_owner()
     @commands.command(name="announcer", pass_context=True)
@@ -159,20 +164,7 @@ class Announcer:
             await self.bot.say("This channel is not an announcement channel")
 
 
-def check_folder():
-    f = 'data/announcer'
-    if not os.path.exists(f):
-        os.makedirs(f)
-
-
-def check_file():
-    f = 'data/announcer/settings.json'
-    if dataIO.is_valid_json(f) is False:
-        dataIO.save_json(f, {})
-
-
 def setup(bot):
-    check_folder()
-    check_file()
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     n = Announcer(bot)
     bot.add_cog(n)

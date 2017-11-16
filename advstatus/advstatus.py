@@ -9,8 +9,11 @@ path = 'data/advstatus'
 
 class AdvStatus:
     """
-    boredom
+    Quick and dirty cog for allowing the playing/watching/or listening statuses
     """
+
+    __version__ = "1.0.0"
+    __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
         self.bot = bot

@@ -1,4 +1,4 @@
-import os
+import pathlib
 import asyncio
 import discord
 import logging
@@ -12,8 +12,8 @@ log = logging.getLogger('red.ServerBlacklist')
 class ServerBlacklist:
     """Lets a bot owner create a list of servers that the bot will immediately
     leave when joined to. It does not require you to make the bot private"""
-    __author__ = "mikeshardmind"
-    __version__ = "0.3"
+    __version__ = "1.0.0"
+    __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
         self.bot = bot

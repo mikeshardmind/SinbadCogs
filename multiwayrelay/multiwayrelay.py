@@ -1,32 +1,34 @@
-import os
+import pathlib
 import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 import re
-import logging
 import itertools
 
-log = logging.getLogger('red.MultiWayRelay')
+path = 'data/multiwayrelay'
 
 
 class MultiWayRelay:
     """
-    hmmmm
+    Multiway channel linkage
     """
 
-    __author__ = "mikeshardmind"
-    __version__ = "1.2"
+    __author__ = "mikeshardmind (Sinbad#0413)"
+    __version__ = "1.2.0"
 
     def __init__(self, bot):
         self.bot = bot
-        self.settings = dataIO.load_json('data/multiwayrelay/settings.json')
+        try:
+            self.settings = dataIO.load_json(path + '/settings.json')
+        except Exception:
+            self.settings = {}
         self.links = {}
         self.activechans = []
         self.initialized = False
 
     def save_json(self):
-        dataIO.save_json("data/multiwayrelay/settings.json", self.settings)
+        dataIO.save_json(path + '/settings.json', self.settings)
 
     @checks.is_owner()
     @commands.command(name="makerelay", pass_context=True)
@@ -157,8 +159,8 @@ class MultiWayRelay:
             em = self.qform(message)
             try:
                 await self.bot.send_message(where, embed=em)
-            except Exception as e:
-                log.debug("{}".format(e))
+            except Exception:
+                pass
 
     def role_mention_cleanup(self, message):
 
@@ -212,21 +214,8 @@ def unique(a):
     return [x for i, x in enumerate(a) if i in indices]
 
 
-def check_folder():
-    f = 'data/multiwayrelay'
-    if not os.path.exists(f):
-        os.makedirs(f)
-
-
-def check_file():
-    f = 'data/multiwayrelay/settings.json'
-    if dataIO.is_valid_json(f) is False:
-        dataIO.save_json(f, {})
-
-
 def setup(bot):
-    check_folder()
-    check_file()
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     n = MultiWayRelay(bot)
     bot.add_listener(n.do_stuff_on_message, "on_message")
     bot.add_cog(n)
