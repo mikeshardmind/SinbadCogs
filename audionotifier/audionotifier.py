@@ -25,7 +25,7 @@ class AudioNotifier:
             self.settings = dataIO.load_json(path + '/settings.json')
         except Exception:
             self.settings = []
-        self.active_chans = [c for c in bot.get_all_channels
+        self.active_chans = [c for c in bot.get_all_channels()
                              if c.id in self.settings]
         self.bot.loop.create_task(self.task_notifier())
 
