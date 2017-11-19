@@ -15,7 +15,7 @@ class MultiWayRelay:
     """
 
     __author__ = "mikeshardmind (Sinbad#0413)"
-    __version__ = "1.2.1"
+    __version__ = "1.2.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -187,13 +187,8 @@ class MultiWayRelay:
         author = message.author
         sname = server.name
         cname = channel.name
-        if author.avatar:
-            if author.avatar_url.endswith('?size=1024'):
-                avatar = author.avatar[:-10]
-            else:
-                avatar = author.avatar_url
-        else:
-            avatar = author.default_avatar_url
+        avatar = author.avatar_url if author.avatar \
+            else author.default_avatar_url
         footer = 'Said in {} #{}'.format(sname, cname)
         em = discord.Embed(description=content, color=author.color,
                            timestamp=message.timestamp)

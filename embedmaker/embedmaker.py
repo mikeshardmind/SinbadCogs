@@ -50,7 +50,8 @@ class EmbedMaker:
             self.save_embeds()
         if 'global' not in self.settings:
             self.settings['global'] = {'inactive': True,
-                                       'usercache': []}
+                                       'usercache': [],
+                                       'whitelist': []}  # Future Proofing
             self.save_settings()
 
     @commands.group(name="embedset", pass_context=True, no_pm=True)
