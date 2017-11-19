@@ -14,7 +14,7 @@ class MultiQuote:
     """
 
     __author__ = "mikeshardmind (Sinbad#0413)"
-    __version__ = "2.0.0"
+    __version__ = "2.0.1"
 
     def __init__(self, bot):
 
@@ -224,8 +224,13 @@ class MultiQuote:
         author = message.author
         sname = server.name
         cname = channel.name
-        avatar = author.avatar_url if author.avatar \
-            else author.default_avatar_url
+        if author.avatar:
+            if author.avatar_url.endswith('?size=1024'):
+                avatar = author.avatar[:-10]
+            else:
+                avatar = author.avatar_url
+        else:
+            avatar = author.default_avatar_url
         footer = 'Said in {} #{}'.format(sname, cname)
         em = discord.Embed(description=content, color=author.color,
                            timestamp=message.timestamp)
