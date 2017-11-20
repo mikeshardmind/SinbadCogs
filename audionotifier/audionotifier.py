@@ -18,7 +18,6 @@ class AudioNotifier:
 
     def __init__(self, bot):
         self.bot = bot
-        self.audiocog = bot.get_cog('Audio')
         self.last_updates = {}
         self.active_chans = []
         try:
@@ -34,51 +33,75 @@ class AudioNotifier:
 
     async def task_notifier(self):
         while True:
-            if self.bot.get_cog('AudioNotifier') is None:
-                break
             for channel in self.active_chans:
-                current = \
-                    self.audiocog._get_queue_nowplaying(channel.server).title
-                if current == self.last_updates[channel.server.id]:
-                    continue
+                srv = channel.server
+                current = self.bot.get_cog('Audio')._get_queue_nowplaying(
+                    srv).title
+                if current == self.last_updates.pop(srv.id, None):
+                    pass
                 else:
-                    await self.notify(channel)
-                    self.last_updates[channel.server.id] = current
-            await asyncio.sleep(10)
+                    try:
+                        title = self.bot.get_cog(
+                            'Audio')._get_queue_nowplaying(
+                                srv).title
+                        url = self.bot.get_cog(
+                            'Audio')._get_queue_nowplaying(
+                                srv).webpage_url
+                    except AttributeError:
+                        pass
+                    else:
+                        em = discord.Embed(title="Now Playing",
+                                           description='[{}]({})'.format(
+                                                title, url),
+                                           color=srv.me.color)
+                        await self.bot.send_message(channel, embed=em)
+                        self.last_updates[channel.server.id] = current
+
+            await asyncio.sleep(2)
 
     async def notify(self, channel: discord.Channel):
         srv = channel.server
         try:
-            title = self.audiocog._get_queue_nowplaying(
+            title = self.bot.get_cog('Audio')._get_queue_nowplaying(
                 channel.server).title
-            url = self.audiocog._get_queue_nowplaying(
+            url = self.bot.get_cog('Audio')._get_queue_nowplaying(
                 channel.server).webpage_url
         except AttributeError:
+            raise
             return
-        self.last_updates[channel.server.id] = title
         em = discord.Embed(title="Now Playing",
                            description='[{}]({})'.format(title, url),
                            color=srv.me.color)
         await self.bot.send_message(channel, embed=em)
 
     @checks.mod_or_permissions(manage_server=True)
-    @commands.command(name="audionotify", no_pm=True, pass_context=True)
-    async def audionotify(self, ctx):
+    @commands.command(name="audionotifierset", no_pm=True, pass_context=True)
+    async def audionotiferset(self, ctx):
         """
         set an audio notification channel
         """
 
-        self.audiocog = self.bot.get_cog('Audio')
-        if self.audiocog is None:
+        if self.bot.get_cog('Audio') is None:
             return await self.bot.say('You need the audio cog loaded')
-
-        await self.notify(ctx.message.channel)
 
         self.active_chans = [c for c in self.active_chans
                              if c.server != ctx.message.server]
         self.active_chans.append(ctx.message.channel)
         self.settings = [c.id for c in self.active_chans]
         self.save_settings()
+
+    @commands.command(name="whatsplaying", no_pm=True, pass_context=True)
+    async def whatisthis(self, ctx):
+        """
+        find out what the bot is playing
+        """
+
+        if self.bot.get_cog('Audio') is None:
+            return await self.bot.say('Nothing')
+        try:
+            await self.notify(ctx.message.channel)
+        except AttributeError:
+            return await self.bot.say('Nothing')
 
 
 def setup(bot):
