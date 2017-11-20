@@ -13,7 +13,7 @@ class AudioNotifier:
     Audio notification cog
     """
 
-    __version__ = "1.0.0"
+    __version__ = "1.1.0"
     __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
@@ -33,7 +33,7 @@ class AudioNotifier:
         dataIO.save_json(path + '/settings.json', self.settings)
 
     async def task_notifier(self):
-        while True:
+        while self.bot.get_cog('AudioNotifier'):
             for channel in self.active_chans:
                 current = \
                     self.audiocog._get_queue_nowplaying(channel.server).title
@@ -47,8 +47,10 @@ class AudioNotifier:
     async def notify(self, channel: discord.Channel):
         srv = channel.server
         try:
-            title = self.audiocog._get_queue_nowplaying(channel.server).title
-            url = self.audiocog._get_queue_nowplaying(channel.server).url
+            title = self.audiocog._get_queue_nowplaying(
+                channel.server).title
+            url = self.audiocog._get_queue_nowplaying(
+                channel.server).webpage_url
         except AttributeError:
             return
         self.last_updates[channel.server.id] = title
