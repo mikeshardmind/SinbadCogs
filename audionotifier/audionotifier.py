@@ -33,7 +33,9 @@ class AudioNotifier:
         dataIO.save_json(path + '/settings.json', self.settings)
 
     async def task_notifier(self):
-        while self.bot.get_cog('AudioNotifier'):
+        while True:
+            if self.bot.get_cog('AudioNotifier') is None:
+                break
             for channel in self.active_chans:
                 current = \
                     self.audiocog._get_queue_nowplaying(channel.server).title
