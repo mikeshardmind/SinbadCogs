@@ -11,7 +11,7 @@ path = 'data/announcer'
 
 class Announcer:
     """Configureable Announcements."""
-    __version__ = "1.0.0"
+    __version__ = "1.2.0"
     __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
@@ -93,7 +93,7 @@ class Announcer:
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
-    @checks.is_owner()
+    @checks.serverowner_or_permissions(manage_server=True)
     @announcerset.command(name="addchan", pass_context=True)
     async def addchan(self, ctx, *, channel_id=None):
         """adds a channel to the announcer's channel list
@@ -114,23 +114,34 @@ class Announcer:
                         server = serv
 
         if channel is None:
-            await self.bot.say("I cannot find that channel")
-        elif channel.is_private:
-            await self.bot.say("Ignoring Request: "
-                               "Invalid place to send announcements")
-        else:
-            if channel.permissions_for(server.me).send_messages is False:
-                await self.bot.say("Warning: I cannot speak in that channel I "
-                                   "will add it to the list, but announcements"
-                                   " will not be sent if this is not fixed")
+            return await self.bot.say("I cannot find that channel")
+        if channel.is_private:
+            return await self.bot.say("Ignoring Request: "
+                                      "Invalid place to send announcements")
 
-            if server.id not in self.settings:
-                self.settings[server.id] = {'channel': channel.id}
-            else:
-                self.settings[server.id]['channel'] = channel.id
-            self.save_settings()
-            await self.bot.say("Announcement channel for the associated"
-                               "server has been set")
+        member = server.get_member(ctx.message.author.id)
+        if member is None:
+            return await self.bot.say(
+                "Ignoring request: You don't have permission to make "
+                "announcements for this server (requires manage server)")
+
+        if not member.server_permissions.manage_server:
+            return await self.bot.say(
+                "Ignoring request: You don't have permission to make "
+                "announcements for this server (requires manage server)")
+
+        if channel.permissions_for(server.me).send_messages is False:
+            await self.bot.say("Warning: I cannot speak in that channel I "
+                               "will add it to the list, but announcements"
+                               " will not be sent if this is not fixed")
+
+        if server.id not in self.settings:
+            self.settings[server.id] = {'channel': channel.id}
+        else:
+            self.settings[server.id]['channel'] = channel.id
+        self.save_settings()
+        await self.bot.say("Announcement channel for the associated"
+                           "server has been set")
 
     @checks.is_owner()
     @announcerset.command(name="delchan", pass_context=True)
