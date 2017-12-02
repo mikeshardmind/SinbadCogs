@@ -95,31 +95,22 @@ class Announcer:
 
     @checks.serverowner_or_permissions(manage_server=True)
     @announcerset.command(name="addchan", pass_context=True)
-    async def addchan(self, ctx, *, channel_id=None):
+    async def addchan(self, ctx, *, channel: discord.Channel=None):
         """adds a channel to the announcer's channel list
         defaults to the current channel, can optionally be given
-        a channel id
+        a channel
         Will not announce to Direct Message"""
 
-        channel = None
-        server = None
-        if channel_id is None:
-            channel = ctx.message.channel
-            server = ctx.message.server
-        else:
-            for serv in self.bot.servers:
-                for chan in serv.channels:
-                    if chan.id == channel_id:
-                        channel = chan
-                        server = serv
-
         if channel is None:
-            return await self.bot.say("I cannot find that channel")
+            channel = ctx.message.channel
+
         if channel.is_private:
             return await self.bot.say("Ignoring Request: "
                                       "Invalid place to send announcements")
 
+        server = channel.server
         member = server.get_member(ctx.message.author.id)
+
         if member is None:
             return await self.bot.say(
                 "Ignoring request: You don't have permission to make "
@@ -145,22 +136,18 @@ class Announcer:
 
     @checks.is_owner()
     @announcerset.command(name="delchan", pass_context=True)
-    async def delchan(self, ctx, *, channel_id=None):
+    async def delchan(self, ctx, *, channel: discord.Channel=None):
         """removes a channel from the announcements list
-        defaults to current if not given a channel id"""
+        defaults to current if not given a channel"""
 
-        channel = None
-        server = None
-        if channel_id is None:
+        if channel is None:
             channel = ctx.message.channel
-            server = ctx.message.server
-        else:
-            for serv in self.bot.servers:
-                for chan in serv.channels:
-                    if chan.id == channel_id:
-                        channel = chan
-                        server = serv
 
+        if channel.is_private:
+            return await self.bot.say(
+                "This channel is not an announcement channel")
+
+        server = channel.server
         if server.id in self.settings:
             if channel.id == self.settings[server.id]['channel']:
                 self.settings[server.id]['channel'] = None
