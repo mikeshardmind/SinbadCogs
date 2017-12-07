@@ -7,7 +7,13 @@ from __main__ import settings
 class MentionMods:
     """
     Mention online mods/admins
+    use [p]set modrole and [p]set adminrole
+    to ensure there are roles which the bot aknowledges
+    as mod/admin
     """
+
+    __version__ = "1.0.0"
+    __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
         self.bot = bot
@@ -19,10 +25,15 @@ class MentionMods:
         mentions online mods and admins
         """
         server = ctx.message.server
-        mod_role_name = settings.get_server_mod(server).lower()
-        admin_role_name = settings.get_server_admin(server).lower()
+        mod_role_name = settings.get_server_mod(server).lower() \
+            if settings.get_server_mod(server) else None
+        admin_role_name = settings.get_server_admin(server).lower() \
+            if settings.get_server_admin(server) else None
+        rolenames = [rn for rn in (mod_role_name, admin_role_name) if rn]
         roles = [r for r in server.roles
-                 if r.name.lower() in (admin_role_name, mod_role_name)]
+                 if r.name.lower() in rolenames]
+        if len(roles) == 0:
+            return
         mentions = [m.mention for m in server.members
                     if not set(m.roles).isdisjoint(roles)
                     and m.status == discord.Status.online]
