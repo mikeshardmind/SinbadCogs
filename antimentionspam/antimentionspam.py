@@ -11,7 +11,7 @@ class AntiMentionSpam:
     """removes mass mention spam"""
 
     __author__ = "mikeshardmind (Sinbad#0413)"
-    __version__ = "1.1.0"
+    __version__ = "2.1.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -38,26 +38,41 @@ class AntiMentionSpam:
         server = ctx.message.server
         if m is not None:
             if server.id not in self.settings:
-                self.settings[server.id] = {'max': 0}
+                self.settings[server.id] = {'max': 0, 'autoban': False}
             self.settings[server.id]["max"] = int(m)
             self.save_json()
             await self.bot.say("Maximum mentions set to {}".format(m))
 
-    def immune(self, message):
-            """Taken from mod.py"""
-            user = message.author
-            server = message.server
-            admin_role = self.bot.settings.get_server_admin(server)
-            mod_role = self.bot.settings.get_server_mod(server)
+    @checks.admin_or_permissions(Manage_server=True)
+    @antimentionspam.command(
+        name="autobantoggle", pass_context=True, no_pm=True)
+    async def autobantoggle(self, ctx):
+        """
+        Toggle automatic ban for spam (default off)
+        """
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.settings[server.id] = {'max': 0, 'autoban': False}
+        is_auto = not self.settings[server.id].get('autoban', False)
+        self.settings[server.id]['autoban'] = is_auto
+        self.save_json()
+        await self.bot.say("Autoban: {}".format(is_auto))
 
-            if user.id == self.bot.settings.owner:
-                return True
-            elif discord.utils.get(user.roles, name=admin_role):
-                return True
-            elif discord.utils.get(user.roles, name=mod_role):
-                return True
-            else:
-                return False
+    def immune(self, message):
+        """Taken from mod.py"""
+        user = message.author
+        server = message.server
+        admin_role = self.bot.settings.get_server_admin(server)
+        mod_role = self.bot.settings.get_server_mod(server)
+
+        if user.id == self.bot.settings.owner:
+            return True
+        elif discord.utils.get(user.roles, name=admin_role):
+            return True
+        elif discord.utils.get(user.roles, name=mod_role):
+            return True
+        else:
+            return False
 
     async def check_msg_for_spam(self, message):
         if message.channel.is_private or self.bot.user == message.author \
@@ -67,12 +82,19 @@ class AntiMentionSpam:
             server = message.server
             can_delete = \
                 message.channel.permissions_for(server.me).manage_messages
+            can_ban = \
+                message.channel.permissions_for(server.me).ban_members
+            autoban = self.settings[server.id].get('autoban', False)
 
-            if server.id in self.settings and \
-                    not (self.immune(message) or not can_delete):
+            if server.id in self.settings:
                 if self.settings[server.id]['max'] > 0:
                     if len(message.mentions) > self.settings[server.id]['max']:
-                        await self.bot.delete_message(message)
+                        if can_ban and autoban:
+                            # catch especially fast spam/leave bots
+                            await self.bot.http.ban(
+                                message.author.id, server.id, 0)
+                        if can_delete:
+                            await self.bot.delete_message(message)
 
 
 def setup(bot):
