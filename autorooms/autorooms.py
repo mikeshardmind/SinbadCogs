@@ -345,9 +345,6 @@ class AutoRooms:
             if memb_after.voice.voice_channel is not None:
                 chan = memb_after.voice.voice_channel
                 if chan.id in channels:
-                    overwrites = chan.overwrites
-                    bit_rate = chan.bitrate
-                    u_limit = chan.user_limit
                     prepend = self.settings[server.id]['prepend']
                     if chan_settings[chan.id]['gameroom']:
                         if memb_after.game is not None:
@@ -362,11 +359,8 @@ class AutoRooms:
                         cname += " {0.display_name}".format(memb_after)
                     elif chan_settings[chan.id]['atype'] == "descrim":
                         cname += " {0.discriminator}".format(memb_after)
-                    channel = await \
-                        self.bot.create_channel(server, cname, *overwrites,
-                                                type=discord.ChannelType.voice)
-                    await self.bot.edit_channel(channel, bitrate=bit_rate,
-                                                user_limit=u_limit)
+
+                    channel = await self._clone_channel(chan, cname)
                     await self.bot.move_member(memb_after, channel)
 
                     ownership = chan_settings[chan.id]['ownership']
@@ -399,6 +393,29 @@ class AutoRooms:
                     if len(channel.voice_members) == 0:
                         await self.bot.delete_channel(channel)
                         self.settingscleanup(b_server)
+
+    async def _clone_channel(self, origin, new_name):
+        """I can support channel categories"""
+        data = await self.bot.http.request(
+            discord.http.Route(
+                'GET', '/guilds/{guild_id}/channels',
+                guild_id=origin.server.id))
+        keys = ['type',
+                'bitrate',
+                'user_limit',
+                'permission_overwrites',
+                'parent_id',
+                'nsfw']
+        channeldata = [d for d in data if d['id'] == origin.id][0]
+        payload = {k: v for k, v in channeldata.items() if k in keys}
+        payload['name'] = new_name
+        new_channeldata = await \
+            self.bot.http.request(
+                discord.http.Route(
+                    'POST', '/guilds/{guild_id}/channels',
+                    guild_id=origin.server.id), json=payload)
+        return discord.utils.get(
+            origin.server.channels, id=new_channeldata['id'])
 
     def settingscleanup(self, server):
         """cleanup of settings"""
