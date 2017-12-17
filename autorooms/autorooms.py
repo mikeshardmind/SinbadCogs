@@ -414,8 +414,7 @@ class AutoRooms:
                 discord.http.Route(
                     'POST', '/guilds/{guild_id}/channels',
                     guild_id=origin.server.id), json=payload)
-        return discord.utils.get(
-            origin.server.channels, id=new_channeldata['id'])
+        return discord.Channel(server=origin.server, **new_channeldata)
 
     def settingscleanup(self, server):
         """cleanup of settings"""
