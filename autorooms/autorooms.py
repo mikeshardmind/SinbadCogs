@@ -20,7 +20,7 @@ class AutoRooms:
     def __init__(self, bot):
         self.bot = bot
         try:
-            self.settings = dataIO.load_json(path + 'settings.json')
+            self.settings = dataIO.load_json(path + '/settings.json')
         except Exception:
             self.settings = {}
 
