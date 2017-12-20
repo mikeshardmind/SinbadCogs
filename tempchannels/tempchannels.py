@@ -1,10 +1,12 @@
-import os
-from datetime import date, datetime, timedelta  # NOQA
+import pathlib
+from datetime import date, datetime, timedelta  # NOQA:F401
 import asyncio
 import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from .utils import checks
+
+path = 'data/tempchannels'
 
 
 class TempChannels:
@@ -15,11 +17,14 @@ class TempChannels:
     once enabled all users can use it
     """
     __author__ = "mikeshardmind (Sinbad#0413)"
-    __version__ = "1.3.0"
+    __version__ = "2.0.0"
 
     def __init__(self, bot):
         self.bot = bot
-        self.settings = dataIO.load_json('data/tempchannels/settings.json')
+        try:
+            self.settings = dataIO.load_json(path + '/settings.json')
+        except Exception:
+            self.settings = {}
 
     @commands.group(name="tempchannels", aliases=["tmpc"],
                     pass_context=True, no_pm=True)
@@ -67,6 +72,29 @@ class TempChannels:
                                'channels is now enabled.')
 
     @checks.admin_or_permissions(Manage_channels=True)
+    @tempset.command(name="category", pass_context=True, no_pm=True)
+    async def setcategory(self, ctx, category_name_or_id=None):
+        """
+        sets the category temporary channels are made in.
+        use without a specified category to clear the settings
+        """
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.initial_config(server.id)
+        if category_name_or_id is None:
+            self.settings[server.id]['category'] = None
+            return await self.bot.say('Category cleared')
+
+        _id = await self.category_id_from_info(
+            server, category_name_or_id)
+        if _id is None:
+            return await self.bot.say('No such category')
+
+        self.settings[server.id]['category'] = _id
+        self.save_json()
+        await self.bot.say('Category set.')
+
+    @checks.admin_or_permissions(Manage_channels=True)
     @tempset.command(name="toggleowner", pass_context=True, no_pm=True)
     async def toggleowner(self, ctx):
         """toggles if the creator of the temp channel owns it
@@ -103,8 +131,10 @@ class TempChannels:
         elif self.settings[server.id]['toggleactive'] is False:
             await self.bot.say('This command is currently turned off.')
         else:
-            channel = await self.bot.create_channel(
-                                 server, cname, type=discord.ChannelType.voice)
+            stored_id = self.settings[server.id].get('category', None)
+            parent_id = await self.category_id_from_info(server, stored_id)
+            channel = await self.create_voice_channel(
+                server, cname, parent_id)
             if self.settings[server.id]['toggleowner'] is True:
                 overwrite = discord.PermissionOverwrite()
                 overwrite.manage_channels = True
@@ -204,22 +234,44 @@ class TempChannels:
                     cache.remove(channel_id)
                     self.save_json()
 
+    async def category_id_from_info(self, server, info):
+        """
+        takes a server and either a snowflake or a name
+        returns a matching category id, or None
+        """
+        data = await self.bot.http.request(
+            discord.http.Route(
+                'GET', '/guilds/{guild_id}/channels',
+                guild_id=server.id
+            )
+        )
+        categories = [d for d in data if d['type'] == 4]
+        for cat in categories:
+            if cat['id'] == info:
+                return cat['id']
+        for cat in categories:
+            if cat['name'] == info:
+                return cat['id']
+        return None
 
-def check_folder():
-    f = 'data/tempchannels'
-    if not os.path.exists(f):
-        os.makedirs(f)
+    async def create_voice_channel(self, server, name, parent_id):
+        payload = {
+            "name": name,
+            "type": 2
+        }
+        if parent_id is not None:
+            payload["parent_id"] = parent_id
 
+        data = await self.bot.http.request(
+            discord.http.Route(
+                'POST', '/guilds/{guild_id}/channels',
+                guild_id=server.id), json=payload)
 
-def check_file():
-    f = 'data/tempchannels/settings.json'
-    if dataIO.is_valid_json(f) is False:
-        dataIO.save_json(f, {})
+        return discord.Channel(server=server, **data)
 
 
 def setup(bot):
-    check_folder()
-    check_file()
+    pathlib.Path(path).mkdir(exist_ok=True, parents=True)
     n = TempChannels(bot)
     bot.add_listener(n.autoempty, 'on_voice_state_update')
     bot.add_cog(n)
