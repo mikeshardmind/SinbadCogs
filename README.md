@@ -1,3 +1,6 @@
+# Read only
+I've left everything below this block as it was, but I am no longer able to dedicate the time towards maintaining this right now. Everything on the master branch works as of 2017-12-26, anything in the other branches may or may not work.
+
 # SinbadCogs
 [![Build Status](https://travis-ci.org/mikeshardmind/SinbadCogs.svg?branch=master)](https://travis-ci.org/mikeshardmind/SinbadCogs)
 
