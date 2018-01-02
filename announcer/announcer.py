@@ -11,7 +11,7 @@ path = 'data/announcer'
 
 class Announcer:
     """Configureable Announcements."""
-    __version__ = "1.2.0"
+    __version__ = "1.2.1"
     __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
@@ -42,7 +42,7 @@ class Announcer:
                           self.settings[server_id]['channel'])
                 if channel is None:
                     cases['not_found'].append(server)
-                if channel.permissions_for(server.me).send_messages:
+                elif channel.permissions_for(server.me).send_messages:
                     try:
                         await self.bot.send_message(channel, msg)
                     except Exception:
