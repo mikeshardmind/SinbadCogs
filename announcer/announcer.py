@@ -29,21 +29,35 @@ class Announcer:
     async def announcer(self, ctx, *, msg):
         """Announces a message to all channels configured."""
 
-        server_ids = map(lambda s: s.id, self.bot.servers)
-        for server_id in server_ids:
-            if server_id in self.settings:
-                server = self.bot.get_server(server_id)
+        self.last_run_errors = []
+        for server in self.bot.servers:
+            if server.id in self.settings:
                 channel = server.get_channel(
-                          self.settings[server_id]['channel'])
+                          self.settings[server.id]['channel']
+                )
                 if channel is None:
-                    pass
-                elif channel.permissions_for(server.me).send_messages:
+                    self.last_run_errors.append(
+                        (server, "channel not set")
+                    )
+                elif not channel.permissions_for(server.me).send_messages:
+                    self.last_run_errors.append(
+                        (server, "no permissions in channel")
+                    )
+                else:
                     try:
                         await self.bot.send_message(channel, msg)
-                    except Exception:
-                        pass
-
-        await self.bot.say('Announcement sent.')
+                    except Exception as e:
+                        self.last_run_errors.append(
+                            (server, "exception occured: {}".format(
+                                e.__class__.__name__))
+                        )
+        if len(self.last_run_errors) == 0:
+            await self.bot.say('Announcement sent.')
+        else:
+            await self.bot.say(
+                'Announcement was made, but some errors occured.'
+                '\nUse `{}announcerset inspect` for details'.format(ctx.prefix)
+            )
 
     @checks.is_owner()
     @commands.group(name="announcerset", pass_context=True)
@@ -52,6 +66,27 @@ class Announcer:
 
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
+
+    @checks.is_owner()
+    @announcerset.command(name="inspect", pass_context=True)
+    async def inspecterrors(self, ctx):
+        """get the error details of the last announcement"""
+
+        if not self.last_run_errors:
+            return await self.bot.say(
+                "You haven't announced anything since "
+                "the last time the bot was restarted.")
+        elif len(self.last_run_errors) == 0:
+            return await self.bot.say(
+                "No errors on last announcement"
+            )
+
+        send = "Server ID | Server Name: Error Type\n"
+        for err in self.last_run_errors:
+            send += "\n{0.id} | {0.name}: {1}".format(err[0], err[1])
+
+        for page in pagify(send):
+            await self.bot.say(page)
 
     @checks.serverowner_or_permissions(manage_server=True)
     @announcerset.command(name="addchan", pass_context=True)
