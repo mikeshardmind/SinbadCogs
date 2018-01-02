@@ -30,60 +30,20 @@ class Announcer:
         """Announces a message to all channels configured."""
 
         server_ids = map(lambda s: s.id, self.bot.servers)
-        cases = {'exceptions': [],
-                 'permissions': [],
-                 'not_found': [],
-                 'not_server': [],
-                 'successes': []}
         for server_id in server_ids:
             if server_id in self.settings:
                 server = self.bot.get_server(server_id)
                 channel = server.get_channel(
                           self.settings[server_id]['channel'])
                 if channel is None:
-                    cases['not_found'].append(server)
+                    pass
                 elif channel.permissions_for(server.me).send_messages:
                     try:
                         await self.bot.send_message(channel, msg)
                     except Exception:
-                        cases['exceptions'].append(channel)
-                    else:
-                        cases['successes'].append(channel)
-                else:
-                    cases['permissions'].append(channel)
+                        pass
 
-        for k, v in self.settings.items():
-            if k not in server_ids:
-                cases['not_server'].append(k)
-
-        output = "Succesfully sent announcements to {} of {} locations".format(
-            len(cases['successes']), len(self.settings))
-        if len(cases['successes']) > 0:
-            output += "\n\nSuccessful: \n"
-            for i in cases['successes']:
-                output += "{} ".format(i.mention)
-        if len(cases['permissions']) > 0:
-            output += "\n\nI lack permissions to send to these locations: \n"
-            for i in cases['permissions']:
-                output += "{} ".format(i.mention)
-        if len(cases['exceptions']) > 0:
-            output += "\n\nI ran into unknown issues while trying " \
-                "to send to the following channels \n"
-            for i in cases['exceptions']:
-                output += "{} ".format(i.mention)
-        if len(cases['not_found']) > 0:
-            output += "\n\nThe following servers have entries for " \
-                "channels that no longer exist"
-            for i in cases['not_found']:
-                output += "\n{} ".format(i.name)
-        if len(cases['not_server']) > 0:
-            output += "\n\nI have a few server IDs that I can't " \
-                "seem to find in my active servers:"
-            for i in cases['not_server']:
-                output += "{} ".format(i)
-
-        for page in pagify(output):
-            await self.bot.say(page)
+        await self.bot.say('Announcement sent.')
 
     @checks.is_owner()
     @commands.group(name="announcerset", pass_context=True)
@@ -133,6 +93,141 @@ class Announcer:
         self.save_settings()
         await self.bot.say("Announcement channel for the associated"
                            "server has been set")
+
+    @checks.is_owner()
+    @announcerset.command(name="getinfo", pass_context=True)
+    async def getinfo(self, ctx):
+        """
+        get a list of servers without a channel set,
+        with a channel set that is invalid,
+        and with a channel set without permissions
+        """
+
+        self.info = {
+            'no_chan': [],
+            'invalid_chan': [],
+            'lacking_perms': []
+        }
+
+        for server in self.bot.server:
+            if server.id in self.settings:
+                channel = server.get_channel(
+                    self.settings[server.id]['channel']
+                )
+                if channel is None:
+                    self.info['invalid_chan'].append(server)
+                elif not channel.permissions_for(
+                        server.me).send_messages:
+                    self.info['lacking_perms'].append(server)
+            else:
+                self.info['no_chan'].append(server)
+
+        output = "Servers without a configured channel:"
+        for server in self.info['no_chan']:
+            output += "\n{0.id} : {0.name}".format(server)
+        output += "\nServers with a channel configured that no longer exists:"
+        for server in self.info['invalid_chan']:
+            output += "\n{0.id} : {0.name}".format(server)
+        output += "\nServer where I cannot speak in the configured channel:"
+        for server in self.info['lacking_perms']:
+            output += "\n{0.id} : {0.name}".format(server)
+
+        for page in pagify(output):
+            await self.bot.say(page)
+
+    @checks.is_owner()
+    @announcerset.command(name='messageforconfigure', pass_context=True)
+    async def messageforconfigure(self, ctx):
+        """
+        message each server owner about configuring announcements
+        """
+
+        if not self.info:
+            return await self.bot.say(
+                "Use `{}announcerset getinfo` first".format(ctx.prefix)
+            )
+
+        relevant_servers = [srv for srv in self.bot.servers
+                            if srv in (self.info['invalid_chan']
+                                       + self.info['no_chan']
+                                       + self.info['lacking_perms'])]
+
+        who = set(s.owner.id for s in relevant_servers)
+
+        for w in who:
+            if w in self.settings.get('optout', []):
+                continue
+            send = ("Hey, just wanted to let you know, you aren't recieving "
+                    "announcements about the bot in one or more of your "
+                    "servers. If this is intentional, feel free to ignore "
+                    "this message, otherwise, you can use "
+                    "`announcerset addchan` "
+                    "in a channel you would like the announcements in for the "
+                    "servers.\n"
+                    "You can opt out of future notifications about this"
+                    "by using `announcerset optout`"
+                    "(Full details below)\nServer Name: Issue\n")
+
+            w_servers = [s for s in relevant_servers if s.owner.id == w]
+            w_ic = [s for s in w_servers if s in self.info['invalid_chan']]
+            w_nc = [s for s in w_servers if s in self.info['no_chan']]
+            w_lp = [s for s in w_servers if s in self.info['lacking_perms']]
+
+            for server in w_servers:
+                if server in w_ic:
+                    issue = "Announcement channel no longer exists"
+                elif server in w_nc:
+                    issue = "Announcement channel not set"
+                elif server in w_lp:
+                    issue = "I can't send messages in the announcement channel"
+                send += "{}: {}".format(server.name, issue)
+
+            where = discord.utils.get(self.bot.get_all_members(), id=w)
+
+            await self.bot.send_message(where, send)
+
+    @announcerset.command(name="optout", pass_context=True)
+    async def optout(self, ctx):
+        """
+        opt out of recieving notifications about
+        servers that are not configured for announcements
+        """
+        _id = ctx.author.id
+        self.settings['optout'] = self.settings.get('optout', [])
+        if _id in self.settings['optout']:
+            return await self.bot.say(
+                "You already opted out. You can opt in again with "
+                "`{}announcerset optin`".format(ctx.prefix)
+            )
+
+        self.settings['optout'].append(_id)
+        await self.bot.say(
+            "Okay, you won't be informed about misconfigured "
+            "announcement channels. If you cange your mind, "
+            "you can opt back in with `{}announcerset optin`".format(
+                ctx.prefix)
+        )
+        self.save_settings()
+
+    @announcerset.command(name="optin", pass_context=True)
+    async def optin(self, ctx):
+        """
+        opt into recieving notifications about
+        servers that are not configured for announcements
+        """
+        _id = ctx.author.id
+        self.settings['optout'] = self.settings.get('optout', [])
+        if _id not in self.settings['optout']:
+            return await self.bot.say(
+                "You aren't opted out."
+            )
+
+        self.settings['optout'].remove(_id)
+        await self.bot.say(
+            "You will recieve notifications about announcement "
+            "channels now"
+        )
+        self.save_settings()
 
     @checks.is_owner()
     @announcerset.command(name="delchan", pass_context=True)
