@@ -11,7 +11,7 @@ path = 'data/announcer'
 
 class Announcer:
     """Configureable Announcements."""
-    __version__ = "1.3.1"
+    __version__ = "2.0.0"
     __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
@@ -51,6 +51,7 @@ class Announcer:
                             (server, "exception occured: {}".format(
                                 e.__class__.__name__))
                         )
+
         if len(self.last_run_errors) == 0:
             await self.bot.say('Announcement sent.')
         else:
@@ -185,7 +186,8 @@ class Announcer:
         relevant_servers = [srv for srv in self.bot.servers
                             if srv in (self.info['invalid_chan']
                                        + self.info['no_chan']
-                                       + self.info['lacking_perms'])]
+                                       + self.info['lacking_perms'])
+                            and srv.id not in self.settings.get('optout', [])]
 
         who = set(s.owner.id for s in relevant_servers)
 
@@ -201,8 +203,12 @@ class Announcer:
                     "in a channel you would like the announcements in for the "
                     "servers.\n"
                     "You can opt out of future notifications about this"
-                    "by using `announcerset optout`"
-                    "(Full details below)\nServer Name: Issue\n")
+                    "by using `announcerset optout`. Alternatively, "
+                    "you can opt out of notifications about this for a "
+                    "specific server by using `announcerset srvoptout` "
+                    "from that server."
+                    "\nIssue details:"
+                    "\nServer Name: Issue\n")
 
             w_servers = [s for s in relevant_servers if s.owner.id == w]
             w_ic = [s for s in w_servers if s in self.info['invalid_chan']]
@@ -222,13 +228,56 @@ class Announcer:
 
             await self.bot.send_message(where, send)
 
+    @checks.serverowner()
+    @announcerset.command(name='srvoptout', pass_context=True, no_pm=True)
+    async def srvoptout(self, ctx):
+        """
+        opt out of notifications about bot announcements
+        not being configured properly for the current server
+        """
+        _id = ctx.message.server.id
+        self.settings['optout'] = self.settings.get('optout', [])
+        if _id in self.settings:
+            return await self.bot.say(
+                "You already opted out for this server. "
+                "You can opt back in with "
+                "{}announcerset srvoptin".format(ctx.prefix)
+            )
+        self.settings['optout'].append(_id)
+        await self.bot.say(
+            "Okay, you won't be informed about misconfigured "
+            "announcement channels on this server. "
+            "If you cange your mind, you can opt back in with "
+            "`{}announcerset srvoptin`".format(ctx.prefix)
+        )
+        self.save_settings()
+
+    @announcerset.command(name='srvoptin', pass_context=True, no_pm=True)
+    async def srvoptin(self, ctx):
+        """
+        opt into notifications about bot announcements
+        not being configured properly for the current server
+        """
+        _id = ctx.message.server.id
+        self.settings['optout'] = self.settings.get('optout', [])
+        if _id not in self.settings['optout']:
+            return await self.bot.say(
+                    "You aren't opted out."
+                )
+        self.settings['optout'].remove(_id)
+        await self.bot.say(
+            "You will recieve notifications about announcement "
+            "channels on this server again"
+        )
+        self.save_settings()
+
     @announcerset.command(name="optout", pass_context=True)
     async def optout(self, ctx):
         """
         opt out of recieving notifications about
         servers that are not configured for announcements
         """
-        _id = ctx.author.id
+        _id = ctx.message.author.id
         self.settings['optout'] = self.settings.get('optout', [])
         if _id in self.settings['optout']:
             return await self.bot.say(
@@ -257,7 +306,6 @@ class Announcer:
             return await self.bot.say(
                 "You aren't opted out."
             )
-
         self.settings['optout'].remove(_id)
         await self.bot.say(
             "You will recieve notifications about announcement "
