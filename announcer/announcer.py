@@ -157,7 +157,8 @@ class Announcer:
         for w in who:
             if w in self.settings.get('optout', []):
                 continue
-            send = ("Hey, just wanted to let you know, you aren't recieving "
+            send = ("Hey, This is a message issued by my owner to inform "
+                    "you that you aren't recieving "
                     "announcements about the bot in one or more of your "
                     "servers. If this is intentional, feel free to ignore "
                     "this message, otherwise, you can use "
