@@ -83,7 +83,7 @@ class Announcer:
                 output += "{} ".format(i)
 
         for page in pagify(output):
-            await self.bot.whisper(page)
+            await self.bot.say(page)
 
     @checks.is_owner()
     @commands.group(name="announcerset", pass_context=True)
