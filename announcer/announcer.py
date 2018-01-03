@@ -251,6 +251,7 @@ class Announcer:
         )
         self.save_settings()
 
+    @checks.serverowner()
     @announcerset.command(name='srvoptin', pass_context=True, no_pm=True)
     async def srvoptin(self, ctx):
         """
