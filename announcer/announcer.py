@@ -60,7 +60,6 @@ class Announcer:
                 '\nUse `{}announcerset inspect` for details'.format(ctx.prefix)
             )
 
-    @checks.is_owner()
     @commands.group(name="announcerset", pass_context=True)
     async def announcerset(self, ctx):
         """Settings for announcer"""
