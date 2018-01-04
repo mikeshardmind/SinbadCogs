@@ -134,7 +134,7 @@ class Announcer:
         await self.bot.say("Announcement channel for the associated"
                            "server has been set")
 
-    @checks.is_owner()
+    @checks.serverowner_or_permissions(manage_server=True)
     @announcerset.command(name="delchan", pass_context=True)
     async def delchan(self, ctx, *, channel: discord.Channel=None):
         """removes a channel from the announcements list
