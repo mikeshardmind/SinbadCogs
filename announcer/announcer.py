@@ -11,7 +11,7 @@ path = 'data/announcer'
 
 class Announcer:
     """Configureable Announcements."""
-    __version__ = "1.2.1"
+    __version__ = "1.2.2"
     __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
@@ -63,14 +63,15 @@ class Announcer:
             for i in cases['successes']:
                 output += "{} ".format(i.mention)
         if len(cases['permissions']) > 0:
-            output += "\n\nI lack permissions to send to these locations: \n"
+            output += "\n\nI lack permissions to send to these locations:\n" \
+                "Guild | Channel"
             for i in cases['permissions']:
-                output += "{} ".format(i.mention)
+                output += "\n{0.server.name} | {0.name}".format(i)
         if len(cases['exceptions']) > 0:
             output += "\n\nI ran into unknown issues while trying " \
-                "to send to the following channels \n"
+                "to send to the following\nGuild | Channel"
             for i in cases['exceptions']:
-                output += "{} ".format(i.mention)
+                output += "\n{0.server.name} | {0.name}".format(i)
         if len(cases['not_found']) > 0:
             output += "\n\nThe following servers have entries for " \
                 "channels that no longer exist"
@@ -85,7 +86,6 @@ class Announcer:
         for page in pagify(output):
             await self.bot.say(page)
 
-    @checks.is_owner()
     @commands.group(name="announcerset", pass_context=True)
     async def announcerset(self, ctx):
         """Settings for announcer"""
