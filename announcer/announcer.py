@@ -11,7 +11,7 @@ path = 'data/announcer'
 
 class Announcer:
     """Configureable Announcements."""
-    __version__ = "1.2.2"
+    __version__ = "1.2.3"
     __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
@@ -59,9 +59,9 @@ class Announcer:
         output = "Succesfully sent announcements to {} of {} locations".format(
             len(cases['successes']), len(self.settings))
         if len(cases['successes']) > 0:
-            output += "\n\nSuccessful: \n"
+            output += "\n\nSuccessful:"
             for i in cases['successes']:
-                output += "{} ".format(i.mention)
+                output += "\n{0.server.name} | {0.name}".format(i)
         if len(cases['permissions']) > 0:
             output += "\n\nI lack permissions to send to these locations:\n" \
                 "Guild | Channel"
