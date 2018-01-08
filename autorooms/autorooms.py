@@ -6,6 +6,7 @@ from cogs.utils.dataIO import dataIO
 from .utils import checks
 from discord.utils import find
 from cogs.utils.chat_formatting import box, pagify
+from datetime import datetime, timedelta
 
 path = 'data/autorooms'
 
@@ -15,7 +16,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind (Sinbad#0413)"
-    __version__ = "4.1.0"
+    __version__ = "4.1.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -23,6 +24,7 @@ class AutoRooms:
             self.settings = dataIO.load_json(path + '/settings.json')
         except Exception:
             self.settings = {}
+        self.bot.loop.create_task(self._scheduled_cleanup())
 
     @commands.group(name="autoroomset", pass_context=True, no_pm=True)
     async def autoroomset(self, ctx):
@@ -37,8 +39,7 @@ class AutoRooms:
             self.settings[server_id] = {'toggleactive': False,
                                         'toggleowner': False,
                                         'channels': [],
-                                        'clones': [],
-                                        'cache': []
+                                        'clones': []
                                         }
         # backwards compatability for installs prior to 3.3
         if 'chansettings' not in self.settings[server_id]:
@@ -323,7 +324,11 @@ class AutoRooms:
             if channel is None:
                 del_list.append(c)
             else:
-                if len(channel.voice_members) == 0 or delete_all:
+                if delete_all or (
+                    len(channel.voice_members) == 0
+                    and (channel.created_at + timedelta(minutes=1))
+                    < datetime.utcnow()
+                   ):
                     await self.bot.delete_channel(channel)
                     del_list.append(c)
 
@@ -338,8 +343,6 @@ class AutoRooms:
 
         self.initial_config(server.id)
         channels = self.settings[server.id]['channels']
-        cache = self.settings[server.id]['cache']
-        clones = self.settings[server.id]['clones']
         chan_settings = self.settings[server.id]['chansettings']
         if self.settings[server.id]['toggleactive']:
             if memb_after.voice.voice_channel is not None:
@@ -372,25 +375,20 @@ class AutoRooms:
                         overwrite.manage_channels = True
                         overwrite.manage_roles = True
                         await asyncio.sleep(0.5)
-                        await self.bot.edit_channel_permissions(channel,
-                                                                memb_after,
-                                                                overwrite)
+                        await self.bot.edit_channel_permissions(
+                            channel, memb_after, overwrite
+                        )
                     self.settings[server.id]['clones'].append(channel.id)
-                self.save_json()
-
-        if memb_after.voice.voice_channel is not None:
-            channel = memb_after.voice.voice_channel
-            if channel.id in clones:
-                if channel.id not in cache:
-                    cache.append(channel.id)
                     self.save_json()
 
         if b_server.id in self.settings:
-            b_cache = self.settings[b_server.id]['cache']
             if memb_before.voice.voice_channel is not None:
+                b_clones = self.settings[b_server.id]['clones']
                 channel = memb_before.voice.voice_channel
-                if channel.id in b_cache:
-                    if len(channel.voice_members) == 0:
+                if channel.id in b_clones:
+                    if len(channel.voice_members) == 0 \
+                            and (channel.created_at + timedelta(minutes=1)) \
+                            < datetime.utcnow():
                         await self.bot.delete_channel(channel)
                         self.settingscleanup(b_server)
 
@@ -420,16 +418,22 @@ class AutoRooms:
         """cleanup of settings"""
         if server.id in self.settings:
             clones = self.settings[server.id]['clones']
-            cache = self.settings[server.id]['cache']
+            # TODO: Uncomment this line after verifying fix
+            # self.settings[server.id].pop('cache', None)
             for channel_id in clones:
                 channel = server.get_channel(channel_id)
                 if channel is None:
                     clones.remove(channel_id)
                     self.save_json()
-            for channel_id in cache:
-                if channel_id not in clones:
-                    cache.remove(channel_id)
-                    self.save_json()
+
+    async def _scheduled_cleanup(self):
+        """
+        This should aid in cleaning up channels
+        which were missed in the grace period
+        """
+        await asyncio.sleep(15 * 60)
+        for server in self.bot.servers:
+            self._purge(server)
 
 
 def setup(bot):
