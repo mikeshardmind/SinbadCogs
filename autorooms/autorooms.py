@@ -42,15 +42,12 @@ class AutoRoom:
     def __hash__(self):
         return hash(self.channel.id)
 
-    @property
-    def is_empty(self):
-        return len(self.channel.voice_members) == 0
-
-    @property
     def should_delete(self):
-        return self.is_empty and \
-            (self.channel.created_at + timedelta(seconds=2)) \
-            < datetime.utcnow()
+        return (
+            ((self.channel.created_at + timedelta(seconds=2))
+             < datetime.utcnow()) and
+            len(self.channel.voice_members) == 0
+        )
 
 
 class AutoRoomAntiSpam:
@@ -88,7 +85,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind (Sinbad#0413)"
-    __version__ = "5.0.0"
+    __version__ = "5.0.1"
 
     def __init__(self, bot: commands.bot):
         self.bot = bot
@@ -251,8 +248,8 @@ class AutoRooms:
             channel = await self._clone_channel(
                 chan, cname, (member, overwrite)
             )
-        except Exception as e:
-            log.exception(e)
+        except Exception:
+            pass
         else:
             self.settings[server.id]['clones'].append(channel.id)
             self.save_json()
@@ -260,14 +257,13 @@ class AutoRooms:
             self._rooms.append(AutoRoom(channel=channel))
             try:
                 await self.bot.move_member(member, channel)
-            except Exception as e:
-                log.exception(e)
+            except Exception:
+                pass
 
     async def _cleanup(self, server: discord.Server):
         channels = [
             ar.channel for ar in self._rooms
-            if ar.should_delete
-            and ar.channel.server == server
+            if ar.should_delete()
         ]
         ids = []
         if not server.me.server_permissions.manage_channels:
