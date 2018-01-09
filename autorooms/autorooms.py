@@ -13,43 +13,6 @@ path = 'data/autorooms'
 log = logging.getLogger('red.autorooms')
 
 
-class AutoRoom:
-    """
-    Utility class
-    subclassing discord.Channel seems excessive
-    """
-
-    def __init__(self, **kwargs):
-        self.channel = kwargs.get('channel')
-        self.id = kwargs.get('channel').id
-
-    # implementing __eq__ , __ne__, and __hash__ like this
-    # to allow list/set membership checks to be done lazily
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.channel.id == other.channel.id
-        elif isinstance(other, discord.Channel):
-            return self.channel.id == other.id
-        return False
-
-    def __ne__(self, other):
-        if isinstance(other, self.__class__):
-            return self.channel.id != other.channel.id
-        elif isinstance(other, discord.Channel):
-            return self.channel.id != other.id
-        return True
-
-    def __hash__(self):
-        return hash(self.channel.id)
-
-    def should_delete(self):
-        return (
-            ((self.channel.created_at + timedelta(seconds=2))
-             < datetime.utcnow()) and
-            len(self.channel.voice_members) == 0
-        )
-
-
 class AutoRoomAntiSpam:
     """
     Because people are jackasses
@@ -85,11 +48,11 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind (Sinbad#0413)"
-    __version__ = "5.0.1"
+    __version__ = "5.0.2"
 
     def __init__(self, bot: commands.bot):
         self.bot = bot
-        self._rooms = []  # List[AutoRoom]
+        self._rooms = []  # List[discord.Channel]
         self._antispam = {}  # user_id -> AutoRoomAntiSpam
         try:
             self.settings = dataIO.load_json(path + '/settings.json')
@@ -114,8 +77,7 @@ class AutoRooms:
                 if channel is None:
                     rem_list.append(entry)
                     continue
-                ar = AutoRoom(channel=channel)
-                self._rooms.append(ar)
+                self._rooms.append(channel.id)
             self.settings[server.id]['clones'] = [
                 entry for entry in self.settings[server.id]['clones']
                 if entry not in rem_list
@@ -248,36 +210,38 @@ class AutoRooms:
             channel = await self._clone_channel(
                 chan, cname, (member, overwrite)
             )
-        except Exception:
+        except Exception as e:
             pass
         else:
             self.settings[server.id]['clones'].append(channel.id)
             self.save_json()
             self._antispam[member.id].stamp()
-            self._rooms.append(AutoRoom(channel=channel))
+            self._rooms.append(channel.id)
             try:
                 await self.bot.move_member(member, channel)
-            except Exception:
+            except Exception as e:
                 pass
 
     async def _cleanup(self, server: discord.Server):
-        channels = [
-            ar.channel for ar in self._rooms
-            if ar.should_delete()
-        ]
-        ids = []
+        rem_ids = []
         if not server.me.server_permissions.manage_channels:
             return
-        for channel in channels:
-            _id = channel.id
+        for channel_id in self._rooms:
+            channel = self.bot.get_channel(channel_id)
+            if channel_id is None:
+                rem_ids.append(channel_id)
+                continue
+            if len(channel.voice_members) > 0 \
+                    or channel.created_at + timedelta(seconds=5) \
+                    > datetime.utcnow():
+                continue
             try:
                 await self.bot.delete_channel(channel)
             except Exception as e:
-                log.exception(e)
+                pass
             else:
-                ids.append(_id)
-
-        self._rooms = [ar for ar in self._rooms if ar.id not in ids]
+                rem_ids.append(channel_id)
+        self._rooms = [idx for idx in self._rooms if idx not in rem_ids]
 
     def initial_config(self, server_id):
         """makes an entry for the server, defaults to turned off"""
