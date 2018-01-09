@@ -11,7 +11,6 @@ from cogs.utils.chat_formatting import box, pagify
 
 path = 'data/autorooms'
 log = logging.getLogger('red.autorooms')
-log.setlevel(logging.INFO)
 
 
 class AutoRoom:
@@ -45,12 +44,12 @@ class AutoRoom:
 
     @property
     def is_empty(self):
-        return len(self._channel.voice_members) == 0
+        return len(self.channel.voice_members) == 0
 
     @property
     def should_delete(self):
         return self.is_empty and \
-            (self._channel.created_at + timedelta(seconds=2)) \
+            (self.channel.created_at + timedelta(seconds=2)) \
             < datetime.utcnow()
 
 
@@ -184,17 +183,24 @@ class AutoRooms:
             # We don't care if the channel they are in hasn't changed
             return
 
-        if memb_after.server.id in self.settings:
-            vc_after = memb_after.voice.voice_channel
-            if vc_after.id in self.settings[vc_after.server.id]['channels'] \
-                    and self.settings[vc_after.server.id]['toggleactive']:
-                await self._room_for(memb_after)
+        try:
+            if memb_after.server.id in self.settings:
+                vc_after = memb_after.voice.voice_channel
+                if vc_after.id in \
+                        self.settings[vc_after.server.id]['channels'] \
+                        and self.settings[vc_after.server.id]['toggleactive']:
+                    await self._room_for(memb_after)
+        except AttributeError:
+            # 4-deep if nesting for None checking or this
+            pass
 
-        if memb_before.server.id in self.settings:
-            await self._cleanup(memb_before.server)
+        if memb_before.server is not None:
+            if memb_before.server.id in self.settings:
+                await self._cleanup(memb_before.server)
 
     async def _room_for(self, member: discord.Member):
         server = member.server
+        self.initial_config(server.id)
         if not (server.me.server_permissions.manage_channels
                 and server.me.server_permissions.move_members):
             return
@@ -205,32 +211,33 @@ class AutoRooms:
                      "has triggered the antispam catcher".format(member))
             return
         chan = member.voice.voice_channel
-        chan_settings = self.settings[server.id].get(
-            'chansettings',
-            {'gameroom': False,
-             'atype': None,
-             'ownership': None,
-             }
-        )
-        if chan_settings[chan.id]['gameroom']:
+        chan_settings = {
+            'gameroom': False,
+            'atype': None,
+            'ownership': None
+        }
+        if chan.id in self.settings[server.id]['chansettings']:
+            chan_settings = \
+                self.settings[server.id]['chansettings'].get(chan.id)
+        if chan_settings['gameroom']:
             if member.game is not None:
                 cname = member.game.name
             else:
                 cname = "???"
         else:
             prepend = self.settings[server.id]['prepend']
-            if chan_settings[chan.id]['atype'] is None:
+            if chan_settings['atype'] is None:
                 append = ""
-            elif chan_settings[chan.id]['atype'] == "author":
+            elif chan_settings['atype'] == "author":
                 append = " {0.display_name}".format(member)
-            elif chan_settings[chan.id]['atype'] == "descrim":
+            elif chan_settings['atype'] == "descrim":
                 append = " {0.discriminator}".format(member)
 
             cname = "{}{}{}".format(
                 prepend, chan.name, append
             )
 
-        ownership = chan_settings[chan.id]['ownership']
+        ownership = chan_settings['ownership']
         overwrite = discord.PermissionOverwrite()
         if ownership is None:
             ownership = self.settings[server.id].get(
@@ -250,7 +257,7 @@ class AutoRooms:
             self.settings[server.id]['clones'].append(channel.id)
             self.save_json()
             self._antispam[member.id].stamp()
-            self._autorooms.append(AutoRoom(channel=channel))
+            self._rooms.append(AutoRoom(channel=channel))
             try:
                 await self.bot.move_member(member, channel)
             except Exception as e:
@@ -300,8 +307,8 @@ class AutoRooms:
             await self.bot.send_cmd_help(ctx)
 
     @checks.admin_or_permissions(Manage_channels=True)
-    @autoroomset.command(name="setprepend", pass_context=True, no_pm=True)
-    async def setprepend(self, ctx, prepend: str):
+    @autoroomset.command(name="prepend", pass_context=True, no_pm=True)
+    async def setprepend(self, ctx, prepend: str=""):
         """
         sets the prepend value for non game room autorooms
         Calling without a prepend value removes the prepend.
@@ -319,7 +326,7 @@ class AutoRooms:
 
     @checks.admin_or_permissions(Manage_channels=True)
     @autoroomset.command(name="channelsettings", pass_context=True, no_pm=True)
-    async def setnamesettings(self, ctx, channel: discord.Channel):
+    async def setchannelsettings(self, ctx, channel: discord.Channel):
         """
         Interactive prompt for editing the autoroom behavior for specific
         channels
@@ -332,6 +339,12 @@ class AutoRooms:
         self.initial_config(server.id)
         if channel.id not in self.settings[server.id]['channels']:
             return await self.bot.say("That isn't an autoroom")
+        if channel.id not in self.settings[server.id]['chansettings']:
+            self.settings[server.id]['chansettings'][channel.id] = {
+                'gameroom': False,
+                'atype': None,
+                'ownership': None
+            }
 
         await self.bot.say("Game rooms require the user joining to be playing "
                            "a game, but get a base name of the game discord "
@@ -389,7 +402,7 @@ class AutoRooms:
             await self.bot.say("I can't wait forever, "
                                "I am not changing this setting")
         elif message.clean_content.lower()[:1] == '2':
-            self.settings[server.id]['chansettings'][channel.id]['ownership'] \
+            [channel.id]['ownership'] \
                 = True
         elif message.clean_content.lower()[:1] == '3':
             self.settings[server.id]['chansettings'][channel.id]['ownership'] \
