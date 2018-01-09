@@ -82,6 +82,7 @@ class AutoRooms:
                 entry for entry in self.settings[server.id]['clones']
                 if entry not in rem_list
             ]
+            self.save_json()
 
     async def _clone_channel(
             self, origin: discord.Channel, new_name: str, *overwrites):
@@ -242,6 +243,8 @@ class AutoRooms:
             else:
                 rem_ids.append(channel_id)
         self._rooms = [idx for idx in self._rooms if idx not in rem_ids]
+        self.settings[server.id]['clones'] = self._rooms
+        self.save_json()
 
     def initial_config(self, server_id):
         """makes an entry for the server, defaults to turned off"""
