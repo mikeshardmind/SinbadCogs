@@ -29,8 +29,9 @@ class AutoRoomAntiSpam:
 
     @property
     def spammy(self):
-        return self._interval_check(timedelta(seconds=5), 1) \
-            or self._interval_check(timedelta(minutes=1), 3)
+        return self._interval_check(timedelta(seconds=5), 3) \
+            or self._interval_check(timedelta(minutes=1), 5) \
+            or self._interval_check(timedelta(hours=1), 30)
 
     def stamp(self):
         self.event_timestamps.append(datetime.utcnow())
@@ -48,7 +49,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind (Sinbad#0413)"
-    __version__ = "5.0.3"
+    __version__ = "5.0.4"
 
     def __init__(self, bot: commands.bot):
         self.bot = bot
