@@ -1,6 +1,7 @@
 import pathlib
 from datetime import datetime, timedelta
 import logging
+import asyncio
 
 import discord
 from discord.ext import commands
@@ -49,7 +50,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind (Sinbad#0413)"
-    __version__ = "5.0.4"
+    __version__ = "5.0.5"
 
     def __init__(self, bot: commands.bot):
         self.bot = bot
@@ -59,6 +60,7 @@ class AutoRooms:
         except Exception:
             self.settings = {}
         self._resume()
+        self._event_lock = asyncio.Lock()
 
     def save_json(self):
         dataIO.save_json(path + '/settings.json', self.settings)
@@ -151,14 +153,16 @@ class AutoRooms:
                 if vc_after.id in \
                         self.settings[vc_after.server.id]['channels'] \
                         and self.settings[vc_after.server.id]['toggleactive']:
-                    await self._room_for(memb_after)
+                    async with self._event_lock:
+                        await self._room_for(memb_after)
         except AttributeError:
             # 4-deep if nesting for None checking or this
             pass
 
         if memb_before.server is not None:
             if memb_before.server.id in self.settings:
-                await self._cleanup(memb_before.server)
+                async with self._event_lock:
+                    await self._cleanup(memb_before.server)
 
     async def _room_for(self, member: discord.Member):
         server = member.server
@@ -232,17 +236,22 @@ class AutoRooms:
             channel = self.bot.get_channel(channel_id)
             if channel_id is None:
                 rem_ids.append(channel_id)
-            elif len(channel.voice_members) > 0 \
-                    or channel.created_at + timedelta(seconds=5) \
-                    > datetime.utcnow():
-                pass
             else:
                 try:
-                    await self.bot.delete_channel(channel)
-                except Exception as e:
-                    pass
-                else:
+                    if len(channel.voice_members) > 0 \
+                            or channel.created_at + timedelta(seconds=2) \
+                            > datetime.utcnow():
+                        pass
+                    else:
+                        try:
+                            await self.bot.delete_channel(channel)
+                        except Exception as e:
+                            pass
+                        else:
+                            rem_ids.append(channel_id)
+                except AttributeError:
                     rem_ids.append(channel_id)
+
         self.settings[server.id]['clones'] = [
             idx for idx in self.settings[server.id]['clones']
             if idx not in rem_ids
