@@ -50,7 +50,7 @@ class AutoRooms:
     auto spawn rooms
     """
     __author__ = "mikeshardmind (Sinbad#0413)"
-    __version__ = "5.0.5"
+    __version__ = "5.1.0"
 
     def __init__(self, bot: commands.bot):
         self.bot = bot
@@ -239,8 +239,8 @@ class AutoRooms:
             else:
                 try:
                     if len(channel.voice_members) == 0 \
-                            and channel.Type == discord.ChannelType.voice:
-                            # that second condition should never be false...
+                        and (channel.created_at + timedelta(seconds=2)) \
+                            < datetime.utcnow():
                         try:
                             await self.bot.delete_channel(channel)
                         except Exception as e:
