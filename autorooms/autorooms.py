@@ -238,11 +238,9 @@ class AutoRooms:
                 rem_ids.append(channel_id)
             else:
                 try:
-                    if len(channel.voice_members) > 0 \
-                            or channel.created_at + timedelta(seconds=2) \
-                            > datetime.utcnow():
-                        pass
-                    else:
+                    if len(channel.voice_members) == 0 \
+                            and channel.Type == discord.ChannelType.voice:
+                            # that second condition should never be false...
                         try:
                             await self.bot.delete_channel(channel)
                         except Exception as e:
