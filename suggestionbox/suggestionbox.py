@@ -1,19 +1,50 @@
 import os
 import asyncio  # noqa: F401
 import discord
+from datetime import datetime, timedelta
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
+
+
+class AntiSpam:
+    """
+    Because people are jackasses
+    """
+
+    def __init__(self):
+        self.event_timestamps = []
+
+    def _interval_check(self, interval: timedelta, threshold: int):
+        return len(
+            [t for t in self.event_timestamps
+             if (t + interval) > datetime.utcnow()]
+        ) >= threshold
+
+    @property
+    def spammy(self):
+        return self._interval_check(timedelta(seconds=5), 3) \
+            or self._interval_check(timedelta(minutes=1), 5) \
+            or self._interval_check(timedelta(hours=1), 10) \
+            or self._interval_check(timedelta(days=1), 24)
+
+    def stamp(self):
+        self.event_timestamps.append(datetime.utcnow())
+        self.event_timestamps = [
+            t for t in self.event_timestamps
+            if t + timedelta(days=1) > datetime.utcnow()
+        ]
 
 
 class SuggestionBox:
     """custom cog for a configureable suggestion box"""
 
     __author__ = "mikeshardmind"
-    __version__ = "1.4.2"
+    __version__ = "1.5.0"
 
     def __init__(self, bot):
         self.bot = bot
+        self.antispam = {}
         self.settings = dataIO.load_json('data/suggestionbox/settings.json')
         for s in self.settings:
             self.settings[s]['usercache'] = []
@@ -77,12 +108,22 @@ class SuggestionBox:
         else:
             await self.bot.say("Suggestions enabled.")
 
-    @commands.cooldown(1, 300, commands.BucketType.user)
     @commands.command(name="suggest", pass_context=True)
     async def makesuggestion(self, ctx):
         "make a suggestion by following the prompts"
         author = ctx.message.author
         server = ctx.message.server
+
+        if server.id not in self.antispam:
+            self.antispam[server.id] = {}
+        if author.id not in self.antispam[server.id]:
+            self.antispam[server.id][author.id] = AntiSpam()
+        if self.antispam[server.id][author.id].spammy:
+            return await self.bot.say(
+                "You've sent a few too many of these recently. "
+                "Contact a server admin to resolve this, or try again "
+                "later."
+            )
 
         if server.id not in self.settings:
             return await self.bot.say("Suggestion submissions have not been "
@@ -114,7 +155,7 @@ class SuggestionBox:
             self.save_json()
         else:
             await self.send_suggest(message, server)
-
+            self.antispam[server.id][author.id].stamp()
             await self.bot.send_message(author, "Your suggestion was "
                                         "submitted.")
 

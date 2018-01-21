@@ -1,6 +1,7 @@
 import pathlib
 import asyncio  # noqa: F401
 import discord
+from datetime import datetime, timedelta
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
@@ -9,14 +10,44 @@ from cogs.utils.chat_formatting import box, pagify
 path = 'data/reportool'
 
 
+class AntiSpam:
+    """
+    Because people are jackasses
+    """
+
+    def __init__(self):
+        self.event_timestamps = []
+
+    def _interval_check(self, interval: timedelta, threshold: int):
+        return len(
+            [t for t in self.event_timestamps
+             if (t + interval) > datetime.utcnow()]
+        ) >= threshold
+
+    @property
+    def spammy(self):
+        return self._interval_check(timedelta(seconds=5), 3) \
+            or self._interval_check(timedelta(minutes=1), 5) \
+            or self._interval_check(timedelta(hours=1), 10) \
+            or self._interval_check(timedelta(days=1), 24)
+
+    def stamp(self):
+        self.event_timestamps.append(datetime.utcnow())
+        self.event_timestamps = [
+            t for t in self.event_timestamps
+            if t + timedelta(days=1) > datetime.utcnow()
+        ]
+
+
 class ReportTool:
     """custom cog for a configureable report system."""
 
     __author__ = "mikeshardmind (Sinbad#0413)"
-    __version__ = "1.4.2"
+    __version__ = "1.5.0"
 
     def __init__(self, bot):
         self.bot = bot
+        self.antispam = {}
         try:
             self.settings = dataIO.load_json(path + 'settings.json')
         except Exception:
@@ -83,7 +114,6 @@ class ReportTool:
         else:
             await self.bot.say("Reporting enabled.")
 
-    @commands.cooldown(1, 300, commands.BucketType.user)
     @commands.command(name="report", pass_context=True)
     async def makereport(self, ctx):
         "Follow the prompts to make a report"
@@ -94,6 +124,16 @@ class ReportTool:
             server = await self.discover_server(author)
         if server is None:
             return
+        if server.id not in self.antispam:
+            self.antispam[server.id] = {}
+        if author.id not in self.antispam[server.id]:
+            self.antispam[server.id][author.id] = AntiSpam()
+        if self.antispam[server.id][author.id].spammy:
+            return await self.bot.say(
+                "You've sent a few too many of these recently. "
+                "Contact a server admin to resolve this, or try again "
+                "later."
+            )
 
         if server.id not in self.settings:
             return await self.bot.say("Reporting is not currently  "
@@ -125,7 +165,7 @@ class ReportTool:
             self.save_json()
         else:
             await self.send_report(message, server)
-
+            self.antispam[server.id][author.id].stamp()
             await self.bot.send_message(author, "Your report was submitted.")
 
     async def discover_server(self, author: discord.User):
@@ -135,6 +175,8 @@ class ReportTool:
             x = server.get_member(author.id)
             if x is not None:
                 shared_servers.append(server)
+        if len(shared_servers) == 1:
+            return shared_servers[0]
         output = ""
         servers = sorted(shared_servers, key=lambda s: s.name)
         for i, server in enumerate(servers, 1):
