@@ -192,11 +192,7 @@ class ReportTool:
             try:
                 message = int(message.content.strip())
                 server = servers[message - 1]
-            except ValueError:
-                await self.bot.send_message(author,
-                                            "That wasn't a valid choice")
-                return None
-            except IndexError:
+            except (ValueError, IndexError):
                 await self.bot.send_message(author,
                                             "That wasn't a valid choice")
                 return None
