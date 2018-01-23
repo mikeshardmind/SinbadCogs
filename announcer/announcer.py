@@ -11,7 +11,7 @@ path = 'data/announcer'
 
 class Announcer:
     """Configureable Announcements."""
-    __version__ = "2.0.0"
+    __version__ = "3.0.0"
     __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
@@ -100,8 +100,9 @@ class Announcer:
             channel = ctx.message.channel
 
         if channel.is_private:
-            return await self.bot.say("Ignoring Request: "
-                                      "Invalid place to send announcements")
+            return await self.bot.say(
+                "Ignoring Request: Invalid place to send announcements"
+            )
 
         server = channel.server
         member = server.get_member(ctx.message.author.id)
@@ -109,25 +110,30 @@ class Announcer:
         if member is None:
             return await self.bot.say(
                 "Ignoring request: You don't have permission to make "
-                "announcements for this server (requires manage server)")
+                "announcements for this server (requires manage server)"
+            )
 
         if not member.server_permissions.manage_server:
             return await self.bot.say(
                 "Ignoring request: You don't have permission to make "
-                "announcements for this server (requires manage server)")
+                "announcements for this server (requires manage server)"
+            )
 
         if channel.permissions_for(server.me).send_messages is False:
-            await self.bot.say("Warning: I cannot speak in that channel I "
-                               "will add it to the list, but announcements"
-                               " will not be sent if this is not fixed")
+            await self.bot.say(
+                "Warning: I cannot speak in that channel I "
+                "will add it to the list, but announcements"
+                " will not be sent if this is not fixed"
+            )
 
         if server.id not in self.settings:
             self.settings[server.id] = {'channel': channel.id}
         else:
             self.settings[server.id]['channel'] = channel.id
         self.save_settings()
-        await self.bot.say("Announcement channel for the associated"
-                           "server has been set")
+        await self.bot.say(
+            "Announcement channel for the associated server has been set"
+        )
 
     @checks.is_owner()
     @announcerset.command(name="getinfo", pass_context=True)
@@ -144,7 +150,7 @@ class Announcer:
             'lacking_perms': []
         }
 
-        for server in self.bot.server:
+        for server in self.bot.servers:
             if server.id in self.settings:
                 channel = server.get_channel(
                     self.settings[server.id]['channel']
@@ -171,7 +177,92 @@ class Announcer:
             await self.bot.say(page)
 
     @checks.is_owner()
-    @announcerset.command(name='messageforconfigure', pass_context=True)
+    @announcerset.command(name='begincleanup', pass_context=True)
+    async def cleanup_entries(self, ctx):
+        """
+        cleans up bad entries in settings
+        """
+        self.info = {
+            'no_chan': [],
+            'invalid_chan': [],
+            'lacking_perms': []
+        }
+
+        for server in self.bot.servers:
+            if server.id in self.settings:
+                channel = server.get_channel(
+                    self.settings[server.id]['channel']
+                )
+                if channel is None:
+                    self.info['invalid_chan'].append(server)
+                elif not channel.permissions_for(
+                        server.me).send_messages:
+                    self.info['lacking_perms'].append(server)
+            else:
+                self.info['no_chan'].append(server)
+
+        no_srv = [
+            i for i in self.settings.keys() if i not in [
+                s.id for s in self.bot.servers
+            ]
+        ]
+        self.settings = {
+            k: v for k, v in self.settings.items()
+            if k not in no_srv
+        }
+        self.save_settings()
+        output = 'I removed entries for servers I am not in.'
+        if any(len(v) > 0 for k, v in self.info.items()):
+            output += (
+                '\nI have also gathered '
+                'information about misconfigured channels. '
+                'If you would like to send '
+                'an automtically generated message to those '
+                'server owners about fixing this, use '
+                '`{0.prefix}announcerset messageforfix`.'
+                '\nIf you would instead like to remove '
+                'those entries from settings, '
+                'use `{0.prefix}announcerset cleansettings`'
+            ).format(ctx)
+        else:
+            output += '\nI did not find any other issues.'
+
+        await self.bot.say(output)
+
+    @checks.is_owner()
+    @announcerset.command(name='cleansettings', pass_context=True)
+    async def cleanupsettings(self, ctx):
+        """
+        removes all bad entries
+        """
+
+        if not self.info:
+            return await self.bot.say(
+                "Use `{0.prefix}announcerset begincleanup` first".format(ctx)
+            )
+
+        bad_server_ids = [
+            s.id for s in list(
+                self.info['no_chan']
+                + self.info['lacking_perms']
+                + self.info['invalid_chan']
+            )
+        ]
+        if len(bad_server_ids) == 0:
+            return await self.bot.say(
+                'Are you sure there are any bad entries?'
+                '\nYou can use `{}getinfo` to be certain.'
+            )
+
+        self.settings = {
+            k: v for k, v in self.settings.items()
+            if k not in bad_server_ids
+        }
+        self.save_settings()
+        await self.bot.say('Invalid entries ahvae been removed')
+
+    @checks.is_owner()
+    @announcerset.command(name='messageforfix', pass_context=True)
     async def messageforconfigure(self, ctx):
         """
         message each server owner about configuring announcements
@@ -313,7 +404,7 @@ class Announcer:
         )
         self.save_settings()
 
-    @checks.is_owner()
+    @checks.serverowner_or_permissions(manage_server=True)
     @announcerset.command(name="delchan", pass_context=True)
     async def delchan(self, ctx, *, channel: discord.Channel=None):
         """removes a channel from the announcements list
