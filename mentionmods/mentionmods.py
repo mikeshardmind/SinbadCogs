@@ -32,14 +32,14 @@ class MentionMods:
         rolenames = [rn for rn in (mod_role_name, admin_role_name) if rn]
         roles = [r for r in server.roles
                  if r.name.lower() in rolenames]
-        if len(roles) == 0:
-            return
         mentions = [m.mention for m in server.members
                     if not set(m.roles).isdisjoint(roles)
                     and m.status == discord.Status.online]
 
         output = " ".join(mentions)
-
+        if len(output) == 0:
+            return await self.bot.say("No online mods/admins")
+ 
         for page in pagify(output):
             await self.bot.say(page)
 
