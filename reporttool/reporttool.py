@@ -156,7 +156,7 @@ class ReportTool:
                                          "message")
 
         message = await self.bot.wait_for_message(channel=dm.channel,
-                                                  author=author, timeout=120)
+                                                  author=author, timeout=180)
 
         if message is None:
             await self.bot.send_message(author, "I can't wait forever, "
@@ -187,7 +187,7 @@ class ReportTool:
             dm = await self.bot.send_message(author, box(page))
 
         message = await self.bot.wait_for_message(channel=dm.channel,
-                                                  author=author, timeout=15)
+                                                  author=author, timeout=45)
         if message is not None:
             try:
                 message = int(message.content.strip())
