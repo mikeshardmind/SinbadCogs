@@ -20,6 +20,10 @@ class Announcer:
             self.settings = dataIO.load_json(path + '/settings.json')
         except Exception:
             self.settings = {}
+        # this shouldn't be possible, but I've gotten multiple reports
+        # of it happening so...
+        if self.settings.get('optout', []) is None:
+            self.settings['optout'] = []
 
     def save_settings(self):
         dataIO.save_json(path + '/settings.json', self.settings)
@@ -329,7 +333,7 @@ class Announcer:
                     "messages about this.").format(where)
                 )
                 self.settings['optout'] = \
-                    self.settings.get('optout', []).append(w)
+                    (self.settings.get('optout', [])).append(w)
                 self.save_settings()
 
     @checks.serverowner()
