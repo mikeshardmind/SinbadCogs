@@ -279,9 +279,9 @@ class Announcer:
             )
 
         relevant_servers = [srv for srv in self.bot.servers
-                            if srv in (self.info['invalid_chan']
-                                       + self.info['no_chan']
-                                       + self.info['lacking_perms'])
+                            if srv in list(self.info['invalid_chan']
+                                           + self.info['no_chan']
+                                           + self.info['lacking_perms'])
                             and srv.id not in self.settings.get('optout', [])]
 
         who = set(s.owner.id for s in relevant_servers)
@@ -320,8 +320,17 @@ class Announcer:
                 send += "{}: {}".format(server.name, issue)
 
             where = discord.utils.get(self.bot.get_all_members(), id=w)
-
-            await self.bot.send_message(where, send)
+            try:
+                await self.bot.send_message(where, send)
+            except discord.Forbidden:
+                await self.bot.say((
+                    "{0.mention} isn't accepting DMs"
+                    "\nI'm opting them out of future "
+                    "messages about this.").format(where)
+                )
+                self.settings['optout'] = \
+                    self.settings.get('optout', []).append(w)
+                self.save_settings()
 
     @checks.serverowner()
     @announcerset.command(name='srvoptout', pass_context=True, no_pm=True)
@@ -396,7 +405,7 @@ class Announcer:
         opt into recieving notifications about
         servers that are not configured for announcements
         """
-        _id = ctx.author.id
+        _id = ctx.message.author.id
         self.settings['optout'] = self.settings.get('optout', [])
         if _id not in self.settings['optout']:
             return await self.bot.say(
