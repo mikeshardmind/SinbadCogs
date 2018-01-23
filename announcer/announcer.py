@@ -241,7 +241,7 @@ class Announcer:
         removes all bad entries
         """
 
-        if not self.info:
+        if not hasattr(self, 'info'):
             return await self.bot.say(
                 "Use `{0.prefix}announcerset begincleanup` first".format(ctx)
             )
@@ -273,7 +273,7 @@ class Announcer:
         message each server owner about configuring announcements
         """
 
-        if not self.info:
+        if not hasattr(self, 'info'):
             return await self.bot.say(
                 "Use `{}announcerset getinfo` first".format(ctx.prefix)
             )
