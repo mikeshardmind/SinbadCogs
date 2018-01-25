@@ -14,7 +14,7 @@ class EmbedMaker:
     Make embed objects. Recall them, remove them, reuse them (etc)
     """
 
-    __author__ = "mikeshardmind (Sinbad#0413)"
+    __author__ = "mikeshardmind (Sinbad#0001)"
     __version__ = "1.1.0"
 
     def __init__(self, bot):

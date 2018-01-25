@@ -13,7 +13,7 @@ class MultiQuote:
     Multiquote Activate
     """
 
-    __author__ = "mikeshardmind (Sinbad#0413)"
+    __author__ = "mikeshardmind (Sinbad#0001)"
     __version__ = "2.0.0"
 
     def __init__(self, bot):

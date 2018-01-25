@@ -49,7 +49,7 @@ class AutoRooms:
     """
     auto spawn rooms
     """
-    __author__ = "mikeshardmind (Sinbad#0413)"
+    __author__ = "mikeshardmind (Sinbad#0001)"
     __version__ = "5.1.0"
 
     def __init__(self, bot: commands.bot):

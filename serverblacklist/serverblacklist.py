@@ -13,7 +13,7 @@ class ServerBlacklist:
     """Lets a bot owner create a list of servers that the bot will immediately
     leave when joined to. It does not require you to make the bot private"""
     __version__ = "1.0.0"
-    __author__ = "mikeshardmind (Sinbad#0413)"
+    __author__ = "mikeshardmind (Sinbad#0001)"
 
     def __init__(self, bot):
         self.bot = bot

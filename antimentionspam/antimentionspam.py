@@ -10,7 +10,7 @@ path = 'data/antimentionspam'
 class AntiMentionSpam:
     """removes mass mention spam"""
 
-    __author__ = "mikeshardmind (Sinbad#0413)"
+    __author__ = "mikeshardmind (Sinbad#0001)"
     __version__ = "2.1.0"
 
     def __init__(self, bot):

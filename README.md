@@ -5,7 +5,7 @@ Slowly growing collection of cogs for
 
 [Red](https://github.com/Twentysix26/Red-DiscordBot)
 
-I'm Sinbad#0413 on Discord
+I'm Sinbad#0001 on Discord
 
 Various tools here.
 Feel free to ask for help with these in the

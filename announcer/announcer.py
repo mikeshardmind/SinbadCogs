@@ -12,7 +12,7 @@ path = 'data/announcer'
 class Announcer:
     """Configureable Announcements."""
     __version__ = "3.0.1"
-    __author__ = "mikeshardmind (Sinbad#0413)"
+    __author__ = "mikeshardmind (Sinbad#0001)"
 
     def __init__(self, bot):
         self.bot = bot
