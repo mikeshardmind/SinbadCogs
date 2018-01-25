@@ -11,7 +11,7 @@ path = 'data/announcer'
 
 class Announcer:
     """Configureable Announcements."""
-    __version__ = "3.0.0"
+    __version__ = "3.0.1"
     __author__ = "mikeshardmind (Sinbad#0413)"
 
     def __init__(self, bot):
@@ -291,6 +291,10 @@ class Announcer:
         who = set(s.owner.id for s in relevant_servers)
 
         for w in who:
+            if self.settings.get('optout', []) is None:
+                # This really shouldn't be possible
+                # Yet, reports of it have happened.
+                self.settings['optout'] = []
             if w in self.settings.get('optout', []):
                 continue
             send = ("Hey, This is a message issued by my owner to inform "
