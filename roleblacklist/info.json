@@ -1,0 +1,6 @@
+{
+    "AUTHOR" : "mikeshardmind (Sinbad#0001)",
+    "INSTALL_MSG" : "This has only been minimally tested",
+    "NAME" : "RoleChecker",
+    "SHORT" : "Blacklist certain roles. This is server specific.",
+    "DESCRIPTION" : "Blacklist certain roles. This is server specific. and won't change DM command usage"
