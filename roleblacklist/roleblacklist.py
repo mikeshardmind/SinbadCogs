@@ -8,7 +8,7 @@ from __main__ import settings
 path = 'data/roleblacklist'
 
 
-class RoleChecker:
+class RoleBlacklist:
     """
     Role based blacklist
     """
