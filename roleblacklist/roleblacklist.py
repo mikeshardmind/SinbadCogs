@@ -31,7 +31,7 @@ class RoleChecker:
 
     @commands.command(pass_context=True, name='roleblacklist', no_pm=True)
     @checks.admin_or_permissions(manage_server=True)
-    async def set_required_role(self, ctx, *roles: discord.Role):
+    async def set_forbidden_role(self, ctx, *roles: discord.Role):
         """
         sets the role(s) which cannot use the bot
         multi word roles should be surrounded with quotes
