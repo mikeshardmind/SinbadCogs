@@ -65,4 +65,4 @@ class RoleBlacklist:
 
 def setup(bot):
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-    bot.add_cog(RoleChecker(bot))
+    bot.add_cog(RoleBlacklist(bot))
