@@ -15,7 +15,7 @@ class EmbedMaker:
     """
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "1.1.0"
+    __version__ = "1.1.1"
 
     def __init__(self, bot):
 
@@ -206,16 +206,20 @@ class EmbedMaker:
 
     @checks.admin_or_permissions(Manage_messages=True)
     @embed.command(name="dm", pass_context=True, no_pm=True)
-    async def fetch_dm(self, ctx, name: str, user_id: str):
+    async def fetch_dm(self, ctx, name: str, who: discord.User):
         """fetches an embed, and DMs it to a user"""
         server = ctx.message.server
 
         em = await self.get_embed(name.lower(), server.id)
         if em is None:
             return await self.bot.say("I couldn't find an embed by that name.")
-        who = await self.bot.get_user_info(user_id)
         if who is not None:
-            await self.bot.send_message(who, embed=em)
+            try:
+                await self.bot.send_message(who, embed=em)
+            except discord.Forbidden:
+                await self.bot.say(
+                    "I couldn't DM that user. They may not be accepting DMs."
+                )
 
     @checks.is_owner()
     @embed.command(name="dmglobal", pass_context=True, no_pm=True)
