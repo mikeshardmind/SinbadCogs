@@ -43,7 +43,7 @@ class ReportTool:
     """custom cog for a configureable report system."""
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "1.5.0"
+    __version__ = "1.5.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -149,11 +149,17 @@ class ReportTool:
         await self.bot.say("I will message you to collect information")
         self.settings[server.id]['usercache'].append(author.id)
 
-        dm = await self.bot.send_message(author,
-                                         "Please respond to this message"
-                                         "with your Report.\nYour "
-                                         "Report should be a single "
-                                         "message")
+        try:
+            dm = await self.bot.send_message(
+                author,
+                "Please respond to this message"
+                "with your Report.\nYour "
+                "Report should be a single "
+                "message")
+        except discord.Forbidden:
+            self.settings[server.id]['usercache'].remove(author.id)
+            return await self.bot.say(
+                'Your privacy settings don\'t allow me to message you')
 
         message = await self.bot.wait_for_message(channel=dm.channel,
                                                   author=author, timeout=180)
