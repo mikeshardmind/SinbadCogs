@@ -84,9 +84,9 @@ class AntiMentionSpam:
                 message.channel.permissions_for(server.me).manage_messages
             can_ban = \
                 message.channel.permissions_for(server.me).ban_members
-            autoban = self.settings[server.id].get('autoban', False)
 
             if server.id in self.settings:
+                autoban = self.settings[server.id].get('autoban', False)
                 if self.settings[server.id]['max'] > 0:
                     if len(message.mentions) > self.settings[server.id]['max']:
                         if can_ban and autoban:
