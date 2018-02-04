@@ -56,10 +56,10 @@ class RoleBlacklist:
             return True
         allowed |= author.id == settings.owner
         if isinstance(author, discord.Member):
-            allowed |= len(
-                [r for r in author.roles
-                 if r.id in self.roles[server.id]]
-            ) == 0
+            allowed |= not any(
+                r.id in self.roles[server.id]
+                for r in author.roles
+            )
         return allowed
 
 
