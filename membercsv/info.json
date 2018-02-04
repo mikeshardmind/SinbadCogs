@@ -2,5 +2,6 @@
     "AUTHOR": "mikeshardmind (Sinbad#0001)",
     "INSTALL_MSG": "This can be a little slow, be patient",
     "NAME": "MemberCSV",
-    "SHORT": "gets a csv of member data"
+    "SHORT": "gets a csv of member data",
+    "DESCRIPTION": "Joined date, highest role, status, last message time, etc."
 }
