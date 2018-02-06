@@ -172,7 +172,7 @@ class BanSync:
                     guilds.append(s)
         elif auto is True:
             guilds = [g for g in self.bot.guilds
-                       if self.can_sync(g, ctx.author)]
+                      if self.can_sync(g, ctx.author)]
 
         if len(guilds) < 2:
             return await ctx.send(TOO_FEW_CHOSEN)
