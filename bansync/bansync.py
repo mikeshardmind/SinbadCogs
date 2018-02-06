@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from .utils import checks
 from cogs.utils.chat_formatting import box, pagify
+from typing import Union
 
 path = 'data/bansync'
 
@@ -11,7 +12,7 @@ class BanSync:
     """
     Syncs bans between servers
     """
-    __version__ = "1.0.0"
+    __version__ = "1.1.0"
     __author__ = "mikeshardmind (Sinbad#0001)"
 
     def __init__(self, bot):
@@ -19,7 +20,49 @@ class BanSync:
         self.modlog = self.bot.get_cog('Mod')
 
     @checks.is_owner()
-    @commands.group(name='bansync', pass_context=True)
+    @commands.command(name='globalban', pass_context=True)
+    async def globalban(self, ctx, user: Union[discord.Member, str]):
+        """
+        ban someone in each server the bot can ban
+        """
+        if isinstance(user, discord.Member):
+            _id = user.id
+        else:
+            _id = user
+
+        for server in self.bot.servers:
+            if not server.me.server_permissions.ban_members:
+                continue
+            member = server.get_member(_id)
+            if member is not None:
+                try:
+                    await self.bot.ban(member, delete_message_days=0)
+                except discord.Forbidden:
+                    return await self.bot.whisper("I can't do that")
+                else:
+                    if self.modlog:
+                        await self.modlog.new_case(
+                            server,
+                            user=member,
+                            action="BAN"
+                        )
+            else:
+                try:
+                    await self.bot.http.ban(user.id, server.id, 0)
+                except discord.NotFound:
+                    pass
+                except discord.Forbidden:
+                    return await self.bot.whisper("I can't do that")
+                else:
+                    if self.modlog:
+                        await self.modlog.new_case(
+                            server,
+                            action="HACKBAN",
+                            user=user
+                        )
+
+    @checks.is_owner()
+    @commands.command(name='bansync', pass_context=True)
     async def bansync(self, ctx, auto: bool=False):
         """
         syncs bans across servers
