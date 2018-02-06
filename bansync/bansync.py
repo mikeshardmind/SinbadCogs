@@ -86,7 +86,7 @@ class BanSync:
         else:
             pass  # TODO: modlog hook
 
-    def server_discovery(self, ctx: commands.context, picked: GuildList):
+    def guild_discovery(self, ctx: commands.context, picked: GuildList):
         return sorted([
             g for g in self.bot.guilds
             if self.can_sync(g, ctx.author)
@@ -95,11 +95,11 @@ class BanSync:
 
     async def interactive(self, ctx: commands.context, picked: GuildList):
         output = ""
-        servers = self.server_discovery(ctx, picked)
-        if len(servers) == 0:
+        guilds = self.guild_discovery(ctx, picked)
+        if len(guilds) == 0:
             return -1
-        for i, server in enumerate(servers, 1):
-            output += "{}: {}\n".format(i, server.name)
+        for i, guild in enumerate(guilds, 1):
+            output += "{}: {}\n".format(i, guild.name)
         output += INTERACTIVE_PROMPT_I
         for page in pagify(output, delims=["\n"]):
             await ctx.send(box(page))
@@ -119,12 +119,12 @@ class BanSync:
                 if message == -1:
                     return -1
                 else:
-                    server = servers[message - 1]
+                    guild = guilds[message - 1]
             except (ValueError, IndexError):
                 await ctx.send(INVALID_CHOICE)
                 return None
             else:
-                return server
+                return guild
 
     async def process_sync(self, usr: discord.User, guilds: GuildList):
         bans = {}
@@ -158,10 +158,10 @@ class BanSync:
         """
         syncs bans across servers
         """
-        servers = []
+        guilds = []
         if not auto:
             while True:
-                s = await self.interactive(ctx, servers)
+                s = await self.interactive(ctx, guilds)
                 if s == -1:
                     break
                 if s == -2:
@@ -169,15 +169,15 @@ class BanSync:
                 elif s is None:
                     continue
                 else:
-                    servers.append(s)
+                    guilds.append(s)
         elif auto is True:
-            servers = [g for g in self.bot.guilds
+            guilds = [g for g in self.bot.guilds
                        if self.can_sync(g, ctx.author)]
 
-        if len(servers) < 2:
+        if len(guilds) < 2:
             return await ctx.send(TOO_FEW_CHOSEN)
 
-        await self.process_sync(servers)
+        await self.process_sync(guilds)
         await ctx.tick()
 
     @commands.command(name="globalban", aliases=['mjolnir'])
@@ -187,7 +187,7 @@ class BanSync:
         """
         _id = user.id if isinstance(user, discord.User) else user
 
-        for guild in self.server_discovery(ctx, []):
+        for guild in self.guild_discovery(ctx, []):
             await self.ban_or_hackban(
                 guild,
                 _id,
