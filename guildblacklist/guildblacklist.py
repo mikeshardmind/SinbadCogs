@@ -25,6 +25,9 @@ class GuildBlacklist:
 
     __author__ = 'mikeshardmind(Sinbad#0001)'
     __version__ = '0.0.1a'
+    v2converter = {
+        'blacklist': lambda v2: set(int(i) for i in v2.keys())
+    }
 
     default_globals = {
         'blacklist': set()
@@ -37,7 +40,7 @@ class GuildBlacklist:
             force_registration=True
         )
         self.config.register_global(**self.default_globals)
-        self.dc = DataConverter(self, self.config)
+        self.dc = DataConverter(self.config)
 
     async def __local_check(self, ctx: RedContext):
         return await ctx.bot.is_owner(ctx.author)
@@ -110,10 +113,12 @@ class GuildBlacklist:
         for this cog
         """
         try:
-            await self.dc.convert(path)
+            await self.dc.convert(path, self.v2converter)
         except FileNotFoundError:
             return await ctx.send(FILE_NOT_FOUND)
         except ValueError:
             return await ctx.send(FMT_ERROR)
+        except RuntimeError as e:
+            log.exception("Data conversion failure")
         else:
             await ctx.tick()

@@ -4,8 +4,7 @@ import pathlib
 
 class DataConverter:
 
-    def __init__(self, cog_instance, config_instance):
-        self.cog = cog_instance
+    def __init__(self, config_instance):
         self.config = config_instance
 
     def load_json(self, path: pathlib.Path):
@@ -17,7 +16,7 @@ class DataConverter:
             else:
                 return data
 
-    async def convert(self, path: str):
+    async def convert(self, path: str, converter: dict):
         _path = pathlib.Path(str)
         if not _path.exists:
             raise FileNotFoundError
@@ -29,13 +28,5 @@ class DataConverter:
             raise
             return
 
-        # cog specific stuff here, generalize this with
-        # a format spec of some sort later, this works for now
-        # once format spec handling is ready, PR it as a util
-        # for core red
-
-        _ids = set(
-            int(i) for i in v2_data.keys()
-        )
-        async with self.config.blacklist() as bl:
-            bl.update(_ids)
+        for k, v in converter.items():
+            await self.config.set_attr(k, v(v2_data))
