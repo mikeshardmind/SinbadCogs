@@ -1,6 +1,6 @@
 {
     "AUTHOR": "mikeshardmind (Sinbad#0001)",
-    "INSTALL_MSG": "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github. \nAlso, Remember to set the max mentions\n Warning: out of all of the cogs in my repo, this is the one I put the least amount of time testing. Use with caution.",
+    "INSTALL_MSG": "If you need help, I lurk in in this discord https://discord.gg/GET4DVk. (or leave an issue on github)",
     "NAME": "AntiSpotify",
     "SHORT": "removes spotify messages",
     "DESCRIPTION": "if on in a server, operates on a channel whitelist basis"
