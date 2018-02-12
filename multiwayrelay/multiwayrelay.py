@@ -15,7 +15,7 @@ class MultiWayRelay:
     """
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "1.2.0"
+    __version__ = "1.2.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -63,7 +63,7 @@ class MultiWayRelay:
         """add chans to a relay"""
 
         name = name.lower()
-        if name in self.settings:
+        if name not in self.settings:
             return await self.bot.say("that relay doesnt exist")
 
         chanids += self.settings[name]['chans']
