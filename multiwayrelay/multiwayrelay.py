@@ -15,7 +15,7 @@ class MultiWayRelay:
     """
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "1.2.1"
+    __version__ = "2.0.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -23,15 +23,28 @@ class MultiWayRelay:
             self.settings = dataIO.load_json(path + '/settings.json')
         except Exception:
             self.settings = {}
+        try:
+            self.bcasts = dataIO.load_json(path + '/settings-bcasts.json')
+        except Exception:
+            self.announce = {}
         self.links = {}
         self.activechans = []
         self.initialized = False
 
     def save_json(self):
         dataIO.save_json(path + '/settings.json', self.settings)
+        dataIO.save_json(path + '/settings-bcasts.json', self.bcasts)
 
     @checks.is_owner()
-    @commands.command(name="makerelay", pass_context=True)
+    @commands.group(name="relay", pass_context=True)
+    async def relay(self, ctx):
+        """
+        relay settings
+        """
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_help(ctx)
+
+    @relay.command(name="make", pass_context=True)
     async def makelink(self, ctx, name: str, *chanids: str):
         """takes a name (no whitespace) and a list of channel ids"""
         name = name.lower()
@@ -57,8 +70,7 @@ class MultiWayRelay:
         else:
             await self.bot.say("I did not get two or more valid channel IDs")
 
-    @checks.is_owner()
-    @commands.command(name="addtorelay", pass_context=True)
+    @relay.command(name="addto", pass_context=True)
     async def addtorelay(self, ctx, name: str, *chanids: str):
         """add chans to a relay"""
 
@@ -82,8 +94,7 @@ class MultiWayRelay:
         await self.validate()
         await self.bot.say("Relay updated.")
 
-    @checks.is_owner()
-    @commands.command(name="remfromrelay", pass_context=True)
+    @relay.command(name="remfrom", pass_context=True)
     async def remfromrelay(self, ctx, name: str, *chanids: str):
         """remove chans from a relay"""
 
@@ -100,8 +111,7 @@ class MultiWayRelay:
         await self.validate()
         await self.bot.say("Relay updated.")
 
-    @checks.is_owner()
-    @commands.command(name="remrelay", pass_context=True)
+    @relay.command(name="remove", pass_context=True)
     async def unlink(self, ctx, name: str):
         """removes a relay by name"""
         name = name.lower()
@@ -116,8 +126,39 @@ class MultiWayRelay:
         else:
             await self.bot.say("No such relay")
 
-    @checks.is_owner()
-    @commands.command(name="listrelays", pass_context=True)
+    @relay.command(name="makebroadcast", pass_context=True)
+    async def mbroadcast(self, ctx, broadcast_source: str, *outputs: str):
+        """
+        takes a source channel and a list of outputs
+        Use with no outputs to remove the broadcast setting
+        for that channel
+        """
+
+        if len(outputs) == 0:
+            x = self.bcasts.pop(broadcast_source, None)
+            if x:
+                return await self.bot.say("Broadcast removed")
+            else:
+                return await self.bot.say(
+                    "That wasn't a broadcast channel to be removed, "
+                    "or you forgot to give me outputs"
+                )
+
+        if any(
+            self.bot.get_channel(x) is None
+            for x in outputs + [broadcast_source]
+        ):
+            return await self.bot.say(
+                'One or more of those aren\'t channel ids that I can see')
+
+        _out = set(o for o in outputs if o != broadcast_source)
+        if len(_out) == 0:
+            return await self.bot.say('No infinite loops')
+        self.bcasts[broadcast_source] = _out
+        self.save_json()
+        await self.bot.say('Broadcast configured.')
+
+    @relay.command(name="list", pass_context=True)
     async def list_links(self, ctx):
         """lists the channel links by name"""
 
@@ -143,11 +184,19 @@ class MultiWayRelay:
         if message.author != self.bot.user:
 
             channel = message.channel
-            destinations = []
+            destinations = set()
             for link in self.links:
                 if channel in self.links[link]:
-                    destinations = [c for c in self.links[link]
-                                    if c != channel]
+                    destinations.update(
+                        c for c in self.links[link]
+                        if c != channel
+                    )
+
+            destinations.update(
+                [c for c in self.bot.get_all_channels
+                 if c.id in self.bcasts.get(channel.id, [])
+                 and c.type == discord.ChannelType.text]
+            )
 
             for destination in destinations:
                 await self.sender(destination, message)
