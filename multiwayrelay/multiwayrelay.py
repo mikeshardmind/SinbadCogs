@@ -15,7 +15,7 @@ class MultiWayRelay:
     """
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "2.0.0"
+    __version__ = "2.0.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -42,7 +42,7 @@ class MultiWayRelay:
         relay settings
         """
         if ctx.invoked_subcommand is None:
-            await self.bot.send_help(ctx)
+            await self.bot.send_cmd_help(ctx)
 
     @relay.command(name="make", pass_context=True)
     async def makelink(self, ctx, name: str, *chanids: str):
