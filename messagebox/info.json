@@ -3,5 +3,6 @@
     "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.",
     "NAME" : "MessageBox",
     "SHORT" : "MessageBox",
-    "DESCRIPTION" : "replaces built in contact command to log to a channel"
+    "DESCRIPTION" : "replaces built in contact command to log to a channel",
+    "HIDDEN" : true
 }

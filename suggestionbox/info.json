@@ -1,7 +1,0 @@
-{
-    "AUTHOR" : "mikeshardmind (Sinbad#0001)",
-    "INSTALL_MSG" : "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.",
-    "NAME" : "SuggestionBox",
-    "SHORT" : "Make a suggestion box",
-    "DESCRIPTION" : "collects suggestions, dumps them in configured channel(s)"
-}

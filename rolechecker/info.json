@@ -1,8 +1,0 @@
-{
-    "AUTHOR" : "mikeshardmind (Sinbad#0001)",
-    "INSTALL_MSG" : "",
-    "NAME" : "RoleChecker",
-    "SHORT" : "global restriction of bot usage by role ownership",
-    "DESCRIPTION" : "might also break some commands in DMs",
-    "HIDDEN" : true
-}
