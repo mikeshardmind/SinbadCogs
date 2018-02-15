@@ -193,7 +193,7 @@ class MultiWayRelay:
                     )
 
             destinations.update(
-                [c for c in self.bot.get_all_channels
+                [c for c in self.bot.get_all_channels()
                  if c.id in self.bcasts.get(channel.id, [])
                  and c.type == discord.ChannelType.text]
             )
