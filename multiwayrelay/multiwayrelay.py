@@ -15,7 +15,7 @@ class MultiWayRelay:
     """
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "2.0.1"
+    __version__ = "2.0.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -146,7 +146,7 @@ class MultiWayRelay:
 
         if any(
             self.bot.get_channel(x) is None
-            for x in outputs + [broadcast_source]
+            for x in list(outputs) + [broadcast_source]
         ):
             return await self.bot.say(
                 'One or more of those aren\'t channel ids that I can see')
