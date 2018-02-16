@@ -1,6 +1,8 @@
 import pathlib
 import unicodedata as ud
 import re
+from cogs.utils import checks
+from discord.ext import commands
 
 path = 'data/commandlog'
 
@@ -63,6 +65,11 @@ class CommandLog:
             ret += "\\N{" + x + "}"
         with open(path + '/cmds.log', mode='a') as f:
             f.write('\n' + ret)
+
+    @checks.is_owner()
+    @commands.command(pass_context=True, name='getcmdlog')
+    async def getlog(self, ctx):
+        await self.bot.upload(ctx.message.author, path + '/cmds.log')
 
 
 def setup(bot):
