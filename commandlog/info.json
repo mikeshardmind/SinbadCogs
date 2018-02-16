@@ -1,0 +1,7 @@
+{
+    "AUTHOR": "mikeshardmind (Sinbad#0001)",
+    "INSTALL_MSG": "If you need help, I lurk in in this discord https://discord.gg/GET4DVk : If you find a bug leave an issue on github.\n Warning: users with link previews disabled cannot see these embeds",
+    "NAME": "CommandLog",
+    "SHORT": "Log command usage",
+    "DESCRIPTION": "This should log it all, and properly swap out unencodeable stuff"
+}
