@@ -154,7 +154,7 @@ class MultiWayRelay:
         _out = set(o for o in outputs if o != broadcast_source)
         if len(_out) == 0:
             return await self.bot.say('No infinite loops')
-        self.bcasts[broadcast_source] = _out
+        self.bcasts[broadcast_source] = list(_out)
         self.save_json()
         await self.bot.say('Broadcast configured.')
 
