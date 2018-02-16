@@ -26,7 +26,7 @@ class MultiWayRelay:
         try:
             self.bcasts = dataIO.load_json(path + '/settings-bcasts.json')
         except Exception:
-            self.announce = {}
+            self.bcasts = {}
         self.links = {}
         self.activechans = []
         self.initialized = False
