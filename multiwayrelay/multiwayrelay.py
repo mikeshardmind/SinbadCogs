@@ -27,6 +27,13 @@ class MultiWayRelay:
             self.bcasts = dataIO.load_json(path + '/settings-bcasts.json')
         except Exception:
             self.bcasts = {}
+        try:
+            self.rss = dataIO.load_json(path + '/settings-rss.json')
+        except Exception:
+            self.rss = {
+                'links': {},
+                'opts': {}
+            }
         self.links = {}
         self.activechans = []
         self.initialized = False
@@ -34,6 +41,7 @@ class MultiWayRelay:
     def save_json(self):
         dataIO.save_json(path + '/settings.json', self.settings)
         dataIO.save_json(path + '/settings-bcasts.json', self.bcasts)
+        dataIO.save_json(path + '/settings-rss.json', self.rss)
 
     @checks.is_owner()
     @commands.group(name="relay", pass_context=True)
@@ -126,6 +134,18 @@ class MultiWayRelay:
         else:
             await self.bot.say("No such relay")
 
+    @relay.command(name="addrss", pass_context=True)
+    async def add_rss_support(
+        self, ctx,
+            broadcast_channel: discord.Channel, rss_channel: discord.Channel):
+        """
+        Takes 2 channels, one should be the broadcast source channel,
+        the other should be the rss listening channel
+        """
+        self.rss['links'][rss_channel.id] = broadcast_channel.id
+        self.save_json()
+        await self.bot.say("RSS listener added.")
+
     @relay.command(name="makebroadcast", pass_context=True)
     async def mbroadcast(self, ctx, broadcast_source: str, *outputs: str):
         """
@@ -180,11 +200,9 @@ class MultiWayRelay:
         if not self.initialized:
             await self.validate()
             self.initialized = True
-
+        channel = message.channel
+        destinations = set()
         if message.author != self.bot.user:
-
-            channel = message.channel
-            destinations = set()
             for link in self.links:
                 if channel in self.links[link]:
                     destinations.update(
@@ -200,6 +218,28 @@ class MultiWayRelay:
 
             for destination in destinations:
                 await self.sender(destination, message)
+
+        else:
+            if message.content.startswith("\u200b"):
+                # RSS Relay Stuff
+                _id = self.rss['links'].get(channel.id, None)
+                destinations.update(
+                    [c for c in self.bot.get_all_channels()
+                     if c.id in self.bcasts.get(_id, [])
+                     and c.type == discord.ChannelType.text]
+                )
+                for destination in destinations:
+                    await self.rss_sender(destination, message)
+
+    async def rss_sender(self, where, message=None):
+        if message:
+            msg = "\u200C{}".format(
+                self.role_mention_cleanup(message)[1:]
+            )
+            try:
+                await self.bot.send_message(where, msg)
+            except Exception:
+                pass
 
     async def sender(self, where, message=None):
         """sends the thing"""
@@ -232,7 +272,7 @@ class MultiWayRelay:
     def qform(self, message):
         channel = message.channel
         server = channel.server
-        content = message.content
+        content = self.role_mention_cleanup(message)
         author = message.author
         sname = server.name
         cname = channel.name
