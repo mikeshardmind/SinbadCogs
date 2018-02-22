@@ -146,6 +146,21 @@ class MultiWayRelay:
         self.save_json()
         await self.bot.say("RSS listener added.")
 
+    @relay.command(name="broadfromannounce", pass_context=True)
+    async def mfromannounce(self, ctx, source_chan: discord.Channel):
+        """
+        Plugs into my announcer cog to grab subscribed channels
+        and make a broadcast channel for them
+        """
+        announcer = self.bot.get_cog("Announcer")
+        if announcer is None:
+            return await self.bot.send_cmd_help(ctx)
+        self.bcasts[source_chan.id] = unique(
+            [v['channel'] for k, v in announcer.settings.items()]
+        )
+        self.save_json()
+        await self.bot.say('Broadcast configured.')
+
     @relay.command(name="makebroadcast", pass_context=True)
     async def mbroadcast(self, ctx, broadcast_source: str, *outputs: str):
         """
