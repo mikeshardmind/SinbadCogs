@@ -237,8 +237,6 @@ class MultiWayRelay:
 
         else:  # RSS Relay Stuff
             if message.content.startswith("\u200b"):
-                if message.content == "\u200bNone":
-                    return  # Reloading RSS issue
                 _id = self.rss['links'].get(channel.id, None)
                 destinations.update(
                     [c for c in self.bot.get_all_channels()
