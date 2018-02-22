@@ -1,11 +1,10 @@
 import asyncio
-from typing import List, Union
+from typing import List
 
 import discord
 from discord.ext import commands
 
 from redbot.core.i18n import CogI18n
-from redbot.core import Config
 from redbot.core.utils.chat_formatting import box, pagify
 
 GuildList = List[discord.Guild]
@@ -54,12 +53,15 @@ class BanSync:
         if self._owner is None:
             self._owner = (await self.bot.application_info()).owner
 
-    def can_sync(self, g: discord.Guild, u: discord.User):
+    async def can_sync(self, g: discord.Guild, u: discord.User):
         user_allowed = False
         m = g.get_member(u.id)
         if m:
             user_allowed |= m.guild_permissions.ban_members
+        settings = self.bot.db.guild(g)
+        _arid = await settings.admin_role()
         user_allowed |= u.id == self._owner.id
+        user_allowed |= any(r.id == _arid for r in u.roles)
         bot_allowed = g.me.guild_permissions.ban_members
         return user_allowed and bot_allowed
 
@@ -86,10 +88,10 @@ class BanSync:
         else:
             pass  # TODO: modlog hook
 
-    def guild_discovery(self, ctx: commands.context, picked: GuildList):
+    async def guild_discovery(self, ctx: commands.context, picked: GuildList):
         return sorted([
             g for g in self.bot.guilds
-            if self.can_sync(g, ctx.author)
+            if await self.can_sync(g, ctx.author)
             and g not in picked
         ], key=lambda s: s.name)
 
@@ -131,11 +133,11 @@ class BanSync:
 
         for guild in guilds:
             try:
-                bans = [x.user for x in (await guild.bans())]
+                g_bans = [x.user for x in await guild.bans()]
             except (discord.Forbidden, discord.HTTPException) as e:
                 pass
             else:
-                bans[guild.id] = bans
+                bans[guild.id] = g_bans[:]
 
         for guild in guilds:
             to_ban = []
@@ -145,7 +147,7 @@ class BanSync:
                      and self.ban_filter(guild, usr, m)]
                 )
 
-            for x in to_ban():
+            for x in to_ban:
                 await self.ban_or_hackban(
                     guild,
                     x.id,
@@ -172,26 +174,34 @@ class BanSync:
                     guilds.append(s)
         elif auto is True:
             guilds = [g for g in self.bot.guilds
-                      if self.can_sync(g, ctx.author)]
+                      if await self.can_sync(g, ctx.author)]
 
         if len(guilds) < 2:
             return await ctx.send(TOO_FEW_CHOSEN)
 
-        await self.process_sync(guilds)
+        await self.process_sync(ctx.author, guilds)
         await ctx.tick()
 
     @commands.command(name="globalban", aliases=['mjolnir'])
-    async def mjolnir(self, ctx, user: Union[discord.User, int], *, rsn: str):
+    async def mjolnir(self, ctx, user: str, *, rsn: str=None):
         """
         Swing the heaviest of ban hammers
         """
-        _id = user.id if isinstance(user, discord.User) else user
+        conv = commands.UserConverter()
+        try:
+            x = await conv.convert(ctx, user)
+        except Exception:
+            _id = int(user)
+        else:
+            _id = x.id
 
-        for guild in self.guild_discovery(ctx, []):
+        res = [  # NOQA:F841
             await self.ban_or_hackban(
                 guild,
                 _id,
                 mod=ctx.author,
                 reason=rsn
-            )
+            ) for guild in await self.guild_discovery(ctx, [])
+        ]
+
         await ctx.message.add_reaction(BANMOJI)
