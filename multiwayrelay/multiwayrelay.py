@@ -202,6 +202,7 @@ class MultiWayRelay:
             self.initialized = True
         channel = message.channel
         destinations = set()
+
         if message.author != self.bot.user:
             for link in self.links:
                 if channel in self.links[link]:
@@ -219,9 +220,10 @@ class MultiWayRelay:
             for destination in destinations:
                 await self.sender(destination, message)
 
-        else:
+        else:  # RSS Relay Stuff
             if message.content.startswith("\u200b"):
-                # RSS Relay Stuff
+                if message.content == "\u200bNone":
+                    return  # Reloading RSS issue
                 _id = self.rss['links'].get(channel.id, None)
                 destinations.update(
                     [c for c in self.bot.get_all_channels()
