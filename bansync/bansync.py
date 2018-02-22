@@ -69,12 +69,14 @@ class BanSync:
         m = g.get_member(u.id)
         if m is None and u.id != self._owner.id:
             return False
-        can_ban = m.guild_permissions.ban_members \
-            and g.me.guild_permissions.ban_members
+        elif u.id == self._owner.id:
+            can_ban = True
+        else:
+            can_ban = m.guild_permissions.ban_members \
+                and g.me.guild_permissions.ban_members
         target = g.get_member(t.id)
         if target is not None:
-            can_ban &= g.me.top_role > target.top_role \
-                and m.top_role > target.top_role
+            can_ban &= g.me.top_role > target.top_role
         return can_ban
 
     async def ban_or_hackban(self, guild: discord.Guild, _id: int, **kwargs):
@@ -89,11 +91,9 @@ class BanSync:
             pass  # TODO: modlog hook
 
     async def guild_discovery(self, ctx: commands.context, picked: GuildList):
-        return sorted([
-            g for g in self.bot.guilds
-            if await self.can_sync(g, ctx.author)
-            and g not in picked
-        ], key=lambda s: s.name)
+        for g in sorted(self.bot.guilds, key=lambda s: s.name):
+            if g not in picked and await self.can_sync(g, ctx.author):
+                yield g
 
     async def interactive(self, ctx: commands.context, picked: GuildList):
         output = ""
@@ -195,13 +195,12 @@ class BanSync:
         else:
             _id = x.id
 
-        res = [  # NOQA:F841
+        async for guild in self.guild_discovery(ctx, []):
             await self.ban_or_hackban(
                 guild,
                 _id,
                 mod=ctx.author,
                 reason=rsn
-            ) for guild in await self.guild_discovery(ctx, [])
-        ]
+            )
 
         await ctx.message.add_reaction(BANMOJI)
