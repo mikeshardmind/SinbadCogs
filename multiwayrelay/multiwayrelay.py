@@ -15,7 +15,7 @@ class MultiWayRelay:
     """
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "2.0.3"
+    __version__ = "2.1.0"
 
     def __init__(self, bot):
         self.bot = bot
