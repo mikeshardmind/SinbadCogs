@@ -84,7 +84,7 @@ class BanSync:
         if member is None:
             member = discord.Object(id=_id)
         try:
-            await guild.ban(member, reason=BAN_REASON)
+            await guild.ban(member, reason=BAN_REASON, delete_message_days=0)
         except (discord.Forbidden, discord.HTTPException) as e:
             pass  # TODO: Decide what the hell to do with this.
         else:
