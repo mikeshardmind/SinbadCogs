@@ -86,9 +86,9 @@ class BanSync:
         try:
             await guild.ban(member, reason=BAN_REASON, delete_message_days=0)
         except (discord.Forbidden, discord.HTTPException) as e:
-            pass  # TODO: Decide what the hell to do with this.
+            return False
         else:
-            pass  # TODO: modlog hook
+            return True  # TODO: modlog hook
 
     async def guild_discovery(self, ctx: commands.context, picked: GuildList):
         for g in sorted(self.bot.guilds, key=lambda s: s.name):
@@ -182,7 +182,7 @@ class BanSync:
         await self.process_sync(ctx.author, guilds)
         await ctx.tick()
 
-    @commands.command(name="globalban", aliases=['mjolnir'])
+    @commands.command(name="mjolnir", aliases=['globalban'])
     async def mjolnir(self, ctx, user: str, *, rsn: str=None):
         """
         Swing the heaviest of ban hammers
@@ -195,12 +195,16 @@ class BanSync:
         else:
             _id = x.id
 
-        async for guild in self.guild_discovery(ctx, []):
+        exit_codes = [
             await self.ban_or_hackban(
                 guild,
                 _id,
                 mod=ctx.author,
                 reason=rsn
-            )
+            ) for guild in self.guild_discovery(ctx, [])
+        ]
 
-        await ctx.message.add_reaction(BANMOJI)
+        if len(exit_codes) > 0 and any(exit_codes):
+            await ctx.message.add_reaction(BANMOJI)
+        else:
+            await ctx.send(_("You are not worthy."))
