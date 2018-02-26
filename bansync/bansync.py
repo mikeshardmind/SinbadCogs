@@ -24,6 +24,8 @@ BAN_REASON = _("Ban synchronization")
 
 BANS_SYNCED = _("Bans have been synchronized across selected servers")
 
+UNWORTHY = _("You are not worthy")
+
 BANMOJI = '\U0001f528'
 
 
@@ -81,10 +83,11 @@ class BanSync:
 
     async def ban_or_hackban(self, guild: discord.Guild, _id: int, **kwargs):
         member = guild.get_member(_id)
+        reason = kwargs.get('reason', BAN_REASON)
         if member is None:
             member = discord.Object(id=_id)
         try:
-            await guild.ban(member, reason=BAN_REASON, delete_message_days=0)
+            await guild.ban(member, reason=reason, delete_message_days=0)
         except (discord.Forbidden, discord.HTTPException) as e:
             return False
         else:
@@ -207,4 +210,4 @@ class BanSync:
         if any(exit_codes):
             await ctx.message.add_reaction(BANMOJI)
         else:
-            await ctx.send(_("You are not worthy."))
+            await ctx.send(UNWORTHY)
