@@ -204,7 +204,7 @@ class BanSync:
             ) for guild in self.guild_discovery(ctx, [])
         ]
 
-        if len(exit_codes) > 0 and any(exit_codes):
+        if any(exit_codes):
             await ctx.message.add_reaction(BANMOJI)
         else:
             await ctx.send(_("You are not worthy."))
