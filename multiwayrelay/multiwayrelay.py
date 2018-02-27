@@ -15,7 +15,7 @@ class MultiWayRelay:
     """
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "2.1.0"
+    __version__ = "2.2.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -43,7 +43,6 @@ class MultiWayRelay:
         dataIO.save_json(path + '/settings-bcasts.json', self.bcasts)
         dataIO.save_json(path + '/settings-rss.json', self.rss)
 
-    @checks.is_owner()
     @commands.group(name="relay", pass_context=True)
     async def relay(self, ctx):
         """
@@ -52,6 +51,7 @@ class MultiWayRelay:
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
+    @checks.is_owner()
     @relay.command(name="make", pass_context=True)
     async def makelink(self, ctx, name: str, *chanids: str):
         """takes a name (no whitespace) and a list of channel ids"""
@@ -78,6 +78,7 @@ class MultiWayRelay:
         else:
             await self.bot.say("I did not get two or more valid channel IDs")
 
+    @checks.is_owner()
     @relay.command(name="addto", pass_context=True)
     async def addtorelay(self, ctx, name: str, *chanids: str):
         """add chans to a relay"""
@@ -102,6 +103,7 @@ class MultiWayRelay:
         await self.validate()
         await self.bot.say("Relay updated.")
 
+    @checks.is_owner()
     @relay.command(name="remfrom", pass_context=True)
     async def remfromrelay(self, ctx, name: str, *chanids: str):
         """remove chans from a relay"""
@@ -119,6 +121,7 @@ class MultiWayRelay:
         await self.validate()
         await self.bot.say("Relay updated.")
 
+    @checks.is_owner()
     @relay.command(name="remove", pass_context=True)
     async def unlink(self, ctx, name: str):
         """removes a relay by name"""
@@ -134,6 +137,7 @@ class MultiWayRelay:
         else:
             await self.bot.say("No such relay")
 
+    @checks.is_owner()
     @relay.command(name="addrss", pass_context=True)
     async def add_rss_support(
         self, ctx,
@@ -146,6 +150,7 @@ class MultiWayRelay:
         self.save_json()
         await self.bot.say("RSS listener added.")
 
+    @checks.is_owner()
     @relay.command(name="broadfromannounce", pass_context=True)
     async def mfromannounce(self, ctx, source_chan: discord.Channel):
         """
@@ -155,18 +160,58 @@ class MultiWayRelay:
         announcer = self.bot.get_cog("Announcer")
         if announcer is None:
             return await self.bot.send_cmd_help(ctx)
-        self.bcasts[source_chan.id] = unique(
-            [v['channel'] for k, v in announcer.settings.items()]
-        )
+        self.bcasts = {
+            source_chan.id: unique(
+                [v['channel'] for k, v in announcer.settings.items()]
+            )
+        }
         self.save_json()
         await self.bot.say('Broadcast configured.')
 
+    @checks.serverowner_or_permissions(manage_server=True)
+    @relay.command(name="getbroadcasts", pass_context=True, no_pm=True)
+    async def get_broadcasts(self, ctx, channel: discord.Channel):
+        """
+        joins one of your server's channels to the list of broadcast recipients
+        """
+        if channel.guild != ctx.message.guild:
+            return await self.bot.say("Nice try.")
+        if any(v == channel.id for v in self.bcasts.values()):
+            return await self.bot.say("Already signed up.")
+        self.bcasts = {
+            k: unique(v + [channel.id])
+            for k, v in self.bcasts.items()
+        }
+        self.save_json()
+        await self.bot.say("Signed up for broadcasts here.")
+
+    @checks.serverowner_or_permissions(manage_server=True)
+    @relay.command(name="stopbroadcasts", pass_context=True)
+    async def stop_broadcasts(self, ctx, channel: discord.Channel):
+        """
+        leaves broadcasts on a channel
+        """
+        if channel.guild != ctx.message.guild:
+            return await self.bot.say("Nice try.")
+        if not any(v == channel.id for v in self.bcasts.values()):
+            return await self.bot.say("Not signed up for any broadcasts.")
+
+        self.bcasts = {
+            k: [c_id for c_id in v if c_id != channel.id]
+            for k, v in self.bcasts.items()
+        }
+        self.save_json()
+        await self.bot.say("No more broadcasts here.")
+
+    @checks.is_owner()
     @relay.command(name="makebroadcast", pass_context=True)
     async def mbroadcast(self, ctx, broadcast_source: str, *outputs: str):
         """
         takes a source channel and a list of outputs
         Use with no outputs to remove the broadcast setting
         for that channel
+
+        currently only allows for 1 broadcast source
         """
 
         if len(outputs) == 0:
@@ -189,10 +234,11 @@ class MultiWayRelay:
         _out = set(o for o in outputs if o != broadcast_source)
         if len(_out) == 0:
             return await self.bot.say('No infinite loops')
-        self.bcasts[broadcast_source] = list(_out)
+        self.bcasts = {broadcast_source: list(_out)}
         self.save_json()
         await self.bot.say('Broadcast configured.')
 
+    @checks.is_owner()
     @relay.command(name="list", pass_context=True)
     async def list_links(self, ctx):
         """lists the channel links by name"""
