@@ -35,7 +35,7 @@ class BanSync:
     """
 
     __author__ = 'mikeshardmind(Sinbad#0001)'
-    __version__ = '1.0.1a'
+    __version__ = '1.0.2a'
 
     def __init__(self, bot):
         self.bot = bot
@@ -200,7 +200,7 @@ class BanSync:
                 _id,
                 mod=ctx.author,
                 reason=rsn
-            ) for guild in await self.guild_discovery(ctx, [])
+            ) async for guild in self.guild_discovery(ctx, [])
         ]
 
         if any(exit_codes):
