@@ -35,7 +35,7 @@ class BanSync:
     """
 
     __author__ = 'mikeshardmind(Sinbad#0001)'
-    __version__ = '1.0.0a'
+    __version__ = '1.0.1a'
 
     def __init__(self, bot):
         self.bot = bot
@@ -51,10 +51,6 @@ class BanSync:
             )
         )
 
-    async def __before_invoke(self, ctx):
-        if self._owner is None:
-            self._owner = (await self.bot.application_info()).owner
-
     async def can_sync(self, g: discord.Guild, u: discord.User):
         user_allowed = False
         m = g.get_member(u.id)
@@ -62,7 +58,7 @@ class BanSync:
             user_allowed |= m.guild_permissions.ban_members
         settings = self.bot.db.guild(g)
         _arid = await settings.admin_role()
-        user_allowed |= u.id == self._owner.id
+        user_allowed |= u.id == (await self.bot.application_info()).owner.id
         user_allowed |= any(r.id == _arid for r in u.roles)
         bot_allowed = g.me.guild_permissions.ban_members
         return user_allowed and bot_allowed
@@ -204,7 +200,7 @@ class BanSync:
                 _id,
                 mod=ctx.author,
                 reason=rsn
-            ) for guild in self.guild_discovery(ctx, [])
+            ) for guild in await self.guild_discovery(ctx, [])
         ]
 
         if any(exit_codes):
