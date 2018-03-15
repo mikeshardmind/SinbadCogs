@@ -1,0 +1,13 @@
+{
+    "AUTHOR": "mikeshardmind",
+    "INSTALL_MSG": "Cog works, no support for helping install texlive, this is public by request, but no guarantees it will work for anyone else",
+    "NAME": "RenderTex",
+    "DISABLED": false,
+    "SHORT": "Renders tex code blocks",
+    "DESCRIPTION": "Renders texblocks with texlive",
+    "TAGS": [
+        "latex",
+        "tex",
+        "math"
+    ]
+}
