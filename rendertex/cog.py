@@ -1,5 +1,9 @@
 from redbot.core.data_manager import cog_data_path
+from redbot.core import checks
+from redbot.core.config import Config as RealConfig
+
 import discord
+from discord.ext import commands
 import asyncio
 from .renderer import TexRenderer
 
@@ -10,10 +14,20 @@ class RenderTex:
     """
 
     def __init__(self, bot):
-        self.dpi = 1200  # TODO: configurable
-        self.datapath = str(cog_data_path(self)) + '/'
+        self.bot = bot
+        self.dpi = 600  # TODO: configurable
+        self.datapath = cog_data_path(self)
+        self.settings = RealConfig.get_conf(
+            self, 78631113035100160, force_registration=True)
+        self.settings.register_guild(tex=False)
 
     async def on_message(self, message: discord.Message):
+        if (await self.bot.is_owner(message.author)):
+            pass
+        elif not isinstance(message.channel, discord.TextChannel):
+            return
+        elif not (await self.settings.guild(message.guild).tex()):
+            return
         if not (message.content.startswith('```tex')
                 and message.content.endswith('```')):
             return
@@ -33,3 +47,16 @@ class RenderTex:
             # I'd love to use files, but discord is reordering them
             r.cleanup()
             del r
+
+    @commands.command()
+    @checks.is_owner()
+    async def toggletexhere(self, ctx):
+        """
+        toggles tex responses for the current server
+        """
+
+        x = not (await self.settings.guild(ctx.guild).tex())
+        await self.settings.guild(ctx.guild).tex.set(x)
+
+        resp = "LaTeX " + ("enabled" if x else "disabled")
+        await ctx.send(resp)
