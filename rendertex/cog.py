@@ -31,4 +31,5 @@ class RenderTex:
             [await message.channel.send(file=discord.File(f))
              for f in r.rendered_files]
             # I'd love to use files, but discord is reordering them
+            r.cleanup()
             del r

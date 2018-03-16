@@ -1,6 +1,7 @@
 import subprocess
 import threading
 import re
+from pathlib import Path
 
 PDFTEX = '/usr/local/texlive/2017/bin/x86_64-linux/pdflatex'
 PDFCROP = '/usr/local/texlive/2017/bin/x86_64-linux/pdfcrop'
@@ -65,3 +66,9 @@ class TexRenderer(threading.Thread):
             )
 
             self.rendered_files.append(f'{outfile}.png')
+
+    def cleanup(self):
+        for f in self.rendered_files:
+            pattern = f.replace('.png', '.*')
+            for _ in Path().glob(pattern):
+                _.unlink()
