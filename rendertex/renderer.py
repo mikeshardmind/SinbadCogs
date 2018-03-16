@@ -55,14 +55,16 @@ class TexRenderer(threading.Thread):
 
             # crop pdf, convert to png
             subprocess.call(
-                [PDFCROP, f'{outfile}.pdf', f'{outfile}.pdf']
+                [PDFCROP, f'{outfile}.pdf', f'{outfile}.pdf'],
+                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
             )
 
             subprocess.call(
                 ['convert',  '-density', f'{self.dpi}',
                  f'{outfile}.pdf',
                  '-background', 'white', '-alpha', 'remove',
-                 f'{outfile}.png']
+                 f'{outfile}.png'],
+                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
             )
 
             self.rendered_files.append(f'{outfile}.png')
