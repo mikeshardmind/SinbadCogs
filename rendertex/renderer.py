@@ -2,6 +2,7 @@ import subprocess
 import threading
 import re
 from pathlib import Path  # NOQA:F401
+import random
 
 PDFTEX = '/usr/local/texlive/2017/bin/x86_64-linux/pdflatex'
 PDFCROP = '/usr/local/texlive/2017/bin/x86_64-linux/pdfcrop'
@@ -11,7 +12,7 @@ class TexRenderer(threading.Thread):
 
     def __init__(self, *args, **kwargs):
         self.tex = kwargs.pop('tex')
-        self.datapath = kwargs.pop('datapath')
+        self.tex = re.sub('(?<=\\\\)\n', '', self.tex)
         self.dpi = kwargs.pop('dpi', 300)
         self.done = threading.Event()
         self.rendered_files = []
@@ -30,10 +31,13 @@ class TexRenderer(threading.Thread):
             re.sub('[\W_]', '', n)
             for n in re.findall('%.{,}%\n', self.tex)
         ]
-        eqns = re.split('%.{,}%\n', self.tex)[1:]
+        if names:
+            eqns = re.split('%.{,}%\n', self.tex)[1:]
+        else:
+            names = ["equation{}".format(random.randint(1, 10000))]
+            eqns = [self.tex]
 
-        for _outfile, eq in zip(names, eqns):
-            outfile = str(self.datapath / _outfile)
+        for outfile, eq in zip(names, eqns):
             packages, body = [], []
             for eqline in eq.split('\n'):
                 if eqline.startswith(r'\usepackage'):
@@ -44,9 +48,20 @@ class TexRenderer(threading.Thread):
             with open(outfile + '.tex', 'w') as temp:
                 temp.write('\documentclass[preview]{standalone}\n')
                 [temp.write(pkg + '\n') for pkg in packages]
-                temp.write('\\begin{document}\n')
+                if not any(
+                    pkg.beginswith('\\usepackage{amsmath}') for pkg in packages
+                ):
+                    temp.write('\\usepackage{amsmath}\n')
+                if not any(
+                    pkg.beginswith('\\usepackage{amssymb}') for pkg in packages
+                ):
+                    temp.write('\\usepackage{amssymb}\n')
+                if not any(line.startswith('\begin') for line in body):
+                    temp.write('\\begin{document}\n')
                 temp.write('\pagestyle{empty}\n')
                 [temp.write(line + '\n') for line in body]
+                if not any(line.startswith('\\end') for line in body):
+                    temp.write('\\begin{document}\n')
                 temp.write('\end{document}\n')
 
             subprocess.call(
@@ -72,5 +87,5 @@ class TexRenderer(threading.Thread):
     def cleanup(self):
         for f in self.rendered_files:
             pattern = f.replace('.png', '.*')
-            for _ in self.datapath.glob(pattern):
+            for _ in Path().glob(pattern):
                 _.unlink()

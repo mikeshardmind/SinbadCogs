@@ -1,4 +1,3 @@
-from redbot.core.data_manager import cog_data_path
 from redbot.core import checks
 from redbot.core.config import Config as RealConfig
 
@@ -16,7 +15,6 @@ class RenderTex:
     def __init__(self, bot):
         self.bot = bot
         self.dpi = 600  # TODO: configurable
-        self.datapath = cog_data_path(self)
         self.settings = RealConfig.get_conf(
             self, 78631113035100160, force_registration=True)
         self.settings.register_guild(tex=False)
@@ -35,7 +33,7 @@ class RenderTex:
         if len(texblock) == 0:
             return
 
-        r = TexRenderer(tex=texblock, dpi=self.dpi, datapath=self.datapath)
+        r = TexRenderer(tex=texblock, dpi=self.dpi)
         r.start()
 
         while r.is_alive():
