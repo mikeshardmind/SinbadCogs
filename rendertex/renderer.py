@@ -32,8 +32,8 @@ class TexRenderer(threading.Thread):
         ]
         eqns = re.split('%.{,}%\n', self.tex)[1:]
 
-        for outfile, eq in zip(names, eqns):
-
+        for _outfile, eq in zip(names, eqns):
+            outfile = str(Path(self.datapath) / _outfile)
             packages, body = [], []
             for eqline in eq.split('\n'):
                 if eqline.startswith(r'\usepackage'):
@@ -70,5 +70,5 @@ class TexRenderer(threading.Thread):
     def cleanup(self):
         for f in self.rendered_files:
             pattern = f.replace('.png', '.*')
-            for _ in Path().glob(pattern):
+            for _ in Path(self.datapath).glob(pattern):
                 _.unlink()
