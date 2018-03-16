@@ -35,7 +35,7 @@ class TexRenderer(threading.Thread):
         if names:
             eqns = re.split('%.{,}%\n', self.tex)[1:]
         else:
-            names = ["equation{}".format(random.randint(1, 10000))]
+            names = ["equation{}".format(random.randint(1, 100000))]
             eqns = [self.tex]
 
         for name, eq in zip(names, eqns):

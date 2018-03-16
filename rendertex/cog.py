@@ -41,9 +41,15 @@ class RenderTex:
             await asyncio.sleep(1)
 
         if not r.error and r.rendered_files:
-            [await message.channel.send(file=discord.File(str(f)))
-             for f in r.rendered_files]
-            # I'd love to use files, but discord is reordering them
+            files = []
+            for idx, path in enumerate(r.rendered_files):
+                # Naming required to preserve order
+                # discord uploads multiple uploads by filename
+                fname = "{:03d}.png".format(idx)
+                f = discord.File(str(path), filename=fname)
+                files.append(f)
+            content = f"LateX Rendered for {message.author}"
+            await message.channel.send(content=content, files=files)
             r.cleanup()
         del r
 
