@@ -12,7 +12,7 @@ class TexRenderer(threading.Thread):
 
     def __init__(self, *args, **kwargs):
         self.tex = kwargs.pop('tex')
-        # self.tex = re.sub('(?<=\\\\)\n', '', self.tex)
+        self.tex = re.sub('(?<=\\\\)\n', '', self.tex)
         # TODO: Fix this ^ in a way that works better
         self.dpi = kwargs.pop('dpi', 300)
         self.cwd = kwargs.pop('cwd', Path('.'))
@@ -29,15 +29,15 @@ class TexRenderer(threading.Thread):
         self.done.set()
 
     def _render_equations(self):
-        names = [
-            re.sub('[\W_]', '', n)
-            for n in re.findall('%.{,}%\n', self.tex)
-        ]
-        if names:
-            eqns = re.split('%.{,}%\n', self.tex)[1:]
-        else:
-            names = ["equation{}".format(random.randint(1, 10000))]
-            eqns = [self.tex]
+        # names = [
+        #     re.sub('[\W_]', '', n)
+        #     for n in re.findall('%.{,}%\n', self.tex)
+        # ]
+        # if names:
+        #     eqns = re.split('%.{,}%\n', self.tex)[1:]
+        # else:
+        names = ["equation{}".format(random.randint(1, 10000))]
+        eqns = [self.tex]
 
         for name, eq in zip(names, eqns):
             packages, body = [], []
