@@ -1,7 +1,7 @@
 import subprocess
 import threading
 import re
-from pathlib import Path  # NOQA:F401
+from pathlib import Path
 import random
 
 PDFTEX = '/usr/local/texlive/2017/bin/x86_64-linux/pdflatex'
@@ -12,8 +12,10 @@ class TexRenderer(threading.Thread):
 
     def __init__(self, *args, **kwargs):
         self.tex = kwargs.pop('tex')
-        self.tex = re.sub('(?<=\\\\)\n', '', self.tex)
+        # self.tex = re.sub('(?<=\\\\)\n', '', self.tex)
+        # TODO: Fix this ^ in a way that works better
         self.dpi = kwargs.pop('dpi', 300)
+        self.cwd = kwargs.pop('cwd', Path('.'))
         self.done = threading.Event()
         self.rendered_files = []
         self.error = None
@@ -34,18 +36,20 @@ class TexRenderer(threading.Thread):
         if names:
             eqns = re.split('%.{,}%\n', self.tex)[1:]
         else:
-            names = ["equation{}".format(random.randint(1, 100000))]
+            names = ["equation{}".format(random.randint(1, 10000))]
             eqns = [self.tex]
 
-        for outfile, eq in zip(names, eqns):
+        for name, eq in zip(names, eqns):
             packages, body = [], []
             for eqline in eq.split('\n'):
-                if eqline.startswith(r'\usepackage'):
+                if eqline.startswith('\\usepackage'):
                     packages.append(eqline)
                 else:
                     body.append(eqline)
 
-            with open(outfile + '.tex', 'w') as temp:
+            tempfile = self.cwd / f'{name}.tex'
+
+            with tempfile.open(mode='w') as temp:
                 temp.write('\documentclass[preview]{standalone}\n')
                 [temp.write(pkg + '\n') for pkg in packages]
                 if not any(
@@ -56,39 +60,39 @@ class TexRenderer(threading.Thread):
                     pkg.beginswith('\\usepackage{amssymb}') for pkg in packages
                 ):
                     temp.write('\\usepackage{amssymb}\n')
-                if not any(
-                    line.startswith('\begin{document}') for line in body
-                ):
+                if not any(line.startswith('\\begin') for line in body):
                     temp.write('\\begin{document}\n')
                 temp.write('\pagestyle{empty}\n')
                 [temp.write(line + '\n') for line in body]
-                if not any(
-                    line.startswith('\\end{document}') for line in body
-                ):
+                if not any(line.startswith('\\end') for line in body):
                     temp.write('\\end{document}\n')
 
-            subprocess.call(
-                [PDFTEX, '-interaction=nonstopmode', f'{outfile}.tex']
+            subprocess.run(
+                [PDFTEX, '-interaction=nonstopmode', f'{name}.tex'],
+                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT,
+                cwd=self.cwd
             )
 
-            # crop pdf, convert to png
-            subprocess.call(
-                [PDFCROP, f'{outfile}.pdf', f'{outfile}.pdf'],
-                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
+            subprocess.run(
+                [PDFCROP, f'{name}.pdf', f'{name}.pdf'],
+                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT,
+                cwd=self.cwd
             )
 
-            subprocess.call(
+            subprocess.run(
                 ['convert',  '-density', f'{self.dpi}',
-                 f'{outfile}.pdf',
+                 f'{name}.pdf',
                  '-background', 'white', '-alpha', 'remove',
-                 f'{outfile}.png'],
-                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
+                 f'{name}.png'],
+                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT,
+                cwd=self.cwd
             )
 
-            self.rendered_files.append(f'{outfile}.png')
+            xpath = self.cwd / f'{name}.png'
+            self.rendered_files.append(xpath)
 
     def cleanup(self):
         for f in self.rendered_files:
-            pattern = f.replace('.png', '.*')
-            for _ in Path().glob(pattern):
+            pattern = str(f).split('/')[-1].replace('.png', '.*')
+            for _ in self.cwd.glob(pattern):
                 _.unlink()
