@@ -44,7 +44,7 @@ class RenderTex:
              for f in r.rendered_files]
             # I'd love to use files, but discord is reordering them
             r.cleanup()
-            del r
+        del r
 
     @commands.command()
     @checks.is_owner()
