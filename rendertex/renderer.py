@@ -3,8 +3,8 @@ import threading
 import re
 from pathlib import Path
 
-PDFTEX = '/usr/local/texlive/2017/bin/x86_64-linux/pdflatex'
-PDFCROP = '/usr/local/texlive/2017/bin/x86_64-linux/pdfcrop'
+PDFTEX = 'pdflatex'
+PDFCROP = 'pdfcrop'
 
 
 class TexRenderer(threading.Thread):
