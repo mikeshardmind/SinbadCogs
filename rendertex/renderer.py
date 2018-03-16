@@ -59,13 +59,16 @@ class TexRenderer(threading.Thread):
                     pkg.beginswith('\\usepackage{amssymb}') for pkg in packages
                 ):
                     temp.write('\\usepackage{amssymb}\n')
-                if not any(line.startswith('\begin') for line in body):
+                if not any(
+                    line.startswith('\begin{document}') for line in body
+                ):
                     temp.write('\\begin{document}\n')
                 temp.write('\pagestyle{empty}\n')
                 [temp.write(line + '\n') for line in body]
-                if not any(line.startswith('\\end') for line in body):
-                    temp.write('\\begin{document}\n')
-                temp.write('\end{document}\n')
+                if not any(
+                    line.startswith('\\end{document}') for line in body
+                ):
+                    temp.write('\\end{document}\n')
 
             subprocess.run(
                 [PDFTEX, '-interaction=nonstopmode', f'{name}.tex'],
