@@ -1,7 +1,7 @@
 import subprocess
 import threading
 import re
-from pathlib import Path
+from pathlib import Path  # NOQA:F401
 import random
 
 PDFTEX = '/usr/local/texlive/2017/bin/x86_64-linux/pdflatex'
@@ -14,7 +14,6 @@ class TexRenderer(threading.Thread):
         self.tex = kwargs.pop('tex')
         self.tex = re.sub('(?<=\\\\)\n', '', self.tex)
         self.dpi = kwargs.pop('dpi', 300)
-        self.cwd = kwargs.pop('cwd', Path('.'))
         self.done = threading.Event()
         self.rendered_files = []
         self.error = None
@@ -38,7 +37,7 @@ class TexRenderer(threading.Thread):
             names = ["equation{}".format(random.randint(1, 100000))]
             eqns = [self.tex]
 
-        for name, eq in zip(names, eqns):
+        for outfile, eq in zip(names, eqns):
             packages, body = [], []
             for eqline in eq.split('\n'):
                 if eqline.startswith(r'\usepackage'):
@@ -46,9 +45,7 @@ class TexRenderer(threading.Thread):
                 else:
                     body.append(eqline)
 
-            tempfile = self.cwd / f'{name}.tex'
-
-            with tempfile.open(mode='w') as temp:
+            with open(outfile + '.tex', 'w') as temp:
                 temp.write('\documentclass[preview]{standalone}\n')
                 [temp.write(pkg + '\n') for pkg in packages]
                 if not any(
@@ -70,32 +67,28 @@ class TexRenderer(threading.Thread):
                 ):
                     temp.write('\\end{document}\n')
 
-            subprocess.run(
-                [PDFTEX, '-interaction=nonstopmode', f'{name}.tex'],
-                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT,
-                cwd=self.cwd
+            subprocess.call(
+                [PDFTEX, '-interaction=nonstopmode', f'{outfile}.tex']
             )
 
-            subprocess.run(
-                [PDFCROP, f'{name}.pdf', f'{name}.pdf'],
-                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT,
-                cwd=self.cwd
+            # crop pdf, convert to png
+            subprocess.call(
+                [PDFCROP, f'{outfile}.pdf', f'{outfile}.pdf'],
+                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
             )
 
-            subprocess.run(
+            subprocess.call(
                 ['convert',  '-density', f'{self.dpi}',
-                 f'{name}.pdf',
+                 f'{outfile}.pdf',
                  '-background', 'white', '-alpha', 'remove',
-                 f'{name}.png'],
-                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT,
-                cwd=self.cwd
+                 f'{outfile}.png'],
+                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
             )
 
-            xpath = self.cwd / f'{name}.png'
-            self.rendered_files.append(xpath)
+            self.rendered_files.append(f'{outfile}.png')
 
     def cleanup(self):
         for f in self.rendered_files:
-            pattern = str(f).split('/')[-1].replace('.png', '.*')
-            for _ in self.cwd.glob(pattern):
+            pattern = f.replace('.png', '.*')
+            for _ in Path().glob(pattern):
                 _.unlink()

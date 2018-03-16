@@ -1,6 +1,5 @@
 from redbot.core import checks
 from redbot.core.config import Config as RealConfig
-from redbot.core.data_manager import cog_data_path
 
 import discord
 from discord.ext import commands
@@ -34,14 +33,14 @@ class RenderTex:
         if len(texblock) == 0:
             return
 
-        r = TexRenderer(tex=texblock, dpi=self.dpi, cwd=cog_data_path(self))
+        r = TexRenderer(tex=texblock, dpi=self.dpi)
         r.start()
 
         while r.is_alive():
             await asyncio.sleep(1)
 
         if not r.error and r.rendered_files:
-            [await message.channel.send(file=discord.File(str(f)))
+            [await message.channel.send(file=discord.File(f))
              for f in r.rendered_files]
             # I'd love to use files, but discord is reordering them
             r.cleanup()
