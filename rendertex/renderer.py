@@ -1,8 +1,9 @@
 import subprocess
 import threading
 import re
-import pathlib
-import contextlib
+
+PDFTEX = '/usr/local/texlive/2017/bin/x86_64-linux/pdflatex'
+PDFCROP = '/usr/local/texlive/2017/bin/x86_64-linux/pdfcrop'
 
 
 class TexRenderer(threading.Thread):
@@ -25,11 +26,10 @@ class TexRenderer(threading.Thread):
 
     def _render_equations(self):
         names = [
-            self.datapath + re.sub('[\W_]', '', n)
+            re.sub('[\W_]', '', n)
             for n in re.findall('%.{,}%\n', self.tex)
         ]
         eqns = re.split('%.{,}%\n', self.tex)[1:]
-        tmp_name = self.datapath + '.tempfile_latex_to_png'
 
         for outfile, eq in zip(names, eqns):
 
@@ -40,7 +40,7 @@ class TexRenderer(threading.Thread):
                 else:
                     body.append(eqline)
 
-            with open(tmp_name + '.tex', 'w') as temp:
+            with open(outfile + '.tex', 'w') as temp:
                 temp.write('\documentclass[preview]{standalone}\n')
                 [temp.write(pkg + '\n') for pkg in packages]
                 temp.write('\\begin{document}\n')
@@ -48,22 +48,20 @@ class TexRenderer(threading.Thread):
                 [temp.write(line + '\n') for line in body]
                 temp.write('\end{document}\n')
 
-            subprocess.call(['pdflatex', '-interaction=nonstopmode', tmp_name])
+            subprocess.call(
+                [PDFTEX, '-interaction=nonstopmode', f'{outfile}.tex']
+            )
 
             # crop pdf, convert to png
             subprocess.call(
-                f'pdfcrop {tmp_name}.pdf {outfile}.pdf',
-                shell=True)
+                [PDFCROP, f'{outfile}.pdf', f'{outfile}.pdf']
+            )
 
             subprocess.call(
-                f'convert -density {self.dpi} {outfile}.pdf {outfile}.png',
-                shell=True
+                ['convert',  '-density', f'{self.dpi}',
+                 f'{outfile}.pdf',
+                 '-background', 'white', '-alpha', 'remove',
+                 f'{outfile}.png']
             )
 
             self.rendered_files.append(f'{outfile}.png')
-
-    def cleanup(self):
-        with contextlib.suppress(FileNotFoundError, OSError):
-            for fname in self.rendered_files:
-                pathlib.Path(fname).unlink()
-                pathlib.Path(fname[:-3] + 'png').unlink()

@@ -10,8 +10,8 @@ class RenderTex:
     """
 
     def __init__(self, bot):
-        self.dpi = 300  # TODO: configurable
-        self.datapath = str(cog_data_path(self))
+        self.dpi = 1200  # TODO: configurable
+        self.datapath = str(cog_data_path(self)) + '/'
 
     async def on_message(self, message: discord.Message):
         if not (message.content.startswith('```tex')
@@ -28,10 +28,7 @@ class RenderTex:
             await asyncio.sleep(1)
 
         if not r.error and r.rendered_files:
-            content = (f"Rendered tex for {message.author.mention}")
-            files = [
-                discord.File(f, filename=f[:-3]) for f in r.rendered_files
-            ]
-            await message.channel.send(content=content, files=files)
-            r.cleanup()
+            [await message.channel.send(file=discord.File(f))
+             for f in r.rendered_files]
+            # I'd love to use files, but discord is reordering them
             del r
