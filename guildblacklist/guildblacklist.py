@@ -92,8 +92,9 @@ class GuildBlacklist:
         if len(_ids) == 0:
             return await ctx.send_help()
 
-        async with self.config.blacklist() as blacklist:
-            blacklist.update(list(_ids))
+        blacklist = set(await self.config.blacklist())
+        blacklist = blacklist + _ids
+        await self.config.blacklist.set(blacklist)
         await ctx.tick()
 
     @gbl.command(name="list")
@@ -102,9 +103,8 @@ class GuildBlacklist:
         list blacklisted IDs
         """
         output = GBL_LIST_HEADER
-        async with self.config.blacklist() as blacklist:
-            for _id in blacklist:
-                output += "\n{}".format(_id)
+        blacklist = await self.config.blacklist()
+        output += "\n".join(str(x) for x in blacklist)
 
         for page in pagify(output):
             await ctx.send(box(pagify))
