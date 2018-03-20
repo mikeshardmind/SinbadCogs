@@ -1,0 +1,12 @@
+{
+    "AUTHOR": "mikeshardmind",
+    "INSTALL_MSG": "",
+    "NAME": "GuildBlacklist",
+    "DISABLED": false,
+    "SHORT": "Have the bot only leave servers on a blacklist",
+    "DESCRIPTION": "blacklist guilds by guild or owner ID",
+    "TAGS": [
+        "blacklist"
+    ],
+    "HIDDEN": false
+}

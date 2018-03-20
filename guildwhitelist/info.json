@@ -1,0 +1,12 @@
+{
+    "AUTHOR": "mikeshardmind",
+    "INSTALL_MSG": "",
+    "NAME": "GuildWhitelist",
+    "DISABLED": false,
+    "SHORT": "Have the bot only join servers meeting a whitelist criteria",
+    "DESCRIPTION": "whitelist guilds by guild or owner ID",
+    "TAGS": [
+        "whitelist"
+    ],
+    "HIDDEN": false
+}
