@@ -33,7 +33,7 @@ class GuildWhitelist:
     """
 
     __author__ = 'mikeshardmind(Sinbad#0001)'
-    __version__ = '0.0.1a'
+    __version__ = '1.0.0a'
 
     default_globals = {
         'whitelist': []
