@@ -1,12 +1,19 @@
 import logging
+from pathlib import Path
 
 import discord
 from discord.ext import commands
 
 from redbot.core.i18n import CogI18n
 from redbot.core import Config, RedContext
+from redbot.core import __version__ as redversion
 from redbot.core.utils.chat_formatting import box, pagify
-from .dataconverter import DataConverter
+try:
+    from redbot.core.utils.data_converter import DataConverter as dc
+except ImportError:
+    DC_AVAILABLE = False
+else:
+    DC_AVAILABLE = True
 
 _ = CogI18n("GuildBlacklist", __file__)
 
@@ -15,6 +22,8 @@ log = logging.getLogger('red.guildblacklist')
 GBL_LIST_HEADER = _("IDs in blacklist")
 FILE_NOT_FOUND = _("That doesn't appear to be a valid path for that")
 FMT_ERROR = _("That file didn't appear to be a valid settings file")
+
+DC_UNAVAILABLE = _("Data conversion is not available in your install.")
 
 
 class GuildBlacklist:
@@ -25,12 +34,9 @@ class GuildBlacklist:
 
     __author__ = 'mikeshardmind(Sinbad#0001)'
     __version__ = '0.0.1a'
-    v2converter = {
-        'blacklist': lambda v2: set(int(i) for i in v2.keys())
-    }
 
     default_globals = {
-        'blacklist': set()
+        'blacklist': []
     }
 
     def __init__(self, bot):
@@ -40,7 +46,6 @@ class GuildBlacklist:
             force_registration=True
         )
         self.config.register_global(**self.default_globals)
-        self.dc = DataConverter(self.config)
 
     async def __local_check(self, ctx: RedContext):
         return await ctx.bot.is_owner(ctx.author)
@@ -62,6 +67,19 @@ class GuildBlacklist:
         if ctx.invoked_cubcommand is None:
             await ctx.send_help()
 
+    @gbl.command(name='debuginfo', hidden=True)
+    async def dbg_info(self, ctx: RedContext):
+        """
+        debug info
+        """
+        ret = (
+            "Author: {}".format(self.__author__)
+            + "\nVersion: {}".format(self.__version__)
+            + "\nd.py Version {}.{}.{}".format(*discord.version_info)
+            + "\nred version {}".format(redversion)
+        )
+        await ctx.send(box(ret))
+
     @gbl.command(name="add")
     async def gbl_add(self, ctx: RedContext, *ids: int):
         """
@@ -75,7 +93,7 @@ class GuildBlacklist:
             return await ctx.send_help()
 
         async with self.config.blacklist() as blacklist:
-            blacklist.update(_ids)
+            blacklist.update(list(_ids))
         await ctx.tick()
 
     @gbl.command(name="list")
@@ -101,24 +119,36 @@ class GuildBlacklist:
         if len(_ids) == 0:
             return await ctx.send_help()
 
-        bl = await self.config.blacklist()
-        bl = bl - _ids
-        await self.config.blacklist.set(bl)
+        bl = set(await self.config.blacklist())
+        bl = bl - ids
+        await self.config.blacklist.set(list(bl))
         await ctx.tick()
 
-    @gbl.command(name='import')
+    @gbl.command(name='import', disabled=True)
     async def gbl_import(self, ctx: RedContext, path: str):
         """
         pass the full path of the v2 settings.json
         for this cog
         """
+        if not DC_AVAILABLE:
+            return await ctx.send(DC_UNAVAILABLE)
+
+        v2_data = Path(path) / 'data' / 'serverblacklist' / 'list.json'
+        if not v2_data.is_file():
+            return await ctx.send(FILE_NOT_FOUND)
+
+        existing_ids = await self.config.blacklist()
+
+        def converter(data):
+            return [int(x) for x in data.keys()]
+
         try:
-            await self.dc.convert(path, self.v2converter)
+            imported_items = converter(dc.json_load(path))
+            to_set = list(set(imported_items + existing_ids))
+            await self.config.blacklist.set(to_set)
         except FileNotFoundError:
             return await ctx.send(FILE_NOT_FOUND)
-        except ValueError:
+        except (ValueError, AttributeError, TypeError):
             return await ctx.send(FMT_ERROR)
-        except RuntimeError as e:
-            log.exception("Data conversion failure")
         else:
             await ctx.tick()
