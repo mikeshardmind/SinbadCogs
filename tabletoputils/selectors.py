@@ -4,13 +4,13 @@ from typing import Hashable, Iterable
 
 class Selector:
 
-    def __init__(self, *selectfrom):
+    def __init__(self, selectfrom: list):
         self.selectable = set(selectfrom)
 
     def select(self, *exclude):
-        return np.random.choice([
-            s for s in self.selectable if s not in exclude
-        ])
+        r = [s for s in self.selectable if s not in exclude]
+        idx = np.random.choice(range(0, len(r)))
+        return r[idx]
 
     def insert(self, *items):
         self.selectable += set(items)
@@ -49,15 +49,15 @@ class StatefulSelector:
         }
 
     def select(self, *exclude):
-        items, bias = zip(
-            *[(i, b) for i, b in self.selectable
+        items, bias = (list(x) for x in zip(
+            *[(i, b) for i, b in self.selectable.items()
               if i not in exclude]
-        )
+        ))
         weights = self.weights_from_bias(bias)
         choice = np.random.choice(items, p=weights)
 
         self.selectable = {
-            k: v + 1 for k, v in self.selectable
+            k: v + 1 for k, v in self.selectable.items()
         }
         self.selectable[choice] = 1
         self.last = choice
@@ -67,8 +67,11 @@ class StatefulSelector:
     def weights_from_bias(bias: list):
         return [float(b) / sum(bias) for b in bias]
 
+    def __iter__(self):
+        return self
+
     def __next__(self):
         if self.backtoback:
-            return self.choice()
+            return self.select()
         else:
-            return self.choice(self.last)
+            return self.select(self.last)
