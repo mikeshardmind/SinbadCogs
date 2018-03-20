@@ -90,22 +90,22 @@ class Deck:
                 self.reset_deck()
             else:
                 raise AttributeError("Empty deck can't be drawn from")
-        possible = [k for k, v in self._state.items() if v > 0]
+        possible = [k for k, v in self._deck.items() if v > 0]
         weights = [
             float(v) / self.remaining_cards
             for v in [
-                self.state[k] for k in possible
+                self._deck[k] for k in possible
             ]
         ]
 
-        card = np.random.choice(possible, p=weights)
-
-        self._state[card] -= 1
+        idx = np.random.choice(range(0, len(possible)), p=weights)
+        card = possible[idx]
+        self._deck[card] -= 1
         return card
 
     @property
     def remaining_cards(self):
-        return sum(self._state.values())
+        return sum(self._deck.values())
 
     def __iter__(self):
         return self
