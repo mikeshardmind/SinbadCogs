@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import itertools
 
 import discord
 from discord.ext import commands
@@ -92,9 +93,10 @@ class GuildBlacklist:
         if len(_ids) == 0:
             return await ctx.send_help()
 
-        blacklist = set(await self.config.blacklist())
-        blacklist = blacklist.update(_ids)
-        await self.config.blacklist.set(list(blacklist))
+        blacklist = await self.config.blacklist()
+        blacklist = blacklist + _ids
+        to_set = unique(blacklist)
+        await self.config.blacklist.set(to_set)
         await ctx.tick()
 
     @gbl.command(name="list")
@@ -119,9 +121,9 @@ class GuildBlacklist:
         if len(_ids) == 0:
             return await ctx.send_help()
 
-        bl = set(await self.config.blacklist())
-        bl = bl - ids
-        await self.config.blacklist.set(list(bl))
+        bl = await self.config.blacklist()
+        bl = [x for x in bl if x not in ids]
+        await self.config.blacklist.set(bl)
         await ctx.tick()
 
     @gbl.command(name='import', disabled=True)
@@ -152,3 +154,10 @@ class GuildBlacklist:
             return await ctx.send(FMT_ERROR)
         else:
             await ctx.tick()
+
+
+def unique(a):
+    indices = sorted(range(len(a)), key=a.__getitem__)
+    indices = set(next(it) for k, it in
+                  itertools.groupby(indices, key=a.__getitem__))
+    return [x for i, x in enumerate(a) if i in indices]

@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import itertools
 
 import discord
 from discord.ext import commands
@@ -95,9 +96,10 @@ class GuildWhitelist:
         if len(_ids) == 0:
             return await ctx.send_help()
 
-        wl = set(await self.config.whitelist())
-        wl = wl.update(_ids)
-        await self.config.whitelist.set(list(wl))
+        wl = await self.config.whitelist()
+        wl = wl + ids
+        to_set = unique(wl)
+        await self.config.whitelist.set(to_set)
         await ctx.tick()
 
     @gwl.command(name="list")
@@ -123,9 +125,9 @@ class GuildWhitelist:
         if len(_ids) == 0:
             return await ctx.send_help()
 
-        wl = set(await self.config.whitelist())
-        wl = wl - ids
-        await self.config.whitelist.set(list(wl))
+        wl = await self.config.whitelist()
+        wl = [i for i in wl if i not in ids]
+        await self.config.whitelist.set(wl)
         await ctx.tick()
 
     @gwl.command(name='import', disabled=True)
@@ -156,3 +158,10 @@ class GuildWhitelist:
             return await ctx.send(FMT_ERROR)
         else:
             await ctx.tick()
+
+
+def unique(a):
+    indices = sorted(range(len(a)), key=a.__getitem__)
+    indices = set(next(it) for k, it in
+                  itertools.groupby(indices, key=a.__getitem__))
+    return [x for i, x in enumerate(a) if i in indices]
