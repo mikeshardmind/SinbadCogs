@@ -64,7 +64,7 @@ class GuildBlacklist:
         """
         settings for guildblacklisting
         """
-        if ctx.invoked_cubcommand is None:
+        if ctx.invoked_subcommand is None:
             await ctx.send_help()
 
     @gbl.command(name='debuginfo', hidden=True)
