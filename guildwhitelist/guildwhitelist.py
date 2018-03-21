@@ -96,7 +96,7 @@ class GuildWhitelist:
             return await ctx.send_help()
 
         wl = set(await self.config.whitelist())
-        wl = wl + _ids
+        wl = wl.update(_ids)
         await self.config.whitelist.set(list(wl))
         await ctx.tick()
 

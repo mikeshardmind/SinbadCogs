@@ -93,7 +93,7 @@ class GuildBlacklist:
             return await ctx.send_help()
 
         blacklist = set(await self.config.blacklist())
-        blacklist = blacklist + _ids
+        blacklist = blacklist.update(_ids)
         await self.config.blacklist.set(list(blacklist))
         await ctx.tick()
 
