@@ -92,12 +92,11 @@ class GuildWhitelist:
         If the ID of a user, any guild owned by this user will be
         treated as if it were whitelisted.
         """
-        _ids = set(ids)
-        if len(_ids) == 0:
+        if len(ids) == 0:
             return await ctx.send_help()
 
         wl = await self.config.whitelist()
-        wl = wl + ids
+        wl = wl + list(ids)
         to_set = unique(wl)
         await self.config.whitelist.set(to_set)
         await ctx.tick()
@@ -121,8 +120,7 @@ class GuildWhitelist:
         """
         remove one or more ids from the whitelist
         """
-        _ids = set(ids)
-        if len(_ids) == 0:
+        if len(ids) == 0:
             return await ctx.send_help()
 
         wl = await self.config.whitelist()

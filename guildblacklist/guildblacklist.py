@@ -89,12 +89,11 @@ class GuildBlacklist:
         If the ID of a user, any guild owned by this user will be
         treated as if it were blacklisted.
         """
-        _ids = set(ids)
-        if len(_ids) == 0:
+        if len(ids) == 0:
             return await ctx.send_help()
 
         blacklist = await self.config.blacklist()
-        blacklist = blacklist + _ids
+        blacklist = blacklist + list(ids)
         to_set = unique(blacklist)
         await self.config.blacklist.set(to_set)
         await ctx.tick()
@@ -117,8 +116,7 @@ class GuildBlacklist:
         """
         remove one or more ids from the blacklist
         """
-        _ids = set(ids)
-        if len(_ids) == 0:
+        if len(ids) == 0:
             return await ctx.send_help()
 
         bl = await self.config.blacklist()
