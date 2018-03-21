@@ -94,7 +94,7 @@ class GuildBlacklist:
 
         blacklist = set(await self.config.blacklist())
         blacklist = blacklist + _ids
-        await self.config.blacklist.set(blacklist)
+        await self.config.blacklist.set(list(blacklist))
         await ctx.tick()
 
     @gbl.command(name="list")
