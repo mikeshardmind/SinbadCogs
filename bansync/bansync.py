@@ -58,7 +58,7 @@ class BanSync:
             user_allowed |= m.guild_permissions.ban_members
         settings = self.bot.db.guild(g)
         _arid = await settings.admin_role()
-        user_allowed |= u.id == (await self.bot.application_info()).owner.id
+        user_allowed |= await self.bot.is_owner(u)
         user_allowed |= any(r.id == _arid for r in u.roles)
         bot_allowed = g.me.guild_permissions.ban_members
         return user_allowed and bot_allowed
@@ -96,7 +96,7 @@ class BanSync:
 
     async def interactive(self, ctx: commands.context, picked: GuildList):
         output = ""
-        guilds = self.guild_discovery(ctx, picked)
+        guilds = await self.guild_discovery(ctx, picked)
         if len(guilds) == 0:
             return -1
         for i, guild in enumerate(guilds, 1):
