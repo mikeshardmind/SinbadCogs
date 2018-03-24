@@ -96,7 +96,7 @@ class BanSync:
 
     async def interactive(self, ctx: commands.context, picked: GuildList):
         output = ""
-        guilds = await self.guild_discovery(ctx, picked)
+        guilds = [g async for g in self.guild_discovery(ctx, picked)]
         if len(guilds) == 0:
             return -1
         for i, guild in enumerate(guilds, 1):
