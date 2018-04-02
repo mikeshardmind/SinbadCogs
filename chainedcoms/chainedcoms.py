@@ -39,7 +39,7 @@ class ChainedComs:
 
     @commands.command()
     async def chaincom_targeted(self, ctx: RedContext, delim: str,
-                                target: str, *coms: str):
+                                target: discord.User, *coms: str):
         """
         works like chaincom, but also allows a target parameter
         for use with alias
@@ -49,7 +49,7 @@ class ChainedComs:
         await self._chain_com_process(
             ctx=ctx,
             delim=delim,
-            target=target,
+            target=target.mention,
             coms=coms
         )
 
