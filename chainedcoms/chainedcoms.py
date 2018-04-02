@@ -17,7 +17,7 @@ class ChainedComs:
         self.queues = {}
 
     @commands.command(name="chaincom")
-    async def chaincom(self, ctx: RedContext, delim: str, *coms: str):
+    async def chaincom(self, ctx: RedContext, delim: str, *, coms: str):
         """
         Specify a delimiter for commands,
         followed by each command seperated by said delimiter
@@ -33,7 +33,7 @@ class ChainedComs:
         await self._chain_com_process(
             ctx=ctx,
             delim=delim,
-            coms=coms
+            coms=" ".join(coms)
         )
 
     @commands.command()
@@ -49,7 +49,7 @@ class ChainedComs:
             ctx=ctx,
             delim=delim,
             target=target,
-            coms=coms
+            coms=" ".join(coms)
         )
 
     async def _chain_com_process(
