@@ -49,7 +49,7 @@ class ChainedComs:
             ctx=ctx,
             delim=delim,
             target=target,
-            coms=" ".join(coms)
+            coms="".join(coms)
         )
 
     async def _chain_com_process(
