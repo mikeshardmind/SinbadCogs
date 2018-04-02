@@ -58,51 +58,27 @@ class ChainedComs:
             target: str=None, coms: str):
         """ heavy lifting here """
 
-        actions = coms.format(
-            guild=ctx.guild,
-            channel=ctx.channel,
-            author=ctx.author,
-            target=target
-        ).split(delim)
+        actions = [
+            x.strip() for x in coms.format(
+                guild=ctx.guild,
+                channel=ctx.channel,
+                author=ctx.author,
+                target=target
+            ).split(delim)
+        ]
 
-        self.queues[ctx.message.id] = {
-            'real_ctx': ctx,
-            'original_content': copy(ctx.message.content),
-            'actions': actions,
-            'last_forged': None
-        }
-
-    async def on_command_completion(self, ctx: RedContext):
-        """
-        Where the magic happens
-        """
-
-        async def qhandle():
-            if qinfo['actions']:
-                m = copy(ctx.message)
-                m.content = "{}{}".format(
-                    ctx.prefix, qinfo['actions'].pop(0)
-                )
-                forged_ctx = await ctx.bot.get_context(m, cls=RedContext)
-                try:
-                    await ctx.bot.invoke(forged_ctx)
-                except Exception as e:
-                    log.exception(e)
-                    self.queues.pop(ctx.message.id, None)
-                else:
-                    log.debug(m.content)
-                    qinfo['last_forged'] = forged_ctx.message.id
-            else:
-                await qinfo['real_ctx'].tick()
-                self.queues.pop(ctx.message.id, None)
-
-        if ctx.message.id in self.queues:
-            qinfo = self.queues[ctx.message.id]
-            await qhandle()
-        else:
-            qinfo = discord.utils.find(
-                lambda x: x['last_forged'] == ctx.message.id,
-                self.queues.values()
+        for action in actions:
+            m = copy(ctx.message)
+            m.content = "{}{}".format(
+                ctx.prefix, action
             )
-            if qinfo:
-                await qhandle()
+            forged_ctx = await ctx.bot.get_context(m, cls=RedContext)
+            try:
+                await ctx.bot.invoke(forged_ctx)
+            except Exception as e:
+                log.exception(e)
+                break
+            else:
+                log.debug(m.content)
+        else:
+            await ctx.tick()
