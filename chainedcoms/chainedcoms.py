@@ -1,7 +1,6 @@
 import logging
 from copy import copy
 
-import discord
 from redbot.core import RedContext
 from discord.ext import commands
 
@@ -37,22 +36,6 @@ class ChainedComs:
             coms=coms
         )
 
-    @commands.command()
-    async def chaincom_targeted(self, ctx: RedContext, delim: str,
-                                target: discord.User, *coms: str):
-        """
-        works like chaincom, but also allows a target parameter
-        for use with alias
-
-        target should be swapped in as needed using {target}
-        """
-        await self._chain_com_process(
-            ctx=ctx,
-            delim=delim,
-            target=target.mention,
-            coms=coms
-        )
-
     async def _chain_com_process(
         self, *, ctx: RedContext, delim: str,
             target: str=None, coms: str):
@@ -62,8 +45,7 @@ class ChainedComs:
             x.strip() for x in coms.format(
                 guild=ctx.guild,
                 channel=ctx.channel,
-                author=ctx.author,
-                target=target
+                author=ctx.author
             ).split(delim)
         ]
 
@@ -77,7 +59,6 @@ class ChainedComs:
                 await ctx.bot.invoke(forged_ctx)
             except Exception as e:
                 log.exception(e)
-                break
             else:
                 log.debug(m.content)
         else:
