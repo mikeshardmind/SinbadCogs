@@ -22,8 +22,8 @@ class ChainedComs:
         Specify a delimiter for commands,
         followed by each command seperated by said delimiter
 
-        commands will run in order, stopping at the first errored command
-        in the chain.
+        commands will be queued in order, but are not
+        guaranteed to finish in order
 
         certain special sequences will get swapped out:
         {guild}
