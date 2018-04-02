@@ -33,7 +33,7 @@ class ChainedComs:
         await self._chain_com_process(
             ctx=ctx,
             delim=delim,
-            coms=" ".join(coms)
+            coms=coms
         )
 
     @commands.command()
@@ -49,7 +49,7 @@ class ChainedComs:
             ctx=ctx,
             delim=delim,
             target=target,
-            coms="".join(coms)
+            coms=coms
         )
 
     async def _chain_com_process(
