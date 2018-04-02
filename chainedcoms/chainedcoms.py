@@ -1,6 +1,7 @@
 import logging
 from copy import copy
 
+import discord
 from redbot.core import RedContext
 from discord.ext import commands
 
@@ -67,7 +68,8 @@ class ChainedComs:
         self.queues[ctx.message.id] = {
             'real_ctx': ctx,
             'original_content': copy(ctx.message.content),
-            'actions': actions
+            'actions': actions,
+            'last_forged': None
         }
 
     async def on_command_completion(self, ctx: RedContext):
@@ -75,8 +77,7 @@ class ChainedComs:
         Where the magic happens
         """
 
-        if ctx.message.id in self.queues:
-            qinfo = self.queues[ctx.message.id]
+        async def qhandle():
             if qinfo['actions']:
                 m = copy(ctx.message)
                 m.content = "{}{}".format(
@@ -90,6 +91,18 @@ class ChainedComs:
                     self.queues.pop(ctx.message.id, None)
                 else:
                     log.debug(m.content)
+                    qinfo['last_forged'] = forged_ctx.message.id
             else:
                 await qinfo['real_ctx'].tick()
                 self.queues.pop(ctx.message.id, None)
+
+        if ctx.message.id in self.queues:
+            qinfo = self.queues[ctx.message.id]
+            await qhandle()
+        else:
+            qinfo = discord.utils.find(
+                lambda x: x['last_forged'] == ctx.message.id,
+                self.queues.values()
+            )
+            if qinfo:
+                await qhandle()
