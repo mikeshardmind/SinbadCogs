@@ -52,10 +52,11 @@ def embed_from_msg(message: discord.Message) -> discord.Embed:
 
 
 def unique(a):
-    indices = sorted(range(len(a)), key=str(a.__getitem__))
-    indices = set(next(it) for k, it in
-                  itertools.groupby(indices, key=str(a.__getitem__)))
-    return [x for i, x in enumerate(a) if i in indices]
+    ret = []
+    for item in a:
+        if item not in ret:
+            ret.append(item)
+    return ret
 
 
 def txt_channel_finder(bot: commands.bot, chaninfo: str
