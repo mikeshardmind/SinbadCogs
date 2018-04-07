@@ -1,5 +1,6 @@
 import discord
 import re
+import itertools
 
 
 def role_mention_cleanup(self, message):
@@ -46,3 +47,10 @@ def embed_from_msg(message: discord.Message):
                          inline=True)
 
     return em
+
+
+def unique(a):
+    indices = sorted(range(len(a)), key=a.__getitem__)
+    indices = set(next(it) for k, it in
+                  itertools.groupby(indices, key=a.__getitem__))
+    return [x for i, x in enumerate(a) if i in indices]

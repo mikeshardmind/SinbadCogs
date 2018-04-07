@@ -1,5 +1,6 @@
 import discord
 from redbot.core import RedContext
+from .serializers import deserialize_embed
 
 
 class InteractiveCreator:
@@ -21,6 +22,13 @@ class InteractiveCreator:
         self.ctx = ctx
         self.name = name
         self.em_dict = {}
+
+    @property
+    def embed(self):
+        return deserialize_embed(self.em_dict)
+
+    async def send(self):
+        await self.ctx.send(self.embed)
 
     async def main_menu(self):
         pass
