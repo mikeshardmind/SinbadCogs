@@ -76,10 +76,9 @@ def txt_channel_finder(bot: commands.bot, chaninfo: str
             return isinstance(
                 c, discord.TextChannel
             ) and c.id == int(match.group(1))
-        return filter(txt_check, bot.get_all_channels())
     else:
         def txt_check(c):
             return isinstance(
                 c, discord.TextChannel
             ) and c.name == chaninfo
-        return filter(txt_check, bot.get_all_channels())
+    return list(filter(txt_check, bot.get_all_channels()))
