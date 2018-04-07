@@ -280,7 +280,7 @@ class Relays:
 
         msg = self.get_relay_info(name)
         for page in pagify(msg):
-            await ctx.send(box(pagify))
+            await ctx.send(box(page))
 
     @commands.command()
     async def rmrelay(self, ctx: RedContext, name: str=None):
