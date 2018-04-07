@@ -52,9 +52,9 @@ def embed_from_msg(message: discord.Message) -> discord.Embed:
 
 
 def unique(a):
-    indices = sorted(range(len(a)), key=a.__getitem__)
+    indices = sorted(range(len(a)), key=a.__getitem__.id)
     indices = set(next(it) for k, it in
-                  itertools.groupby(indices, key=a.__getitem__))
+                  itertools.groupby(indices, key=a.__getitem__.id))
     return [x for i, x in enumerate(a) if i in indices]
 
 
