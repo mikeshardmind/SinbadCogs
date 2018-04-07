@@ -121,7 +121,7 @@ class Relays:
     def validate_inputs(self, *chaninfo: str):
         ret = {}
         for info in chaninfo:
-            x = txt_channel_finder(info)
+            x = txt_channel_finder(self.bot, info)
             if len(x) == 1:
                 val = x[0]
             elif len(x) == 0:
