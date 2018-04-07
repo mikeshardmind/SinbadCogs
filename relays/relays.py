@@ -172,8 +172,7 @@ class Relays:
             try:
                 message = int(message.content.strip())
                 if message < 1:
-                    await ctx.send(INVALID_CHOICE)
-                    ret = None
+                    raise IndexError("We only want positive indexes")
                 else:
                     name = names[message - 1]
             except (ValueError, IndexError):
