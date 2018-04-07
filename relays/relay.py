@@ -1,7 +1,6 @@
 from typing import List
-
 import discord
-from discord.ext import bot
+from redbot.core.bot import Red
 
 
 class NwayRelay:
@@ -17,7 +16,7 @@ class NwayRelay:
         ]
 
     @classmethod
-    def from_data(cls, bot: bot, channels: List[int]):
+    def from_data(cls, bot: Red, channels: List[int]):
         channel_objs = [
             c for c in bot.get_all_channels()
             if c.id in channels
@@ -44,7 +43,7 @@ class OnewayRelay:
         ]
 
     @classmethod
-    def from_data(cls, bot: bot, *, source: int, destinations: List[int]):
+    def from_data(cls, bot: Red, *, source: int, destinations: List[int]):
         source_obj = discord.utils.get(bot.get_all_channels(), id=source)
         destination_objs = [
             c for c in bot.get_all_channels()
