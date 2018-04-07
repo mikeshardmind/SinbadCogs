@@ -172,6 +172,8 @@ class Relays:
             try:
                 message = int(message.content.strip())
                 if message < 1:
+                    if message == -1:
+                        return
                     raise IndexError("We only want positive indexes")
                 else:
                     name = names[message - 1]

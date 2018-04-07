@@ -39,8 +39,8 @@ def embed_from_msg(message: discord.Message) -> discord.Embed:
     em.set_footer(text=footer, icon_url=server.icon_url)
     if message.attachments:
         a = message.attachments[0]
-        fname = a['filename']
-        url = a['url']
+        fname = a.filename
+        url = a.url
         if fname.split('.')[-1] in ['png', 'jpg', 'gif', 'jpeg']:
             em.set_image(url=url)
         else:
