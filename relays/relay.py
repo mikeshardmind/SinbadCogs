@@ -39,7 +39,7 @@ class OnewayRelay:
         if message.channel != self.source:
             return []
         return [
-            d for d in self.destinations if d != message.source
+            d for d in self.destinations if d != message.channel
         ]
 
     @classmethod

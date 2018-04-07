@@ -69,7 +69,7 @@ def txt_channel_finder(bot: commands.bot, chaninfo: str
         return _id_regex.match(argument)
 
     match = _get_id_match(chaninfo) or re.match(
-        r'<@!?([0-9]+)>$', chaninfo)
+        r'<#?([0-9]+)>$', chaninfo)
 
     if match is not None:
         def txt_check(c):
