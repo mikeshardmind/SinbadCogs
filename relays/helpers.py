@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from typing import List
 import re
-import itertools
 
 
 def role_mention_cleanup(message: discord.Message) -> str:

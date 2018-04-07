@@ -44,7 +44,7 @@ ONE_WAY_OUTPUT_TEMPLATE = [
 
 NWAY_OUTPUT_TEMPLATE = [
     _("Relay type: multiway"),
-    _("Channels:")
+    _("Channels: ")
 ]
 
 
@@ -54,7 +54,7 @@ class Relays:
     """
 
     __author__ = 'mikeshardmind(Sinbad#0001)'
-    __version__ = '0.0.1ua'
+    __version__ = '1.0.0b'
 
     def __init__(self, bot: Red):
         self. bot = bot

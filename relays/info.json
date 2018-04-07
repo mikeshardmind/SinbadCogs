@@ -1,0 +1,12 @@
+{
+    "AUTHOR": "mikeshardmind",
+    "INSTALL_MSG": "",
+    "NAME": "Relays",
+    "DISABLED": false,
+    "SHORT": "Forwards messages",
+    "DESCRIPTION": "Relays messages across channels",
+    "TAGS": [
+        "relay", "relays"
+    ],
+    "HIDDEN": false
+}
