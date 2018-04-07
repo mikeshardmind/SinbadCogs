@@ -5,7 +5,7 @@ import re
 import itertools
 
 
-def role_mention_cleanup(self, message: discord.Message) -> str:
+def role_mention_cleanup(message: discord.Message) -> str:
 
     if message.guild is None:
         return message.content
@@ -65,7 +65,7 @@ def txt_channel_finder(bot: commands.bot, chaninfo: str
     """
     _id_regex = re.compile(r'([0-9]{15,21})$')
 
-    def _get_id_match(self, argument):
+    def _get_id_match(argument):
         return _id_regex.match(argument)
 
     match = _get_id_match(chaninfo) or re.match(
