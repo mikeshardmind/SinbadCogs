@@ -58,7 +58,7 @@ def unique(a):
     return [x for i, x in enumerate(a) if i in indices]
 
 
-def txt_channel_finder(self, bot: commands.bot, chaninfo: str
+def txt_channel_finder(bot: commands.bot, chaninfo: str
                        ) -> List[discord.TextChannel]:
     """
     custom text channel finder
