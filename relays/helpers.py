@@ -1,9 +1,11 @@
 import discord
+from discord.ext import commands
+from typing import List
 import re
 import itertools
 
 
-def role_mention_cleanup(self, message):
+def role_mention_cleanup(self, message: discord.Message) -> str:
 
     if message.guild is None:
         return message.content
@@ -22,7 +24,7 @@ def role_mention_cleanup(self, message):
     return result
 
 
-def embed_from_msg(message: discord.Message):
+def embed_from_msg(message: discord.Message) -> discord.Embed:
     channel = message.channel
     server = channel.guild
     content = role_mention_cleanup(message)
@@ -54,3 +56,30 @@ def unique(a):
     indices = set(next(it) for k, it in
                   itertools.groupby(indices, key=a.__getitem__))
     return [x for i, x in enumerate(a) if i in indices]
+
+
+def txt_channel_finder(self, bot: commands.bot, chaninfo: str
+                       ) -> List[discord.TextChannel]:
+    """
+    custom text channel finder
+    """
+    _id_regex = re.compile(r'([0-9]{15,21})$')
+
+    def _get_id_match(self, argument):
+        return _id_regex.match(argument)
+
+    match = _get_id_match(chaninfo) or re.match(
+        r'<@!?([0-9]+)>$', chaninfo)
+
+    if match is not None:
+        def txt_check(c):
+            return isinstance(
+                c, discord.TextChannel
+            ) and c.id == int(match.group(1))
+        return filter(txt_check, bot.get_all_channels())
+    else:
+        def txt_check(c):
+            return isinstance(
+                c, discord.TextChannel
+            ) and c.name == chaninfo
+        return filter(txt_check, bot.get_all_channels())
