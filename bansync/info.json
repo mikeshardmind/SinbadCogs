@@ -1,0 +1,13 @@
+{
+    "AUTHOR": "mikeshardmind",
+    "INSTALL_MSG": "Read the help first, this has some dangerous commands when misused",
+    "NAME": "BanSync",
+    "DISABLED": false,
+    "SHORT": "Synchronize bans",
+    "DESCRIPTION": "Ban a user across all servers where you can, or synchronize bans between multiple servers",
+    "TAGS": [
+        "ban", "sync"
+    ],
+    "HIDDEN": false,
+    "min_python_version": [3, 6, 0]
+}
