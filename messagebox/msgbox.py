@@ -23,7 +23,7 @@ class MessageBox:
     """
 
     __author__ = 'mikeshardmind(Sinbad#0001)'
-    __version__ = '1.0.0a'
+    __version__ = '1.0.0b'
 
     def __init__(self, bot):
         self.bot = bot
@@ -55,7 +55,7 @@ class MessageBox:
         """
 
         if not message and not ctx.message.attachments:
-            raise commands.BadArgument('Need a message or attach')
+            raise commands.BadArgument(_('Need a message or attach'))
         try:
             m = copy(ctx.message)
             m.content = message if message else ""
@@ -85,11 +85,11 @@ class MessageBox:
                 await a.save(_fp)
                 size += sys.getsizeof(_fp)
                 if size > max_size:
-                    await message.channel.send(
+                    await message.channel.send(_(
                         "Could not forward attatchments. "
                         "Total size of attachments in a single "
                         "message must be less than 8MB."
-                    )
+                    ))
                     break
                 files.append(
                     discord.File(_fp, filename=a.filename)
@@ -97,7 +97,7 @@ class MessageBox:
             else:
                 attach = files
 
-        _content = "Contact from {0} ({0.id})\n".format(message.author)
+        _content = _("Contact from {0} ({0.id})\n").format(message.author)
         if content:
             _content += content
 
