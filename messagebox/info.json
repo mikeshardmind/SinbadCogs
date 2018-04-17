@@ -1,0 +1,12 @@
+{
+    "AUTHOR": "mikeshardmind",
+    "INSTALL_MSG": "",
+    "NAME": "MessageBox",
+    "DISABLED": false,
+    "SHORT": "replaces contact with a command dumping stuff in a channel",
+    "DESCRIPTION": "replaces contact with a command dumping stuff in a channel",
+    "TAGS": [
+        "contact", "modmail", "feedback", "mail", "messagebox", "msgbox"
+    ],
+    "HIDDEN": false
+}

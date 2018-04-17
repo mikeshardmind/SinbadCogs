@@ -45,7 +45,7 @@ class MessageBox:
     # more permissive since not DM
     @commands.cooldown(3, 60, commands.BucketType.user)
     @commands.command(name='contact', aliases=['msgbox'])
-    async def replacement_contact(self, ctx, *, message: str):
+    async def replacement_contact(self, ctx, *, message: str=None):
         """
         send a message to the bot owner
         """
@@ -53,13 +53,13 @@ class MessageBox:
         if len(message) == 0 and not ctx.message.attachments:
             raise commands.BadArgument('Need a message or attach')
         try:
-            await self.process_message(ctx.message)
+            await self.process_message(ctx.message, message)
         except MessageBoxError as e:
             await ctx.send('{}'.format(e))
         else:
             await ctx.tick()
 
-    async def process_message(self, message: discord.Message):
+    async def process_message(self, message: discord.Message, content: str):
         send_to = discord.utils.get(
             self.bot.get_all_channels(),
             id=(await self.config.output())
@@ -91,7 +91,10 @@ class MessageBox:
             else:
                 attach = files
 
-        for page in pagify(message.content):
+        _content = "Contact from {0.mention}\n".format(message.author)
+        if content:
+            _content += content
+        for page in pagify(_content):
             await send_to.send(page, files=attach)
             if attach:
                 del attach
