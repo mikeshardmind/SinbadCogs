@@ -94,7 +94,7 @@ class MessageBox:
             else:
                 attach = files
 
-        _content = "Contact from {0.mention}\n".format(message.author)
+        _content = "Contact from {0} ({0.id})\n".format(message.author)
         if content:
             _content += content
 
