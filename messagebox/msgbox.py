@@ -1,7 +1,7 @@
 import io
 import sys
 import discord
-import copy
+from copy import copy
 from discord.ext import commands
 from redbot.core.config import Config
 from redbot.core import checks
