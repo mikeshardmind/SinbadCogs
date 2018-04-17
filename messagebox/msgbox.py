@@ -22,6 +22,9 @@ class MessageBox:
     replace contact with something less obnoxious
     """
 
+    __author__ = 'mikeshardmind(Sinbad#0001)'
+    __version__ = '1.0.0a'
+
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
@@ -51,7 +54,7 @@ class MessageBox:
         send a message to the bot owner
         """
 
-        if len(message) == 0 and not ctx.message.attachments:
+        if not message and not ctx.message.attachments:
             raise commands.BadArgument('Need a message or attach')
         try:
             m = copy(ctx.message)
