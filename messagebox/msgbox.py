@@ -49,7 +49,7 @@ class MessageBox:
     # more permissive since not DM
     @commands.cooldown(3, 60, commands.BucketType.user)
     @commands.command(name='contact', aliases=['msgbox'])
-    async def replacement_contact(self, ctx, *, message: str=None):
+    async def replacement_contact(self, ctx, *, message: str=""):
         """
         send a message to the bot owner
         """
@@ -58,7 +58,7 @@ class MessageBox:
             raise commands.BadArgument('Need a message or attach')
         try:
             m = copy(ctx.message)
-            m.content = message
+            m.content = message if message else ""
             await self.process_message(ctx.message, m.clean_content)
         except MessageBoxError as e:
             await ctx.send('{}'.format(e))
