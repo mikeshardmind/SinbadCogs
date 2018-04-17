@@ -1,6 +1,7 @@
 import io
 import sys
 import discord
+import copy
 from discord.ext import commands
 from redbot.core.config import Config
 from redbot.core import checks
@@ -53,7 +54,9 @@ class MessageBox:
         if len(message) == 0 and not ctx.message.attachments:
             raise commands.BadArgument('Need a message or attach')
         try:
-            await self.process_message(ctx.message, message)
+            m = copy(ctx.message)
+            m.content = message
+            await self.process_message(ctx.message, m.clean_content)
         except MessageBoxError as e:
             await ctx.send('{}'.format(e))
         else:
@@ -94,6 +97,7 @@ class MessageBox:
         _content = "Contact from {0.mention}\n".format(message.author)
         if content:
             _content += content
+
         for page in pagify(_content):
             await send_to.send(page, files=attach)
             if attach:
