@@ -35,11 +35,10 @@ class BanSync:
     """
 
     __author__ = 'mikeshardmind(Sinbad#0001)'
-    __version__ = '1.0.2a'
+    __version__ = '1.0.3b'
 
     def __init__(self, bot):
         self.bot = bot
-        self._owner = None
 
     @commands.command(name='bansyncdebuginfo', hidden=True)
     async def debuginfo(self, ctx):
@@ -63,11 +62,12 @@ class BanSync:
         bot_allowed = g.me.guild_permissions.ban_members
         return user_allowed and bot_allowed
 
-    def ban_filter(self, g: discord.Guild, u: discord.user, t: discord.user):
+    async def ban_filter(
+            self, g: discord.Guild, u: discord.user, t: discord.user):
         m = g.get_member(u.id)
-        if m is None and u.id != self._owner.id:
+        if m is None and not await self.bot.is_owner(u):
             return False
-        elif u.id == self._owner.id:
+        elif await self.bot.is_owner(u):
             can_ban = True
         else:
             can_ban = m.guild_permissions.ban_members \
@@ -143,7 +143,7 @@ class BanSync:
             for k, v in bans.items():
                 to_ban.extend(
                     [m for m in v if m not in bans[guild.id]
-                     and self.ban_filter(guild, usr, m)]
+                     and await self.ban_filter(guild, usr, m)]
                 )
 
             for x in to_ban:
