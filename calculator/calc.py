@@ -55,12 +55,14 @@ class Calculator:
         await self.run_calc(ctx)
 
     async def run_calc(self, ctx: RedContext):
-        await self.bot.loop.run_in_executor(
-            functools.partial(
-                run_jailed,
-                context=ctx,
-                callback=self._respond
-            )
+        wrapped = self._wrap(ctx)
+        await self.bot.loop.run_in_executor(wrapped)
+
+    def _wrap(self, ctx: RedContext):
+        return functools.partial(
+            run_jailed,
+            context=ctx,
+            callback=self._respond
         )
 
     async def _respond(self, ctx: RedContext, resp: str):
