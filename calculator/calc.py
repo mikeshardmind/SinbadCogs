@@ -57,7 +57,7 @@ class Calculator:
     async def run_calc(self, ctx: RedContext):
         wrapped = self._wrap(ctx)
         x = await self.bot.loop.run_in_executor(None, wrapped)
-        x.add_done_callback(functools.partial(self._respond, ctx=ctx))
+        x.add_done_callback(functools.partial(self._callback, ctx=ctx))
 
     def _wrap(self, ctx: RedContext):
         return functools.partial(
@@ -66,8 +66,12 @@ class Calculator:
             context=ctx
         )
 
-    async def _respond(self, fn, *, ctx: RedContext):
-        resp = fn.result()
+    def _callback(self, fn, *, ctx: RedContext):
+        self.bot.loop.schedule_task(
+            self._respond(ctx, fn.result())
+        )
+
+    async def _respond(self, ctx: RedContext, resp: str):
 
         if resp is None:
             message = _(

@@ -4,7 +4,8 @@ import sys
 import pathlib
 import shlex
 import functools
-import asyncio
+
+from redbot.core.bot import RedContext
 
 
 def setlimits(*, timeout: int=60, memlimit: int=50):
@@ -17,10 +18,10 @@ async def run_jailed(
         expr: str, *,
         timeout: int=60,
         memlimit: int=60,
-        context=None):
+        ctx: RedContext):
 
     file_str = str(pathlib.Path(__file__).parent / 'jailed_calc.py')
-    run_args = ['sudo', sys.executable, file_str]
+    run_args = [sys.executable, file_str]
     run_args.extend(shlex.quote(expr).split())
     prexec = functools.partial(setlimits, timeout=timeout, memlimit=memlimit)
     p = subprocess.Popen(
