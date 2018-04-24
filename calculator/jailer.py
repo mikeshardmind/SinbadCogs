@@ -42,7 +42,7 @@ async def run_jailed(
     outs = _outs.decode()
 
     msgs = pagify(
-        '```py\n{outs}\n```'.format(expr=expr, outs=outs),
+        outs,
         delims=['\n', ' ', ''], priority=True,  shorten_by=20
         )
 
