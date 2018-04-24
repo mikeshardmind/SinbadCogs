@@ -41,7 +41,9 @@ async def run_jailed(
 
     outs = _outs.decode()
 
-    msgs = pagify(('input: \n'
-                   '```py\n{expr}\n```\noutput:\n'
-                   '```py\n{outs}\n```').format(expr=expr, outs=outs))
+    msgs = pagify(
+        ('input: \n''```py\n{expr}\n```\noutput:\n'
+         '```py\n{outs}\n```').format(expr=expr, outs=outs),
+        delims=['\n', ' ', ''], priority=True,  shorten_by=20
+        )
     await ctx.send_interactive(msgs)
