@@ -56,7 +56,7 @@ class Calculator:
 
     async def run_calc(self, ctx: RedContext):
         wrapped = self._wrap(ctx)
-        await self.bot.loop.run_in_executor(wrapped)
+        await self.bot.loop.run_in_executor(None, wrapped)
 
     def _wrap(self, ctx: RedContext):
         return functools.partial(
