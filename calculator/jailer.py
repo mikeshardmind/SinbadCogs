@@ -13,7 +13,7 @@ def setlimits(*, timeout: int=60, memlimit: int=50):
     resource.setrlimit(resource.RLIMIT_MEMLOCK, (mb_as_b, mb_as_b))
 
 
-def run_jailed(
+async def run_jailed(
         expr: str, *,
         timeout: int=60,
         memlimit: int=60,
@@ -40,6 +40,4 @@ def run_jailed(
     if callback is None:
         return ret
     else:
-        asyncio.get_event_loop().create_task(
-            callback, context, ret
-        )
+        await callback(context, ret)
