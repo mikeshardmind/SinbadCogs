@@ -1,0 +1,15 @@
+{
+    "AUTHOR": "mikeshardmind",
+    "INSTALL_MSG": "This only works on bots running as root (setrlimit syscall)... \\N{NEUTRAL FACE}",
+    "NAME": "Calculator",
+    "DISABLED": false,
+    "SHORT": "Safely allow math evals",
+    "DESCRIPTION": "Uses resource limited subprocess and asteval to (safely) parse math",
+    "TAGS": [
+        "math", "calc", "calculator"
+    ],
+    "HIDDEN": false,
+    "DEPENDENCIES": [
+        "asteval"
+    ]
+}
