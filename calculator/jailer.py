@@ -7,6 +7,7 @@ import functools
 import asyncio
 
 from redbot.core.bot import RedContext
+from redbot.core.utils.chat_formatting import pagify
 
 
 def setlimits(*, timeout: int=60, memlimit: int=50):
@@ -40,8 +41,7 @@ async def run_jailed(
 
     outs = _outs.decode()
 
-    await ctx.send(
-        ('input: \n'
-         '```py\n{expr}\n```\noutput:\n'
-         '```\n{outs}\n```').format(expr=expr, outs=outs)
-    )
+    msgs = pagify(('input: \n'
+                   '```py\n{expr}\n```\noutput:\n'
+                   '```py\n{outs}\n```').format(expr=expr, outs=outs))
+    await ctx.send_interactive(msgs)

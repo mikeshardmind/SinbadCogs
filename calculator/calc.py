@@ -21,10 +21,14 @@ class Calculator:
     This should be safe for use on linux.
     I am preventing use of it on other platforms
     due to lack of testing and confidence it would be safe there.
+
+    This cog can only run if the bot can use resource.setrlimit.
+    This usually means a bot running as root.
+    I won't support making that happen.
     """
 
     __author__ = "mikeshardmind"
-    __version__ = '0.0.1a'
+    __version__ = '1.0.0b'
 
     def __init__(self, bot: Red):
         self.bot = bot
