@@ -3,7 +3,7 @@ import sys
 
 
 def setup(bot):
-    if sys.platorm != 'linux':
+    if sys.platform != 'linux':
         raise RuntimeWarning("This doesn't work on your OS")
     else:
         bot.add_cog(Calculator(bot))
