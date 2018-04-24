@@ -14,7 +14,7 @@ def setlimits(*, timeout: int=60, memlimit: int=50):
     resource.setrlimit(resource.RLIMIT_MEMLOCK, (mb_as_b, mb_as_b))
 
 
-async def run_jailed(
+def run_jailed(
         *, expr: str,
         timeout: int=60,
         memlimit: int=60,
@@ -36,5 +36,4 @@ async def run_jailed(
         ret = p.stdout.getvalue()
     else:
         ret = None
-
     return ret
