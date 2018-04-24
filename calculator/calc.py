@@ -62,8 +62,8 @@ class Calculator:
     def _wrap(self, ctx: RedContext):
         return functools.partial(
             run_jailed,
-            ctx.message.content,
-            context=ctx
+            expr=ctx.message.content,
+            ctx=ctx
         )
 
     def _callback(self, fn, *, ctx: RedContext):

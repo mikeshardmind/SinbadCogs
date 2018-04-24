@@ -15,7 +15,7 @@ def setlimits(*, timeout: int=60, memlimit: int=50):
 
 
 async def run_jailed(
-        expr: str, *,
+        *, expr: str,
         timeout: int=60,
         memlimit: int=60,
         ctx: RedContext):
