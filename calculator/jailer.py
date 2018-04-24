@@ -28,7 +28,7 @@ def run_jailed(
         run_args,
         preexec_fn=prexec,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+        stderr=subprocess.STDOUT
     )
     p.wait()
 
