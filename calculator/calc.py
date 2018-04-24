@@ -1,5 +1,6 @@
 import functools
 import sys
+import concurrent.futures as cf
 
 from discord.ext import commands
 
@@ -30,6 +31,7 @@ class Calculator:
 
     def __init__(self, bot: Red):
         self.bot = bot
+        self.executor = cf.ProcessPoolExecutor(max_workers=5)
 
     def __local_check(self, ctx):
         return sys.platform == 'linux'
@@ -56,8 +58,8 @@ class Calculator:
 
     async def run_calc(self, ctx: RedContext):
         wrapped = self._wrap(ctx)
-        x = await self.bot.loop.run_in_executor(None, wrapped)
-        x.add_done_callback(functools.partial(self._callback, ctx=ctx))
+        fut = self.executor.submit(wrapped)
+        fut.add_done_callback(functools.partial(self._callback, ctx=ctx))
 
     def _wrap(self, ctx: RedContext):
         return functools.partial(

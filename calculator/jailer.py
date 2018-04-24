@@ -4,6 +4,7 @@ import sys
 import pathlib
 import shlex
 import functools
+import concurrent.futures
 
 from redbot.core.bot import RedContext
 
