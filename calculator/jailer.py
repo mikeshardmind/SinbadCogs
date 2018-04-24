@@ -21,7 +21,7 @@ def run_jailed(
         context=None):
 
     file_str = str(pathlib.Path(__file__).parent / 'jailed_calc.py')
-    run_args = [sys.executable, file_str]
+    run_args = ['sudo', sys.executable, file_str]
     run_args.extend(shlex.quote(expr).split())
     prexec = functools.partial(setlimits, timeout=timeout, memlimit=memlimit)
     p = subprocess.Popen(

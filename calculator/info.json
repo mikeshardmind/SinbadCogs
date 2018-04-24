@@ -1,6 +1,6 @@
 {
     "AUTHOR": "mikeshardmind",
-    "INSTALL_MSG": "This may not work yet",
+    "INSTALL_MSG": "This only works on bots running as root... \\N{NEUTRAL FACE}",
     "NAME": "Calculator",
     "DISABLED": false,
     "SHORT": "Safely allow math evals",
