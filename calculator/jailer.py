@@ -17,7 +17,6 @@ async def run_jailed(
         expr: str, *,
         timeout: int=60,
         memlimit: int=60,
-        callback: callable=None,
         context=None):
 
     file_str = str(pathlib.Path(__file__).parent / 'jailed_calc.py')
@@ -37,7 +36,4 @@ async def run_jailed(
     else:
         ret = None
 
-    if callback is None:
-        return ret
-    else:
-        await callback(context, ret)
+    return ret

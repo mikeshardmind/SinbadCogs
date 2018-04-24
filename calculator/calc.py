@@ -56,17 +56,19 @@ class Calculator:
 
     async def run_calc(self, ctx: RedContext):
         wrapped = self._wrap(ctx)
-        await self.bot.loop.run_in_executor(None, wrapped)
+        x = await self.bot.loop.run_in_executor(None, wrapped)
+        x.add_done_callback(functools.partial(self._respond, ctx=ctx))
 
     def _wrap(self, ctx: RedContext):
         return functools.partial(
             run_jailed,
             ctx.message.content,
-            context=ctx,
-            callback=self._respond
+            context=ctx
         )
 
-    async def _respond(self, ctx: RedContext, resp: str):
+    async def _respond(self, fn, *, ctx: RedContext):
+        resp = fn.result()
+
         if resp is None:
             message = _(
                 'An error occurred parsing your calculation '
