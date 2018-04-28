@@ -17,7 +17,7 @@ class EmbedMaker:
     """
 
     __author__ = 'mikeshardmind'
-    __version__ = '0.0.1a'
+    __version__ = '0.0.2a'
 
     def __init__(self, bot):
         self.bot = bot
@@ -35,35 +35,34 @@ class EmbedMaker:
         if ctx.invoked_subcommand is None:
             await ctx.send_help()
 
-    @commands.guild_only()
-    @_embed.command(name="make")
-    async def _make(self, ctx: RedContext, name: str):
-        """
-        makes an embed
-        """
-        pass
-
 #   @_embed.command(hidden=True)
 #   async def make_adv(self, ctx: RedContext, name: str, data: dict):
 #       """
 #       makes an embed from a dict
 #       """
 #       pass
-
-    @checks.is_owner()
-    @_embed.command(name='makeglobal')
-    async def make_global(self, ctx: RedContext, name: str):
-        """
-        make a global embed
-        """
-        pass
-
 #   @_embed.command(hidden=True)
 #   async def make_global_adv(self, ctx: RedContext, name: str, data: dict):
 #       """
 #       make a global embed from a dict
 #       """
 #       pass
+
+    @commands.guild_only()
+    @_embed.command(name="make", hidden=True)
+    async def _make(self, ctx: RedContext, name: str):
+        """
+        makes an embed
+        """
+        name = name.lower()
+
+    @checks.is_owner()
+    @_embed.command(name='makeglobal', hidden=True)
+    async def make_global(self, ctx: RedContext, name: str):
+        """
+        make a global embed
+        """
+        name = name.lower()
 
     @_embed.command(name="list")
     async def _list(self, ctx: RedContext):
@@ -94,27 +93,34 @@ class EmbedMaker:
             await send(ctx, page)
 
     @commands.guild_only()
-    @_embed.command(name="edit")
-    async def _edit(self, ctx: RedContext):
-        """
-        edits an embed
-        """
-        pass
-
-    @commands.guild_only()
     @_embed.command(name="remove")
-    async def _remove(self, ctx: RedContext):
+    async def _remove(self, ctx: RedContext, name: str):
         """
         removes an embed
         """
-        pass
+        name = name.lower()
+        group = self.config.custom('EMBED', ctx.guild.id, name)
+        if not await group.owner():
+            return await send(ctx, 'No such embed')
+        if any(  # who created, bot owner, admins, mods
+            (await group.owner() == ctx.author.id,
+             await ctx.bot.is_owner(ctx.author),
+             await ctx.bot.db.guild(ctx.guild).admin_role() in
+             [r.id for r in ctx.author.roles],
+             await ctx.bot.db.guild(ctx.guild).mod_role() in
+             [r.id for r in ctx.author.roles])
+        ):
+            await group.clear()
+            await ctx.tick()
 
     @checks.is_owner()
     @_embed.command(name="rmglobal")
-    async def remove_global(self, ctx: RedContext):
+    async def remove_global(self, ctx: RedContext, name: str):
         """
         removes a global embed
         """
+        name = name.lower()
+        await self.config.custom('EMBED', 'GLOBAL', name).clear()
 
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command()
@@ -122,6 +128,7 @@ class EmbedMaker:
         """
         drops an embed here
         """
+        name = name.lower()
         try:
             x = await self.get_and_send(ctx.channel, ctx.guild.id, name)
         except (discord.Forbidden, discord.HTTPException) as e:
@@ -136,6 +143,7 @@ class EmbedMaker:
         """
         drop a global embed here
         """
+        name = name.lower()
         x = await self.get_and_send(ctx.channel, 'GLOBAL', name)
         if x is not None:
             await ctx.tick()
@@ -146,6 +154,7 @@ class EmbedMaker:
         """
         DMs an embed
         """
+        name = name.lower()
         try:
             x = await self.get_and_send(ctx.channel, ctx.guild.id, name)
         except discord.Forbidden as e:
@@ -161,6 +170,7 @@ class EmbedMaker:
         """
         DMs a global embed
         """
+        name = name.lower()
         try:
             x = await self.get_and_send(ctx.channel, 'GLOBAL', name)
         except discord.Forbidden as e:
@@ -170,12 +180,33 @@ class EmbedMaker:
             if x is not None:
                 await ctx.tick()
 
+    @commands.guild_only()
+    @_embed.command(name='frommsg')
+    async def from_message(self, ctx: RedContext, name: str, _id: int):
+        """
+        Store's a message's embed
+        """
+        name = name.lower()
+        try:
+            e = (await ctx.channel.get_message(_id)).embeds[0]
+        except Exception:
+            return
+
+        await self.config.custom('EMBED', ctx.guild.id, name).embed.set(
+            serialize_embed(e)
+        )
+        await self.config.custom('EMBED', ctx.guild.id, name).owner.set(
+            ctx.author.id
+        )
+        await ctx.tick()
+
     @checks.is_owner()
-    @_embed.command(name='frommsg', hidden=True)
+    @_embed.command(name='globalfrommsg')
     async def global_from_message(self, ctx: RedContext, name: str, _id: int):
         """
-        This might be made more usable later...
+        stores a message's embed
         """
+        name = name.lower()
         try:
             e = (await ctx.channel.get_message(_id)).embeds[0]
         except Exception:
