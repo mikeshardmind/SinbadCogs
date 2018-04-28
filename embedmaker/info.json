@@ -1,0 +1,13 @@
+{
+    "AUTHOR": "mikeshardmind",
+    "INSTALL_MSG": "Might not work yet, hidden for a reason",
+    "NAME": "EmbedMaker",
+    "DISABLED": false,
+    "SHORT": "Embeds",
+    "DESCRIPTION": "Make persistently recallable embeds",
+    "TAGS": [
+        "embed",
+        "embedmaer"
+    ],
+    "HIDDEN": false
+}
