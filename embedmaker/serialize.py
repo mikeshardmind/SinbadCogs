@@ -16,40 +16,27 @@ template = {
         'author': {'url': None, 'name': None, 'icon_url': None},
         'footer': {'text': None, 'icon_url': None}
     },
-    'fields': [],
+    'multiadded': {
+        'fields': [],
+    },
     'creator': None
 }
 
 
 def serialize_embed(embed: discord.Embed) -> dict:
 
-    ret = {}
+    ret = {
+        'initable': {},
+        'settable': {},
+        'multiadded': {}
+    }
+    data = embed.to_dict()
 
-    for k in template['initable'].keys():
-        v = getattr(embed, k, None) or None
-        if k == 'timestamp' and v:
-            v = v.timestamp()
-        ret['initable'][k] = v
-
-    for k, v in template['settable'].items():
-        proxy = getattr(embed, k, None)
-
-        ret['settable'][k] = {}
+    for k, v in template.itmes():
         for attr in v.keys():
-            ret['settable'][k][attr] = getattr(
-                proxy, attr, None
-            ) or None
-
-    ret['fields'] = []
-    for field in embed.fields:
-        data = {}
-        for attr in ['name', 'value', 'inline']:
-            v = getattr(field, attr, None) or None
-            if v:
-                data[attr] = v
-
-        if data:
-            ret['fields'].append(data)
+            if attr in data:
+                ret[k][v][attr] = embed.timestamp.timestamp(
+                ) if attr == 'timestamp' else data[k][v][attr]
 
     return ret
 
@@ -58,7 +45,7 @@ def deserialize_embed(conf: dict) -> discord.Embed:
 
     unpack = copy(conf['initable'])
 
-    if unpack['timestamp'] is not None:
+    if 'timestamp' in unpack:
         unpack['timestamp'] = dt.utcfromtimestamp(unpack['timestamp'])
 
     e = discord.Embed(**unpack)
@@ -66,7 +53,9 @@ def deserialize_embed(conf: dict) -> discord.Embed:
     for k, v in conf['settable'].items():
         getattr(e, 'set_' + k)(**v)
 
-    for f in conf['fields']:
-        e.add_field(**f)
+    # right now this is just fields, but why not just in case?
+    for k, v in conf['multiadded'].items():
+        for entry in v:
+            getattr(e, 'add_{}'.format(k[:-1]))(**entry)
 
     return e
