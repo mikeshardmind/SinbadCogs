@@ -180,8 +180,7 @@ class EmbedMaker:
         await ctx.tick()
 
     async def get_and_send(self, where, *identifiers):
-        data = await self.config.custom('EMBED', *identifiers).all()
-        if data['owner'] is None:
-            return None
-        embed = deserialize_embed(data['embed'])
-        await where.send(embed=embed)
+        if await self.config.custom('EMBED', *identifiers).author():
+            data = await self.config.custom('EMBED', *identifiers).embed()
+            embed = deserialize_embed(data)
+            return await where.send(embed=embed)
