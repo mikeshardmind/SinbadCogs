@@ -239,7 +239,7 @@ class EmbedMaker:
     def embed_from_userstr(self, string: str) -> discord.Embed:
         ret = {
             'initable': {},
-            'setable': {},
+            'settable': {},
             'fields': []
         }
 
