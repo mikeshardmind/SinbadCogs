@@ -1,3 +1,8 @@
+# This exists because
+# `discord.Embed(**discord.Embed().to_dict())`
+# fails in hillarious ways when dealing with any embed
+# containing a `discord.Embed.Empty()`
+
 import discord
 from datetime import datetime as dt
 
@@ -27,7 +32,7 @@ def serialize_embed(embed: discord.Embed) -> dict:
     }
 
     for k in template['initable'].keys():
-        v = getattr(embed, k, None) or None  # embed.Empty
+        v = getattr(embed, k, None) or None
         if v is None:
             continue
         if k == 'timestamp' and v:
