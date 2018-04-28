@@ -237,14 +237,13 @@ class EmbedMaker:
             return await where.send(embed=embed)
 
     def embed_from_userstr(self, string: str) -> discord.Embed:
-        ret = {}
+        ret = {'initable': {}, 'setable': {}, 'fields:' []}
 
         parsed = ast.literal_eval(string)
 
-        for base_key, _v in template.items():
-            ret[base_key] = {}
-
-            for inner_key in _v.keys():
+        
+        for outer_key in ['initable', 'settable']
+            for inner_key in template[outer_key].keys():
                 to_set = parsed.get(inner_key, {})
                 if to_set:
                     if inner_key == 'timestamp':
@@ -264,5 +263,7 @@ class EmbedMaker:
                             to_set = x
 
                     ret[base_key][inner_key] = to_set
+
+        ret[fields] = parsed.get('fields', [])
 
         return deserialize_embed(ret)
