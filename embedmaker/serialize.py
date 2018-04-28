@@ -12,7 +12,7 @@ def serialize_embed(embed: discord.Embed) -> dict:
 def deserialize_embed(conf: dict) -> discord.Embed:
 
     unpack = {
-        k: v for k, v in conf
+        k: v for k, v in conf.items()
         if k in (
             'description',
             'color',
@@ -23,7 +23,7 @@ def deserialize_embed(conf: dict) -> discord.Embed:
     }
 
     settable = {
-        k: v for k, v in conf
+        k: v for k, v in conf.items()
         if k in (
             'image',
             'thumbnail',
