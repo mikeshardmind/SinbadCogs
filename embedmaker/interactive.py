@@ -1,10 +1,11 @@
 import asyncio
 from redbot.core import RedContext
 from .serialize import deserialize_embed, template
-from dateutil.parser import parser
+# from dateutil.parser import parser
 from redbot.core.utils.chat_formatting import box
 
 
+# TODO: decide if this should be used
 class Interactive:
 
     def __init__(self, ctx: RedContext, bot):
@@ -38,7 +39,7 @@ class Interactive:
             for thing in v.keys():
                 menu['Set {}'.format(v)] = {
                     'ids': (k, v),
-                    'func': getattr(self, 'set_' + v)
+                    'func': getattr(self, 'set_' + thing)
                 }
         menu_list = list(sorted(menu.keys()))
 

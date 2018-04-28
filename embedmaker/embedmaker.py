@@ -1,11 +1,13 @@
+import ast
 import discord
 import logging
+from dateutil.parser import parser
 from discord.ext import commands
 
 from redbot.core import Config, RedContext
 from redbot.core import checks
 from redbot.core.utils.chat_formatting import pagify
-from .serialize import deserialize_embed, serialize_embed
+from .serialize import deserialize_embed, serialize_embed, template
 from .utils import send
 
 log = logging.getLogger('redbot.sinbadcogs.embedmaker')
@@ -35,18 +37,26 @@ class EmbedMaker:
         if ctx.invoked_subcommand is None:
             await ctx.send_help()
 
-#   @_embed.command(hidden=True)
-#   async def make_adv(self, ctx: RedContext, name: str, data: dict):
-#       """
-#       makes an embed from a dict
-#       """
-#       pass
-#   @_embed.command(hidden=True)
-#   async def make_global_adv(self, ctx: RedContext, name: str, data: dict):
-#       """
-#       make a global embed from a dict
-#       """
-#       pass
+    @_embed.command(name='advmake', hidden=True)
+    async def make_adv(self, ctx: RedContext, name: str, *, data: str):
+        """
+        makes an embed from a dict
+        """
+        pass
+
+    @checks.is_owner()
+    @_embed.command(name='advmakeglobal', hidden=True)
+    async def make_global_adv(self, ctx: RedContext, name: str, *, data: str):
+        """
+        make a global embed from a dict
+        """
+        name = name.lower()
+        e = self.embed_from_userstr(data)
+        await ctx.send(embed=e)
+        await self.config.custom(
+            'EMBED', 'GLOBAL', name).owner.set(ctx.author.id)
+        await self.config.custom(
+            'EMBED', 'GLOBAL', name).embed.set(serialize_embed(e))
 
     @commands.guild_only()
     @_embed.command(name="make", hidden=True)
@@ -225,3 +235,34 @@ class EmbedMaker:
             data = await self.config.custom('EMBED', *identifiers).embed()
             embed = deserialize_embed(data)
             return await where.send(embed=embed)
+
+    def embed_from_userstr(self, string: str) -> discord.Embed:
+        ret = {}
+
+        parsed = ast.literal_eval(string)
+
+        for base_key, _v in template.items():
+            ret[base_key] = {}
+
+            for inner_key in _v.keys():
+                to_set = parsed.get(inner_key, {})
+                if to_set:
+                    if inner_key == 'timestamp':
+                        try:
+                            x = float(to_set)
+                        except ValueError:
+                            to_set = parser().parse(to_set).timestamp()
+                        else:
+                            to_set = x
+
+                    if inner_key in ['color', 'colour']:
+                        try:
+                            x = int(to_set)
+                        except Exception:
+                            continue
+                        else:
+                            to_set = x
+
+                    ret[base_key][inner_key] = to_set
+
+        return deserialize_embed(ret)
