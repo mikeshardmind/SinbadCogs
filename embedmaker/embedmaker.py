@@ -309,7 +309,10 @@ class EmbedMaker:
                         try:
                             x = int(to_set)
                         except Exception:
-                            continue
+                            try:
+                                to_set = int(to_set, 16)
+                            except Exception:
+                                raise
                         else:
                             to_set = x
 
