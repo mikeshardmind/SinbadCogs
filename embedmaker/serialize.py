@@ -21,7 +21,11 @@ template = {
 
 
 def serialize_embed(embed: discord.Embed) -> dict:
-    ret = {}
+
+    ret = {
+        'initable': {},
+        'settable': {}
+    }
 
     for k in template['initable'].keys():
         v = getattr(embed, k, None) or None
