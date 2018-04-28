@@ -1,6 +1,5 @@
 import discord
 from datetime import datetime as dt
-from copy import copy
 
 template = {
     'initable': {
@@ -60,17 +59,26 @@ def serialize_embed(embed: discord.Embed) -> dict:
 
 def deserialize_embed(conf: dict) -> discord.Embed:
 
-    unpack = copy(conf['initable'])
+    unpack = {
+        k: v for k, v in conf['initable'].items() if v
+    }
 
-    if unpack['timestamp'] is not None:
+    if 'timestamp' in unpack:
         unpack['timestamp'] = dt.utcfromtimestamp(unpack['timestamp'])
 
     e = discord.Embed(**unpack)
 
     for k, v in conf['settable'].items():
-        getattr(e, 'set_' + k)(**v)
+        if v is not None:
+            to_set = {
+                _k: _v for _k, _v in v.items() if _v
+            }
+            getattr(e, 'set_' + k)(**to_set)
 
     for f in conf['fields']:
-        e.add_field(**f)
+        to_set = {
+            _k: _v for _k, _v in f.items() if _v
+        }
+        e.add_field(**to_set)
 
     return e
