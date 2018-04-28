@@ -91,7 +91,7 @@ class EmbedMaker:
         output = "\n".join(local_embeds + global_embeds)
 
         for page in pagify(output):
-            await send(page)
+            await send(ctx, page)
 
     @commands.guild_only()
     @_embed.command(name="edit")
@@ -146,7 +146,14 @@ class EmbedMaker:
         """
         DMs an embed
         """
-        pass
+        try:
+            x = await self.get_and_send(ctx.channel, ctx.guild.id, name)
+        except discord.Forbidden as e:
+            await send(
+                ctx, 'User has disabled DMs from this server or blocked me')
+        else:
+            if x is not None:
+                await ctx.tick()
 
     @checks.admin()
     @_embed.command()
@@ -154,7 +161,14 @@ class EmbedMaker:
         """
         DMs a global embed
         """
-        pass
+        try:
+            x = await self.get_and_send(ctx.channel, 'GLOBAL', name)
+        except discord.Forbidden as e:
+            await send(
+                ctx, 'User has disabled DMs from this server or blocked me')
+        else:
+            if x is not None:
+                await ctx.tick()
 
     @checks.is_owner()
     @_embed.command(name='frommsg', hidden=True)
