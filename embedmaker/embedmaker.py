@@ -136,13 +136,9 @@ class EmbedMaker:
         """
         drop a global embed here
         """
-        try:
-            x = await self.get_and_send(ctx.channel, 'GLOBAL', name)
-        except (discord.Forbidden, discord.HTTPException) as e:
-            log.error(e)
-        else:
-            if x is not None:
-                await ctx.tick()
+        x = await self.get_and_send(ctx.channel, 'GLOBAL', name)
+        if x is not None:
+            await ctx.tick()
 
     @checks.admin()
     @_embed.command()
