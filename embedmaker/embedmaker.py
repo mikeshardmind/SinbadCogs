@@ -8,7 +8,7 @@ from discord.ext import commands
 
 from redbot.core import Config, RedContext
 from redbot.core.utils.chat_formatting import box, pagify
-from .serializers import deserialize_embed, serialize_embed
+from .serialize import deserialize_embed, serialize_embed, template
 
 
 class EmbedMaker:
@@ -25,6 +25,7 @@ class EmbedMaker:
             self, identifier=78631113035100160,
             force_registration=True
         )
+        self.config.register_custom('EMBED', **template)
 
     @commands.group(name="embed")
     async def _embed(self, ctx):
