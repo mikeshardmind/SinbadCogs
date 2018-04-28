@@ -36,7 +36,7 @@ def deserialize_embed(conf: dict) -> discord.Embed:
 
     e = discord.Embed(**unpack)
 
-    for k, v in {settable.items()}:
+    for k, v in settable.items():
         getattr(e, 'set_' + k)(**v)
 
     for field in conf.get('fields', []):
