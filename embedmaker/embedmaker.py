@@ -19,7 +19,7 @@ class EmbedMaker:
     """
 
     __author__ = 'mikeshardmind'
-    __version__ = '0.0.2a'
+    __version__ = '1.0.0a'
 
     def __init__(self, bot):
         self.bot = bot
@@ -37,42 +37,90 @@ class EmbedMaker:
         if ctx.invoked_subcommand is None:
             await ctx.send_help()
 
+    @commands.guild_only()
+    @commands.bot_has_permissions(embed_links=True)
     @_embed.command(name='advmake', hidden=True)
     async def make_adv(self, ctx: RedContext, name: str, *, data: str):
         """
         makes an embed from a dict
         """
-        pass
+        name = name.lower()
+        group = self.config.custom('EMBED', ctx.guild.id, name)
+        if await group.owner() not in (ctx.author.id, None):
+            return await send(ctx, "An embed with that name already exists!")
+        try:
+            e = self.embed_from_userstr(data)
+            await ctx.send("Here's how that's gonna look", embed=e)
+        except ValueError:
+            await send(ctx, 'There was something wrong with that input')
+        except (discord.Forbidden, discord.HTTPException):
+            await send(ctx, "Discord didn't like that embed")
+        else:
+            await ctx.tick()
+            await group.owner.set(ctx.author.id)
+            await group.embed.set(serialize_embed(e))
 
+    @commands.bot_has_permissions(embed_links=True)
     @checks.is_owner()
     @_embed.command(name='advmakeglobal', hidden=True)
     async def make_global_adv(self, ctx: RedContext, name: str, *, data: str):
         """
         make a global embed from a dict
         """
-        name = name.lower()
-        e = self.embed_from_userstr(data)
-        await ctx.send(embed=e)
-        await self.config.custom(
-            'EMBED', 'GLOBAL', name).owner.set(ctx.author.id)
-        await self.config.custom(
-            'EMBED', 'GLOBAL', name).embed.set(serialize_embed(e))
+        try:
+            name = name.lower()
+            e = self.embed_from_userstr(data)
+            await ctx.send("Here's how that's gonna look", embed=e)
+        except ValueError:
+            await send(ctx, 'There was something wrong with that input')
+        except (discord.Forbidden, discord.HTTPException):
+            await send(ctx, "Discord didn't like that embed")
+        else:
+            await ctx.tick()
+            await self.config.custom(
+                'EMBED', 'GLOBAL', name).owner.set(ctx.author.id)
+            await self.config.custom(
+                'EMBED', 'GLOBAL', name).embed.set(serialize_embed(e))
 
     @commands.guild_only()
-    @_embed.command(name="make", hidden=True)
-    async def _make(self, ctx: RedContext, name: str):
+    @_embed.command(name="make")
+    async def _make(self, ctx: RedContext, name: str, *, content: str):
         """
         makes an embed
         """
-        name = name.lower()
+        group = self.config.custom('EMBED', ctx.guild.id, name)
+        if await group.owner() not in (ctx.author.id, None):
+            return await send(ctx, "An embed with that name already exists!")
+
+        e = discord.Embed(description=content)
+        try:
+            await ctx.send("Here's how that's gonna look", embed=e)
+        except (discord.Forbidden, discord.HTTPException):
+            await send(ctx, "Discord didn't like that embed")
+        else:
+            await ctx.tick()
+            await group.owner.set(ctx.author.id)
+            await group.embed.set(serialize_embed(e))
 
     @checks.is_owner()
-    @_embed.command(name='makeglobal', hidden=True)
-    async def make_global(self, ctx: RedContext, name: str):
+    @_embed.command(name='makeglobal')
+    async def make_global(self, ctx: RedContext, name: str, *, content: str):
         """
         make a global embed
         """
         name = name.lower()
+        group = self.config.custom('EMBED', 'GLOBAL', name)
+        try:
+            e = discord.Embed(description=content)
+            await ctx.send("Here's how that's gonna look", embed=e)
+        except ValueError:
+            await send(ctx, 'There was something wrong with that input')
+        except (discord.Forbidden, discord.HTTPException):
+            await send(ctx, "Discord didn't like that embed")
+        else:
+            await ctx.tick()
+            await group.owner.set(ctx.author.id)
+            await group.embed.set(serialize_embed(e))
 
     @_embed.command(name="list")
     async def _list(self, ctx: RedContext):

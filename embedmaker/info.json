@@ -1,6 +1,6 @@
 {
     "AUTHOR": "mikeshardmind",
-    "INSTALL_MSG": "The making of embeds isnt there yet, hidden for a reason",
+    "INSTALL_MSG": "This will get more features soon",
     "NAME": "EmbedMaker",
     "DISABLED": false,
     "SHORT": "Embeds",
@@ -9,5 +9,5 @@
         "embed",
         "embedmaer"
     ],
-    "HIDDEN": true
+    "HIDDEN": false
 }
