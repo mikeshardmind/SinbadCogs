@@ -18,8 +18,7 @@ template = {
     },
     'multiadded': {
         'fields': [],
-    },
-    'creator': None
+    }
 }
 
 
