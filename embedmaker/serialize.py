@@ -6,6 +6,7 @@ def serialize_embed(embed: discord.Embed) -> dict:
     data = embed.to_dict()
     if embed.timestamp:
         data['timestamp'] = embed.timestamp.timestamp()
+    return data
 
 
 def deserialize_embed(conf: dict) -> discord.Embed:
