@@ -144,7 +144,7 @@ class EmbedMaker:
             if x is not None:
                 await ctx.tick()
 
-    @commands.admin()
+    @checks.admin()
     @_embed.command()
     async def dm(self, ctx: RedContext, name: str, user: discord.Member):
         """
