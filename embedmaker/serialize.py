@@ -27,7 +27,9 @@ def serialize_embed(embed: discord.Embed) -> dict:
     }
 
     for k in template['initable'].keys():
-        v = getattr(embed, k, None) or None
+        v = getattr(embed, k, None) or None  # embed.Empty
+        if v is None:
+            continue
         if k == 'timestamp' and v:
             v = v.timestamp()
         if k == 'color' and v:
@@ -35,21 +37,22 @@ def serialize_embed(embed: discord.Embed) -> dict:
         ret['initable'][k] = v
 
     for k, v in template['settable'].items():
-        proxy = getattr(embed, k, None)
-
+        proxy = getattr(embed, k, None) or None
+        if proxy is None:
+            continue
         ret['settable'][k] = {}
         for attr in v.keys():
-            ret['settable'][k][attr] = getattr(
-                proxy, attr, None
-            ) or None
+            to_set = getattr(proxy, attr, None) or None
+            if to_set:
+                ret['settable'][k][attr] = to_set
 
     ret['fields'] = []
     for field in embed.fields:
         data = {}
         for attr in ['name', 'value', 'inline']:
-            v = getattr(field, attr, None) or None
-            if v:
-                data[attr] = v
+            to_set = getattr(field, attr, None) or None
+            if to_set:
+                data[attr] = to_set
 
         if data:
             ret['fields'].append(data)
