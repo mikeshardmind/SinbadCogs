@@ -31,6 +31,8 @@ def serialize_embed(embed: discord.Embed) -> dict:
         v = getattr(embed, k, None) or None
         if k == 'timestamp' and v:
             v = v.timestamp()
+        if k == 'color' and v:
+            v = v.value
         ret['initable'][k] = v
 
     for k, v in template['settable'].items():
