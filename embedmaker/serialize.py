@@ -35,7 +35,7 @@ def serialize_embed(embed: discord.Embed) -> dict:
         for attr in v.keys():
             if attr in data:
                 ret[k][v][attr] = embed.timestamp.timestamp(
-                ) if attr == 'timestamp' else data[k][v][attr]
+                ) if attr == 'timestamp' else data[attr]
 
     return ret
 
