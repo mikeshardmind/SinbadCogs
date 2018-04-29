@@ -10,6 +10,7 @@ from redbot.core.bot import Red
 from redbot.core.utils.antispam import AntiSpam
 from redbot.core.config import Config
 from redbot.core import checks
+from redbot.core.utils.chat_formatting import pagify
 
 from .utils import send
 
@@ -148,3 +149,145 @@ class AutoRooms:
             await asyncio.sleep(0.5)
             await chan.edit(**editargs)
             # TODO: Consider discord.HTTP to avoid needing the edit
+
+    # special checks
+    def is_active_here(self):
+        async def check(ctx: RedContext):
+            return await self.config.guild(ctx.guild).active()
+        return commands.check(check)
+
+    # Commands go below
+
+    @checks.admin_or_permissions(manage_channels=True)
+    @commands.group()
+    async def autoroomset(self, ctx: RedContext):
+        """
+        Commands for configuring autorooms
+        """
+        if ctx.invoked_subcommand is None:
+            await ctx.send_help()
+
+    @is_active_here()
+    @checks.admin_or_permissions(manage_channels=True)
+    @autoroomset.command(name="channelsettings")
+    async def setchannelsettings(
+            self, ctx: RedContext, channel: discord.VoiceChannel):
+        """
+        Interactive prompt for editing the autoroom behavior for specific
+        channels
+        """
+        conf = self.config.channel(channel)
+
+        if not await conf.autoroom:
+            return await send(ctx, "That isn't an autoroom")
+
+        await send(
+            ctx,
+            "Game rooms require the user joining to be playing "
+            "a game, but get a base name of the game discord "
+            "detects them playing. Game rooms also do not get"
+            "anything prepended to their name."
+            "\nIs this a game room?(y/n)")
+
+        def mcheck(m: discord.Message):
+            return m.author == ctx.author and m.channel == ctx.channel
+
+        try:
+            message = await self.bot.wait_for(
+                'message', check=mcheck, timeout=30)
+        except asyncio.TimeoutError:
+            await send(
+                ctx, "I can't wait forever, lets get to the next question.")
+        else:
+            if message.clean_content.lower()[:1] == 'y':
+                await conf.gameroom.set(True)
+            else:
+                await conf.gameroom.set(False)
+            await message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
+
+        await send(
+            ctx,
+            "There are three options for channel ownership\n"
+            "1. Use the server default\n"
+            "2. Override the default granting ownership\n"
+            "3. Override the default denying ownership\n"
+            "Please respond with the corresponding number to "
+            "the desired behavior")
+
+        try:
+            message = await self.bot.wait_for(
+                'message', check=mcheck, timeout=30)
+        except asyncio.TimeoutError:
+            await send(
+                ctx,
+                "I can't wait forever, lets get to the next question.")
+        else:
+            to_set = {
+                '1': None,
+                '2': True,
+                '3': False
+            }.get(message.clean_content[:1], None)
+            await conf.ownership.set(to_set)
+            await message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
+
+    @checks.admin_or_permissions(Manage_channels=True)
+    @autoroomset.command(name="toggleactive", pass_context=True, no_pm=True)
+    async def autoroomtoggle(self, ctx: RedContext, val: bool=None):
+        """
+        turns autorooms on and off
+        """
+        if val is None:
+            val = not await self.config.guild(ctx.guild).active()
+        await self.config.guild(ctx.guild).active.set(val)
+        await send(
+            ctx,
+            'Autorooms are now ' + 'activated' if val else 'deactivated'
+        )
+
+    @is_active_here()
+    @checks.admin_or_permissions(manage_channels=True)
+    @autoroomset.command(name="makeclone")
+    async def makeclone(self, ctx: RedContext, channel: discord.VoiceChannel):
+        """Takes a channel, turns that voice channel into an autoroom"""
+
+        await self.config.channel(channel).autoroom.set(True)
+        await ctx.tick()
+
+    @checks.admin_or_permissions(manage_channels=True)
+    @autoroomset.command(name="remclone")
+    async def remclone(
+            self, ctx, channel: discord.VoiceChannel):
+        """Takes a channel, removes that channel from the clone list"""
+
+        await self.config.channel(channel).clear()
+        await ctx.tick()
+
+    @is_active_here()
+    @checks.admin_or_permissions(manage_channels=True)
+    @autoroomset.command(name="listautorooms")
+    async def listclones(self, ctx: RedContext):
+        """Lists the current autorooms"""
+        clist = []
+        for c in ctx.guild.voice_channels:
+            if await self.config.channel(c).autoroom():
+                clist.append("({0.id}) {0.name}".format(c))
+
+        output = ", ".join(clist)
+        for page in pagify(output):
+            await send(ctx, page)
+
+    @is_active_here()
+    @checks.admin_or_permissions(manage_channels=True)
+    @autoroomset.command(name="toggleowner")
+    async def toggleowner(self, ctx: RedContext, val: bool=None):
+        """toggles if the creator of the autoroom owns it
+        requires the "Manage Channels" permission
+        Defaults to false"""
+        if val is None:
+            val = not await self.config.guild(ctx.guild).active()
+        await self.config.guild(ctx.guild).active.set(val)
+        await send(
+            ctx,
+            'Autorooms are ' + ('now owned ' if val else 'no longer owned ')
+            + 'by their creator'
+        )
