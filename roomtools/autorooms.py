@@ -40,12 +40,15 @@ class AutoRooms:
             ownership=None, gameroom=False, autoroom=False, clone=False
         )
         self._antispam = {}
-        self.bot.loop.create_task(self._cleanup())
+        self.bot.loop.create_task(self._cleanup(load=True))
 
     async def on_resumed(self):
-        await self._cleanup()
+        await self._cleanup(load=True)
 
-    async def _cleanup(self, *guilds: discord.Guild):
+    async def _cleanup(self, *guilds: discord.Guild, load: bool=False):
+        if load:
+            await asyncio.sleep(10)
+
         if not guilds:
             guilds = self.bot.guilds
 
@@ -92,8 +95,7 @@ class AutoRooms:
                         who=member, source=after.channel
                     )
 
-        if await self.config.channel(before.channel).clone():
-            await self._cleanup(before.channel.guild)
+        await self._cleanup(before.channel.guild)
 
     async def generate_room_for(
             self, *, who: discord.Member, source: discord.VoiceChannel):
@@ -148,7 +150,8 @@ class AutoRooms:
             await who.move_to(chan, reason="autoroom")
             await asyncio.sleep(0.5)
             await chan.edit(**editargs)
-            # TODO: Consider discord.HTTP to avoid needing the edit
+            # TODO: Consider creation using
+            # discord.HTTP to avoid needing the edit
 
     # special checks
     def is_active_here(self):
@@ -158,6 +161,7 @@ class AutoRooms:
 
     # Commands go below
 
+    @commands.bot_has_permissions(manage_channels=True)
     @checks.admin_or_permissions(manage_channels=True)
     @commands.group()
     async def autoroomset(self, ctx: RedContext):
@@ -230,8 +234,8 @@ class AutoRooms:
             await conf.ownership.set(to_set)
             await message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
 
-    @checks.admin_or_permissions(Manage_channels=True)
-    @autoroomset.command(name="toggleactive", pass_context=True, no_pm=True)
+    @checks.admin_or_permissions(manage_channels=True)
+    @autoroomset.command(name="toggleactive")
     async def autoroomtoggle(self, ctx: RedContext, val: bool=None):
         """
         turns autorooms on and off
