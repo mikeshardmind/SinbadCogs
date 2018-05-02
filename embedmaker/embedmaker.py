@@ -296,8 +296,7 @@ class EmbedMaker:
             'settable': {},
             'fields': []
         }
-        string = string.strip('\n ')
-        if string.startswith('```'):
+        if string.startswith('```') and string.endswith('```'):
             string = '\n'.join(string.split('\n')[1:-1])
 
         parsed = yaml.load(string)
