@@ -78,7 +78,7 @@ class EmbedMaker:
             e = self.embed_from_userstr(data)
             await ctx.send("Here's how that's gonna look", embed=e)
         except yaml.YAMLError:
-            await send(ctx, 'There was something wrong with that input')
+            await send(ctx, f'There was something wrong with that input\n\n{data}\n')
         except (discord.Forbidden, discord.HTTPException):
             await send(ctx, "Discord didn't like that embed")
         else:
