@@ -54,7 +54,7 @@ class EmbedMaker:
         try:
             e = self.embed_from_userstr(data)
             await ctx.send("Here's how that's gonna look", embed=e)
-        except ValueError:
+        except yaml.YAMLError:
             await send(ctx, 'There was something wrong with that input')
         except (discord.Forbidden, discord.HTTPException):
             await send(ctx, "Discord didn't like that embed")
@@ -77,7 +77,7 @@ class EmbedMaker:
             name = name.lower()
             e = self.embed_from_userstr(data)
             await ctx.send("Here's how that's gonna look", embed=e)
-        except ValueError:
+        except yaml.YAMLError:
             await send(ctx, 'There was something wrong with that input')
         except (discord.Forbidden, discord.HTTPException):
             await send(ctx, "Discord didn't like that embed")
@@ -296,8 +296,8 @@ class EmbedMaker:
             'settable': {},
             'fields': []
         }
-        string = string.strip()
-        if string.startswith('```yaml') and string.endswith('```'):
+        string = string.strip('\n ')
+        if string.startswith('```'):
             string = '\n'.join(string.split('\n')[1:-1])
 
         parsed = yaml.load(string)
