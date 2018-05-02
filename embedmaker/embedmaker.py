@@ -1,8 +1,8 @@
-import ast
 import discord
 import logging
 from dateutil.parser import parser
 from discord.ext import commands
+import yaml
 
 from redbot.core import Config, RedContext
 from redbot.core import checks
@@ -19,7 +19,7 @@ class EmbedMaker:
     """
 
     __author__ = 'mikeshardmind'
-    __version__ = '1.0.0a'
+    __version__ = '1.1.0a'
 
     def __init__(self, bot):
         self.bot = bot
@@ -42,7 +42,10 @@ class EmbedMaker:
     @_embed.command(name='advmake', hidden=True)
     async def make_adv(self, ctx: RedContext, name: str, *, data: str):
         """
-        makes an embed from a dict
+        makes an embed from valid yaml
+
+        Note: Fields should be provided as nested key: value pairs,
+        keys indicating position.
         """
         name = name.lower()
         group = self.config.custom('EMBED', ctx.guild.id, name)
@@ -65,7 +68,10 @@ class EmbedMaker:
     @_embed.command(name='advmakeglobal', hidden=True)
     async def make_global_adv(self, ctx: RedContext, name: str, *, data: str):
         """
-        make a global embed from a dict
+        makes an embed from valid yaml
+
+        Note: Fields should be provided as nested key: value pairs,
+        keys indicating position.
         """
         try:
             name = name.lower()
@@ -290,8 +296,14 @@ class EmbedMaker:
             'settable': {},
             'fields': []
         }
+        string = string.strip()
+        if string.startswith('```yaml') and string.endswith('```'):
+            string = '\n'.join(string.split('\n')[1:-1])
 
-        parsed = ast.literal_eval(string)
+        parsed = yaml.load(string)
+        ret['fields'] = [
+            x[1] for x in sorted(parsed.get('fields', {}).items())
+        ]
 
         for outer_key in ['initable', 'settable']:
             for inner_key in template[outer_key].keys():
@@ -317,7 +329,5 @@ class EmbedMaker:
                             to_set = x
 
                     ret[outer_key][inner_key] = to_set
-
-        ret['fields'] = parsed.get('fields', [])
 
         return deserialize_embed(ret)
