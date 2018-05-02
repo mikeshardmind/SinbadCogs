@@ -78,7 +78,7 @@ class EmbedMaker:
             e = self.embed_from_userstr(data)
             await ctx.send("Here's how that's gonna look", embed=e)
         except yaml.YAMLError:
-            await send(ctx, f'There was something wrong with that input\n\n{data}\n')
+            await send(ctx, f'There was something wrong with that input')
         except (discord.Forbidden, discord.HTTPException):
             await send(ctx, "Discord didn't like that embed")
         else:
@@ -296,7 +296,7 @@ class EmbedMaker:
             'settable': {},
             'fields': []
         }
-        string.strip('\n ')
+        string = string.strip()
         if string.startswith('```') and string.endswith('```'):
             string = '\n'.join(string.split('\n')[1:-1])
 
