@@ -9,7 +9,7 @@
         "math", "calc", "calculator"
     ],
     "HIDDEN": false,
-    "DEPENDENCIES": [
+    "REQUIREMENTS": [
         "asteval"
     ]
 }
