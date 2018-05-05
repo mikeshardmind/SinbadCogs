@@ -11,6 +11,6 @@
     ],
     "HIDDEN": false,
     "REQUIREMENTS": [
-        "python-dateutil"
+        "python-dateutil", "pytz"
     ]
 }
