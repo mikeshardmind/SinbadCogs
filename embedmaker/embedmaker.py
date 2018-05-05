@@ -1,6 +1,5 @@
 import discord
 import logging
-from dateutil.parser import parser
 from discord.ext import commands
 import yaml
 
@@ -8,7 +7,7 @@ from redbot.core import Config, RedContext
 from redbot.core import checks
 from redbot.core.utils.chat_formatting import pagify
 from .serialize import deserialize_embed, serialize_embed, template
-from .utils import send
+from .utils import parse_time
 
 log = logging.getLogger('redbot.sinbadcogs.embedmaker')
 
@@ -19,7 +18,7 @@ class EmbedMaker:
     """
 
     __author__ = 'mikeshardmind'
-    __version__ = '1.1.0a'
+    __version__ = '2.0.0'
 
     def __init__(self, bot):
         self.bot = bot
@@ -50,14 +49,16 @@ class EmbedMaker:
         name = name.lower()
         group = self.config.custom('EMBED', ctx.guild.id, name)
         if await group.owner() not in (ctx.author.id, None):
-            return await send(ctx, "An embed with that name already exists!")
+            return await ctx.maybe_send_embed(
+                "An embed with that name already exists!")
         try:
             e = self.embed_from_userstr(data)
             await ctx.send("Here's how that's gonna look", embed=e)
         except Exception:
-            await send(ctx, 'There was something wrong with that input')
+            await ctx.maybe_send_embed(
+                'There was something wrong with that input')
         except (discord.Forbidden, discord.HTTPException):
-            await send(ctx, "Discord didn't like that embed")
+            await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
             await ctx.tick()
             await group.owner.set(ctx.author.id)
@@ -78,9 +79,10 @@ class EmbedMaker:
             e = self.embed_from_userstr(data)
             await ctx.send("Here's how that's gonna look", embed=e)
         except Exception:
-            await send(ctx, 'There was something wrong with that input')
+            await ctx.maybe_send_embed(
+                'There was something wrong with that input')
         except (discord.Forbidden, discord.HTTPException):
-            await send(ctx, "Discord didn't like that embed")
+            await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
             await ctx.tick()
             await self.config.custom(
@@ -96,13 +98,14 @@ class EmbedMaker:
         """
         group = self.config.custom('EMBED', ctx.guild.id, name)
         if await group.owner() not in (ctx.author.id, None):
-            return await send(ctx, "An embed with that name already exists!")
+            return await ctx.maybe_send_embed(
+                "An embed with that name already exists!")
 
         e = discord.Embed(description=content)
         try:
             await ctx.send("Here's how that's gonna look", embed=e)
         except (discord.Forbidden, discord.HTTPException):
-            await send(ctx, "Discord didn't like that embed")
+            await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
             await ctx.tick()
             await group.owner.set(ctx.author.id)
@@ -120,9 +123,10 @@ class EmbedMaker:
             e = discord.Embed(description=content)
             await ctx.send("Here's how that's gonna look", embed=e)
         except ValueError:
-            await send(ctx, 'There was something wrong with that input')
+            await ctx.maybe_send_embed(
+                'There was something wrong with that input')
         except (discord.Forbidden, discord.HTTPException):
-            await send(ctx, "Discord didn't like that embed")
+            await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
             await ctx.tick()
             await group.owner.set(ctx.author.id)
@@ -143,7 +147,7 @@ class EmbedMaker:
         global_embeds = list(sorted(embed_dict.get('GLOBAL', {}).keys()))
 
         if not local_embeds and not global_embeds:
-            return await send(ctx, 'No embeds available here.')
+            return await ctx.maybe_send_embed('No embeds available here.')
 
         if local_embeds:
             local_embeds.insert(0, 'Local Embeds:')
@@ -154,7 +158,7 @@ class EmbedMaker:
         output = "\n".join(local_embeds + global_embeds)
 
         for page in pagify(output):
-            await send(ctx, page)
+            await ctx.maybe_send_embed(page)
 
     @commands.guild_only()
     @_embed.command(name="remove")
@@ -165,7 +169,7 @@ class EmbedMaker:
         name = name.lower()
         group = self.config.custom('EMBED', ctx.guild.id, name)
         if not await group.owner():
-            return await send(ctx, 'No such embed')
+            return await ctx.maybe_send_embed('No such embed')
         if any(  # who created, bot owner, admins, mods
             (await group.owner() == ctx.author.id,
              await ctx.bot.is_owner(ctx.author),
@@ -222,8 +226,8 @@ class EmbedMaker:
         try:
             x = await self.get_and_send(ctx.channel, ctx.guild.id, name)
         except discord.Forbidden as e:
-            await send(
-                ctx, 'User has disabled DMs from this server or blocked me')
+            await ctx.maybe_send_embed(
+                'User has disabled DMs from this server or blocked me')
         else:
             if x is not None:
                 await ctx.tick()
@@ -238,8 +242,8 @@ class EmbedMaker:
         try:
             x = await self.get_and_send(ctx.channel, 'GLOBAL', name)
         except discord.Forbidden as e:
-            await send(
-                ctx, 'User has disabled DMs from this server or blocked me')
+            await ctx.maybe_send_embed(
+                'User has disabled DMs from this server or blocked me')
         else:
             if x is not None:
                 await ctx.tick()
@@ -300,7 +304,7 @@ class EmbedMaker:
         if string.startswith('```') and string.endswith('```'):
             string = '\n'.join(string.split('\n')[1:-1])
 
-        parsed = yaml.load(string)
+        parsed = yaml.safe_load(string)
         ret['fields'] = [
             x[1] for x in sorted(parsed.get('fields', {}).items())
         ]
@@ -311,11 +315,9 @@ class EmbedMaker:
                 if to_set:
                     if inner_key == 'timestamp':
                         try:
+                            to_set = parse_time(to_set).timestamp()
+                        except Exception:
                             x = float(to_set)
-                        except ValueError:
-                            to_set = parser().parse(to_set).timestamp()
-                        else:
-                            to_set = x
 
                     if inner_key in ['color', 'colour']:
                         try:
