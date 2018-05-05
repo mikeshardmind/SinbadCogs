@@ -18,7 +18,7 @@ class EmbedMaker:
     """
 
     __author__ = 'mikeshardmind'
-    __version__ = '2.0.0'
+    __version__ = '2.0.1'
 
     def __init__(self, bot):
         self.bot = bot
@@ -96,6 +96,7 @@ class EmbedMaker:
         """
         makes an embed
         """
+        name = name.lower()
         group = self.config.custom('EMBED', ctx.guild.id, name)
         if await group.owner() not in (ctx.author.id, None):
             return await ctx.maybe_send_embed(
