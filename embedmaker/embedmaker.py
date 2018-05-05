@@ -1,13 +1,12 @@
 import discord
 import logging
 from discord.ext import commands
-import yaml
 
 from redbot.core import Config, RedContext
 from redbot.core import checks
 from redbot.core.utils.chat_formatting import pagify
-from .serialize import deserialize_embed, serialize_embed, template
-from .utils import parse_time
+from .serialize import deserialize_embed, serialize_embed
+from .yaml_parse import embed_from_userstr
 
 log = logging.getLogger('redbot.sinbadcogs.embedmaker')
 
@@ -18,7 +17,7 @@ class EmbedMaker:
     """
 
     __author__ = 'mikeshardmind'
-    __version__ = '2.0.1'
+    __version__ = '2.0.2'
 
     def __init__(self, bot):
         self.bot = bot
@@ -52,7 +51,7 @@ class EmbedMaker:
             return await ctx.maybe_send_embed(
                 "An embed with that name already exists!")
         try:
-            e = self.embed_from_userstr(data)
+            e = embed_from_userstr(data)
             await ctx.send("Here's how that's gonna look", embed=e)
         except Exception:
             await ctx.maybe_send_embed(
@@ -76,7 +75,7 @@ class EmbedMaker:
         """
         try:
             name = name.lower()
-            e = self.embed_from_userstr(data)
+            e = embed_from_userstr(data)
             await ctx.send("Here's how that's gonna look", embed=e)
         except Exception:
             await ctx.maybe_send_embed(
@@ -294,43 +293,3 @@ class EmbedMaker:
             data = await self.config.custom('EMBED', *identifiers).embed()
             embed = deserialize_embed(data)
             return await where.send(embed=embed)
-
-    def embed_from_userstr(self, string: str) -> discord.Embed:
-        ret = {
-            'initable': {},
-            'settable': {},
-            'fields': []
-        }
-        string = string.strip()
-        if string.startswith('```') and string.endswith('```'):
-            string = '\n'.join(string.split('\n')[1:-1])
-
-        parsed = yaml.safe_load(string)
-        ret['fields'] = [
-            x[1] for x in sorted(parsed.get('fields', {}).items())
-        ]
-
-        for outer_key in ['initable', 'settable']:
-            for inner_key in template[outer_key].keys():
-                to_set = parsed.get(inner_key, {})
-                if to_set:
-                    if inner_key == 'timestamp':
-                        try:
-                            to_set = parse_time(to_set).timestamp()
-                        except Exception:
-                            x = float(to_set)
-
-                    if inner_key in ['color', 'colour']:
-                        try:
-                            x = int(to_set)
-                        except Exception:
-                            try:
-                                to_set = int(to_set, 16)
-                            except Exception:
-                                raise
-                        else:
-                            to_set = x
-
-                    ret[outer_key][inner_key] = to_set
-
-        return deserialize_embed(ret)
