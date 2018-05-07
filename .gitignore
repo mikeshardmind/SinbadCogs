@@ -89,3 +89,10 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# editors
+.vscode/
+.idea/
+
+# mytemplates
+template/
