@@ -1,1 +1,1 @@
-from .general import setup  # NOQA: F401
+from .genreplace import setup  # NOQA: F401
