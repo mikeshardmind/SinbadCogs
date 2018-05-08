@@ -90,4 +90,4 @@ def setup(bot):
         if v is not None:
             bot.remove_command(k)
     # TODO: Make ^ configable
-    bot.add_cog('GenReplace')
+    bot.add_cog(GenReplace(bot))
