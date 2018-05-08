@@ -32,6 +32,7 @@ class GenReplace:
         enables dice less prone to streaks
         """
         self._dice[ctx.guild.id] = self._dice.get(ctx.guild.id, {})
+        await ctx.tick()
 
     @commands.command()
     async def dice(self, ctx, expr: str):
