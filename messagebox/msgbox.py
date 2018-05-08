@@ -34,6 +34,7 @@ class MessageBox:
         self.config.register_global(output=None)
 
     def __unload(self):
+        nonlocal _old_contact
         if _old_contact:
             self.bot.add_command(_old_contact)
 
@@ -109,6 +110,7 @@ class MessageBox:
 
 def setup(bot):
     n = MessageBox(bot)
+    nonlocal _old_contact
     _old_contact = bot.get_command('contact')
     if _old_contact:
         bot.remove_command(_old_contact.name)
