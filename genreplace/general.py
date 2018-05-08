@@ -2,8 +2,8 @@ import dice as dicelib
 from discord.ext import commands
 from redbot.core import RedContext, checks
 from redbot.core.bot import Red
-
-from .roll import roll as roll_com_obj
+import random
+from .dice import StatefulDie
 
 com_objs = {}
 general_coms = ['flip', 'rps', '8', 'stopwatch', 'lmgtfy', 'hug',
@@ -19,9 +19,6 @@ class GeneralReplacements:
     def __init__(self, bot: Red):
         self.bot = bot
         self._dice = {}
-        r = commands.Command(callback=roll_com_obj, name='roll')
-        r.instance = bot.get_cog('General')
-        bot.add_command(r)
 
     def __unload(self):
         x = self.bot.get_cog('General')
@@ -63,6 +60,28 @@ class GeneralReplacements:
         if len(response) > 1000:  # No spam K
             return
         await ctx.maybe_send_embed(response)
+
+    @commands.command()
+    async def roll(self, ctx: RedContext, sides: int=6):
+        """
+        Rolls a die
+        """
+        if sides < 1:
+            return
+        if ctx.guild is None \
+            or ctx.guild.id not in self._dice \
+                or sides not in (4, 6, 8, 10, 12, 20):
+            roll = random.randrange(1, sides)
+        else:
+            dice = self._dice
+            die = dice[ctx.guild.id].get(ctx.author.id, {}).get(sides, None)
+            if die is None:
+                dice[ctx.guild.id][ctx.author.id][sides] = StatefulDie(sides)
+            roll = dice[ctx.guild.id][ctx.author.id][sides].roll()
+
+        return await ctx.maybe_send_embed("{} :{}".format(
+            ctx.author, roll)
+        )
 
 
 def setup(bot):
