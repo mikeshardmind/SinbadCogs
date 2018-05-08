@@ -21,7 +21,6 @@ class GenReplace:
         self._dice = {}
 
     def __unload(self):
-        nonlocal com_objs
         for com in com_objs.values():
             self.bot.add_command(com)
 
@@ -81,7 +80,6 @@ class GenReplace:
 
 
 def setup(bot):
-    nonlocal com_objs
     com_objs = {
         k: bot.get_command(k) for k in general_coms
         if k not in keep_coms
