@@ -21,9 +21,6 @@ class GeneralReplacements:
         self._dice = {}
 
     def __unload(self):
-        x = self.bot.get_cog('General')
-        if x.stateful_dice:
-            del x.stateful_dice
         for com in com_objs.values():
             try:
                 self.bot.add_command(com)
