@@ -22,10 +22,7 @@ class GenReplace:
 
     def __unload(self):
         for com in com_objs.values():
-            try:
-                self.bot.add_command(com)
-            except Exception:
-                pass
+            self.bot.add_command(com)
 
     @checks.admin()
     @commands.guild_only()
