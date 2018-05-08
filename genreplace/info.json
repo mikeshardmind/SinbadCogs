@@ -1,0 +1,15 @@
+{
+    "AUTHOR": "mikeshardmind",
+    "INSTALL_MSG": "",
+    "NAME": "GenReplace",
+    "DISABLED": false,
+    "SHORT": "Personal mods to the general cog",
+    "DESCRIPTION": "Personal mods to the general cog",
+    "TAGS": [
+        "betterdice", "dice"
+    ],
+    "HIDDEN": false,
+    "REQUIREMENTS": [
+        "dice"
+    ]
+}
