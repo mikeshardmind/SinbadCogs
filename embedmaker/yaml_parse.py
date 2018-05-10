@@ -1,10 +1,12 @@
 import yaml
 import discord
+from discord.ext import commands
 from .serialize import template, deserialize_embed
 from .utils import parse_time
 
 
-def embed_from_userstr(string: str) -> discord.Embed:
+async def embed_from_userstr(
+        ctx: commands.Context, string: str) -> discord.Embed:
     ret = {
         'initable': {},
         'settable': {},
@@ -31,10 +33,12 @@ def embed_from_userstr(string: str) -> discord.Embed:
 
                 if inner_key in ['color', 'colour']:
                     try:
-                        x = int(to_set)
+                        x = (await commands.converter.ColourConverter(
+                            ctx, to_set
+                        )).value
                     except Exception:
                         try:
-                            to_set = int(to_set, 16)
+                            to_set = int(to_set)
                         except Exception:
                             raise
                     else:

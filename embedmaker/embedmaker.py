@@ -17,7 +17,7 @@ class EmbedMaker:
     """
 
     __author__ = 'mikeshardmind'
-    __version__ = '2.0.2'
+    __version__ = '2.1.0'
 
     def __init__(self, bot):
         self.bot = bot
@@ -51,7 +51,7 @@ class EmbedMaker:
             return await ctx.maybe_send_embed(
                 "An embed with that name already exists!")
         try:
-            e = embed_from_userstr(data)
+            e = await embed_from_userstr(ctx, data)
             await ctx.send("Here's how that's gonna look", embed=e)
         except Exception:
             await ctx.maybe_send_embed(
@@ -75,7 +75,7 @@ class EmbedMaker:
         """
         try:
             name = name.lower()
-            e = embed_from_userstr(data)
+            e = await embed_from_userstr(ctx, data)
             await ctx.send("Here's how that's gonna look", embed=e)
         except Exception:
             await ctx.maybe_send_embed(
