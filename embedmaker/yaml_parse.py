@@ -33,9 +33,10 @@ async def embed_from_userstr(
 
                 if inner_key in ['color', 'colour']:
                     try:
-                        x = (await commands.converter.ColourConverter(
-                            ctx, to_set
-                        )).value
+                        x = (
+                            await commands.converter.ColourConverter(
+                                ).convert(ctx, to_set)
+                        ).value
                     except Exception:
                         try:
                             to_set = int(to_set)
