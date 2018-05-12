@@ -4,16 +4,19 @@ import itertools
 
 import discord
 
-from redbot.core.i18n import Translator, cog_i18n
-from redbot.core import Config, commands
+try:
+    from redbot.core import commands
+    from redbot.core.i18n import Translator, cog_i18n
+except ImportError:
+    from discord.ext import commands
+    from redbot.core.i18n import CogI18n as Translator
+
+    def cog_i18n(x): return lambda y: y
+from redbot.core import Config
+
 from redbot.core import __version__ as redversion
 from redbot.core.utils.chat_formatting import box, pagify
-try:
-    from redbot.core.utils.data_converter import DataConverter as dc
-except ImportError:
-    DC_AVAILABLE = False
-else:
-    DC_AVAILABLE = True
+from redbot.core.utils.data_converter import DataConverter as dc
 
 _ = Translator("GuildWhitelist", __file__)
 
@@ -134,8 +137,6 @@ class GuildWhitelist:
         pass the full path of the v2 settings.json
         for this cog
         """
-        if not DC_AVAILABLE:
-            return await ctx.send(DC_UNAVAILABLE)
 
         v2_data = Path(path) / 'data' / 'serverwhitelist' / 'list.json'
         if not v2_data.is_file():

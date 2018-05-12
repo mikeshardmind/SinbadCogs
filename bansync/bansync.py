@@ -3,10 +3,15 @@ from typing import List
 
 import discord
 
-from redbot.core import commands
-from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
+try:
+    from redbot.core import commands
+    from redbot.core.i18n import Translator, cog_i18n
+except ImportError:
+    from discord.ext import commands
+    from redbot.core.i18n import CogI18n as Translator
 
+    def cog_i18n(x): return lambda y: y
 GuildList = List[discord.Guild]
 _ = Translator("BanSync", __file__)
 

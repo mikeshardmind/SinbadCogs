@@ -2,10 +2,16 @@ import asyncio
 import discord
 
 from redbot.core.utils.chat_formatting import box, pagify
-from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.config import Config
-from redbot.core.i18n import Translator
+try:
+    from redbot.core import commands
+    from redbot.core.i18n import Translator, cog_i18n
+except ImportError:
+    from discord.ext import commands
+    from redbot.core.i18n import CogI18n as Translator
+
+    def cog_i18n(x): return lambda y: y
 from redbot.core.utils.mod import mass_purge, slow_deletion
 
 from .relay import NwayRelay, OnewayRelay

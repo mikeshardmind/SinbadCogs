@@ -4,16 +4,20 @@ import itertools
 
 import discord
 
-from redbot.core.i18n import Translator, cog_i18n
-from redbot.core import Config, commands
+try:
+    from redbot.core import commands
+    from redbot.core.i18n import Translator, cog_i18n
+except ImportError:
+    from discord.ext import commands
+    from redbot.core.i18n import CogI18n as Translator
+
+    def cog_i18n(x): return lambda y: y
+
+from redbot.core import Config
 from redbot.core import __version__ as redversion
 from redbot.core.utils.chat_formatting import box, pagify
-try:
-    from redbot.core.utils.data_converter import DataConverter as dc
-except ImportError:
-    DC_AVAILABLE = False
-else:
-    DC_AVAILABLE = True
+
+from redbot.core.utils.data_converter import DataConverter as dc
 
 _ = Translator("GuildBlacklist", __file__)
 
@@ -22,8 +26,6 @@ log = logging.getLogger('red.guildblacklist')
 GBL_LIST_HEADER = _("IDs in blacklist")
 FILE_NOT_FOUND = _("That doesn't appear to be a valid path for that")
 FMT_ERROR = _("That file didn't appear to be a valid settings file")
-
-DC_UNAVAILABLE = _("Data conversion is not available in your install.")
 
 
 @cog_i18n(_)
@@ -130,8 +132,6 @@ class GuildBlacklist:
         pass the full path of the v2 settings.json
         for this cog
         """
-        if not DC_AVAILABLE:
-            return await ctx.send(DC_UNAVAILABLE)
 
         v2_data = Path(path) / 'data' / 'serverblacklist' / 'list.json'
         if not v2_data.is_file():
