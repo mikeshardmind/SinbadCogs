@@ -3,6 +3,7 @@ import sys
 import discord
 from copy import copy
 from redbot.core.config import Config
+from redbot.core import checks
 try:
     from redbot.core import commands
     from redbot.core.i18n import Translator, cog_i18n
