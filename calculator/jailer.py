@@ -6,7 +6,7 @@ import shlex
 import functools
 import asyncio
 
-from redbot.core.bot import RedContext
+from redbot.core import commands
 from redbot.core.utils.chat_formatting import pagify
 
 
@@ -20,7 +20,7 @@ async def run_jailed(
         *, expr: str,
         timeout: int=60,
         memlimit: int=60,
-        ctx: RedContext):
+        ctx: commands.Context):
 
     file_str = str(pathlib.Path(__file__).parent / 'jailed_calc.py')
     run_args = [sys.executable, file_str]

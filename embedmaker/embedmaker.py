@@ -1,8 +1,7 @@
 import discord
 import logging
-from discord.ext import commands
 
-from redbot.core import Config, RedContext
+from redbot.core import Config, commands
 from redbot.core import checks
 from redbot.core.utils.chat_formatting import pagify
 from .serialize import deserialize_embed, serialize_embed
@@ -29,7 +28,7 @@ class EmbedMaker:
         self.config.register_guild(active=True)
 
     @commands.group(name="embed")
-    async def _embed(self, ctx: RedContext):
+    async def _embed(self, ctx: commands.Context):
         """
         """
         if ctx.invoked_subcommand is None:
@@ -38,7 +37,7 @@ class EmbedMaker:
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command(name='advmake', hidden=True)
-    async def make_adv(self, ctx: RedContext, name: str, *, data: str):
+    async def make_adv(self, ctx: commands.Context, name: str, *, data: str):
         """
         makes an embed from valid yaml
 
@@ -66,7 +65,7 @@ class EmbedMaker:
     @commands.bot_has_permissions(embed_links=True)
     @checks.is_owner()
     @_embed.command(name='advmakeglobal', hidden=True)
-    async def make_global_adv(self, ctx: RedContext, name: str, *, data: str):
+    async def make_global_adv(self, ctx: commands.Context, name: str, *, data: str):
         """
         makes an embed from valid yaml
 
@@ -91,7 +90,7 @@ class EmbedMaker:
 
     @commands.guild_only()
     @_embed.command(name="make")
-    async def _make(self, ctx: RedContext, name: str, *, content: str):
+    async def _make(self, ctx: commands.Context, name: str, *, content: str):
         """
         makes an embed
         """
@@ -113,7 +112,7 @@ class EmbedMaker:
 
     @checks.is_owner()
     @_embed.command(name='makeglobal')
-    async def make_global(self, ctx: RedContext, name: str, *, content: str):
+    async def make_global(self, ctx: commands.Context, name: str, *, content: str):
         """
         make a global embed
         """
@@ -133,7 +132,7 @@ class EmbedMaker:
             await group.embed.set(serialize_embed(e))
 
     @_embed.command(name="list")
-    async def _list(self, ctx: RedContext):
+    async def _list(self, ctx: commands.Context):
         """
         lists the embeds here
         """
@@ -162,7 +161,7 @@ class EmbedMaker:
 
     @commands.guild_only()
     @_embed.command(name="remove")
-    async def _remove(self, ctx: RedContext, name: str):
+    async def _remove(self, ctx: commands.Context, name: str):
         """
         removes an embed
         """
@@ -183,7 +182,7 @@ class EmbedMaker:
 
     @checks.is_owner()
     @_embed.command(name="rmglobal")
-    async def remove_global(self, ctx: RedContext, name: str):
+    async def remove_global(self, ctx: commands.Context, name: str):
         """
         removes a global embed
         """
@@ -192,7 +191,7 @@ class EmbedMaker:
 
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command()
-    async def drop(self, ctx: RedContext, name: str):
+    async def drop(self, ctx: commands.Context, name: str):
         """
         drops an embed here
         """
@@ -207,7 +206,7 @@ class EmbedMaker:
 
     @checks.is_owner()
     @_embed.command(name="dropglobal")
-    async def drop_global(self, ctx: RedContext, name: str):
+    async def drop_global(self, ctx: commands.Context, name: str):
         """
         drop a global embed here
         """
@@ -218,7 +217,7 @@ class EmbedMaker:
 
     @checks.admin()
     @_embed.command()
-    async def dm(self, ctx: RedContext, name: str, user: discord.Member):
+    async def dm(self, ctx: commands.Context, name: str, user: discord.Member):
         """
         DMs an embed
         """
@@ -234,7 +233,7 @@ class EmbedMaker:
 
     @checks.admin()
     @_embed.command()
-    async def dmglobal(self, ctx: RedContext, name: str, user: discord.Member):
+    async def dmglobal(self, ctx: commands.Context, name: str, user: discord.Member):
         """
         DMs a global embed
         """
@@ -250,7 +249,7 @@ class EmbedMaker:
 
     @commands.guild_only()
     @_embed.command(name='frommsg')
-    async def from_message(self, ctx: RedContext, name: str, _id: int):
+    async def from_message(self, ctx: commands.Context, name: str, _id: int):
         """
         Store's a message's embed
         """
@@ -270,7 +269,7 @@ class EmbedMaker:
 
     @checks.is_owner()
     @_embed.command(name='globalfrommsg')
-    async def global_from_message(self, ctx: RedContext, name: str, _id: int):
+    async def global_from_message(self, ctx: commands.Context, name: str, _id: int):
         """
         stores a message's embed
         """

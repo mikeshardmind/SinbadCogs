@@ -3,10 +3,9 @@ from pathlib import Path
 import itertools
 
 import discord
-from discord.ext import commands
 
-from redbot.core.i18n import CogI18n
-from redbot.core import Config, RedContext
+from redbot.core.i18n import Translator, cog_i18n
+from redbot.core import Config, commands
 from redbot.core import __version__ as redversion
 from redbot.core.utils.chat_formatting import box, pagify
 try:
@@ -16,7 +15,7 @@ except ImportError:
 else:
     DC_AVAILABLE = True
 
-_ = CogI18n("GuildBlacklist", __file__)
+_ = Translator("GuildBlacklist", __file__)
 
 log = logging.getLogger('red.guildblacklist')
 
@@ -27,6 +26,7 @@ FMT_ERROR = _("That file didn't appear to be a valid settings file")
 DC_UNAVAILABLE = _("Data conversion is not available in your install.")
 
 
+@cog_i18n(_)
 class GuildBlacklist:
     """
     prevent the bot from joining servers by either
@@ -48,7 +48,7 @@ class GuildBlacklist:
         )
         self.config.register_global(**self.default_globals)
 
-    async def __local_check(self, ctx: RedContext):
+    async def __local_check(self, ctx: commands.Context):
         return await ctx.bot.is_owner(ctx.author)
 
     async def on_guild_join(self, guild: discord.Guild):
@@ -61,7 +61,7 @@ class GuildBlacklist:
                 await guild.leave()
 
     @commands.group(name="guildblacklist")
-    async def gbl(self, ctx: RedContext):
+    async def gbl(self, ctx: commands.Context):
         """
         settings for guildblacklisting
         """
@@ -69,7 +69,7 @@ class GuildBlacklist:
             await ctx.send_help()
 
     @gbl.command(name='debuginfo', hidden=True)
-    async def dbg_info(self, ctx: RedContext):
+    async def dbg_info(self, ctx: commands.Context):
         """
         debug info
         """
@@ -82,7 +82,7 @@ class GuildBlacklist:
         await ctx.send(box(ret))
 
     @gbl.command(name="add")
-    async def gbl_add(self, ctx: RedContext, *ids: int):
+    async def gbl_add(self, ctx: commands.Context, *ids: int):
         """
         add one or more ids to the blacklist.
         This can be the ID or a guild, or a user.
@@ -99,7 +99,7 @@ class GuildBlacklist:
         await ctx.tick()
 
     @gbl.command(name="list")
-    async def gbl_list(self, ctx: RedContext):
+    async def gbl_list(self, ctx: commands.Context):
         """
         list blacklisted IDs
         """
@@ -112,7 +112,7 @@ class GuildBlacklist:
         await ctx.tick()
 
     @gbl.command(name="remove")
-    async def gbl_remove(self, ctx: RedContext, *ids: int):
+    async def gbl_remove(self, ctx: commands.Context, *ids: int):
         """
         remove one or more ids from the blacklist
         """
@@ -125,7 +125,7 @@ class GuildBlacklist:
         await ctx.tick()
 
     @gbl.command(name='import', disabled=True)
-    async def gbl_import(self, ctx: RedContext, path: str):
+    async def gbl_import(self, ctx: commands.Context, path: str):
         """
         pass the full path of the v2 settings.json
         for this cog

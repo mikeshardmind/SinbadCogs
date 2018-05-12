@@ -1,18 +1,17 @@
 import asyncio
 import discord
-from discord.ext import commands
 
 from redbot.core.utils.chat_formatting import box, pagify
-from redbot.core import RedContext
+from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.config import Config
-from redbot.core.i18n import CogI18n
+from redbot.core.i18n import Translator
 from redbot.core.utils.mod import mass_purge, slow_deletion
 
 from .relay import NwayRelay, OnewayRelay
 from .helpers import unique, embed_from_msg, txt_channel_finder
 
-_ = CogI18n("Relays", __file__)
+_ = Translator("Relays", __file__)
 
 NAME_EXISTS = _("A relay of that name already exists.")
 
@@ -131,7 +130,7 @@ class Relays:
             ret[info] = val
         return ret
 
-    async def validation_error(self, ctx: RedContext, validation: dict):
+    async def validation_error(self, ctx: commands.Context, validation: dict):
         error_str = ""
         not_founds = [k for k, v in validation.items() if v is None]
         multi_match = [k for k, v in validation.items() if v is False]
@@ -146,7 +145,7 @@ class Relays:
         for page in pagify(error_str):
             await ctx.send(box(page))
 
-    async def interactive_selection(self, ctx: RedContext):
+    async def interactive_selection(self, ctx: commands.Context):
         output = ""
         names = self.relay_names
         if len(names) == 0:
@@ -211,7 +210,7 @@ class Relays:
         return msg
 
     @commands.command()
-    async def makerelay(self, ctx: RedContext, name: str, *channels: str):
+    async def makerelay(self, ctx: commands.Context, name: str, *channels: str):
         """
         Makes a multiway relay
         """
@@ -236,7 +235,7 @@ class Relays:
         await ctx.tick()
 
     @commands.command()
-    async def makeoneway(self, ctx: RedContext,
+    async def makeoneway(self, ctx: commands.Context,
                          name: str, source: str, *destinations: str):
         """
         Makes a relay which forwards a channel to one or more others
@@ -264,7 +263,7 @@ class Relays:
         await ctx.tick()
 
     @commands.command()
-    async def relayinfo(self, ctx: RedContext, name: str=None):
+    async def relayinfo(self, ctx: commands.Context, name: str=None):
         """
         gets info about relays
 
@@ -284,7 +283,7 @@ class Relays:
             await ctx.send(box(page))
 
     @commands.command()
-    async def rmrelay(self, ctx: RedContext, name: str=None):
+    async def rmrelay(self, ctx: commands.Context, name: str=None):
         """
         removes a relay
 
