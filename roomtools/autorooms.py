@@ -3,9 +3,8 @@ import asyncio
 import contextlib
 
 import discord
-from discord.ext import commands
 
-from redbot.core import RedContext
+from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.utils.antispam import AntiSpam
 from redbot.core.config import Config
@@ -155,7 +154,7 @@ class AutoRooms:
 
     # special checks
     def is_active_here(self):
-        async def check(ctx: RedContext):
+        async def check(ctx: commands.Context):
             return await self.config.guild(ctx.guild).active()
         return commands.check(check)
 
@@ -164,7 +163,7 @@ class AutoRooms:
     @commands.bot_has_permissions(manage_channels=True)
     @checks.admin_or_permissions(manage_channels=True)
     @commands.group()
-    async def autoroomset(self, ctx: RedContext):
+    async def autoroomset(self, ctx: commands.Context):
         """
         Commands for configuring autorooms
         """
@@ -175,7 +174,7 @@ class AutoRooms:
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="channelsettings")
     async def setchannelsettings(
-            self, ctx: RedContext, channel: discord.VoiceChannel):
+            self, ctx: commands.Context, channel: discord.VoiceChannel):
         """
         Interactive prompt for editing the autoroom behavior for specific
         channels
@@ -236,7 +235,7 @@ class AutoRooms:
 
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="toggleactive")
-    async def autoroomtoggle(self, ctx: RedContext, val: bool=None):
+    async def autoroomtoggle(self, ctx: commands.Context, val: bool=None):
         """
         turns autorooms on and off
         """
@@ -251,7 +250,7 @@ class AutoRooms:
     @is_active_here()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="makeclone")
-    async def makeclone(self, ctx: RedContext, channel: discord.VoiceChannel):
+    async def makeclone(self, ctx: commands.Context, channel: discord.VoiceChannel):
         """Takes a channel, turns that voice channel into an autoroom"""
 
         await self.config.channel(channel).autoroom.set(True)
@@ -269,7 +268,7 @@ class AutoRooms:
     @is_active_here()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="listautorooms")
-    async def listclones(self, ctx: RedContext):
+    async def listclones(self, ctx: commands.Context):
         """Lists the current autorooms"""
         clist = []
         for c in ctx.guild.voice_channels:
@@ -283,7 +282,7 @@ class AutoRooms:
     @is_active_here()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="toggleowner")
-    async def toggleowner(self, ctx: RedContext, val: bool=None):
+    async def toggleowner(self, ctx: commands.Context, val: bool=None):
         """toggles if the creator of the autoroom owns it
         requires the "Manage Channels" permission
         Defaults to false"""

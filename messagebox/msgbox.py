@@ -2,13 +2,12 @@ import io
 import sys
 import discord
 from copy import copy
-from discord.ext import commands
 from redbot.core.config import Config
-from redbot.core import checks
-from redbot.core.i18n import CogI18n
+from redbot.core import checks, commands
+from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import pagify
 
-_ = CogI18n('MessageBox', __file__)
+_ = Translator('MessageBox', __file__)
 
 _old_contact = None
 
@@ -17,6 +16,7 @@ class MessageBoxError(Exception):
     pass
 
 
+@cog_i18n(_)
 class MessageBox:
     """
     replace contact with something less obnoxious

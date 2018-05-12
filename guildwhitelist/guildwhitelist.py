@@ -3,10 +3,9 @@ from pathlib import Path
 import itertools
 
 import discord
-from discord.ext import commands
 
-from redbot.core.i18n import CogI18n
-from redbot.core import Config, RedContext
+from redbot.core.i18n import Translator, cog_i18n
+from redbot.core import Config, commands
 from redbot.core import __version__ as redversion
 from redbot.core.utils.chat_formatting import box, pagify
 try:
@@ -16,7 +15,7 @@ except ImportError:
 else:
     DC_AVAILABLE = True
 
-_ = CogI18n("GuildWhitelist", __file__)
+_ = Translator("GuildWhitelist", __file__)
 
 log = logging.getLogger('red.guildwhitelist')
 
@@ -27,6 +26,7 @@ FMT_ERROR = _("That file didn't appear to be a valid settings file")
 DC_UNAVAILABLE = _("Data conversion is not available in your install.")
 
 
+@cog_i18n(_)
 class GuildWhitelist:
     """
     prevent the bot from joining servers who are not whitelisted
@@ -48,7 +48,7 @@ class GuildWhitelist:
         )
         self.config.register_global(**self.default_globals)
 
-    async def __local_check(self, ctx: RedContext):
+    async def __local_check(self, ctx: commands.Context):
         return await ctx.bot.is_owner(ctx.author)
 
     async def on_guild_join(self, guild: discord.Guild):
@@ -64,7 +64,7 @@ class GuildWhitelist:
                 await guild.leave()
 
     @commands.group(name="guildwhitelist")
-    async def gwl(self, ctx: RedContext):
+    async def gwl(self, ctx: commands.Context):
         """
         settings for guildwhitelisting
         """
@@ -72,7 +72,7 @@ class GuildWhitelist:
             await ctx.send_help()
 
     @gwl.command(name='debuginfo', hidden=True)
-    async def dbg_info(self, ctx: RedContext):
+    async def dbg_info(self, ctx: commands.Context):
         """
         debug info
         """
@@ -85,7 +85,7 @@ class GuildWhitelist:
         await ctx.send(box(ret))
 
     @gwl.command(name="add")
-    async def gwl_add(self, ctx: RedContext, *ids: int):
+    async def gwl_add(self, ctx: commands.Context, *ids: int):
         """
         add one or more ids to the whitelist.
         This can be the ID or a guild, or a user.
@@ -102,7 +102,7 @@ class GuildWhitelist:
         await ctx.tick()
 
     @gwl.command(name="list")
-    async def gwl_list(self, ctx: RedContext):
+    async def gwl_list(self, ctx: commands.Context):
         """
         list whitelisted IDs
         """
@@ -116,7 +116,7 @@ class GuildWhitelist:
         await ctx.tick()
 
     @gwl.command(name="remove")
-    async def gwl_remove(self, ctx: RedContext, *ids: int):
+    async def gwl_remove(self, ctx: commands.Context, *ids: int):
         """
         remove one or more ids from the whitelist
         """
@@ -129,7 +129,7 @@ class GuildWhitelist:
         await ctx.tick()
 
     @gwl.command(name='import', disabled=True)
-    async def gwl_import(self, ctx: RedContext, path: str):
+    async def gwl_import(self, ctx: commands.Context, path: str):
         """
         pass the full path of the v2 settings.json
         for this cog

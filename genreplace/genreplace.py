@@ -1,6 +1,5 @@
 import dice as dicelib
-from discord.ext import commands
-from redbot.core import RedContext, checks
+from redbot.core import commands, checks
 from redbot.core.bot import Red
 import random
 from .dice import StatefulDie
@@ -27,7 +26,7 @@ class GenReplace:
     @checks.admin()
     @commands.guild_only()
     @commands.command(hidden=True)
-    async def enablestateful(self, ctx: RedContext, enable: bool=True):
+    async def enablestateful(self, ctx: commands.Context, enable: bool=True):
         """
         enables dice less prone to streaks
         """
@@ -57,7 +56,7 @@ class GenReplace:
         await ctx.maybe_send_embed(response)
 
     @commands.command()
-    async def roll(self, ctx: RedContext, sides: int=6):
+    async def roll(self, ctx: commands.Context, sides: int=6):
         """
         Rolls a die
         """

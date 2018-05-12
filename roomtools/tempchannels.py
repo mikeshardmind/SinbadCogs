@@ -3,9 +3,8 @@ import asyncio
 import contextlib
 
 import discord
-from discord.ext import commands
 
-from redbot.core import RedContext
+from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.utils.antispam import AntiSpam
 from redbot.core.config import Config
@@ -69,12 +68,12 @@ class TempChannels:
                         await conf.clear()
 
     def is_active_here(self):
-        async def check(ctx: RedContext):
+        async def check(ctx: commands.Context):
             return await self.config.guild(ctx.guild).active()
         return commands.check(check)
 
     def isnt_spam(self):
-        def check(ctx: RedContext):
+        def check(ctx: commands.Context):
             if ctx.author.id in self._antispam:
                 return not self._antispam[ctx.author.id].spammy()
             return True
@@ -84,7 +83,7 @@ class TempChannels:
     @commands.bot_has_permissions(manage_channels=True)
     @checks.admin_or_permissions(manage_channels=True)
     @commands.group(name='tempchannelset', aliases=['tmpcset'])
-    async def tmpcset(self, ctx: RedContext):
+    async def tmpcset(self, ctx: commands.Context):
         """
         Temporary Channel Settings
         """
@@ -94,7 +93,7 @@ class TempChannels:
 
     @checks.admin_or_permissions(manage_channels=True)
     @tmpcset.command()
-    async def toggleactive(self, ctx: RedContext, val: bool=None):
+    async def toggleactive(self, ctx: commands.Context, val: bool=None):
         """
         toggle (or explicitly set) whether temp channel creation is enabled
         """
@@ -112,7 +111,7 @@ class TempChannels:
     @checks.admin_or_permissions(manage_channels=True)
     @tmpcset.command(name='category')
     async def _category(
-            self, ctx: RedContext, cat: discord.CategoryChannel=None):
+            self, ctx: commands.Context, cat: discord.CategoryChannel=None):
         """
         Sets the category for temporary channels
 
@@ -130,7 +129,7 @@ class TempChannels:
     @isnt_spam()
     @commands.bot_has_permissions(manage_channels=True)
     @commands.command(name='tmpc')
-    async def create_temp(self, ctx: RedContext, *, channelname: str):
+    async def create_temp(self, ctx: commands.Context, *, channelname: str):
         """
         Creates a temporary channel
         """

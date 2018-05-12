@@ -1,16 +1,16 @@
 import sys
 
-from discord.ext import commands
-
-from redbot.core.bot import Red, RedContext
+from redbot.core.bot import Red
+from redbot.core import commands
 # from redbot.core import checks
-from redbot.core.i18n import CogI18n
+from redbot.core.i18n import Translator, cog_i18n
 
 from .jailer import run_jailed
 
-_ = CogI18n('Calculator', __file__)
+_ = Translator('Calculator', __file__)
 
 
+@cog_i18n(_)
 class Calculator:
     """
     This provides a safe(er) method for allowing math
@@ -37,7 +37,7 @@ class Calculator:
         return sys.platform == 'linux'
 
     @commands.command(name='calc', aliases=['calculate'])
-    async def calculate(self, ctx: RedContext, *, expression: str=""):
+    async def calculate(self, ctx: commands.Context, *, expression: str=""):
         """
         get the result of an expression
 

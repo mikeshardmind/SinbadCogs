@@ -2,13 +2,13 @@ import asyncio
 from typing import List
 
 import discord
-from discord.ext import commands
 
-from redbot.core.i18n import CogI18n
+from redbot.core import commands
+from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
 
 GuildList = List[discord.Guild]
-_ = CogI18n("BanSync", __file__)
+_ = Translator("BanSync", __file__)
 
 # Strings go here for ease of modification with pygettext
 INTERACTIVE_PROMPT_I = _("Select a server to add to the sync list by number, "
@@ -29,6 +29,7 @@ UNWORTHY = _("You are not worthy")
 BANMOJI = '\U0001f528'
 
 
+@cog_i18n(_)
 class BanSync:
     """
     synchronize your bans
