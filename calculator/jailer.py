@@ -10,7 +10,7 @@ from redbot.core import commands
 from redbot.core.utils.chat_formatting import pagify
 
 
-def setlimits(*, timeout: int=60, memlimit: int=50):
+def setlimits(*, timeout: int=60, memlimit: int=5):
     resource.setrlimit(resource.RLIMIT_CPU, (timeout, timeout))
     mb_as_b = memlimit * 1024 * 1024
     resource.setrlimit(resource.RLIMIT_MEMLOCK, (mb_as_b, mb_as_b))

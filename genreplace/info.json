@@ -8,7 +8,7 @@
     "TAGS": [
         "betterdice", "dice"
     ],
-    "HIDDEN": false,
+    "HIDDEN": true,
     "requirements": [
         "dice"
     ]
