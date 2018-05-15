@@ -10,7 +10,7 @@
         "embedmaker"
     ],
     "HIDDEN": false,
-    "REQUIREMENTS": [
+    "requirements": [
         "python-dateutil", "pytz"
     ]
 }

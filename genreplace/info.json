@@ -9,7 +9,7 @@
         "betterdice", "dice"
     ],
     "HIDDEN": false,
-    "REQUIREMENTS": [
+    "requirements": [
         "dice"
     ]
 }
