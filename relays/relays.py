@@ -53,6 +53,7 @@ NWAY_OUTPUT_TEMPLATE = [
 ]
 
 
+@cog_i18n(_)
 class Relays:
     """
     Provides channel relays
