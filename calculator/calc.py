@@ -34,7 +34,7 @@ class Calculator:
     __author__ = "mikeshardmind"
     __version__ = '1.0.1b'
 
-    def __init__(self, bot: Red):
+    def __init__(self, bot):
         self.bot = bot
 
     def __local_check(self, ctx):
