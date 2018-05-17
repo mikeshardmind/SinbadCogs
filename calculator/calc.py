@@ -58,4 +58,8 @@ class Calculator:
 
         if not expression:
             return await ctx.send_help()
-        await run_jailed(ctx=ctx, expr=expression)
+        try:
+            await run_jailed(ctx=ctx, expr=expression)
+        except subprocess.SubprocessError:
+            await ctx.maybe_send_embed("Your bot cannot make a required system call `resource.setrlimit`")  
+            ctx.bot.remove_command(ctx.command.name)
