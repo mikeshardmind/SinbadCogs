@@ -12,7 +12,7 @@ class Polling:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.0b"
+    __version__ = "1.0.1b"
 
     @commands.command()
     async def votecount(
@@ -26,7 +26,10 @@ class Polling:
         if m is None:
             return await ctx.maybe_send_embed("No such message in that channel.")
 
-        responses = {str(r): await r.users().flatten() for r in message.reactions}
+        responses = {
+            str(r): [x for x in await r.users().flatten() if not x.bot]
+            for r in message.reactions
+        }
 
         await self.send_dict(ctx, responses)
 
@@ -61,6 +64,8 @@ class Polling:
                 continue
             responses[str(r)] = []
             async for u in r.users():
+                if u.bot:
+                    continue
                 if u in users:
                     multivoters.append(u)
                 else:
