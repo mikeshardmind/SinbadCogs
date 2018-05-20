@@ -1,6 +1,8 @@
 # SinbadCogs
 [![Build Status](https://travis-ci.org/mikeshardmind/SinbadCogs.svg?branch=v3)](https://travis-ci.org/mikeshardmind/SinbadCogs)
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+
 Slowly growing collection of cogs for
 
 [Red](https://github.com/Twentysix26/Red-DiscordBot)
@@ -9,7 +11,7 @@ I'm Sinbad#0001 on Discord
 
 Various tools here.
 Feel free to ask for help with these in the
-"support_othercogs" channel in [This Discord](https://discord.gg/GET4DVk)
+"support_sinbadcogs" channel in [This Discord](https://discord.gg/GET4DVk)
 
 I'm also around in the main [Red Discord Server](https://discord.gg/red)
 
