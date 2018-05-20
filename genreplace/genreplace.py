@@ -5,9 +5,21 @@ import random
 from .dice import StatefulDie
 
 com_objs = {}
-general_coms = ['flip', 'rps', '8', 'stopwatch', 'lmgtfy', 'hug',
-                'userinfo', 'serverinfo', 'urban', 'ping', 'roll', 'choose']
-keep_coms = ['userinfo', 'ping', 'hug']
+general_coms = [
+    "flip",
+    "rps",
+    "8",
+    "stopwatch",
+    "lmgtfy",
+    "hug",
+    "userinfo",
+    "serverinfo",
+    "urban",
+    "ping",
+    "roll",
+    "choose",
+]
+keep_coms = ["userinfo", "ping", "hug"]
 
 
 class GenReplace:
@@ -26,7 +38,7 @@ class GenReplace:
     @checks.admin()
     @commands.guild_only()
     @commands.command(hidden=True)
-    async def enablestateful(self, ctx: commands.Context, enable: bool=True):
+    async def enablestateful(self, ctx: commands.Context, enable: bool = True):
         """
         enables dice less prone to streaks
         """
@@ -56,15 +68,17 @@ class GenReplace:
         await ctx.maybe_send_embed(response)
 
     @commands.command()
-    async def roll(self, ctx: commands.Context, sides: int=6):
+    async def roll(self, ctx: commands.Context, sides: int = 6):
         """
         Rolls a die
         """
         if sides < 1:
             return
-        if ctx.guild is None \
-            or ctx.guild.id not in self._dice \
-                or sides not in (4, 6, 8, 10, 12, 20):
+        if (
+            ctx.guild is None
+            or ctx.guild.id not in self._dice
+            or sides not in (4, 6, 8, 10, 12, 20)
+        ):
             roll = random.randrange(1, sides)
         else:
             dice = self._dice
@@ -73,16 +87,11 @@ class GenReplace:
                 dice[ctx.guild.id][ctx.author.id][sides] = StatefulDie(sides)
             roll = dice[ctx.guild.id][ctx.author.id][sides].roll()
 
-        return await ctx.maybe_send_embed("{} :{}".format(
-            ctx.author, roll)
-        )
+        return await ctx.maybe_send_embed("{} :{}".format(ctx.author, roll))
 
 
 def setup(bot):
-    com_objs = {
-        k: bot.get_command(k) for k in general_coms
-        if k not in keep_coms
-    }
+    com_objs = {k: bot.get_command(k) for k in general_coms if k not in keep_coms}
     for k, v in com_objs.items():
         if v is not None:
             bot.remove_command(k)

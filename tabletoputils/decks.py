@@ -21,24 +21,33 @@ class Deck:
         when true, anytime the deck is empty, cards will be returned
         to the deck and reshuffled
     """
-    _suits = ['Spades', 'Diamonds', 'Clubs', 'Hearts']
+    _suits = ["Spades", "Diamonds", "Clubs", "Hearts"]
 
     _vals = [
-        'Ace',
-        'King',
-        'Queen',
-        'Jack',
-        '10', '9', '8', '7', '6', '5', '4', '3', '2'
+        "Ace",
+        "King",
+        "Queen",
+        "Jack",
+        "10",
+        "9",
+        "8",
+        "7",
+        "6",
+        "5",
+        "4",
+        "3",
+        "2",
     ]
 
-    def __init__(self, *,
-                 deck_count: int=1,
-                 cards: list=None,
-                 autoreshuffle: bool=False):
+    def __init__(
+        self, *, deck_count: int = 1, cards: list = None, autoreshuffle: bool = False
+    ):
         self._deck_count = deck_count
         self.autoreshuffle = autoreshuffle
-        self._cards = cards if cards is not None else list(
-            itertools.product(self._suits, self._vals)
+        self._cards = (
+            cards
+            if cards is not None
+            else list(itertools.product(self._suits, self._vals))
         )
         self.reset_deck()
 
@@ -52,9 +61,7 @@ class Deck:
         """
         resets the deck to it's original state
         """
-        self._deck = {
-            k: int(self._deck_count) for k in self._cards
-        }
+        self._deck = {k: int(self._deck_count) for k in self._cards}
 
     def insert(self, card):
         """
@@ -70,8 +77,7 @@ class Deck:
             raise AttributeError("That card isn't in this deck")
         elif self._deck[card] == self._deck_count:
             raise AttributeError(
-                "You already have the maximum valid cards of this type"
-                " in the deck"
+                "You already have the maximum valid cards of this type" " in the deck"
             )
         else:
             self._deck[card] += 1
@@ -92,10 +98,7 @@ class Deck:
                 raise AttributeError("Empty deck can't be drawn from")
         possible = [k for k, v in self._deck.items() if v > 0]
         weights = [
-            float(v) / self.remaining_cards
-            for v in [
-                self._deck[k] for k in possible
-            ]
+            float(v) / self.remaining_cards for v in [self._deck[k] for k in possible]
         ]
 
         idx = np.random.choice(range(0, len(possible)), p=weights)

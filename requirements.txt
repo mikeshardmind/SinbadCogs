@@ -1,1 +1,7 @@
-git+git://github.com/Rapptz/discord.py.git#egg=discord.py[voice]
+git+git://github.com/Rapptz/discord.py.git@rewrite#egg=discord.py
+red-discordbot
+pytz
+python-dateutil
+asteval
+black
+yarl==0.18

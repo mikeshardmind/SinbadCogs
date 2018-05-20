@@ -12,7 +12,7 @@ class Die:
         defaults to 6, must be a positive integer
     """
 
-    def __init__(self, sides: int=6):
+    def __init__(self, sides: int = 6):
         self.sides = int(sides)
         if sides < 1:
             raise ValueError("No negative sided dice")
@@ -61,15 +61,12 @@ class StatefulDie(Die):
         defaults to 6, must be a positive integer
     """
 
-    def __init__(self, sides: int=6):
+    def __init__(self, sides: int = 6):
         super().__init__(sides)
         self._rolls_since = np.ones(sides)
 
     def roll(self):
-        result = np.random.choice(
-            range(1, self.sides + 1),
-            p=self._weights
-        )
+        result = np.random.choice(range(1, self.sides + 1), p=self._weights)
         self._rolls_since += 1
         self._rolls_since[result - 1] = 1
         return result

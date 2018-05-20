@@ -4,6 +4,7 @@ from typing import List
 import discord
 
 from redbot.core.utils.chat_formatting import box, pagify
+
 try:
     from redbot.core import commands
     from redbot.core.i18n import Translator, cog_i18n
@@ -11,13 +12,18 @@ except ImportError:
     from discord.ext import commands
     from redbot.core.i18n import CogI18n as Translator
 
-    def cog_i18n(x): return lambda y: y
+    def cog_i18n(x):
+        return lambda y: y
+
+
 GuildList = List[discord.Guild]
 _ = Translator("BanSync", __file__)
 
 # Strings go here for ease of modification with pygettext
-INTERACTIVE_PROMPT_I = _("Select a server to add to the sync list by number, "
-                         "or enter \"-1\" to stop adding servers")
+INTERACTIVE_PROMPT_I = _(
+    "Select a server to add to the sync list by number, "
+    'or enter "-1" to stop adding servers'
+)
 
 ASYNCIOTIMEOUT = _("You took too long, try again later")
 
@@ -31,7 +37,7 @@ BANS_SYNCED = _("Bans have been synchronized across selected servers")
 
 UNWORTHY = _("You are not worthy")
 
-BANMOJI = '\U0001f528'
+BANMOJI = "\U0001f528"
 
 
 @cog_i18n(_)
@@ -40,13 +46,13 @@ class BanSync:
     synchronize your bans
     """
 
-    __author__ = 'mikeshardmind(Sinbad#0001)'
-    __version__ = '1.0.3b'
+    __author__ = "mikeshardmind(Sinbad#0001)"
+    __version__ = "1.0.3b"
 
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='bansyncdebuginfo', hidden=True)
+    @commands.command(name="bansyncdebuginfo", hidden=True)
     async def debuginfo(self, ctx):
         await ctx.send(
             box(
@@ -68,16 +74,16 @@ class BanSync:
         bot_allowed = g.me.guild_permissions.ban_members
         return user_allowed and bot_allowed
 
-    async def ban_filter(
-            self, g: discord.Guild, u: discord.user, t: discord.user):
+    async def ban_filter(self, g: discord.Guild, u: discord.user, t: discord.user):
         m = g.get_member(u.id)
         if m is None and not await self.bot.is_owner(u):
             return False
         elif await self.bot.is_owner(u):
             can_ban = True
         else:
-            can_ban = m.guild_permissions.ban_members \
-                and g.me.guild_permissions.ban_members
+            can_ban = (
+                m.guild_permissions.ban_members and g.me.guild_permissions.ban_members
+            )
         target = g.get_member(t.id)
         if target is not None:
             can_ban &= g.me.top_role > target.top_role
@@ -85,7 +91,7 @@ class BanSync:
 
     async def ban_or_hackban(self, guild: discord.Guild, _id: int, **kwargs):
         member = guild.get_member(_id)
-        reason = kwargs.get('reason', BAN_REASON)
+        reason = kwargs.get("reason", BAN_REASON)
         if member is None:
             member = discord.Object(id=_id)
         try:
@@ -115,9 +121,7 @@ class BanSync:
             return m.channel == ctx.channel and m.author == ctx.author
 
         try:
-            message = await self.bot.wait_for(
-                'message', check=pred, timeout=60
-            )
+            message = await self.bot.wait_for("message", check=pred, timeout=60)
         except asyncio.TimeoutError:
             return -2
         else:
@@ -148,19 +152,18 @@ class BanSync:
             to_ban = []
             for k, v in bans.items():
                 to_ban.extend(
-                    [m for m in v if m not in bans[guild.id]
-                     and await self.ban_filter(guild, usr, m)]
+                    [
+                        m
+                        for m in v
+                        if m not in bans[guild.id]
+                        and await self.ban_filter(guild, usr, m)
+                    ]
                 )
 
             for x in to_ban:
-                await self.ban_or_hackban(
-                    guild,
-                    x.id,
-                    mod=usr,
-                    reason=BAN_REASON
-                )
+                await self.ban_or_hackban(guild, x.id, mod=usr, reason=BAN_REASON)
 
-    @commands.command(name='bansync')
+    @commands.command(name="bansync")
     async def ban_sync(self, ctx, auto=False):
         """
         syncs bans across servers
@@ -178,8 +181,7 @@ class BanSync:
                 else:
                     guilds.append(s)
         elif auto is True:
-            guilds = [g for g in self.bot.guilds
-                      if await self.can_sync(g, ctx.author)]
+            guilds = [g for g in self.bot.guilds if await self.can_sync(g, ctx.author)]
 
         if len(guilds) < 2:
             return await ctx.send(TOO_FEW_CHOSEN)
@@ -187,8 +189,8 @@ class BanSync:
         await self.process_sync(ctx.author, guilds)
         await ctx.tick()
 
-    @commands.command(name="mjolnir", aliases=['globalban'])
-    async def mjolnir(self, ctx, user: str, *, rsn: str=None):
+    @commands.command(name="mjolnir", aliases=["globalban"])
+    async def mjolnir(self, ctx, user: str, *, rsn: str = None):
         """
         Swing the heaviest of ban hammers
         """
@@ -201,12 +203,8 @@ class BanSync:
             _id = x.id
 
         exit_codes = [
-            await self.ban_or_hackban(
-                guild,
-                _id,
-                mod=ctx.author,
-                reason=rsn
-            ) async for guild in self.guild_discovery(ctx, [])
+            await self.ban_or_hackban(guild, _id, mod=ctx.author, reason=rsn) async
+            for guild in self.guild_discovery(ctx, [])
         ]
 
         if any(exit_codes):

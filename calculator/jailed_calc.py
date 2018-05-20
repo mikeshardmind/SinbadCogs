@@ -11,5 +11,5 @@ def run_in_jail(expr):
     print(evaler.eval(expr, show_errors=False))
 
 
-run_in_jail(' '.join(sys.argv[1:]))
+run_in_jail(" ".join(sys.argv[1:]))
 sys.exit(0)

@@ -11,7 +11,9 @@ except ImportError:
     from discord.ext import commands
     from redbot.core.i18n import CogI18n as Translator
 
-    def cog_i18n(x): return lambda y: y
+    def cog_i18n(x):
+        return lambda y: y
+
 
 from redbot.core import Config
 from redbot.core import __version__ as redversion
@@ -21,7 +23,7 @@ from redbot.core.utils.data_converter import DataConverter as dc
 
 _ = Translator("GuildBlacklist", __file__)
 
-log = logging.getLogger('red.guildblacklist')
+log = logging.getLogger("red.guildblacklist")
 
 GBL_LIST_HEADER = _("IDs in blacklist")
 FILE_NOT_FOUND = _("That doesn't appear to be a valid path for that")
@@ -35,18 +37,15 @@ class GuildBlacklist:
     the server's ID, or the serverowner's ID
     """
 
-    __author__ = 'mikeshardmind(Sinbad#0001)'
-    __version__ = '1.0.0a'
+    __author__ = "mikeshardmind(Sinbad#0001)"
+    __version__ = "1.0.0a"
 
-    default_globals = {
-        'blacklist': []
-    }
+    default_globals = {"blacklist": []}
 
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
-            self, identifier=78631113035100160,
-            force_registration=True
+            self, identifier=78631113035100160, force_registration=True
         )
         self.config.register_global(**self.default_globals)
 
@@ -55,11 +54,8 @@ class GuildBlacklist:
 
     async def on_guild_join(self, guild: discord.Guild):
         async with self.config.blacklist() as blacklist:
-            if any(
-                x in blacklist
-                for x in (guild.id, guild.owner.id)
-            ):
-                log.info('leaving {0.id} {0.name}'.format(guild))
+            if any(x in blacklist for x in (guild.id, guild.owner.id)):
+                log.info("leaving {0.id} {0.name}".format(guild))
                 await guild.leave()
 
     @commands.group(name="guildblacklist")
@@ -70,7 +66,7 @@ class GuildBlacklist:
         if ctx.invoked_subcommand is None:
             await ctx.send_help()
 
-    @gbl.command(name='debuginfo', hidden=True)
+    @gbl.command(name="debuginfo", hidden=True)
     async def dbg_info(self, ctx: commands.Context):
         """
         debug info
@@ -126,14 +122,14 @@ class GuildBlacklist:
         await self.config.blacklist.set(bl)
         await ctx.tick()
 
-    @gbl.command(name='import', disabled=True)
+    @gbl.command(name="import", disabled=True)
     async def gbl_import(self, ctx: commands.Context, path: str):
         """
         pass the full path of the v2 settings.json
         for this cog
         """
 
-        v2_data = Path(path) / 'data' / 'serverblacklist' / 'list.json'
+        v2_data = Path(path) / "data" / "serverblacklist" / "list.json"
         if not v2_data.is_file():
             return await ctx.send(FILE_NOT_FOUND)
 
@@ -156,6 +152,5 @@ class GuildBlacklist:
 
 def unique(a):
     indices = sorted(range(len(a)), key=a.__getitem__)
-    indices = set(next(it) for k, it in
-                  itertools.groupby(indices, key=a.__getitem__))
+    indices = set(next(it) for k, it in itertools.groupby(indices, key=a.__getitem__))
     return [x for i, x in enumerate(a) if i in indices]

@@ -11,7 +11,10 @@ except ImportError:
     from discord.ext import commands
     from redbot.core.i18n import CogI18n as Translator
 
-    def cog_i18n(x): return lambda y: y
+    def cog_i18n(x):
+        return lambda y: y
+
+
 from redbot.core import Config
 
 from redbot.core import __version__ as redversion
@@ -20,7 +23,7 @@ from redbot.core.utils.data_converter import DataConverter as dc
 
 _ = Translator("GuildWhitelist", __file__)
 
-log = logging.getLogger('red.guildwhitelist')
+log = logging.getLogger("red.guildwhitelist")
 
 GWL_LIST_HEADER = _("IDs in whitelist\n")
 FILE_NOT_FOUND = _("That doesn't appear to be a valid path for that")
@@ -36,18 +39,15 @@ class GuildWhitelist:
     or whose owner is not whitelisted or the owner of the bot
     """
 
-    __author__ = 'mikeshardmind(Sinbad#0001)'
-    __version__ = '1.0.0a'
+    __author__ = "mikeshardmind(Sinbad#0001)"
+    __version__ = "1.0.0a"
 
-    default_globals = {
-        'whitelist': []
-    }
+    default_globals = {"whitelist": []}
 
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
-            self, identifier=78631113035100160,
-            force_registration=True
+            self, identifier=78631113035100160, force_registration=True
         )
         self.config.register_global(**self.default_globals)
 
@@ -56,14 +56,10 @@ class GuildWhitelist:
 
     async def on_guild_join(self, guild: discord.Guild):
         async with self.config.whitelist() as whitelist:
-            if not any(
-                x in whitelist
-                for x in (guild.id, guild.owner.id)
-            ) and (
-                guild.owner.id !=
-                (await self.bot.application_info()).owner
+            if not any(x in whitelist for x in (guild.id, guild.owner.id)) and (
+                guild.owner.id != (await self.bot.application_info()).owner
             ):
-                log.info('leaving {0.id} {0.name}'.format(guild))
+                log.info("leaving {0.id} {0.name}".format(guild))
                 await guild.leave()
 
     @commands.group(name="guildwhitelist")
@@ -74,7 +70,7 @@ class GuildWhitelist:
         if ctx.invoked_subcommand is None:
             await ctx.send_help()
 
-    @gwl.command(name='debuginfo', hidden=True)
+    @gwl.command(name="debuginfo", hidden=True)
     async def dbg_info(self, ctx: commands.Context):
         """
         debug info
@@ -131,14 +127,14 @@ class GuildWhitelist:
         await self.config.whitelist.set(wl)
         await ctx.tick()
 
-    @gwl.command(name='import', disabled=True)
+    @gwl.command(name="import", disabled=True)
     async def gwl_import(self, ctx: commands.Context, path: str):
         """
         pass the full path of the v2 settings.json
         for this cog
         """
 
-        v2_data = Path(path) / 'data' / 'serverwhitelist' / 'list.json'
+        v2_data = Path(path) / "data" / "serverwhitelist" / "list.json"
         if not v2_data.is_file():
             return await ctx.send(FILE_NOT_FOUND)
 
@@ -161,6 +157,5 @@ class GuildWhitelist:
 
 def unique(a):
     indices = sorted(range(len(a)), key=a.__getitem__)
-    indices = set(next(it) for k, it in
-                  itertools.groupby(indices, key=a.__getitem__))
+    indices = set(next(it) for k, it in itertools.groupby(indices, key=a.__getitem__))
     return [x for i, x in enumerate(a) if i in indices]

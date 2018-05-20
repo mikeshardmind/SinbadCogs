@@ -9,14 +9,14 @@ def role_mention_cleanup(message: discord.Message) -> str:
         return message.content
 
     transformations = {
-        re.escape('<@&{0.id}>'.format(role)): '@' + role.name
+        re.escape("<@&{0.id}>".format(role)): "@" + role.name
         for role in message.role_mentions
     }
 
     def repl(obj):
-        return transformations.get(re.escape(obj.group(0)), '')
+        return transformations.get(re.escape(obj.group(0)), "")
 
-    pattern = re.compile('|'.join(transformations.keys()))
+    pattern = re.compile("|".join(transformations.keys()))
     result = pattern.sub(repl, message.content)
 
     return result
@@ -30,21 +30,24 @@ def embed_from_msg(message: discord.Message) -> discord.Embed:
     sname = server.name
     cname = channel.name
     avatar = author.avatar_url
-    footer = 'Said in {} #{}'.format(sname, cname)
-    em = discord.Embed(description=content, color=author.color,
-                       timestamp=message.created_at)
-    em.set_author(name='{}'.format(author.name), icon_url=avatar)
+    footer = "Said in {} #{}".format(sname, cname)
+    em = discord.Embed(
+        description=content, color=author.color, timestamp=message.created_at
+    )
+    em.set_author(name="{}".format(author.name), icon_url=avatar)
     em.set_footer(text=footer, icon_url=server.icon_url)
     if message.attachments:
         a = message.attachments[0]
         fname = a.filename
         url = a.url
-        if fname.split('.')[-1] in ['png', 'jpg', 'gif', 'jpeg']:
+        if fname.split(".")[-1] in ["png", "jpg", "gif", "jpeg"]:
             em.set_image(url=url)
         else:
-            em.add_field(name='Message has an attachment',
-                         value='[{}]({})'.format(fname, url),
-                         inline=True)
+            em.add_field(
+                name="Message has an attachment",
+                value="[{}]({})".format(fname, url),
+                inline=True,
+            )
 
     return em
 
@@ -65,12 +68,10 @@ async def eligible_channels(ctx: commands.Context) -> list:
 
     for g in ctx.bot.guilds:
         chans = [
-            c for c in g.text_channels
+            c
+            for c in g.text_channels
             if c.permissions_for(g.me) >= needed_perms
-            and (
-                is_owner
-                or c.permissions_for(ctx.author) >= needed_perms
-            )
+            and (is_owner or c.permissions_for(ctx.author) >= needed_perms)
         ]
         if ctx.channel in chans:
             chans.remove(ctx.channel)

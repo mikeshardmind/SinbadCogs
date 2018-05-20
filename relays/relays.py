@@ -4,6 +4,7 @@ import discord
 from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core.bot import Red
 from redbot.core.config import Config
+
 try:
     from redbot.core import commands
     from redbot.core.i18n import Translator, cog_i18n
@@ -11,7 +12,10 @@ except ImportError:
     from discord.ext import commands
     from redbot.core.i18n import CogI18n as Translator
 
-    def cog_i18n(x): return lambda y: y
+    def cog_i18n(x):
+        return lambda y: y
+
+
 from redbot.core.utils.mod import mass_purge, slow_deletion
 
 from .relay import NwayRelay, OnewayRelay
@@ -25,16 +29,16 @@ MOAR_CHANNELS = _("You didn't give me enough channels.")
 
 UNFOUND = _("I could not find a channel for the following inputs\n")
 
-MULTIFOUND = _("The following inputs could not be matched safely, "
-               "please try again using their ID or mention\n")
+MULTIFOUND = _(
+    "The following inputs could not be matched safely, "
+    "please try again using their ID or mention\n"
+)
 
-NO_LOOPING = _("I won't set up a relay which would "
-               "have a channel send to itself.")
+NO_LOOPING = _("I won't set up a relay which would " "have a channel send to itself.")
 
 NO_SUCH_RELAY = _("No relay by that name")
 
-INTERACTIVE_PROMPT_HEADER = _("Please select a relay by number, "
-                              "or '-1' to quit")
+INTERACTIVE_PROMPT_HEADER = _("Please select a relay by number, " "or '-1' to quit")
 
 INVALID_CHOICE = _("That wasn't a valid choice")
 
@@ -44,13 +48,10 @@ ONE_WAY_OUTPUT_TEMPLATE = [
     _("Relay type: one way"),
     _("Source:"),
     _("Destination:"),
-    _("Destinations:")
+    _("Destinations:"),
 ]
 
-NWAY_OUTPUT_TEMPLATE = [
-    _("Relay type: multiway"),
-    _("Channels: ")
-]
+NWAY_OUTPUT_TEMPLATE = [_("Relay type: multiway"), _("Channels: ")]
 
 
 @cog_i18n(_)
@@ -59,20 +60,19 @@ class Relays:
     Provides channel relays
     """
 
-    __author__ = 'mikeshardmind(Sinbad#0001)'
-    __version__ = '1.0.0b'
+    __author__ = "mikeshardmind(Sinbad#0001)"
+    __version__ = "1.0.0b"
 
     def __init__(self, bot: Red):
-        self. bot = bot
+        self.bot = bot
         self.config = Config.get_conf(
-            self, identifier=78631113035100160,
-            force_registration=True
+            self, identifier=78631113035100160, force_registration=True
         )
         self.config.register_global(one_ways={}, nways={})
         self.bot.loop.create_task(self.initialize())
 
     async def __before_invoke(self, ctx):
-        while not hasattr(self, 'oneways'):
+        while not hasattr(self, "oneways"):
             asyncio.sleep(2)
 
     async def __local_check(self, ctx):
@@ -81,22 +81,16 @@ class Relays:
     async def initialize(self) -> None:
         nway_dict = await self.config.nways()
         self.nways = {
-            k: NwayRelay.from_data(self.bot, **v)
-            for k, v in nway_dict.items()
+            k: NwayRelay.from_data(self.bot, **v) for k, v in nway_dict.items()
         }
         onewaydict = await self.config.one_ways()
         self.oneways = {
-            k: OnewayRelay.from_data(self.bot, **v)
-            for k, v in onewaydict.items()
+            k: OnewayRelay.from_data(self.bot, **v) for k, v in onewaydict.items()
         }
 
     async def write_data(self):
-        nway_data = {
-            k: v.to_data() for k, v in self.nways.items()
-        }
-        oneway_data = {
-            k: v.to_data() for k, v in self.oneways.items()
-        }
+        nway_data = {k: v.to_data() for k, v in self.nways.items()}
+        oneway_data = {k: v.to_data() for k, v in self.oneways.items()}
         await self.config.one_ways.set(oneway_data)
         await self.config.nways.set(nway_data)
 
@@ -117,12 +111,10 @@ class Relays:
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:
             return
-        while not hasattr(self, 'oneways'):
+        while not hasattr(self, "oneways"):
             asyncio.sleep(2)
         for dest in self.gather_destinations(message):
-            await dest.send(
-                embed=embed_from_msg(message)
-            )
+            await dest.send(embed=embed_from_msg(message))
 
     def validate_inputs(self, *chaninfo: str):
         ret = {}
@@ -168,9 +160,7 @@ class Relays:
             return m.channel == ctx.channel and m.author == ctx.author
 
         try:
-            message = await self.bot.wait_for(
-                'message', check=pred, timeout=60
-            )
+            message = await self.bot.wait_for("message", check=pred, timeout=60)
         except asyncio.TimeoutError:
             await ctx.send(TIMEOUT)
             ret = None
@@ -200,13 +190,12 @@ class Relays:
     def get_relay_info(self, name: str):
         if name in self.oneways:
             relay = self.oneways[name]
-            quanitity_conditional = "{template[2]}" if len(
-                relay.destinations) == 1 else "{template[3]}\n"
-            msg = "\n".join([
-                "{template[0]}",
-                "{template[1]} {source.name}",
-                quanitity_conditional
-            ]).format(source=relay.source, template=ONE_WAY_OUTPUT_TEMPLATE)
+            quanitity_conditional = (
+                "{template[2]}" if len(relay.destinations) == 1 else "{template[3]}\n"
+            )
+            msg = "\n".join(
+                ["{template[0]}", "{template[1]} {source.name}", quanitity_conditional]
+            ).format(source=relay.source, template=ONE_WAY_OUTPUT_TEMPLATE)
             msg += "\n".join([x.name for x in relay.destinations])
 
         if name in self.nways:
@@ -235,15 +224,14 @@ class Relays:
         if not all(validation.values()):
             return await self.validation_error(ctx, validation)
 
-        self.nways[name] = NwayRelay(
-            channels=list(validation.values())
-        )
+        self.nways[name] = NwayRelay(channels=list(validation.values()))
         await self.write_data()
         await ctx.tick()
 
     @commands.command()
-    async def makeoneway(self, ctx: commands.Context,
-                         name: str, source: str, *destinations: str):
+    async def makeoneway(
+        self, ctx: commands.Context, name: str, source: str, *destinations: str
+    ):
         """
         Makes a relay which forwards a channel to one or more others
         """
@@ -254,8 +242,7 @@ class Relays:
         if len(destinations) < 1:
             return await ctx.send(MOAR_CHANNELS)
 
-        if source in destinations or len(
-                unique(destinations)) != len(destinations):
+        if source in destinations or len(unique(destinations)) != len(destinations):
             return await ctx.send(NO_LOOPING)
 
         validation = self.validate_inputs(source, *destinations)
@@ -263,14 +250,13 @@ class Relays:
             return await self.validation_error(ctx, validation)
 
         self.oneways[name] = OnewayRelay(
-            source=validation.pop(source),
-            destinations=list(validation.values())
+            source=validation.pop(source), destinations=list(validation.values())
         )
         await self.write_data()
         await ctx.tick()
 
     @commands.command()
-    async def relayinfo(self, ctx: commands.Context, name: str=None):
+    async def relayinfo(self, ctx: commands.Context, name: str = None):
         """
         gets info about relays
 
@@ -290,7 +276,7 @@ class Relays:
             await ctx.send(box(page))
 
     @commands.command()
-    async def rmrelay(self, ctx: commands.Context, name: str=None):
+    async def rmrelay(self, ctx: commands.Context, name: str = None):
         """
         removes a relay
 

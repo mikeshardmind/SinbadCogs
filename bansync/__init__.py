@@ -6,4 +6,5 @@ def setup(bot):
         raise RuntimeError("Requires python >= 3.6")
     else:
         from .bansync import BanSync
+
         bot.add_cog(BanSync(bot))

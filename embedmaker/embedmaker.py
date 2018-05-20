@@ -2,6 +2,7 @@ import discord
 import logging
 
 from redbot.core import Config
+
 try:
     from redbot.core import commands
 except ImportError:
@@ -12,7 +13,7 @@ from redbot.core.utils.chat_formatting import pagify
 from .serialize import deserialize_embed, serialize_embed
 from .yaml_parse import embed_from_userstr
 
-log = logging.getLogger('redbot.sinbadcogs.embedmaker')
+log = logging.getLogger("redbot.sinbadcogs.embedmaker")
 
 
 class EmbedMaker:
@@ -20,16 +21,15 @@ class EmbedMaker:
     Storable, recallable, embed maker
     """
 
-    __author__ = 'mikeshardmind'
-    __version__ = '2.1.1'
+    __author__ = "mikeshardmind"
+    __version__ = "2.1.1"
 
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
-            self, identifier=78631113035100160,
-            force_registration=True
+            self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_custom('EMBED', embed={}, owner=None)
+        self.config.register_custom("EMBED", embed={}, owner=None)
         self.config.register_guild(active=True)
 
     @commands.group(name="embed")
@@ -41,7 +41,7 @@ class EmbedMaker:
 
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
-    @_embed.command(name='advmake', hidden=True)
+    @_embed.command(name="advmake", hidden=True)
     async def make_adv(self, ctx: commands.Context, name: str, *, data: str):
         """
         makes an embed from valid yaml
@@ -50,16 +50,14 @@ class EmbedMaker:
         keys indicating position.
         """
         name = name.lower()
-        group = self.config.custom('EMBED', ctx.guild.id, name)
+        group = self.config.custom("EMBED", ctx.guild.id, name)
         if await group.owner() not in (ctx.author.id, None):
-            return await ctx.maybe_send_embed(
-                "An embed with that name already exists!")
+            return await ctx.maybe_send_embed("An embed with that name already exists!")
         try:
             e = await embed_from_userstr(ctx, data)
             await ctx.send("Here's how that's gonna look", embed=e)
         except Exception:
-            await ctx.maybe_send_embed(
-                'There was something wrong with that input')
+            await ctx.maybe_send_embed("There was something wrong with that input")
         except (discord.Forbidden, discord.HTTPException):
             await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
@@ -69,7 +67,7 @@ class EmbedMaker:
 
     @commands.bot_has_permissions(embed_links=True)
     @checks.is_owner()
-    @_embed.command(name='advmakeglobal', hidden=True)
+    @_embed.command(name="advmakeglobal", hidden=True)
     async def make_global_adv(self, ctx: commands.Context, name: str, *, data: str):
         """
         makes an embed from valid yaml
@@ -82,16 +80,15 @@ class EmbedMaker:
             e = await embed_from_userstr(ctx, data)
             await ctx.send("Here's how that's gonna look", embed=e)
         except Exception:
-            await ctx.maybe_send_embed(
-                'There was something wrong with that input')
+            await ctx.maybe_send_embed("There was something wrong with that input")
         except (discord.Forbidden, discord.HTTPException):
             await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
             await ctx.tick()
-            await self.config.custom(
-                'EMBED', 'GLOBAL', name).owner.set(ctx.author.id)
-            await self.config.custom(
-                'EMBED', 'GLOBAL', name).embed.set(serialize_embed(e))
+            await self.config.custom("EMBED", "GLOBAL", name).owner.set(ctx.author.id)
+            await self.config.custom("EMBED", "GLOBAL", name).embed.set(
+                serialize_embed(e)
+            )
 
     @commands.guild_only()
     @_embed.command(name="make")
@@ -100,10 +97,9 @@ class EmbedMaker:
         makes an embed
         """
         name = name.lower()
-        group = self.config.custom('EMBED', ctx.guild.id, name)
+        group = self.config.custom("EMBED", ctx.guild.id, name)
         if await group.owner() not in (ctx.author.id, None):
-            return await ctx.maybe_send_embed(
-                "An embed with that name already exists!")
+            return await ctx.maybe_send_embed("An embed with that name already exists!")
 
         e = discord.Embed(description=content)
         try:
@@ -116,19 +112,18 @@ class EmbedMaker:
             await group.embed.set(serialize_embed(e))
 
     @checks.is_owner()
-    @_embed.command(name='makeglobal')
+    @_embed.command(name="makeglobal")
     async def make_global(self, ctx: commands.Context, name: str, *, content: str):
         """
         make a global embed
         """
         name = name.lower()
-        group = self.config.custom('EMBED', 'GLOBAL', name)
+        group = self.config.custom("EMBED", "GLOBAL", name)
         try:
             e = discord.Embed(description=content)
             await ctx.send("Here's how that's gonna look", embed=e)
         except ValueError:
-            await ctx.maybe_send_embed(
-                'There was something wrong with that input')
+            await ctx.maybe_send_embed("There was something wrong with that input")
         except (discord.Forbidden, discord.HTTPException):
             await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
@@ -141,24 +136,23 @@ class EmbedMaker:
         """
         lists the embeds here
         """
-        embed_dict = await self.config._get_base_group('EMBED')()
+        embed_dict = await self.config._get_base_group("EMBED")()
         if ctx.guild:
-            local_embeds = list(
-                sorted(embed_dict.get(str(ctx.guild.id), {}).keys()))
+            local_embeds = list(sorted(embed_dict.get(str(ctx.guild.id), {}).keys()))
         else:
             local_embeds = []
 
-        global_embeds = list(sorted(embed_dict.get('GLOBAL', {}).keys()))
+        global_embeds = list(sorted(embed_dict.get("GLOBAL", {}).keys()))
 
         if not local_embeds and not global_embeds:
-            return await ctx.maybe_send_embed('No embeds available here.')
+            return await ctx.maybe_send_embed("No embeds available here.")
 
         if local_embeds:
-            local_embeds.insert(0, 'Local Embeds:')
+            local_embeds.insert(0, "Local Embeds:")
             if global_embeds:
-                local_embeds.append('\n')
+                local_embeds.append("\n")
         if global_embeds:
-            global_embeds.insert(0, 'Global Embeds:')
+            global_embeds.insert(0, "Global Embeds:")
         output = "\n".join(local_embeds + global_embeds)
 
         for page in pagify(output):
@@ -171,16 +165,18 @@ class EmbedMaker:
         removes an embed
         """
         name = name.lower()
-        group = self.config.custom('EMBED', ctx.guild.id, name)
+        group = self.config.custom("EMBED", ctx.guild.id, name)
         if not await group.owner():
-            return await ctx.maybe_send_embed('No such embed')
+            return await ctx.maybe_send_embed("No such embed")
         if any(  # who created, bot owner, admins, mods
-            (await group.owner() == ctx.author.id,
-             await ctx.bot.is_owner(ctx.author),
-             await ctx.bot.db.guild(ctx.guild).admin_role() in
-             [r.id for r in ctx.author.roles],
-             await ctx.bot.db.guild(ctx.guild).mod_role() in
-             [r.id for r in ctx.author.roles])
+            (
+                await group.owner() == ctx.author.id,
+                await ctx.bot.is_owner(ctx.author),
+                await ctx.bot.db.guild(ctx.guild).admin_role()
+                in [r.id for r in ctx.author.roles],
+                await ctx.bot.db.guild(ctx.guild).mod_role()
+                in [r.id for r in ctx.author.roles],
+            )
         ):
             await group.clear()
             await ctx.tick()
@@ -192,7 +188,7 @@ class EmbedMaker:
         removes a global embed
         """
         name = name.lower()
-        await self.config.custom('EMBED', 'GLOBAL', name).clear()
+        await self.config.custom("EMBED", "GLOBAL", name).clear()
 
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command()
@@ -216,7 +212,7 @@ class EmbedMaker:
         drop a global embed here
         """
         name = name.lower()
-        x = await self.get_and_send(ctx.channel, 'GLOBAL', name)
+        x = await self.get_and_send(ctx.channel, "GLOBAL", name)
         if x is not None:
             await ctx.tick()
 
@@ -231,7 +227,8 @@ class EmbedMaker:
             x = await self.get_and_send(ctx.channel, ctx.guild.id, name)
         except discord.Forbidden as e:
             await ctx.maybe_send_embed(
-                'User has disabled DMs from this server or blocked me')
+                "User has disabled DMs from this server or blocked me"
+            )
         else:
             if x is not None:
                 await ctx.tick()
@@ -244,16 +241,17 @@ class EmbedMaker:
         """
         name = name.lower()
         try:
-            x = await self.get_and_send(ctx.channel, 'GLOBAL', name)
+            x = await self.get_and_send(ctx.channel, "GLOBAL", name)
         except discord.Forbidden as e:
             await ctx.maybe_send_embed(
-                'User has disabled DMs from this server or blocked me')
+                "User has disabled DMs from this server or blocked me"
+            )
         else:
             if x is not None:
                 await ctx.tick()
 
     @commands.guild_only()
-    @_embed.command(name='frommsg')
+    @_embed.command(name="frommsg")
     async def from_message(self, ctx: commands.Context, name: str, _id: int):
         """
         Store's a message's embed
@@ -264,16 +262,14 @@ class EmbedMaker:
         except Exception:
             return
 
-        await self.config.custom('EMBED', ctx.guild.id, name).embed.set(
+        await self.config.custom("EMBED", ctx.guild.id, name).embed.set(
             serialize_embed(e)
         )
-        await self.config.custom('EMBED', ctx.guild.id, name).owner.set(
-            ctx.author.id
-        )
+        await self.config.custom("EMBED", ctx.guild.id, name).owner.set(ctx.author.id)
         await ctx.tick()
 
     @checks.is_owner()
-    @_embed.command(name='globalfrommsg')
+    @_embed.command(name="globalfrommsg")
     async def global_from_message(self, ctx: commands.Context, name: str, _id: int):
         """
         stores a message's embed
@@ -284,16 +280,12 @@ class EmbedMaker:
         except Exception:
             return
 
-        await self.config.custom('EMBED', 'GLOBAL', name).embed.set(
-            serialize_embed(e)
-        )
-        await self.config.custom('EMBED', 'GLOBAL', name).owner.set(
-            ctx.author.id
-        )
+        await self.config.custom("EMBED", "GLOBAL", name).embed.set(serialize_embed(e))
+        await self.config.custom("EMBED", "GLOBAL", name).owner.set(ctx.author.id)
         await ctx.tick()
 
     async def get_and_send(self, where, *identifiers):
-        if await self.config.custom('EMBED', *identifiers).owner():
-            data = await self.config.custom('EMBED', *identifiers).embed()
+        if await self.config.custom("EMBED", *identifiers).owner():
+            data = await self.config.custom("EMBED", *identifiers).embed()
             embed = deserialize_embed(data)
             return await where.send(embed=embed)

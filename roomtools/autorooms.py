@@ -25,14 +25,13 @@ class AutoRooms:
     antispam_intervals = [
         (timedelta(seconds=5), 3),
         (timedelta(minutes=1), 5),
-        (timedelta(hours=1), 30)
+        (timedelta(hours=1), 30),
     ]
 
     def __init__(self, bot: Red):
         self.bot = bot
         self.config = Config.get_conf(
-            self, identifier=78631113035100160,
-            force_registration=True
+            self, identifier=78631113035100160, force_registration=True
         )
         self.config.register_guild(active=False, ownership=False)
         self.config.register_channel(
@@ -44,7 +43,7 @@ class AutoRooms:
     async def on_resumed(self):
         await self._cleanup(load=True)
 
-    async def _cleanup(self, *guilds: discord.Guild, load: bool=False):
+    async def _cleanup(self, *guilds: discord.Guild, load: bool = False):
         if load:
             await asyncio.sleep(10)
 
@@ -58,11 +57,10 @@ class AutoRooms:
                     continue
                 if (
                     len(channel.members) == 0
-                    and (channel.created_at + timedelta(seconds=2))
-                    < datetime.utcnow()
+                    and (channel.created_at + timedelta(seconds=2)) < datetime.utcnow()
                 ):
                     try:
-                        await channel.delete(reason='autoroom cleaning')
+                        await channel.delete(reason="autoroom cleaning")
                     except discord.Forbidden:
                         break  # Don't bash our heads on perms
                     except discord.HTTPException:
@@ -71,8 +69,11 @@ class AutoRooms:
                         await conf.clear()
 
     async def on_voice_state_update(
-        self, member: discord.Member,
-            before: discord.VoiceState, after: discord.VoiceState):
+        self,
+        member: discord.Member,
+        before: discord.VoiceState,
+        after: discord.VoiceState,
+    ):
         """
         handles logic
         """
@@ -80,24 +81,20 @@ class AutoRooms:
         if before.channel == after.channel:
             return
 
-        if member.id in self._antispam \
-                and not self._antispam[member.id].spammy():
+        if member.id in self._antispam and not self._antispam[member.id].spammy():
 
             if await self.config.guild(after.channel.guild).active():
                 conf = self.config.channel(after.channel)
                 if await conf.autoroom():
-                    await self.generate_autoroom_for(
-                        who=member, source=after.channel
-                    )
+                    await self.generate_autoroom_for(who=member, source=after.channel)
                 elif await conf.gameroom():
-                    await self.generate_gameroom_for(
-                        who=member, source=after.channel
-                    )
+                    await self.generate_gameroom_for(who=member, source=after.channel)
 
         await self._cleanup(before.channel.guild)
 
     async def generate_room_for(
-            self, *, who: discord.Member, source: discord.VoiceChannel):
+        self, *, who: discord.Member, source: discord.VoiceChannel
+    ):
         """
         makes autorooms
         """
@@ -108,17 +105,14 @@ class AutoRooms:
 
         category = source.category
 
-        editargs = {'bitrate': source.bitrate, 'user_limit': source.user_limit}
+        editargs = {"bitrate": source.bitrate, "user_limit": source.user_limit}
         overwrites = {}
         for perm in source.overwrites:
             overwrites.update({perm[0]: perm[1]})
         if ownership:
             overwrites.update(
                 who,
-                discord.PermissionOverwrite(
-                    manage_channels=True,
-                    manage_roles=True
-                )
+                discord.PermissionOverwrite(manage_channels=True, manage_roles=True),
             )
 
         cname = None
@@ -126,15 +120,13 @@ class AutoRooms:
             with contextlib.supress(Exception):
                 cname = who.activity.name
             if cname is None:
-                cname = '???'
+                cname = "???"
         else:
             cname = source.name
 
         try:
             chan = await source.guild.create_voice_channel(
-                cname,
-                category=category,
-                overwrites=overwrites
+                cname, category=category, overwrites=overwrites
             )
         except discord.Forbidden:
             await self.config.guild(source.guild).active.set(False)
@@ -154,8 +146,10 @@ class AutoRooms:
 
     # special checks
     def is_active_here(self):
+
         async def check(ctx: commands.Context):
             return await self.config.guild(ctx.guild).active()
+
         return commands.check(check)
 
     # Commands go below
@@ -174,7 +168,8 @@ class AutoRooms:
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="channelsettings")
     async def setchannelsettings(
-            self, ctx: commands.Context, channel: discord.VoiceChannel):
+        self, ctx: commands.Context, channel: discord.VoiceChannel
+    ):
         """
         Interactive prompt for editing the autoroom behavior for specific
         channels
@@ -190,19 +185,18 @@ class AutoRooms:
             "a game, but get a base name of the game discord "
             "detects them playing. Game rooms also do not get"
             "anything prepended to their name."
-            "\nIs this a game room?(y/n)")
+            "\nIs this a game room?(y/n)",
+        )
 
         def mcheck(m: discord.Message):
             return m.author == ctx.author and m.channel == ctx.channel
 
         try:
-            message = await self.bot.wait_for(
-                'message', check=mcheck, timeout=30)
+            message = await self.bot.wait_for("message", check=mcheck, timeout=30)
         except asyncio.TimeoutError:
-            await send(
-                ctx, "I can't wait forever, lets get to the next question.")
+            await send(ctx, "I can't wait forever, lets get to the next question.")
         else:
-            if message.clean_content.lower()[:1] == 'y':
+            if message.clean_content.lower()[:1] == "y":
                 await conf.gameroom.set(True)
             else:
                 await conf.gameroom.set(False)
@@ -215,37 +209,30 @@ class AutoRooms:
             "2. Override the default granting ownership\n"
             "3. Override the default denying ownership\n"
             "Please respond with the corresponding number to "
-            "the desired behavior")
+            "the desired behavior",
+        )
 
         try:
-            message = await self.bot.wait_for(
-                'message', check=mcheck, timeout=30)
+            message = await self.bot.wait_for("message", check=mcheck, timeout=30)
         except asyncio.TimeoutError:
-            await send(
-                ctx,
-                "I can't wait forever, lets get to the next question.")
+            await send(ctx, "I can't wait forever, lets get to the next question.")
         else:
-            to_set = {
-                '1': None,
-                '2': True,
-                '3': False
-            }.get(message.clean_content[:1], None)
+            to_set = {"1": None, "2": True, "3": False}.get(
+                message.clean_content[:1], None
+            )
             await conf.ownership.set(to_set)
             await message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
 
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="toggleactive")
-    async def autoroomtoggle(self, ctx: commands.Context, val: bool=None):
+    async def autoroomtoggle(self, ctx: commands.Context, val: bool = None):
         """
         turns autorooms on and off
         """
         if val is None:
             val = not await self.config.guild(ctx.guild).active()
         await self.config.guild(ctx.guild).active.set(val)
-        await send(
-            ctx,
-            'Autorooms are now ' + 'activated' if val else 'deactivated'
-        )
+        await send(ctx, "Autorooms are now " + "activated" if val else "deactivated")
 
     @is_active_here()
     @checks.admin_or_permissions(manage_channels=True)
@@ -258,8 +245,7 @@ class AutoRooms:
 
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="remclone")
-    async def remclone(
-            self, ctx, channel: discord.VoiceChannel):
+    async def remclone(self, ctx, channel: discord.VoiceChannel):
         """Takes a channel, removes that channel from the clone list"""
 
         await self.config.channel(channel).clear()
@@ -282,7 +268,7 @@ class AutoRooms:
     @is_active_here()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="toggleowner")
-    async def toggleowner(self, ctx: commands.Context, val: bool=None):
+    async def toggleowner(self, ctx: commands.Context, val: bool = None):
         """toggles if the creator of the autoroom owns it
         requires the "Manage Channels" permission
         Defaults to false"""
@@ -291,6 +277,7 @@ class AutoRooms:
         await self.config.guild(ctx.guild).active.set(val)
         await send(
             ctx,
-            'Autorooms are ' + ('now owned ' if val else 'no longer owned ')
-            + 'by their creator'
+            "Autorooms are "
+            + ("now owned " if val else "no longer owned ")
+            + "by their creator",
         )
