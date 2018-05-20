@@ -11,7 +11,7 @@ I'm Sinbad#0001 on Discord
 
 Various tools here.
 Feel free to ask for help with these in the
-"support_sinbadcogs" channel in [This Discord](https://discord.gg/GET4DVk)
+"support_sinbad-cogs" channel in [This Discord](https://discord.gg/GET4DVk)
 
 I'm also around in the main [Red Discord Server](https://discord.gg/red)
 
