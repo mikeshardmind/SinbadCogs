@@ -67,7 +67,10 @@ class RoleManagement:
         if not payload.guild_id:
             return
 
-        cfg = self.config.custom("REACTROLE", payload.message_id, str(payload.emoji))
+        emoji = payload.emoji
+        print(str(emoji))
+        eid = emoji.id if emoji.is_custom_emoji() else str(emoji)
+        cfg = self.config.custom("REACTROLE", payload.message_id, eid)
         rid = await cfg.roleid()
 
         if rid is None:
@@ -91,8 +94,9 @@ class RoleManagement:
         if not payload.guild_id:
             return
 
-        print(str(payload.emoji))
-        cfg = self.config.custom("REACTROLE", payload.message_id, str(payload.emoji))
+        emoji = payload.emoji
+        eid = emoji.id if emoji.is_custom_emoji() else str(emoji)
+        cfg = self.config.custom("REACTROLE", payload.message_id, eid)
         rid = await cfg.roleid()
 
         if rid is None:
@@ -178,6 +182,8 @@ class RoleManagement:
                 return await ctx.maybe_send_embed("No such emoji")
             else:
                 _emoji = emoji
+        else:
+            eid = _emoji.id
 
         if not any(str(r) == emoji for r in message.reactions):
             try:
@@ -187,7 +193,7 @@ class RoleManagement:
                     "Hmm, that message couldn't be reacted to"
                 )
 
-        cfg = self.config.custom("REACTROLE", message.id, str(_emoji))
+        cfg = self.config.custom("REACTROLE", message.id, eid)
         await cfg.roleid.set(role.id)
         await ctx.tick()
 
