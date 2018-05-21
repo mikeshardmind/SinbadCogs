@@ -9,6 +9,9 @@ class RoleManagement:
     Cog for role management
     """
 
+    __author__ = "mikeshardmind"
+    __version__ = "0.0.1a"
+
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
@@ -26,7 +29,6 @@ class RoleManagement:
         self.config.register_custom(
             "REACTROLE", roleid=None
         )  # IDs : Message.id, str(React)
-        self.config.register_guild(respect_heirarchy=True)  # TODO: configurable
 
     async def is_eligible(
         self, who: discord.Member, role: discord.Role
@@ -70,6 +72,8 @@ class RoleManagement:
 
         guild = self.bot.get_guild(payload.guild_id)
         member = guild.get_member(payload.user_id)
+        if member.bot:
+            return
         role = discord.utils.get(guild.roles, id=rid)
         if role in member.roles:
             return
@@ -93,6 +97,8 @@ class RoleManagement:
         if await self.config.custom("ROLE", discord.Object(rid)).self_removable():
             guild = self.bot.get_guild(payload.guild_id)
             member = guild.get_member(payload.user_id)
+            if member.bot:
+                return
             role = discord.utils.get(guild.roles, id=rid)
             if role not in member.roles:
                 return
@@ -106,6 +112,10 @@ class RoleManagement:
     ):
         """
         Give and remove roles as a single op
+
+        This can fail silently, and I don't really care.
+        This should only be used after already verifying the
+        operation is valid based on permissions and heirarchy
         """
 
         rids = [r.id for r in who.roles if r not in remove]
@@ -124,5 +134,40 @@ class RoleManagement:
         )
 
     # Start commands
-    # TODO: Commands
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_server=True)
+    @commands.command(name="rolebind")
+    async def bind_role_to_reactions(
+        self,
+        ctx: commands.Context,
+        role: discord.Role,
+        channel: discord.TextChannel,
+        msgid: int,
+        emoji: discord.Emoji,
+    ):
+        """
+        binds a role to a reaction on a message
+        """
+
+        if role >= ctx.author.top_role or role >= ctx.guild.me.top_role:
+            return await ctx.maybe_send_embed(
+                "Can't do that. Discord role heirarchy applies here."
+            )
+
+        message = await channel.get_message(msgid)
+        if not message:
+            return await ctx.maybe_send_embed("No such message")
+
+        if not any(str(r) == str(emoji) for r in message.reactions):
+            try:
+                await message.add_reaction(emoji)
+            except Exception:
+                return await ctx.maybe_send_embed(
+                    "Hmm, that message couldn't be reacted to"
+                )
+
+        cfg = self.config.custom("REACTROLE", message.id, str(emoji))
+        await cfg.roleid.set(role.id)
+        await ctx.tick()
+
     # End commands
