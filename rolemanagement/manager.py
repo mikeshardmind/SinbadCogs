@@ -135,6 +135,7 @@ class RoleManagement:
 
     # Start commands
     @commands.guild_only()
+    @commands.bot_has_permissions(manage_roles=True)
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(name="rolebind")
     async def bind_role_to_reactions(
@@ -143,13 +144,15 @@ class RoleManagement:
         role: discord.Role,
         channel: discord.TextChannel,
         msgid: int,
-        emoji: discord.Emoji,
+        emoji: str,
     ):
         """
         binds a role to a reaction on a message
         """
 
-        if role >= ctx.author.top_role or role >= ctx.guild.me.top_role:
+        if role >= ctx.author.top_role or (
+            role >= ctx.guild.me.top_role and ctx.author != ctx.guild.owner
+        ):
             return await ctx.maybe_send_embed(
                 "Can't do that. Discord role heirarchy applies here."
             )
@@ -158,15 +161,21 @@ class RoleManagement:
         if not message:
             return await ctx.maybe_send_embed("No such message")
 
-        if not any(str(r) == str(emoji) for r in message.reactions):
+        _emoji = discord.utils.find(
+            lambda e: str(e) == emoji, self.bot.get_all_emojis()
+        )
+        if _emoji is None:
+            return await ctx.maybe_send_embed("No such emoji")
+
+        if not any(str(r) == emoji for r in message.reactions):
             try:
-                await message.add_reaction(emoji)
+                await message.add_reaction(_emoji)
             except Exception:
                 return await ctx.maybe_send_embed(
                     "Hmm, that message couldn't be reacted to"
                 )
 
-        cfg = self.config.custom("REACTROLE", message.id, str(emoji))
+        cfg = self.config.custom("REACTROLE", message.id, str(_emoji))
         await cfg.roleid.set(role.id)
         await ctx.tick()
 
