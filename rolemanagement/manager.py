@@ -38,6 +38,7 @@ class RoleManagement:
         if not guild.me.guild_permissions.manage_roles or role > guild.me.top_role:
             return False, None
 
+        # TODO: Logic below needs a fix of some sort
         #
         #        if await self.config.role(role).protected():
         #            return False, None
@@ -90,6 +91,7 @@ class RoleManagement:
         if not payload.guild_id:
             return
 
+        print(str(payload.emoji))
         cfg = self.config.custom("REACTROLE", payload.message_id, str(payload.emoji))
         rid = await cfg.roleid()
 
