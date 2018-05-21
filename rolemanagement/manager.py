@@ -106,7 +106,7 @@ class RoleManagement:
             if guild.me.guild_permissions.manage_roles and guild.me.top_role > role:
                 await self.update_roles_atomically(member, give=None, remove=[role])
 
-    # end events
+    # End events
 
     async def update_roles_atomically(
         self, who: discord.Member, give: List[discord.Role], remove: List[discord.Role]
