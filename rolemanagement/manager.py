@@ -41,15 +41,15 @@ class RoleManagement:
         if await self.config.role(role).protected():
             return False, None
 
-        async with self.config.role(role).requires_any as req_any:
+        async with self.config.role(role).requires_any() as req_any:
             if req_any and not any(r.id in req_any for r in who.roles):
                 return False, None
 
-        async with self.config.role(role).requires_all as req_all:
+        async with self.config.role(role).requires_all() as req_all:
             if not all(r.id in req_all for r in who.roles):
                 return False, None
 
-        async with self.config.role(role).exclusive_to as ex:
+        async with self.config.role(role).exclusive_to() as ex:
             if any(r.id in ex for r in who.roles):
                 if await self.config.role(role).toggle_on_exclusive():
                     return True, [r for r in who.roles if r.id in ex]
