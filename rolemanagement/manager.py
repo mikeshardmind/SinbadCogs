@@ -38,25 +38,25 @@ class RoleManagement:
         if not guild.me.guild_permissions.manage_roles or role > guild.me.top_role:
             return False, None
 
-#
-#        if await self.config.role(role).protected():
-#            return False, None
-#
-#        async with self.config.role(role).requires_any() as req_any:
-#            if req_any and not any(r.id in req_any for r in who.roles):
-#                return False, None
-#
-#        async with self.config.role(role).requires_all() as req_all:
-#            if not all(r.id in req_all for r in who.roles):
-#                return False, None
-#
-#        async with self.config.role(role).exclusive_to() as ex:
-#            if any(r.id in ex for r in who.roles):
-#                if await self.config.role(role).toggle_on_exclusive():
-#                    return True, [r for r in who.roles if r.id in ex]
-#                else:
-#                    return False, None
-#
+        #
+        #        if await self.config.role(role).protected():
+        #            return False, None
+        #
+        #        async with self.config.role(role).requires_any() as req_any:
+        #            if req_any and not any(r.id in req_any for r in who.roles):
+        #                return False, None
+        #
+        #        async with self.config.role(role).requires_all() as req_all:
+        #            if not all(r.id in req_all for r in who.roles):
+        #                return False, None
+        #
+        #        async with self.config.role(role).exclusive_to() as ex:
+        #            if any(r.id in ex for r in who.roles):
+        #                if await self.config.role(role).toggle_on_exclusive():
+        #                    return True, [r for r in who.roles if r.id in ex]
+        #                else:
+        #                    return False, None
+        #
         return True, None
 
     # Start Events
@@ -110,7 +110,10 @@ class RoleManagement:
     # End events
 
     async def update_roles_atomically(
-        self, who: discord.Member, give: List[discord.Role], remove: List[discord.Role]
+        self,
+        who: discord.Member,
+        give: List[discord.Role] = [],
+        remove: List[discord.Role] = [],
     ):
         """
         Give and remove roles as a single op
@@ -119,7 +122,8 @@ class RoleManagement:
         This should only be used after already verifying the
         operation is valid based on permissions and heirarchy
         """
-
+        give = give or []
+        remove = remove or []
         print("K")
         rids = [r.id for r in who.roles if r not in remove]
         rids.extend([r.id for r in give])
