@@ -28,7 +28,7 @@ class RoleManagement:
         )
         self.config.register_custom(
             "REACTROLE", roleid=None
-        )  # IDs : Message.id, str(React)
+        )  # ID : Message.id, str(React)
 
     async def is_eligible(
         self, who: discord.Member, role: discord.Role
@@ -162,9 +162,7 @@ class RoleManagement:
         if not message:
             return await ctx.maybe_send_embed("No such message")
 
-        _emoji = discord.utils.find(
-            lambda e: str(e) == emoji, self.bot.emojis
-        )
+        _emoji = discord.utils.find(lambda e: str(e) == emoji, self.bot.emojis)
         if _emoji is None:
             try:
                 ctx.message.add_reaction(emoji)
