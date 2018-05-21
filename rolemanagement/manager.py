@@ -119,6 +119,7 @@ class RoleManagement:
         operation is valid based on permissions and heirarchy
         """
 
+        print("K")
         rids = [r.id for r in who.roles if r not in remove]
         rids.extend([r.id for r in give])
         payload = {"roles": rids}
