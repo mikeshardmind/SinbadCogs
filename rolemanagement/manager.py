@@ -162,10 +162,15 @@ class RoleManagement:
             return await ctx.maybe_send_embed("No such message")
 
         _emoji = discord.utils.find(
-            lambda e: str(e) == emoji, self.bot.get_all_emojis()
+            lambda e: str(e) == emoji, self.bot.emojis
         )
         if _emoji is None:
-            return await ctx.maybe_send_embed("No such emoji")
+            try:
+                ctx.message.add_reaction(emoji)
+            except:
+                return await ctx.maybe_send_embed("No such emoji")
+            else:
+                _emoji = emoji
 
         if not any(str(r) == emoji for r in message.reactions):
             try:
