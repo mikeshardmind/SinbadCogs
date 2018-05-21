@@ -10,7 +10,7 @@ class RoleManagement:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.0.1a"
+    __version__ = "0.0.2a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -68,7 +68,6 @@ class RoleManagement:
             return
 
         emoji = payload.emoji
-        print(str(emoji))
         eid = emoji.id if emoji.is_custom_emoji() else str(emoji)
         cfg = self.config.custom("REACTROLE", payload.message_id, eid)
         rid = await cfg.roleid()
@@ -130,7 +129,6 @@ class RoleManagement:
         """
         give = give or []
         remove = remove or []
-        print("K")
         rids = [r.id for r in who.roles if r not in remove]
         rids.extend([r.id for r in give])
         payload = {"roles": rids}
