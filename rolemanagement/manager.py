@@ -38,24 +38,25 @@ class RoleManagement:
         if not guild.me.guild_permissions.manage_roles or role > guild.me.top_role:
             return False, None
 
-        if await self.config.role(role).protected():
-            return False, None
-
-        async with self.config.role(role).requires_any() as req_any:
-            if req_any and not any(r.id in req_any for r in who.roles):
-                return False, None
-
-        async with self.config.role(role).requires_all() as req_all:
-            if not all(r.id in req_all for r in who.roles):
-                return False, None
-
-        async with self.config.role(role).exclusive_to() as ex:
-            if any(r.id in ex for r in who.roles):
-                if await self.config.role(role).toggle_on_exclusive():
-                    return True, [r for r in who.roles if r.id in ex]
-                else:
-                    return False, None
-
+#
+#        if await self.config.role(role).protected():
+#            return False, None
+#
+#        async with self.config.role(role).requires_any() as req_any:
+#            if req_any and not any(r.id in req_any for r in who.roles):
+#                return False, None
+#
+#        async with self.config.role(role).requires_all() as req_all:
+#            if not all(r.id in req_all for r in who.roles):
+#                return False, None
+#
+#        async with self.config.role(role).exclusive_to() as ex:
+#            if any(r.id in ex for r in who.roles):
+#                if await self.config.role(role).toggle_on_exclusive():
+#                    return True, [r for r in who.roles if r.id in ex]
+#                else:
+#                    return False, None
+#
         return True, None
 
     # Start Events
@@ -95,7 +96,7 @@ class RoleManagement:
         if rid is None:
             return
 
-        if await self.config.custom("ROLE", discord.Object(rid)).self_removable():
+        if await self.config.role(discord.Object(rid)).self_removable():
             guild = self.bot.get_guild(payload.guild_id)
             member = guild.get_member(payload.user_id)
             if member.bot:
