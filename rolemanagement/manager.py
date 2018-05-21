@@ -34,7 +34,7 @@ class RoleManagement:
         self, who: discord.Member, role: discord.Role
     ) -> Tuple[bool, list]:
 
-        guild = member.guild
+        guild = who.guild
         if not guild.me.guild_permissions.manage_roles or role > guild.me.top_role:
             return False, None
 
