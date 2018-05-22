@@ -1,12 +1,13 @@
 {
-    "AUTHOR": "mikeshardmind",
-    "INSTALL_MSG": "",
-    "NAME": "GuildBlacklist",
-    "DISABLED": false,
-    "SHORT": "Have the bot only leave servers on a blacklist",
-    "DESCRIPTION": "blacklist guilds by guild or owner ID",
-    "TAGS": [
+    "author": "mikeshardmind(Sinbad#0001)",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/GET4DVk",
+    "name": "GuildBlacklist",
+    "disabled": false,
+    "short": "server join blacklist",
+    "description": "blacklist guilds by guild or owner ID",
+    "tags": [
         "blacklist"
     ],
-    "HIDDEN": false
+    "hidden": false,
+    "min_python_version": [3, 6, 0]
 }

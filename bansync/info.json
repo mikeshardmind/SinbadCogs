@@ -1,13 +1,13 @@
 {
-    "AUTHOR": "mikeshardmind",
-    "INSTALL_MSG": "Read the help first, this has some dangerous commands when misused",
-    "NAME": "BanSync",
-    "DISABLED": false,
-    "SHORT": "Synchronize bans",
-    "DESCRIPTION": "Ban a user across all servers where you can, or synchronize bans between multiple servers",
-    "TAGS": [
+    "author": "mikeshardmind(Sinbad#0001)",
+    "install_msg": "Read the help first, this has some dangerous commands when misused",
+    "name": "BanSync",
+    "disabled": false,
+    "short": "Synchronize bans",
+    "description": "Ban a user across all servers where you can, or synchronize bans between multiple servers",
+    "tags": [
         "ban", "sync"
     ],
-    "HIDDEN": false,
+    "hidden": false,
     "min_python_version": [3, 6, 0]
 }

@@ -1,12 +1,13 @@
 {
-    "AUTHOR": "mikeshardmind",
-    "INSTALL_MSG": "this isn't ready for public use, hidden as such",
-    "NAME": "RoleManagement",
-    "DISABLED": false,
-    "SHORT": "Role Management tools",
-    "DESCRIPTION": "this isn't ready for public use, hidden as such",
-    "TAGS": [
-        "reactrole", "role", "management"
+    "author": "mikeshardmind(Sinbad#0001)",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/GET4DVk",
+    "name": "RoleManagement",
+    "disabled": false,
+    "short": "Role Management tools",
+    "description": "this isn't ready for public use, hidden as such",
+    "tags": [
+        "relay", "relays"
     ],
-    "HIDDEN": true
+    "hidden": true,
+    "min_python_version": [3, 6, 0]
 }
