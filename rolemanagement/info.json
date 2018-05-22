@@ -4,10 +4,10 @@
     "name": "RoleManagement",
     "disabled": false,
     "short": "Role Management tools",
-    "description": "this isn't ready for public use, hidden as such",
+    "description": "this isn't ready for public use",
     "tags": [
         "relay", "relays"
     ],
-    "hidden": true,
+    "hidden": false,
     "min_python_version": [3, 6, 0]
 }
