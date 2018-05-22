@@ -1,12 +1,13 @@
 {
-    "AUTHOR": "mikeshardmind",
-    "INSTALL_MSG": "",
-    "NAME": "Relays",
-    "DISABLED": false,
-    "SHORT": "Forwards messages",
-    "DESCRIPTION": "Relays messages across channels",
-    "TAGS": [
+    "author": "mikeshardmind(Sinbad#0001)",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/GET4DVk",
+    "name": "Relays",
+    "disabled": false,
+    "short": "Forwards messages",
+    "description": "Relays messages across channels",
+    "tags": [
         "relay", "relays"
     ],
-    "HIDDEN": false
+    "hidden": false,
+    "min_python_version": [3, 6, 0]
 }

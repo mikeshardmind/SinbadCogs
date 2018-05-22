@@ -1,12 +1,13 @@
 {
-    "AUTHOR": "mikeshardmind",
-    "INSTALL_MSG": "",
-    "NAME": "MessageBox",
-    "DISABLED": false,
-    "SHORT": "replaces contact with a command dumping stuff in a channel",
-    "DESCRIPTION": "replaces contact with a command dumping stuff in a channel",
-    "TAGS": [
+    "author": "mikeshardmind(Sinbad#0001)",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/GET4DVk",
+    "name": "MessageBox",
+    "disabled": false,
+    "short": "replaces contact with a command dumping stuff in a channel",
+    "description": "replaces contact with a command dumping stuff in a channel",
+    "tags": [
         "contact", "modmail", "feedback", "mail", "messagebox", "msgbox"
     ],
-    "HIDDEN": false
+    "hidden": false,
+    "min_python_version": [3, 6, 0]
 }

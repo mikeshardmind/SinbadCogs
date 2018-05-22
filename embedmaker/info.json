@@ -1,15 +1,16 @@
 {
-    "AUTHOR": "mikeshardmind",
-    "INSTALL_MSG": "This will get more features soon",
-    "NAME": "EmbedMaker",
-    "DISABLED": false,
-    "SHORT": "Embeds",
-    "DESCRIPTION": "Make persistently recallable embeds",
-    "TAGS": [
+    "author": "mikeshardmind(Sinbad#0001)",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/GET4DVk",
+    "name": "EmbedMaker",
+    "disabled": false,
+    "short": "Embeds",
+    "description": "Highly featured embed creation",
+    "tags": [
         "embed",
         "embedmaker"
     ],
-    "HIDDEN": false,
+    "hidden": false,
+    "min_python_version": [3, 6, 0],
     "requirements": [
         "python-dateutil", "pytz"
     ]
