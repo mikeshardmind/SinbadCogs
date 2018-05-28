@@ -62,12 +62,18 @@ class StickyRoles:
                     rids.append(r.id)
 
     async def on_member_join(self, member):
+        guild = member.guild
+        if not guild.me.guild_permissions.manage_roles:
+            return
 
         async with self.config.member(member).roles() as rids:
             to_add = []
             for _id in rids:
-                role = discord.utils.get(member.guild.roles, id=_id)
+                role = discord.utils.get(guild.roles, id=_id)
                 if await self.config.role(role).sticky():
                     to_add.append(role)
             if to_add:
+                to_add = [
+                    r for r in to_add if r < guild.me.top_role
+                ]
                 await member.add_roles(*to_add)
