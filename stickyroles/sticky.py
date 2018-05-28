@@ -73,7 +73,5 @@ class StickyRoles:
                 if await self.config.role(role).sticky():
                     to_add.append(role)
             if to_add:
-                to_add = [
-                    r for r in to_add if r < guild.me.top_role
-                ]
+                to_add = [r for r in to_add if r < guild.me.top_role]
                 await member.add_roles(*to_add)
