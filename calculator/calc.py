@@ -26,7 +26,7 @@ class Calculator:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.1b"
+    __version__ = "1.0.2b"
 
     def __init__(self, bot):
         self.bot = bot

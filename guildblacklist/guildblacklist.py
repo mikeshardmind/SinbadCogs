@@ -28,7 +28,7 @@ class GuildBlacklist:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.0a"
+    __version__ = "1.0.1a"
 
     default_globals = {"blacklist": []}
 
