@@ -1,11 +1,7 @@
 import yaml
 import discord
 
-try:
-    from redbot.core import commands
-except ImportError:
-    from discord.ext import commands
-
+from redbot.core import commands
 from .serialize import template, deserialize_embed
 from .utils import parse_time
 

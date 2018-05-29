@@ -1,15 +1,7 @@
 import sys
 
-try:
-    from redbot.core import commands
-    from redbot.core.i18n import Translator, cog_i18n
-except ImportError:
-    from discord.ext import commands
-    from redbot.core.i18n import CogI18n as Translator
-
-    def cog_i18n(x):
-        return lambda y: y
-
+from redbot.core import commands
+from redbot.core.i18n import Translator, cog_i18n
 
 from .jailer import run_jailed
 
