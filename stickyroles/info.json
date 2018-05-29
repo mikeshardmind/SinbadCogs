@@ -1,0 +1,13 @@
+{
+    "author": "mikeshardmind(Sinbad#0001)",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/GET4DVk. This cog should work in theory, but is completely untested right now.",
+    "name": "StickyRoles",
+    "disabled": false,
+    "short": "No role evasion",
+    "description": "No role evasion",
+    "tags": [
+        "stickyrole", "stickyroles"
+    ],
+    "hidden": false,
+    "min_python_version": [3, 6, 0]
+}
