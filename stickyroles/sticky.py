@@ -6,6 +6,9 @@ from redbot.core import checks
 
 class StickyRoles:
 
+    __author__ = "mikeshardmind"
+    __version__ = "0.0.2a"
+
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
