@@ -4,18 +4,8 @@ import discord
 from copy import copy
 from redbot.core.config import Config
 from redbot.core import checks
-
-try:
-    from redbot.core import commands
-    from redbot.core.i18n import Translator, cog_i18n
-except ImportError:
-    from discord.ext import commands
-    from redbot.core.i18n import CogI18n as Translator
-
-    def cog_i18n(x):
-        return lambda y: y
-
-
+from redbot.core import commands
+from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import pagify
 
 _ = Translator("MessageBox", __file__)
@@ -34,7 +24,7 @@ class MessageBox:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.0b"
+    __version__ = "1.0.1b"
 
     def __init__(self, bot):
         self.bot = bot

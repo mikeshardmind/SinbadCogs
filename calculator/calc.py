@@ -1,15 +1,7 @@
 import sys
 
-try:
-    from redbot.core import commands
-    from redbot.core.i18n import Translator, cog_i18n
-except ImportError:
-    from discord.ext import commands
-    from redbot.core.i18n import CogI18n as Translator
-
-    def cog_i18n(x):
-        return lambda y: y
-
+from redbot.core import commands
+from redbot.core.i18n import Translator, cog_i18n
 
 from .jailer import run_jailed
 
@@ -34,7 +26,7 @@ class Calculator:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.1b"
+    __version__ = "1.0.2b"
 
     def __init__(self, bot):
         self.bot = bot

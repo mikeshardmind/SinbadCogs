@@ -2,12 +2,7 @@ import discord
 import logging
 
 from redbot.core import Config
-
-try:
-    from redbot.core import commands
-except ImportError:
-    from discord.ext import commands
-
+from redbot.core import commands
 from redbot.core import checks
 from redbot.core.utils.chat_formatting import pagify
 from .serialize import deserialize_embed, serialize_embed
@@ -22,7 +17,7 @@ class EmbedMaker:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "2.1.1"
+    __version__ = "2.1.2"
 
     def __init__(self, bot):
         self.bot = bot

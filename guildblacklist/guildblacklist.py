@@ -4,21 +4,11 @@ import itertools
 
 import discord
 
-try:
-    from redbot.core import commands
-    from redbot.core.i18n import Translator, cog_i18n
-except ImportError:
-    from discord.ext import commands
-    from redbot.core.i18n import CogI18n as Translator
-
-    def cog_i18n(x):
-        return lambda y: y
-
-
+from redbot.core import commands
+from redbot.core.i18n import Translator, cog_i18n
 from redbot.core import Config
 from redbot.core import __version__ as redversion
 from redbot.core.utils.chat_formatting import box, pagify
-
 from redbot.core.utils.data_converter import DataConverter as dc
 
 _ = Translator("GuildBlacklist", __file__)
@@ -38,7 +28,7 @@ class GuildBlacklist:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.0a"
+    __version__ = "1.0.1a"
 
     default_globals = {"blacklist": []}
 
