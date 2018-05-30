@@ -7,6 +7,7 @@ from redbot.core import checks
 from redbot.core.utils.chat_formatting import pagify
 from .serialize import deserialize_embed, serialize_embed
 from .yaml_parse import embed_from_userstr
+from .utils import parse_time
 
 log = logging.getLogger("redbot.sinbadcogs.embedmaker")
 
@@ -17,7 +18,7 @@ class EmbedMaker:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "2.1.2"
+    __version__ = "3.0.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -59,6 +60,25 @@ class EmbedMaker:
             await ctx.tick()
             await group.owner.set(ctx.author.id)
             await group.embed.set(serialize_embed(e))
+
+    @commands.bot_has_permissions(embed_links=True)
+    @_embed.command(name="event")
+    async def event_timestamp(self, ctx: commands.Context, event: str, *, time: str):
+        """
+        Creates an event embed with localized timestamp in the current channel
+
+        If you need your event to span multiple words, surround it in quotes
+        """
+        try:
+            timestamp = parse_time(time)
+        except Exception:
+            return await ctx.send("I could not parse that timestamp")
+        color = ctx.guild.me.color if ctx.guild else discord.Embed.Empty
+        author = ctx.author
+        avatar = ctx.author.avatar_url
+        embed = discord.Embed(description=event, color=color, timestamp=timestamp)
+        embed.set_author(name=f"{author.name}", icon_url=avatar)
+        await ctx.send(embed=embed)
 
     @commands.bot_has_permissions(embed_links=True)
     @checks.is_owner()
