@@ -77,7 +77,10 @@ class EmbedMaker:
         author = ctx.author
         avatar = ctx.author.avatar_url
         embed = discord.Embed(description=event, color=color, timestamp=timestamp)
-        embed.set_author(name=f"{author.name}", icon_url=avatar)
+        embed.set_author(
+            name=f"Event created by {author.display_name}", icon_url=avatar
+        )
+        embed.set_footer(text="Event local time: ")
         await ctx.send(embed=embed)
 
     @commands.bot_has_permissions(embed_links=True)
