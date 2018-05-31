@@ -84,10 +84,11 @@ class AutoRooms:
         if member.id not in self._antispam:
             self._antispam[member.id] = AntiSpam(self.antispam_intervals)
         if not self._antispam[member.id].spammy:
-            if await self.config.guild(after.channel.guild).active():
-                conf = self.config.channel(after.channel)
-                if await conf.autoroom() or await conf.gameroom():
-                    await self.generate_room_for(who=member, source=after.channel)
+            if after.channel:
+                if await self.config.guild(after.channel.guild).active():
+                    conf = self.config.channel(after.channel)
+                    if await conf.autoroom() or await conf.gameroom():
+                        await self.generate_room_for(who=member, source=after.channel)
 
         if before.channel:
             await self._cleanup(before.channel.guild)
