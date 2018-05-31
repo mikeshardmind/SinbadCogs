@@ -40,6 +40,16 @@ class TempChannels:
     async def on_resumed(self):
         await self._cleanup(load=True)
 
+    async def on_voice_state_update(
+        self,
+        member: discord.Member,
+        before: discord.VoiceState,
+        after: discord.VoiceState,
+    ):
+        if before.channel == after.channel:
+            return
+        await self._cleanup(before.channel.guild)
+
     async def _cleanup(self, *guilds: discord.Guild, load: bool = False):
         if load:
             await asyncio.sleep(10)
