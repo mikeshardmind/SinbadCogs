@@ -111,8 +111,11 @@ class AutoRooms:
             overwrites.update({perm[0]: perm[1]})
         if ownership:
             overwrites.update(
-                who,
-                discord.PermissionOverwrite(manage_channels=True, manage_roles=True),
+                {
+                    who: discord.PermissionOverwrite(
+                        manage_channels=True, manage_roles=True
+                    )
+                }
             )
 
         cname = None
