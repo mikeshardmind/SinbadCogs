@@ -117,7 +117,8 @@ class TempChannels:
         """
         Creates a temporary channel
         """
-
+        if ctx.author.id not in self._antispam:
+            self._antispam[ctx.author.id] = AntiSpam(self.antispam_intervals)
         if self._antispam[ctx.author.id].spammy():
             return
 
@@ -143,8 +144,6 @@ class TempChannels:
             return
 
         await self.config.channel(created).is_temp.set(True)
-        if ctx.author.id not in self._antispam:
-            self._antispam[ctx.author.id] = AntiSpam(self.antispam_intervals)
         self._antispam[ctx.author.id].stamp()
 
         with contextlib.suppress(Exception):
