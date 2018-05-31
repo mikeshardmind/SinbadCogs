@@ -11,7 +11,7 @@ from redbot.core.config import Config
 from redbot.core import checks
 from redbot.core.utils.chat_formatting import pagify
 
-from .utils import send
+from .checks import aa_active
 
 
 class AutoRooms:
@@ -144,15 +144,6 @@ class AutoRooms:
             # TODO: Consider creation using
             # discord.HTTP to avoid needing the edit
 
-    # special checks
-    def is_active_here(self):
-        async def check(ctx: commands.Context):
-            return await self.config.guild(ctx.guild).active()
-
-        return commands.check(check)
-
-    # Commands go below
-
     @commands.bot_has_permissions(manage_channels=True)
     @checks.admin_or_permissions(manage_channels=True)
     @commands.group()
@@ -163,7 +154,7 @@ class AutoRooms:
         if ctx.invoked_subcommand is None:
             await ctx.send_help()
 
-    @is_active_here()
+    @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="channelsettings")
     async def setchannelsettings(
@@ -233,7 +224,7 @@ class AutoRooms:
         await self.config.guild(ctx.guild).active.set(val)
         await send(ctx, "Autorooms are now " + "activated" if val else "deactivated")
 
-    @is_active_here()
+    @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="makeclone")
     async def makeclone(self, ctx: commands.Context, channel: discord.VoiceChannel):
@@ -250,7 +241,7 @@ class AutoRooms:
         await self.config.channel(channel).clear()
         await ctx.tick()
 
-    @is_active_here()
+    @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="listautorooms")
     async def listclones(self, ctx: commands.Context):
@@ -264,7 +255,7 @@ class AutoRooms:
         for page in pagify(output):
             await send(ctx, page)
 
-    @is_active_here()
+    @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="toggleowner")
     async def toggleowner(self, ctx: commands.Context, val: bool = None):

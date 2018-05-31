@@ -10,7 +10,7 @@ from redbot.core.utils.antispam import AntiSpam
 from redbot.core.config import Config
 from redbot.core import checks
 
-from .utils import send
+from .checks import tmpc_active
 
 
 class TempChannels:
@@ -65,20 +65,6 @@ class TempChannels:
                     else:
                         await conf.clear()
 
-    def is_active_here(self):
-        async def check(ctx: commands.Context):
-            return await self.config.guild(ctx.guild).active()
-
-        return commands.check(check)
-
-    def isnt_spam(self):
-        def check(ctx: commands.Context):
-            if ctx.author.id in self._antispam:
-                return not self._antispam[ctx.author.id].spammy()
-            return True
-
-        return commands.check(check)
-
     @commands.guild_only()
     @commands.bot_has_permissions(manage_channels=True)
     @checks.admin_or_permissions(manage_channels=True)
@@ -102,8 +88,8 @@ class TempChannels:
             val = not await self.config.guild(ctx.guild).active()
         await self.config.guild(ctx.guild).active.set(val)
 
-        await send(
-            ctx, "Temporary channel creation is now " + "enabled" if val else "disabled"
+        await ctx.send(
+            ("Temporary channel creation is now " + "enabled" if val else "disabled")
         )
 
     @checks.admin_or_permissions(manage_channels=True)
@@ -119,19 +105,21 @@ class TempChannels:
 
         if cat is None:
             await self.config.guild(ctx.guild).category.set(None)
-            return await send(ctx, "Category cleared")
+            return await send.ctx("Category cleared")
 
         await self.config.guild(ctx.guild).category.set(cat.id)
         await ctx.tick()
 
-    @is_active_here()
-    @isnt_spam()
+    @tmpc_active()
     @commands.bot_has_permissions(manage_channels=True)
     @commands.command(name="tmpc")
     async def create_temp(self, ctx: commands.Context, *, channelname: str):
         """
         Creates a temporary channel
         """
+
+        if self._antispam[ctx.author].spammy():
+            return
 
         if not channelname:
             return await ctx.send_help()
