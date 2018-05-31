@@ -117,7 +117,7 @@ class AutoRooms:
 
         cname = None
         if await self.config.channel(source).gameroom():
-            with contextlib.supress(Exception):
+            with contextlib.suppress(Exception):
                 cname = who.activity.name
             if cname is None:
                 cname = "???"
