@@ -119,7 +119,7 @@ class TempChannels:
         """
         if ctx.author.id not in self._antispam:
             self._antispam[ctx.author.id] = AntiSpam(self.antispam_intervals)
-        if self._antispam[ctx.author.id].spammy():
+        if self._antispam[ctx.author.id].spammy:
             return
 
         if not channelname:
