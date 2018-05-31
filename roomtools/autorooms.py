@@ -90,7 +90,8 @@ class AutoRooms:
                 elif await conf.gameroom():
                     await self.generate_gameroom_for(who=member, source=after.channel)
 
-        await self._cleanup(before.channel.guild)
+        if before.channel:
+            await self._cleanup(before.channel.guild)
 
     async def generate_room_for(
         self, *, who: discord.Member, source: discord.VoiceChannel
