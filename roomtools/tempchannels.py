@@ -66,14 +66,12 @@ class TempChannels:
                         await conf.clear()
 
     def is_active_here(self):
-
         async def check(ctx: commands.Context):
             return await self.config.guild(ctx.guild).active()
 
         return commands.check(check)
 
     def isnt_spam(self):
-
         def check(ctx: commands.Context):
             if ctx.author.id in self._antispam:
                 return not self._antispam[ctx.author.id].spammy()

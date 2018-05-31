@@ -146,7 +146,6 @@ class AutoRooms:
 
     # special checks
     def is_active_here(self):
-
         async def check(ctx: commands.Context):
             return await self.config.guild(ctx.guild).active()
 
