@@ -13,7 +13,7 @@ def tmpc_active():
     return commands.check(check)
 
 
-def aa_active(self):
+def aa_active():
     async def check(ctx: commands.Context):
         if not ctx.guild:
             return False
