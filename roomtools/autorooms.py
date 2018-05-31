@@ -132,8 +132,8 @@ class AutoRooms:
         except discord.Forbidden:
             await self.config.guild(source.guild).active.set(False)
             return
-        except discord.HTTPException:
-            return
+        except discord.HTTPException as e:
+            print(e)
         else:
             await self.config.channel(chan).clone.set(True)
             if who.id not in self._antispam:
