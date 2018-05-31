@@ -1,15 +1,15 @@
 {
-    "AUTHOR": "mikeshardmind",
-    "INSTALL_MSG": "If you need help, I have a channel in https://discord.gg/GET4DVk",
-    "NAME": "QuoteTools",
-    "DISABLED": false,
-    "SHORT": "Quote messages by ID",
-    "DESCRIPTION": "Gets messages by ID. Works across Channels and servers.",
-    "TAGS": [
+    "author": "mikeshardmind",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/GET4DVk",
+    "name": "QuoteTools",
+    "disabled": false,
+    "short": "Quote messages by ID",
+    "description": "Gets messages by ID. Works across Channels and servers.",
+    "tags": [
         "quote",
         "quotetools"
     ],
-    "HIDDEN": false,
+    "hidden": false,
     "min_python_version": [
         3,
         6,

@@ -1,16 +1,16 @@
 {
-    "AUTHOR": "mikeshardmind",
-    "INSTALL_MSG": "If you need help, I have a channel in https://discord.gg/GET4DVk",
-    "NAME": "Polling",
-    "DISABLED": false,
-    "SHORT": "polling via emoji utils",
-    "DESCRIPTION": "polling via emoji utils",
-    "TAGS": [
+    "author": "mikeshardmind",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/GET4DVk",
+    "name": "Polling",
+    "disabled": false,
+    "short": "polling via emoji utils",
+    "description": "polling via emoji utils",
+    "tags": [
         "polling",
         "vote",
         "voting"
     ],
-    "HIDDEN": false,
+    "hidden": false,
     "min_python_version": [
         3,
         6,

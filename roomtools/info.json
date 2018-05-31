@@ -1,17 +1,17 @@
 {
-    "AUTHOR": "mikeshardmind",
-    "INSTALL_MSG": "If you need help, I have a channel in https://discord.gg/GET4DVk",
-    "NAME": "RoomTools",
-    "DISABLED": false,
-    "SHORT": "Tools for temporary rooms",
-    "DESCRIPTION": "Never run out of voice lobbies again",
-    "TAGS": [
+    "author": "mikeshardmind",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/GET4DVk",
+    "name": "RoomTools",
+    "disabled": false,
+    "short": "Tools for temporary rooms",
+    "description": "Never run out of voice lobbies again",
+    "tags": [
         "autorooms",
         "tempchannels",
         "temporary",
         "roomtools"
     ],
-    "HIDDEN": false,
+    "hidden": false,
     "min_python_version": [
         3,
         6,
