@@ -86,10 +86,8 @@ class AutoRooms:
         if not self._antispam[member.id].spammy:
             if await self.config.guild(after.channel.guild).active():
                 conf = self.config.channel(after.channel)
-                if await conf.autoroom():
-                    await self.generate_autoroom_for(who=member, source=after.channel)
-                elif await conf.gameroom():
-                    await self.generate_gameroom_for(who=member, source=after.channel)
+                if await conf.autoroom() or await conf.gameroom():
+                    await self.generate_room_for(who=member, source=after.channel)
 
         if before.channel:
             await self._cleanup(before.channel.guild)
@@ -133,8 +131,8 @@ class AutoRooms:
         except discord.Forbidden:
             await self.config.guild(source.guild).active.set(False)
             return
-        except discord.HTTPException as e:
-            print(e)
+        except discord.HTTPException:
+            pass
         else:
             await self.config.channel(chan).clone.set(True)
             if who.id not in self._antispam:
