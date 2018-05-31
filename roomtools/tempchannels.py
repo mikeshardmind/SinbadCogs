@@ -118,7 +118,7 @@ class TempChannels:
         Creates a temporary channel
         """
 
-        if self._antispam[ctx.author].spammy():
+        if self._antispam[ctx.author.id].spammy():
             return
 
         if not channelname:
