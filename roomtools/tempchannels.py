@@ -48,7 +48,8 @@ class TempChannels:
     ):
         if before.channel == after.channel:
             return
-        await self._cleanup(before.channel.guild)
+        if before.channel:
+            await self._cleanup(before.channel.guild)
 
     async def _cleanup(self, *guilds: discord.Guild, load: bool = False):
         if load:
