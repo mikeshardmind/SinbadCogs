@@ -166,7 +166,7 @@ class AutoRooms:
         """
         conf = self.config.channel(channel)
 
-        if not await conf.autoroom:
+        if not await conf.autoroom():
             return await ctx.send("That isn't an autoroom")
 
         await ctx.send(
