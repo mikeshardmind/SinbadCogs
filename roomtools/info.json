@@ -1,0 +1,20 @@
+{
+    "AUTHOR": "mikeshardmind",
+    "INSTALL_MSG": "If you need help, I have a channel in https://discord.gg/GET4DVk",
+    "NAME": "RoomTools",
+    "DISABLED": false,
+    "SHORT": "Tools for temporary rooms",
+    "DESCRIPTION": "Never run out of voice lobbies again",
+    "TAGS": [
+        "autorooms",
+        "tempchannels",
+        "temporary",
+        "roomtools"
+    ],
+    "HIDDEN": false,
+    "min_python_version": [
+        3,
+        6,
+        0
+    ]
+}
