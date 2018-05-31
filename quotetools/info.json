@@ -1,14 +1,13 @@
 {
     "AUTHOR": "mikeshardmind",
     "INSTALL_MSG": "If you need help, I have a channel in https://discord.gg/GET4DVk",
-    "NAME": "Polling",
+    "NAME": "QuoteTools",
     "DISABLED": false,
-    "SHORT": "polling via emoji utils",
-    "DESCRIPTION": "polling via emoji utils",
+    "SHORT": "Quote messages by ID",
+    "DESCRIPTION": "Gets messages by ID. Works across Channels and servers.",
     "TAGS": [
-        "polling",
-        "vote",
-        "voting"
+        "quote",
+        "quotetools"
     ],
     "HIDDEN": false,
     "min_python_version": [

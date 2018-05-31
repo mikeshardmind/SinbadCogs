@@ -4,7 +4,6 @@ from redbot.core.bot import Red
 
 
 class NwayRelay:
-
     def __init__(self, *, channels: List[discord.TextChannel]):
         self.channels = channels
 
@@ -23,7 +22,6 @@ class NwayRelay:
 
 
 class OnewayRelay:
-
     def __init__(
         self, *, source: discord.TextChannel, destinations: List[discord.TextChannel]
     ):

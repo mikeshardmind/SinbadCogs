@@ -84,7 +84,7 @@ async def eligible_channels(ctx: commands.Context) -> list:
 
 async def find_msg(ctx: commands.Context, idx: int) -> discord.Message:
 
-    async for channel in eligible_channels(ctx):
+    for channel in await eligible_channels(ctx):
         try:
             m = await channel.get_message(idx)
         except Exception:

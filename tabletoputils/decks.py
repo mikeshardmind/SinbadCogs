@@ -21,6 +21,7 @@ class Deck:
         when true, anytime the deck is empty, cards will be returned
         to the deck and reshuffled
     """
+
     _suits = ["Spades", "Diamonds", "Clubs", "Hearts"]
 
     _vals = [
