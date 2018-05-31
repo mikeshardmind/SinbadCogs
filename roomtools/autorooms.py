@@ -167,15 +167,16 @@ class AutoRooms:
         conf = self.config.channel(channel)
 
         if not await conf.autoroom:
-            return await send(ctx, "That isn't an autoroom")
+            return await ctx.send("That isn't an autoroom")
 
-        await send(
-            ctx,
-            "Game rooms require the user joining to be playing "
-            "a game, but get a base name of the game discord "
-            "detects them playing. Game rooms also do not get"
-            "anything prepended to their name."
-            "\nIs this a game room?(y/n)",
+        await ctx.send(
+            (
+                "Game rooms require the user joining to be playing "
+                "a game, but get a base name of the game discord "
+                "detects them playing. Game rooms also do not get"
+                "anything prepended to their name."
+                "\nIs this a game room?(y/n)"
+            )
         )
 
         def mcheck(m: discord.Message):
@@ -184,7 +185,7 @@ class AutoRooms:
         try:
             message = await self.bot.wait_for("message", check=mcheck, timeout=30)
         except asyncio.TimeoutError:
-            await send(ctx, "I can't wait forever, lets get to the next question.")
+            await ctx.send("I can't wait forever, lets get to the next question.")
         else:
             if message.clean_content.lower()[:1] == "y":
                 await conf.gameroom.set(True)
@@ -192,20 +193,21 @@ class AutoRooms:
                 await conf.gameroom.set(False)
             await message.add_reaction("\N{WHITE HEAVY CHECK MARK}")
 
-        await send(
-            ctx,
-            "There are three options for channel ownership\n"
-            "1. Use the server default\n"
-            "2. Override the default granting ownership\n"
-            "3. Override the default denying ownership\n"
-            "Please respond with the corresponding number to "
-            "the desired behavior",
+        await ctx.send(
+            (
+                "There are three options for channel ownership\n"
+                "1. Use the server default\n"
+                "2. Override the default granting ownership\n"
+                "3. Override the default denying ownership\n"
+                "Please respond with the corresponding number to "
+                "the desired behavior"
+            )
         )
 
         try:
             message = await self.bot.wait_for("message", check=mcheck, timeout=30)
         except asyncio.TimeoutError:
-            await send(ctx, "I can't wait forever, lets get to the next question.")
+            await ctx.send("I can't wait forever, lets get to the next question.")
         else:
             to_set = {"1": None, "2": True, "3": False}.get(
                 message.clean_content[:1], None
@@ -222,7 +224,7 @@ class AutoRooms:
         if val is None:
             val = not await self.config.guild(ctx.guild).active()
         await self.config.guild(ctx.guild).active.set(val)
-        await send(ctx, "Autorooms are now " + "activated" if val else "deactivated")
+        await ctx.send(("Autorooms are now " + "activated" if val else "deactivated"))
 
     @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
@@ -253,7 +255,7 @@ class AutoRooms:
 
         output = ", ".join(clist)
         for page in pagify(output):
-            await send(ctx, page)
+            await ctx.send(page)
 
     @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
@@ -265,9 +267,10 @@ class AutoRooms:
         if val is None:
             val = not await self.config.guild(ctx.guild).active()
         await self.config.guild(ctx.guild).active.set(val)
-        await send(
-            ctx,
-            "Autorooms are "
-            + ("now owned " if val else "no longer owned ")
-            + "by their creator",
+        await ctx.send(
+            (
+                "Autorooms are "
+                + ("now owned " if val else "no longer owned ")
+                + "by their creator"
+            )
         )
