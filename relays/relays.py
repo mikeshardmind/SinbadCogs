@@ -36,9 +36,9 @@ TIMEOUT = _("You took too long, try again later.")
 
 ONE_WAY_OUTPUT_TEMPLATE = [
     _("Relay type: one way"),
-    _("Source (Channel | Guild):"),
-    _("Destination (Channel | Guild):"),
-    _("Destinations (Channel | Guild):"),
+    _("Source (Channel | Server):"),
+    _("Destination (Channel | Server):"),
+    _("Destinations (Channel | Server):"),
 ]
 
 NWAY_OUTPUT_TEMPLATE = [_("Relay type: multiway"), _("Channels Channel | Guild): ")]
