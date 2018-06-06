@@ -36,9 +36,9 @@ TIMEOUT = _("You took too long, try again later.")
 
 ONE_WAY_OUTPUT_TEMPLATE = [
     _("Relay type: one way"),
-    _("Source:"),
-    _("Destination:"),
-    _("Destinations:"),
+    _("Source (Channel | Guild):"),
+    _("Destination (Channel | Guild):"),
+    _("Destinations (Channel | Guild):"),
 ]
 
 NWAY_OUTPUT_TEMPLATE = [_("Relay type: multiway"), _("Channels: ")]
@@ -51,7 +51,7 @@ class Relays:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.1b"
+    __version__ = "1.0.2"
 
     def __init__(self, bot: Red):
         self.bot = bot
@@ -184,14 +184,18 @@ class Relays:
                 "{template[2]}" if len(relay.destinations) == 1 else "{template[3]}\n"
             )
             msg = "\n".join(
-                ["{template[0]}", "{template[1]} {source.name}", quanitity_conditional]
+                [
+                    "{template[0]}",
+                    "{template[1]} {source.name} | {source.guild.name}",
+                    quanitity_conditional,
+                ]
             ).format(source=relay.source, template=ONE_WAY_OUTPUT_TEMPLATE)
-            msg += "\n".join([x.name for x in relay.destinations])
+            msg += "\n".join(f"{x.name} | {x.guild.name}" for x in relay.destinations)
 
         if name in self.nways:
             relay = self.nways[name]
             msg = "\n".join(NWAY_OUTPUT_TEMPLATE) + "\n"
-            msg += "\n".join(x.name for x in relay.channels)
+            msg += "\n".join(f"{x.name} | {x.guild.name}" for x in relay.channels)
 
         return msg
 
