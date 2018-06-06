@@ -41,7 +41,7 @@ ONE_WAY_OUTPUT_TEMPLATE = [
     _("Destinations (Channel | Guild):"),
 ]
 
-NWAY_OUTPUT_TEMPLATE = [_("Relay type: multiway"), _("Channels: ")]
+NWAY_OUTPUT_TEMPLATE = [_("Relay type: multiway"), _("Channels Channel | Guild): ")]
 
 
 @cog_i18n(_)
