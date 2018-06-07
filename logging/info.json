@@ -1,0 +1,15 @@
+{
+    "author": "mikeshardmind(Sinbad#0001)",
+    "install_msg": "If I didn't specifically, personally, tell you to install this, I'm not supporting it. Use at your own risk, this is provided for a specific server as a stopgap measure only.",
+    "name": "logging",
+    "disabled": false,
+    "short": "",
+    "description": "",
+    "tags": [],
+    "hidden": false,
+    "min_python_version": [
+        3,
+        6,
+        0
+    ]
+}
