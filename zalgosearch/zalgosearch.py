@@ -25,10 +25,10 @@ class ZalgoSearch:
  #           self, identifier=78631113035100160, force_registration=True
  #       )
  #       self.config.register_guild(auto_enforce=1.1)
-        self.pool = Pool(5)
         self._searches = {}
         self.path = data_manager.cog_data_path(self)
         self.__internal_cleanup()
+        self.pool = Pool(5)
 
     def __internal_cleanup(self):
         for f in self.path.glob("*.txt"):
@@ -59,8 +59,9 @@ class ZalgoSearch:
         if ctx.guild.id in self._searches:
             return await ctx.send("Search already in progress")
         to_check = [(ctx, m, threshold) for m in ctx.guild.members]
-        chunksize = len(to_check) / 20
+        chunksize = max(len(to_check) / 20, 1)
         self._searches[ctx.guild.id] = []
+        
         self.pool.map_async(
             self.is_zalgo_map,
             to_check,
