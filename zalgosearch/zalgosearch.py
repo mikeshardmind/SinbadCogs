@@ -62,14 +62,17 @@ class ZalgoSearch:
         chunksize = max(len(to_check) / 20, 1)
         self._searches[ctx.guild.id] = []
         
-        self.pool.map_async(
+        z = self.pool.map_async(
             is_zalgo_map,
             to_check,
             chunksize=chunksize,
             callback=self.zalgo_callback,
         )
-        while len(self._searches[ctx.guild.id]) != len(to_check):
+
+        while not z.ready():
             await asyncio.sleep(10)
+        else:
+            z.get()
 
         if here:
             to_report = filter(self._searches[ctx.guild.id])
