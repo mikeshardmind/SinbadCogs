@@ -7,7 +7,7 @@ from multiprocessing import Pool
 import pathlib
 import os
 
-from .utils import is_zalgo_map, groups_of_n
+from .utils import is_zalgo_map, groups_of_n, zalgo_callback
 
 
 class ZalgoSearch:
@@ -50,7 +50,7 @@ class ZalgoSearch:
     @commands.guild_only()
     @checks.admin_or_permissions(administrator=True)
     @commands.command()
-    async def zalgosearch(self, ctx, threshold: float=0.6, here: bool = False):
+    async def zalgosearch(self, ctx, threshold: float=0.6):
         """
         search for zalgo infringing names
         """
@@ -76,17 +76,6 @@ class ZalgoSearch:
             await asyncio.sleep(10)
         else:
             z.get()
-
-        if here:
-            to_report = filter(self.searches[ctx.guild.id])
-            out = "\n".join(
-                ' '.join(m.mention for m in group)
-                for group in self.groups_of_n(3, to_report)
-            )
-            for page in pagify(out):
-                await ctx.send(out)
-            else:
-                return
 
         if os.path.getsize(path) < (8 * 1024 * 1024):
             with path.open(mode='rb') as f:
