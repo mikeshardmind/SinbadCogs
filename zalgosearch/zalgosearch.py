@@ -136,13 +136,6 @@ class ZalgoSearch:
                     self._searches[ctx.guild.id].append((ctx, member))
         self._searches[ctx.guild.id].append((ctx, None))
 
-    def zalgo_map_callback(self, out_tup):
-        """
-        just a callback
-        """
-        ctx, val = out_tup
-        .append(val)
-
     def groups_of_n(n, iterable):
         """
         mostly memory safe handler for grouping by n
