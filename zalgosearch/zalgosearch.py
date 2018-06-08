@@ -3,7 +3,7 @@ from redbot.core import commands, checks, data_manager
 from redbot.core.config import Config
 from redbot.core.utils.chat_formatting import pagify
 import asyncio
-import multiprocessing as mp
+from multiprocessing import Pool
 import itertools
 import pathlib
 import os
@@ -25,7 +25,7 @@ class ZalgoSearch:
  #           self, identifier=78631113035100160, force_registration=True
  #       )
  #       self.config.register_guild(auto_enforce=1.1)
-        self.pool = mp.Pool(5)
+        self.pool = Pool(5)
         self._searches = {}
         self.path = data_manager.cog_data_path(self)
         self.__internal_cleanup()
