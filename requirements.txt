@@ -1,5 +1,3 @@
-git+git://github.com/Rapptz/discord.py.git@rewrite#egg=discord.py
-red-discordbot
 pytz
 python-dateutil
 asteval
