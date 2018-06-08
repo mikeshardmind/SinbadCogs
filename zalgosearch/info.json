@@ -1,0 +1,15 @@
+{
+    "author": "mikeshardmind(Sinbad#0001)",
+    "install_msg": "This probably doesn't work yet",
+    "name": "ZalgoSearch",
+    "disabled": false,
+    "short": "may not work",
+    "description": "may not work",
+    "tags": [],
+    "hidden": false,
+    "min_python_version": [
+        3,
+        6,
+        0
+    ]
+}
