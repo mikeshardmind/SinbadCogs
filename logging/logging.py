@@ -87,7 +87,7 @@ class Logging:
                     f"Member role remove: The '{r}' role was removed from {after} ({after.id})"
                 )
         for e in entries:
-            text = f"{time}{e}"
+            text = f"[{time}] {e}"
             self.log(text, path)
 
     async def on_member_join(self, member):
