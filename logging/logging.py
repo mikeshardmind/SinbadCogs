@@ -48,7 +48,7 @@ class Logging:
         author = message.author
         time = message.created_at.strftime(TIMESTAMP_FORMAT)
         text = f"[{time}] ({author.id}) {author} {message.clean_content}"
-        path = self.path / f"{guild.id}" / f"{channel.id}.log"
+        path = self.path / f"{channel.guild.id}" / f"{channel.id}.log"
         self.log(text, path)
         if message.attachments:
             try:
@@ -59,7 +59,7 @@ class Logging:
                 self.log(f"Attachment saved to {p}.", path)
 
     async def on_member_update(self, before: discord.Member, after: discord.Member):
-        time = message.created_at.strftime(TIMESTAMP_FORMAT)
+        time = datetime.utcnow().strftime(TIMESTAMP_FORMAT)
         path = self.path / f"{before.guild.id}" / "events.log"
 
         entries = []
@@ -91,12 +91,14 @@ class Logging:
             self.log(text, path)
 
     async def on_member_join(self, member):
-        text = f"Member join: {member} ({member.id})"
+        time = datetime.utcnow().strftime(TIMESTAMP_FORMAT)
+        text = f"[{time}] Member join: {member} ({member.id})"
         path = self.path / f"{before.guild.id}" / "events.log"
         self.log(text, path)
 
     async def on_member_remove(self, member):
-        text = f"Member leave: {member} ({member.id})"
+        time = datetime.utcnow().strftime(TIMESTAMP_FORMAT)
+        text = f"[{time}] Member leave: {member} ({member.id})"
         path = self.path / f"{before.guild.id}" / "events.log"
         self.log(text, path)
 
