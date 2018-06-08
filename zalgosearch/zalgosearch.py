@@ -7,7 +7,7 @@ from multiprocessing import Pool
 import pathlib
 import os
 
-from .utils import is_zalgo_map, groups_of_n, zalgo_callback
+from .utils import is_zalgo_map, groups_of_n
 
 
 class ZalgoSearch:
