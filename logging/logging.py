@@ -118,4 +118,4 @@ class Logging:
         path.parent.mkdir(parents=True, exist_ok=True)
         message = message.replace("\n", "\\n")
         with path.open(mode="a", encoding="utf-8", errors="backslashreplace") as f:
-            f.writeline(message)
+            f.write(message + "\n")
