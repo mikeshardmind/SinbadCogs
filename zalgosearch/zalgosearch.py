@@ -144,7 +144,7 @@ class ZalgoSearch:
         just a callback
         """
         ctx, val = out_tup
-        self._zalgo_counters[ctx.guild.id].append(val)
+        self._searches[ctx.guild.id].append(val)
 
     def groups_of_n(n, iterable):
         """
