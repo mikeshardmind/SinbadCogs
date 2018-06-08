@@ -31,8 +31,9 @@ def embed_from_msg(message: discord.Message) -> discord.Embed:
     cname = channel.name
     avatar = author.avatar_url
     footer = "Said in {} #{}".format(sname, cname)
+    color = author.color if author.color.value != 0 else discord.Embed.Empty
     em = discord.Embed(
-        description=content, color=author.color, timestamp=message.created_at
+        description=content, color=color, timestamp=message.created_at
     )
     em.set_author(name="{}".format(author.name), icon_url=avatar)
     em.set_footer(text=footer, icon_url=server.icon_url)
