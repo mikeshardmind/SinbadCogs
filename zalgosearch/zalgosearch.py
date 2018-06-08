@@ -7,6 +7,7 @@ import multiprocessing as mp
 import itertools
 import pathlib
 import os
+import unicodedata
 
 
 class ZalgoSearch:
