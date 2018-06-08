@@ -62,12 +62,8 @@ class ZalgoSearch:
         chunksize = max(len(to_check) / 20, 1)
         self._searches[ctx.guild.id] = []
         
-        self.pool.map_async(
-            self.is_zalgo_map,
-            to_check,
-            chunksize=chunksize,
-            callback=self.zalgo_map_callback,
-        )
+
+        [self.pool.apply_async(self.is_zalgo_map, item) for item in to_check]
         while len(self._searches[ctx.guild.id]) != len(to_check):
             await asyncio.sleep(10)
 
@@ -137,15 +133,15 @@ class ZalgoSearch:
             if (unicodedata.category(c) in ZALGO):
                 count += 1
                 if count > threshold:
-                    return (ctx, member)
-        return (ctx, None)
+                    self._searches[ctx.guild.id].append((ctx, member))
+        self._searches[ctx.guild.id].append((ctx, None))
 
     def zalgo_map_callback(self, out_tup):
         """
         just a callback
         """
         ctx, val = out_tup
-        self._searches[ctx.guild.id].append(val)
+        .append(val)
 
     def groups_of_n(n, iterable):
         """
