@@ -107,7 +107,7 @@ class Logging:
         channel = message.channel
         author = message.author
         ts = message.created_at.strftime(TIMESTAMP_FORMAT)
-        path = self.path / f"{guild.id}" / f"{channel.id}" / "attachments"
+        path = self.path / f"{channel.guild.id}" / f"{channel.id}" / "attachments"
         path.mkdir(exist_ok=True, parents=True)
         path = path / f"{ts}-{author.id}-{a.filename}"
         with path.open(mode="wb") as f:
