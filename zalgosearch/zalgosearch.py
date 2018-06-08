@@ -3,7 +3,7 @@ from redbot.core import commands, checks, data_manager
 from redbot.core.config import Config
 from redbot.core.utils.chat_formatting import pagify
 import asyncio
-from multiprocessing import Pool
+from pathos.multiprocessing import ProcessingPool as Pool
 import pathlib
 import os
 
@@ -64,14 +64,11 @@ class ZalgoSearch:
         chunksize = max(len(to_check) / 20, 1)
         self.searches[ctx.guild.id] = []
         
-        multiresults = [
-            self.pool.apply_async(is_zalgo_map, args) for args in to_check
-        ]
-
-        while not all(result.ready() for result in multiresults):
+        results = self.pool.amap(is_zalgo_map, *to_check)
+        while not results.ready()
             await asyncio.sleep(10)
         else:
-            finished = [z.get() for z in multiresults]
+            finished = results.get()
 
         path = self.path / f"{ctx.message.id}-zalgo.txt"
         with path.open(mode='w') as f:
