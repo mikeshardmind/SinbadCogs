@@ -65,7 +65,7 @@ class ZalgoSearch:
         self.searches[ctx.guild.id] = []
         
         results = self.pool.amap(is_zalgo_map, *to_check)
-        while not results.ready()
+        while not results.ready():
             await asyncio.sleep(10)
         else:
             finished = results.get()
