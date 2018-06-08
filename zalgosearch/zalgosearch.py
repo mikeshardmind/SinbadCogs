@@ -9,12 +9,6 @@ import os
 
 from .utils import is_zalgo_map, groups_of_n
 
-_SEARCHES = {}
-
-def zalgo_callback(self, ret):
-    ctx, val = ret
-    _SEARCHES[ctx.guild.id] = val
-
 
 class ZalgoSearch:
     """
@@ -34,6 +28,7 @@ class ZalgoSearch:
         self.path = data_manager.cog_data_path(self)
         self.__internal_cleanup()
         self.pool = Pool(5)
+        self.searches = {}
 
     def __internal_cleanup(self):
         for f in self.path.glob("*.txt"):
@@ -61,11 +56,13 @@ class ZalgoSearch:
         """
         if ctx.invoked_subcommand is not None:
             return
-        if ctx.guild.id in _SEARCHES:
+        if ctx.guild.id in self.searches:
             return await ctx.send("Search already in progress")
-        to_check = [(ctx, m, threshold) for m in ctx.guild.members]
+        self.path.mkdir(exist_ok=True, parents=True)
+        path = self.path / f"{ctx.message.id}-zalgo.txt"
+        to_check = [(ctx, m, threshold, path) for m in ctx.guild.members]
         chunksize = max(len(to_check) / 20, 1)
-        _SEARCHES[ctx.guild.id] = []
+        self.searches[ctx.guild.id] = []
         
 
         z = self.pool.map_async(
@@ -81,7 +78,7 @@ class ZalgoSearch:
             z.get()
 
         if here:
-            to_report = filter(_SEARCHES[ctx.guild.id])
+            to_report = filter(self.searches[ctx.guild.id])
             out = "\n".join(
                 ' '.join(m.mention for m in group)
                 for group in self.groups_of_n(3, to_report)
@@ -90,13 +87,6 @@ class ZalgoSearch:
                 await ctx.send(out)
             else:
                 return
-
-        self.path.mkdir(exist_ok=True, parents=True)
-        with path.open(mode='w') as f:
-            to_report = filter(self._searches[ctx.guild.id])
-            for group in self.groups_of_n(3, to_report):
-                out = ' '.join(m.mention for m in group)
-                f.write(f"{out}\n")
 
         if os.path.getsize(path) < (8 * 1024 * 1024):
             with path.open(mode='rb') as f:
@@ -116,5 +106,5 @@ class ZalgoSearch:
                 )
             except Exception:
                 pass
-        _SEARCHES.pop(ctx.guild.id, None)
+        self.searches.pop(ctx.guild.id, None)
 
