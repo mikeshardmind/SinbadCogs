@@ -9,6 +9,12 @@ import os
 
 from .utils import is_zalgo_map, groups_of_n
 
+_SEARCHES = {}
+
+def zalgo_callback(self, ret):
+    ctx, val = ret
+    _SEARCHES[ctx.guild.id] = val
+
 
 class ZalgoSearch:
     """
@@ -25,7 +31,6 @@ class ZalgoSearch:
  #           self, identifier=78631113035100160, force_registration=True
  #       )
  #       self.config.register_guild(auto_enforce=1.1)
-        self._searches = {}
         self.path = data_manager.cog_data_path(self)
         self.__internal_cleanup()
         self.pool = Pool(5)
@@ -56,17 +61,18 @@ class ZalgoSearch:
         """
         if ctx.invoked_subcommand is not None:
             return
-        if ctx.guild.id in self._searches:
+        if ctx.guild.id in _SEARCHES:
             return await ctx.send("Search already in progress")
         to_check = [(ctx, m, threshold) for m in ctx.guild.members]
         chunksize = max(len(to_check) / 20, 1)
-        self._searches[ctx.guild.id] = []
+        _SEARCHES[ctx.guild.id] = []
         
+
         z = self.pool.map_async(
             is_zalgo_map,
             to_check,
             chunksize=chunksize,
-            callback=self.zalgo_callback,
+            callback=zalgo_callback,
         )
 
         while not z.ready():
@@ -75,7 +81,7 @@ class ZalgoSearch:
             z.get()
 
         if here:
-            to_report = filter(self._searches[ctx.guild.id])
+            to_report = filter(_SEARCHES[ctx.guild.id])
             out = "\n".join(
                 ' '.join(m.mention for m in group)
                 for group in self.groups_of_n(3, to_report)
@@ -85,7 +91,6 @@ class ZalgoSearch:
             else:
                 return
 
-        path = self.path / f"{ctx.message.id}-zalgo.txt"
         self.path.mkdir(exist_ok=True, parents=True)
         with path.open(mode='w') as f:
             to_report = filter(self._searches[ctx.guild.id])
@@ -111,8 +116,5 @@ class ZalgoSearch:
                 )
             except Exception:
                 pass
-        self._searches.pop(ctx.guild.id, None)
+        _SEARCHES.pop(ctx.guild.id, None)
 
-    def zalgo_callback(self, ret):
-        ctx, val = ret
-        self._searches[ctx.guild.id] = val
