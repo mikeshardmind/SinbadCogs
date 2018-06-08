@@ -126,8 +126,18 @@ class ZalgoSearch:
         """
         This is setup for map_async
         """
-        ctx, member, t = arg_tup        
-        return (ctx, member) if self.is_zalgo(member, t) else (ctx, None)
+        ctx, member, t = arg_tup
+        ZALGO = ['Mn', 'Me']
+        if len(member.display_name) == 0:
+            return False
+        threshold = len(member.display_name) * float(t)
+        count = 0
+        for c in member.display_name:
+            if (unicodedata.category(c) in ZALGO):
+                count += 1
+                if count > threshold:
+                    return (ctx, member)
+        return (ctx, None)
 
     def zalgo_map_callback(self, out_tup):
         """
