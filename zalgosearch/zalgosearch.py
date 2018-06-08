@@ -63,9 +63,11 @@ class ZalgoSearch:
         self._searches[ctx.guild.id] = []
         
 
-        [self.pool.apply_async(self.is_zalgo_map, item) for item in to_check]
-        while len(self._searches[ctx.guild.id]) != len(to_check):
-            await asyncio.sleep(10)
+        results = [
+            self.pool.apply_async(self.is_zalgo_map, item) for item in to_check
+        ]
+        await asyncio.sleep(20 * chunksize)
+        [x.get() for x in results]
 
         if here:
             to_report = filter(self._searches[ctx.guild.id])
