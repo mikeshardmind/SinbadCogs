@@ -59,23 +59,25 @@ class ZalgoSearch:
         if ctx.guild.id in self.searches:
             return await ctx.send("Search already in progress")
         self.path.mkdir(exist_ok=True, parents=True)
-        path = self.path / f"{ctx.message.id}-zalgo.txt"
-        to_check = [(ctx, m, threshold, path) for m in ctx.guild.members]
+        
+        to_check = [(ctx, m, threshold) for m in ctx.guild.members]
         chunksize = max(len(to_check) / 20, 1)
         self.searches[ctx.guild.id] = []
         
+        multiresults = [
+            self.pool.apply_async(is_zalgo_map, args) for args in to_check
+        ]
 
-        z = self.pool.map_async(
-            is_zalgo_map,
-            to_check,
-            chunksize=chunksize,
-            callback=zalgo_callback,
-        )
-
-        while not z.ready():
+        while not all(result.ready() for result in multiresults):
             await asyncio.sleep(10)
         else:
-            z.get()
+            finished = [z.get() for z in multiresults]
+
+        path = self.path / f"{ctx.message.id}-zalgo.txt"
+        with path.open(mode='w') as f:
+            members = filter(finished)
+            for group in groups_of_n(3, members):
+                f.write(' '.join(m.mention for m in group) + '\n')
 
         if os.path.getsize(path) < (8 * 1024 * 1024):
             with path.open(mode='rb') as f:

@@ -2,19 +2,11 @@ import unicodedata
 import itertools
 
 
-def zalgo_callback(self, ret):
-    ctx, val, path = ret
-    if not val:
-        return
-    with path.open(mode='a') as f:
-        f.write(f"{val.mention}")
-
-
 def is_zalgo_map(arg_tup):
     """
     This is setup for map_async
     """
-    ctx, member, t, path = arg_tup
+    ctx, member, t = arg_tup
     ZALGO = ['Mn', 'Me']
     if len(member.display_name) == 0:
         return False
@@ -24,8 +16,8 @@ def is_zalgo_map(arg_tup):
         if (unicodedata.category(c) in ZALGO):
             count += 1
             if count > threshold:
-                return (ctx, member, path)
-    return (ctx, None, path)
+                return member
+    return None
 
 
 def groups_of_n(n, iterable):
