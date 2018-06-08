@@ -27,9 +27,7 @@ class Logging:
             return
         time = datetime.utcnow().strftime(TIMESTAMP_FORMAT)
         path = self.path / f"{channel.guild.id}" / f"{channel.id}.log"
-        text = (
-            f"[{time}] Message # {payload.message_id} edited: ({author.id}) {author}: {message.clean_content}"
-        )
+        text = f"[{time}] Message # {payload.message_id} edited: ({author.id}) {author}: {message.clean_content}"
         self.log(text, path)
 
     async def on_raw_message_delete(self, payload: discord.RawMessageDeleteEvent):

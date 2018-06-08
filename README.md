@@ -28,5 +28,6 @@ issues and feature requests [here](https://github.com/mikeshardmind/SinbadCogs/i
 If you feel like contributing more directly, PRs are welcome.
 
 
-I have a [patreon](https://www.patreon.com/mikeshardmind)
+I have a [patreon](https://www.patreon.com/mikeshardmind) or [paypal](https://www.paypal.me/mikeshardmind)
 if you feel like paying for a drink or two instead
+
