@@ -4,10 +4,10 @@ from redbot.core.config import Config
 from redbot.core.utils.chat_formatting import pagify
 import asyncio
 from multiprocessing import Pool
-import itertools
 import pathlib
 import os
-import unicodedata
+
+from .utils import is_zalgo_map, groups_of_n
 
 
 class ZalgoSearch:
@@ -62,12 +62,14 @@ class ZalgoSearch:
         chunksize = max(len(to_check) / 20, 1)
         self._searches[ctx.guild.id] = []
         
-
-        results = [
-            self.pool.apply_async(self.is_zalgo_map, item) for item in to_check
-        ]
-        await asyncio.sleep(20 * chunksize)
-        [x.get() for x in results]
+        self.pool.map_async(
+            is_zalgo_map,
+            to_check,
+            chunksize=chunksize,
+            callback=self.zalgo_callback,
+        )
+        while len(self._searches[ctx.guild.id]) != len(to_check):
+            await asyncio.sleep(10)
 
         if here:
             to_report = filter(self._searches[ctx.guild.id])
@@ -108,40 +110,6 @@ class ZalgoSearch:
                 pass
         self._searches.pop(ctx.guild.id, None)
 
-    def is_zalgo(self, member: discord.Member, threshold: float):
-        ZALGO = ['Mn', 'Me']
-        if len(member.display_name) == 0:
-            return False
-        threshold = len(member.display_name) * float(t)
-        count = 0
-        for c in member.display_name:
-            if (unicodedata.category(c) in ZALGO):
-                count += 1
-                if count > threshold:
-                    return True
-        return False
-
-    def is_zalgo_map(self, arg_tup):
-        """
-        This is setup for map_async
-        """
-        ctx, member, t = arg_tup
-        ZALGO = ['Mn', 'Me']
-        if len(member.display_name) == 0:
-            return False
-        threshold = len(member.display_name) * float(t)
-        count = 0
-        for c in member.display_name:
-            if (unicodedata.category(c) in ZALGO):
-                count += 1
-                if count > threshold:
-                    self._searches[ctx.guild.id].append((ctx, member))
-        self._searches[ctx.guild.id].append((ctx, None))
-
-    def groups_of_n(n, iterable):
-        """
-        mostly memory safe handler for grouping by n
-        """
-        args = [iter(iterable)] * n
-        for group in itertools.zip_longest(*args):
-            yield [element for element in group if element is not None]
+    def zalgo_callback(self, ret):
+        ctx, val = ret
+        self._searches[ctx.guild.id] = val
