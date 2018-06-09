@@ -180,6 +180,7 @@ class RoleManagement:
                 return await ctx.maybe_send_embed("No such emoji")
             else:
                 _emoji = emoji
+                eid = emoji
         else:
             eid = _emoji.id
 
