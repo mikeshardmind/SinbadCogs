@@ -24,17 +24,18 @@ def role_mention_cleanup(message: discord.Message) -> str:
 
 def embed_from_msg(message: discord.Message) -> discord.Embed:
     channel = message.channel
-    server = channel.guild
+    guild = channel.guild
     content = role_mention_cleanup(message)
     author = message.author
-    sname = server.name
+    sname = guild.name
     cname = channel.name
     avatar = author.avatar_url
-    footer = "Said in {} #{}".format(sname, cname)
+    footer_text = f"Said in {guild.name} #{channel.name}"
+    footer = f"[{message.jump_to_url}]({footer_text})"
     color = author.color if author.color.value != 0 else discord.Embed.Empty
     em = discord.Embed(description=content, color=color, timestamp=message.created_at)
-    em.set_author(name="{}".format(author.name), icon_url=avatar)
-    em.set_footer(text=footer, icon_url=server.icon_url)
+    em.set_author(name=f"{author.name}", icon_url=avatar)
+    em.set_footer(text=footer, icon_url=guild.icon_url)
     if message.attachments:
         a = message.attachments[0]
         fname = a.filename
@@ -44,7 +45,7 @@ def embed_from_msg(message: discord.Message) -> discord.Embed:
         else:
             em.add_field(
                 name="Message has an attachment",
-                value="[{}]({})".format(fname, url),
+                value=f"[{fname}]({url})",
                 inline=True,
             )
 
