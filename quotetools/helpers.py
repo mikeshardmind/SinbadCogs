@@ -36,7 +36,7 @@ def embed_from_msg(message: discord.Message) -> discord.Embed:
     em.set_footer(icon_url=guild.icon_url)
     em.add_field(
         name=f"Said in {guild.name} #{channel.name}",
-        value=f"[{message.jump_to_url}](View in context)",
+        value=f"[View in context]({message.jump_to_url})",
         inline=True
     )
     if message.attachments:
