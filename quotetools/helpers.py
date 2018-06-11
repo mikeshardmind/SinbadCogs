@@ -30,14 +30,13 @@ def embed_from_msg(message: discord.Message) -> discord.Embed:
     sname = guild.name
     cname = channel.name
     avatar = author.avatar_url
-    footer = f"Said in {guild.name} #{channel.name}"
     color = author.color if author.color.value != 0 else discord.Embed.Empty
     em = discord.Embed(description=content, color=color, timestamp=message.created_at)
     em.set_author(name=f"{author.name}", icon_url=avatar)
-    em.set_footer(text=footer, icon_url=guild.icon_url)
+    em.set_footer(icon_url=guild.icon_url)
     em.add_field(
-        name=f"{message.jump_to_url}(View in context)",
-        value="\N{ZERO WIDTH SPACE}",
+        name=f"Said in {guild.name} #{channel.name}",
+        value=f"[{message.jump_to_url}](View in context)",
         inline=True
     )
     if message.attachments:
