@@ -101,7 +101,7 @@ class GuildWhitelist:
         output += "\n".join(str(x) for x in whitelist)
 
         for page in pagify(output):
-            await ctx.send(box(pagify))
+            await ctx.send(box(page))
         await ctx.tick()
 
     @gwl.command(name="remove")

@@ -96,7 +96,7 @@ class GuildBlacklist:
         output += "\n".join(str(x) for x in blacklist)
 
         for page in pagify(output):
-            await ctx.send(box(pagify))
+            await ctx.send(box(page))
         await ctx.tick()
 
     @gbl.command(name="remove")
