@@ -48,13 +48,12 @@ class GuildBlacklist:
                 log.info("leaving {0.id} {0.name}".format(guild))
                 await guild.leave()
 
-    @commands.group(name="guildblacklist")
+    @commands.group(name="guildblacklist", autohelp=True)
     async def gbl(self, ctx: commands.Context):
         """
         settings for guildblacklisting
         """
-        if ctx.invoked_subcommand is None:
-            await ctx.send_help()
+        pass
 
     @gbl.command(name="debuginfo", hidden=True)
     async def dbg_info(self, ctx: commands.Context):

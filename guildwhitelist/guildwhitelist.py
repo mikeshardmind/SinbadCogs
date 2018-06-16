@@ -52,13 +52,12 @@ class GuildWhitelist:
                 log.info("leaving {0.id} {0.name}".format(guild))
                 await guild.leave()
 
-    @commands.group(name="guildwhitelist")
+    @commands.group(name="guildwhitelist", autohelp=True)
     async def gwl(self, ctx: commands.Context):
         """
         settings for guildwhitelisting
         """
-        if ctx.invoked_subcommand is None:
-            await ctx.send_help()
+        pass
 
     @gwl.command(name="debuginfo", hidden=True)
     async def dbg_info(self, ctx: commands.Context):

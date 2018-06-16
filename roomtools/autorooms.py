@@ -150,13 +150,12 @@ class AutoRooms:
 
     @commands.bot_has_permissions(manage_channels=True)
     @checks.admin_or_permissions(manage_channels=True)
-    @commands.group()
+    @commands.group(autohelp=True)
     async def autoroomset(self, ctx: commands.Context):
         """
         Commands for configuring autorooms
         """
-        if ctx.invoked_subcommand is None:
-            await ctx.send_help()
+        pass
 
     @aa_active()
     @checks.admin_or_permissions(manage_channels=True)

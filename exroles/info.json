@@ -6,7 +6,7 @@
     "short": "",
     "description": "",
     "tags": [],
-    "hidden": false,
+    "hidden": true,
     "min_python_version": [
         3,
         6,

@@ -28,12 +28,12 @@ class EmbedMaker:
         self.config.register_custom("EMBED", embed={}, owner=None)
         self.config.register_guild(active=True)
 
-    @commands.group(name="embed")
+    @commands.group(name="embed", autohelp=True)
     async def _embed(self, ctx: commands.Context):
         """
+        Embed commands
         """
-        if ctx.invoked_subcommand is None:
-            await ctx.send_help()
+        pass
 
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)

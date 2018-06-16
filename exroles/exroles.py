@@ -18,14 +18,12 @@ class ExRoles:
 
     @checks.admin_or_permissions(admininstrator=True)
     @commands.guild_only()
-    @commands.group()
+    @commands.group(autohelp=True)
     async def exroleset(self, ctx):
         """
         Commands for ExRole's config
         """
-
-        if ctx.invoked_subcommand is None:
-            return await ctx.send_help()
+        pass
 
     @exroleset.command()
     async def group(self, ctx, name: str, *roles: discord.Role):

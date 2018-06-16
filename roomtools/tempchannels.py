@@ -79,14 +79,12 @@ class TempChannels:
     @commands.guild_only()
     @commands.bot_has_permissions(manage_channels=True)
     @checks.admin_or_permissions(manage_channels=True)
-    @commands.group(name="tempchannelset", aliases=["tmpcset"])
+    @commands.group(name="tempchannelset", aliases=["tmpcset"], autohelp=True)
     async def tmpcset(self, ctx: commands.Context):
         """
         Temporary Channel Settings
         """
-
-        if ctx.invoked_subcommand is None:
-            await ctx.send_help()
+        pass
 
     @checks.admin_or_permissions(manage_channels=True)
     @tmpcset.command()

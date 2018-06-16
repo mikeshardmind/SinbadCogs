@@ -5,9 +5,7 @@
     "disabled": false,
     "short": "Role Management tools",
     "description": "this isn't ready for public use",
-    "tags": [
-        "relay", "relays"
-    ],
-    "hidden": false,
+    "tags": [],
+    "hidden": true,
     "min_python_version": [3, 6, 0]
 }
