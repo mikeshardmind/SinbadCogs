@@ -7,7 +7,7 @@ class AntiMentionSpam:
     """removes mass mention spam"""
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "1.0.1a"
+    __version__ = "1.0.2a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -44,7 +44,7 @@ class AntiMentionSpam:
         pass
 
     async def on_message(self, message: discord.Message):
-        if not message.channel.type == discord.ChannelType.text:
+        if not isinstance(message.channel, discord.TextChannel):
             return
         guild = message.guild
         author = message.author
