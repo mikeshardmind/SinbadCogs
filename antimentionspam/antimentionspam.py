@@ -1,16 +1,13 @@
 import discord
-from redbot.core import commands
+from redbot.core import commands, checks
 from redbot.core.config import Config
-from .utils import checks
-
-path = 'data/antimentionspam'
 
 
 class AntiMentionSpam:
     """removes mass mention spam"""
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "1.0.0a"
+    __version__ = "1.0.1a"
 
     def __init__(self, bot):
         self.bot = bot
