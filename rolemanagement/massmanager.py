@@ -287,7 +287,7 @@ class MassManager:
 
         for member in members:
             await self.update_roles_atomically(
-                member, member, give=apply["+"], remove=apply["-"]
+                member, give=apply["+"], remove=apply["-"]
             )
 
         await ctx.tick()
