@@ -11,16 +11,13 @@ class MassManager:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.0.1a"
+    __version__ = "0.0.2a"
 
     def __init__(self, bot):
         self.bot = bot
 
     async def update_roles_atomically(
-        self,
-        who: discord.Member,
-        give: List[discord.Role] = [],
-        remove: List[discord.Role] = [],
+        self, who: discord.Member, give: set = None, remove: set = None
     ):
         """
         Give and remove roles as a single op
@@ -29,10 +26,10 @@ class MassManager:
         This should only be used after already verifying the
         operation is valid based on permissions and heirarchy
         """
-        give = give or []
-        remove = remove or []
-        rids = [r.id for r in who.roles if r not in remove]
-        rids.extend([r.id for r in give])
+        give = give or set()
+        remove = remove or set()
+        roles = (set(who.roles) | give) - remove
+        rids = [r.id for r in roles]
         payload = {"roles": rids}
 
         await self.bot.http.request(
@@ -207,11 +204,14 @@ class MassManager:
         members = set(ctx.guild.members)
 
         for r in roles["+"]:
-            members = members.union(set(r.members))
+            members &= r.members
         for r in roles["-"]:
-            members = members - set(r.members)
+            members -= r.members
 
-        output = "\n".join(member.display_name for member in members)
+        output = "\n".join(
+            f'{member} {("(" + member.nick + ")") if member.nick else ""}'
+            for member in members
+        )
 
         for page in pagify(output):
             await ctx.send(page)
@@ -249,9 +249,9 @@ class MassManager:
         members = set(ctx.guild.members)
 
         for r in search["+"]:
-            members = members.union(set(r.members))
+            members &= r.members
         for r in search["-"]:
-            members = members - set(r.members)
+            members -= r.members
 
         for member in members:
             await self.update_roles_atomically(
