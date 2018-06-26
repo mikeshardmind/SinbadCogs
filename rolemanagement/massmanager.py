@@ -17,7 +17,10 @@ class MassManager:
         self.bot = bot
 
     async def update_roles_atomically(
-        self, who: discord.Member, give: set = None, remove: set = None
+        self,
+        who: discord.Member,
+        give: List[discord.Role] = [],
+        remove: List[discord.Role] = [],
     ):
         """
         Give and remove roles as a single op
@@ -26,10 +29,10 @@ class MassManager:
         This should only be used after already verifying the
         operation is valid based on permissions and heirarchy
         """
-        give = give or set()
-        remove = remove or set()
-        roles = (set(who.roles) | give) - remove
-        rids = [r.id for r in roles]
+        give = give or []
+        remove = remove or []
+        rids = [r.id for r in who.roles if r not in remove]
+        rids.extend([r.id for r in give])
         payload = {"roles": rids}
 
         await self.bot.http.request(
@@ -204,9 +207,9 @@ class MassManager:
         members = set(ctx.guild.members)
 
         for r in roles["+"]:
-            members &= r.members
+            members &= set(r.members)
         for r in roles["-"]:
-            members -= r.members
+            members -= set(r.members)
 
         output = "\n".join(
             f'{member} {("(" + member.nick + ")") if member.nick else ""}'
@@ -249,9 +252,9 @@ class MassManager:
         members = set(ctx.guild.members)
 
         for r in search["+"]:
-            members &= r.members
+            members &= set(r.members)
         for r in search["-"]:
-            members -= r.members
+            members -= set(r.members)
 
         for member in members:
             await self.update_roles_atomically(
