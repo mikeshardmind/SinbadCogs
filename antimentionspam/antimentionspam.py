@@ -30,8 +30,8 @@ class AntiMentionSpam:
         await self.config.guild(ctx.guild).max_mentions.set(number)
         message = (
             f"Max mentions set to {number}"
-            if number > 0 else 
-            "Mention filtering has been disabled"
+            if number > 0
+            else "Mention filtering has been disabled"
         )
         await ctx.send(message)
 

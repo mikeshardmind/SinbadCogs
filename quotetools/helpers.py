@@ -43,9 +43,7 @@ def embed_from_msg(message: discord.Message) -> discord.Embed:
             em.set_image(url=url)
         else:
             em.add_field(
-                name="Message has an attachment",
-                value=f"[{fname}]({url})",
-                inline=True,
+                name="Message has an attachment", value=f"[{fname}]({url})", inline=True
             )
     return em
 
