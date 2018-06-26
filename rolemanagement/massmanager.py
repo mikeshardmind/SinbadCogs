@@ -91,7 +91,7 @@ class MassManager:
                 "or position in the hierarchy."
             )
 
-        for member in ctx.guild:
+        for member in ctx.guild.members:
             if member.bot:
                 await self.update_roles_atomically(
                     member, give=roles["+"], remove=roles["-"]
@@ -121,7 +121,7 @@ class MassManager:
                 "or position in the hierarchy."
             )
 
-        for member in ctx.guild:
+        for member in ctx.guild.members:
             if not member.bot:
                 await self.update_roles_atomically(
                     member, give=roles["+"], remove=roles["-"]
