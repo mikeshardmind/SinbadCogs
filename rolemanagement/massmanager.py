@@ -11,7 +11,7 @@ class MassManager:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.0.4a"
+    __version__ = "0.0.6a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -43,7 +43,6 @@ class MassManager:
                 guild_id=who.guild.id,
                 user_id=who.id,
             ),
-            reason="redbot.sinbadcogs.rolemanagement massmanager",
             json=payload,
         )
 
@@ -97,6 +96,35 @@ class MassManager:
                 await self.update_roles_atomically(
                     member, give=roles["+"], remove=roles["-"]
                 )
+
+        await ctx.tick()
+
+    @mrole.command(name="all")
+    async def mrole_all(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
+        """
+        adds/removes roles to all users.
+
+        Roles should be comma seperated and preceded by a `+` or `-` indicating
+        to give or remove
+
+        You cannot add and remove the same role
+
+        Example Usage:
+
+        [p]massrole all +RoleToGive, -RoleToRemove
+
+        """
+
+        if not self.all_are_valid_roles(ctx, roles):
+            return await ctx.send(
+                "Either you or I don't have the required permissions "
+                "or position in the hierarchy."
+            )
+
+        for member in ctx.guild.members:
+            await self.update_roles_atomically(
+                member, give=roles["+"], remove=roles["-"]
+            )
 
         await ctx.tick()
 
@@ -220,7 +248,7 @@ class MassManager:
         for page in pagify(output):
             await ctx.send(page)
 
-    @mrole.command(name="complex", hidden=True, disabled=True)
+    @mrole.command(name="complex", hidden=True)
     async def mrole_complex(
         self, ctx: commands.Context, *, query: ComplexRoleSyntaxConverter
     ):
