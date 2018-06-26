@@ -219,7 +219,7 @@ class MassManager:
         for page in pagify(output):
             await ctx.send(page)
 
-    @mrole.command(name="complex", hidden=True)
+    @mrole.command(name="complex", hidden=True, disabled=True)
     async def mrole_complex(
         self, ctx: commands.Context, *, query: ComplexRoleSyntaxConverter
     ):
