@@ -11,7 +11,7 @@ class MassManager:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.0.3a"
+    __version__ = "0.0.4a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -46,7 +46,7 @@ class MassManager:
             json=payload,
         )
 
-    def all_are_valid_roles(ctx, role_dict: dict) -> bool:
+    def all_are_valid_roles(self, ctx, role_dict: dict) -> bool:
         """
         Quick heirarchy check on a role set in syntax returned
         """
@@ -85,7 +85,7 @@ class MassManager:
 
         """
 
-        if not self.all_are_valid_roles(roles):
+        if not self.all_are_valid_roles(ctx, roles):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -115,7 +115,7 @@ class MassManager:
 
         """
 
-        if not self.all_are_valid_roles(roles):
+        if not self.all_are_valid_roles(ctx, roles):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -147,7 +147,7 @@ class MassManager:
 
         """
 
-        if not self.all_are_valid_roles(roles):
+        if not self.all_are_valid_roles(ctx, roles):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -174,7 +174,7 @@ class MassManager:
         [p]massrole in "Red Team" +Champions, -Losers
         """
 
-        if not self.all_are_valid_roles(roles):
+        if not self.all_are_valid_roles(ctx, roles):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
