@@ -9,7 +9,7 @@ class RoleSyntaxConverter(commands.RoleConverter):
         for arg in args:
             ret[arg[0]].append(await super().convert(ctx, arg[1:]))
 
-        if not (ret["+"] and ret["-"]):
+        if not (ret["+"] or ret["-"]):
             raise commands.BadArgument("This requires at least one role operation.")
 
         if not set(ret["+"]).isdisjoint(ret["-"]):
