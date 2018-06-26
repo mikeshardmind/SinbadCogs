@@ -23,4 +23,5 @@ class ComplexRoleSyntaxConverter(RoleSyntaxConverter):
         if len(args) != 2:
             raise commands.BadArgument("Requires both a search and operation")
 
-        ret = ((await super().convert(arg)) for arg in args)
+        ret = tuple((await super().convert(arg)) for arg in args)
+        return ret

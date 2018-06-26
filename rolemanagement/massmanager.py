@@ -11,7 +11,7 @@ class MassManager:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.0.2a"
+    __version__ = "0.0.3a"
 
     def __init__(self, bot):
         self.bot = bot
