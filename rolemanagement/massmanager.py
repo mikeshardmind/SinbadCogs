@@ -1,4 +1,5 @@
 import discord
+from typing import Tuple, List
 from redbot.core import checks, commands
 from .converters import RoleSyntaxConverter, ComplexRoleSyntaxConverter
 from redbot.core.utils.chat_formatting import pagify
