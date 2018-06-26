@@ -31,10 +31,11 @@ class MassManager:
         """
         give = give or []
         remove = remove or []
-        rids = [r.id for r in who.roles if r not in remove]
-        rids.extend([r.id for r in give])
-        payload = {"roles": rids}
-
+        roles = [r for r in who.roles if r not in remove]
+        roles.extend([r for r in give])
+        if sorted(roles) == sorted(who.roles):
+            return
+        payload = {"roles": [r.id for r in roles]}
         await self.bot.http.request(
             discord.http.Route(
                 "PATCH",
