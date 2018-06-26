@@ -32,7 +32,7 @@ class MassManager:
         give = give or []
         remove = remove or []
         roles = [r for r in who.roles if r not in remove]
-        roles.extend([r for r in give])
+        roles.extend([r for r in give if r not in roles])
         if sorted(roles) == sorted(who.roles):
             return
         payload = {"roles": [r.id for r in roles]}
