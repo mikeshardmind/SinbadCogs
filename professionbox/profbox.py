@@ -24,7 +24,8 @@ class ProfBox:
         self.config.register_member(igns=[], profs={k: 1 for k in valid_profs})
         self.config.register_guild(profs={k: {} for k in valid_profs})
 
-    def wip(self, **kwargs):
+    @staticmethod
+    def wip(**kwargs):
         """
         Check wrapper for hiding stuff in a way manipulateable with dev tools
         """
