@@ -15,7 +15,7 @@ class ProfBox:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.0"
+    __version__ = "1.0.1"
 
     def __init__(self):
         self.config = Config.get_conf(
@@ -86,7 +86,7 @@ class ProfBox:
             for prof, level in profession_list.items():
                 temp[prof][str(ctx.author.id)] = level
 
-    @_group(name="find")
+    @_group.command(name="find")
     async def findprof(
         self,
         ctx: commands.Context,
