@@ -84,7 +84,10 @@ class ProfBox:
         async with self.config.guild(ctx.guild).profs() as pdata:
             temp = {k: v for k, v in pdata.items()}
             for prof, level in profession_list.items():
+                if prof not in temp:
+                    temp[prof] = {}
                 temp[prof][str(ctx.author.id)] = level
+
 
     @_group.command(name="find")
     async def findprof(
