@@ -87,7 +87,7 @@ class ProfBox:
                 if prof not in temp:
                     temp[prof] = {}
                 temp[prof][str(ctx.author.id)] = level
-
+        await ctx.tick()
 
     @_group.command(name="find")
     async def findprof(
