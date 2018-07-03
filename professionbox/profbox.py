@@ -106,7 +106,7 @@ class ProfBox:
         """
         status_prio = {"online": 1, "idle": 2, "dnd": 4, "offline": 5}
         matches = []
-        cfg = getattr(self.config.guild(ctx.guild), prof)
+        cfg = getattr(self.config.guild(ctx.guild), profession)
         async with cfg() as guild_prof_data:
             for _id, mlevel in pdata[profession].items():
                 member = ctx.guild.get_member(int(_id))
