@@ -113,14 +113,14 @@ class ProfBox:
                 if member is None or mlevel < level:
                     continue
 
-                if user.activity is None:
-                    priority = status_prio.get(user.status.value, 6)
+                if member.activity is None:
+                    priority = status_prio.get(member.status.value, 6)
                 elif (
-                    user.activity.type == discord.ActivityType.playing
-                    and "dofus" in user.activity.name.lower()
+                    member.activity.type == discord.ActivityType.playing
+                    and "dofus" in member.activity.name.lower()
                 ):
                     priority = 0
-                elif user.activity.type == discord.ActivityType.streaming:
+                elif member.activity.type == discord.ActivityType.streaming:
                     priority = 3
                 else:
                     priority = 6
