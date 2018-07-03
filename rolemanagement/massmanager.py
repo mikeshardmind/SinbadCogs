@@ -260,7 +260,7 @@ class MassManager:
         The second specifies what roles:
 
         Example:
-        To find all users who are in multiple teams, and remove all those teams
+        To find all users who are in both teams, and remove all those teams
         from them:
 
         [p]massrole complex +Red Team, +Blue Team; -Red Team, -Blue Team
@@ -268,7 +268,7 @@ class MassManager:
         Example 2:
         To find all admins in the red team, and swap them to the blue team:
 
-        [p]massrole complex +Admins, Red Team; -Red Team, +Blue Team
+        [p]massrole complex +Admins, +Red Team; -Red Team, +Blue Team
         """
 
         search, apply = query
