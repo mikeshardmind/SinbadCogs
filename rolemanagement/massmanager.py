@@ -24,10 +24,6 @@ class MassManager:
     ):
         """
         Give and remove roles as a single op
-
-        This can fail silently, and I don't really care.
-        This should only be used after already verifying the
-        operation is valid based on permissions and heirarchy
         """
         give = give or []
         remove = remove or []
