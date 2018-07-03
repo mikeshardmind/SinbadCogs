@@ -108,7 +108,7 @@ class ProfBox:
         matches = []
         cfg = getattr(self.config.guild(ctx.guild), profession)
         async with cfg() as pdata:
-            for _id, mlevel in pdata[profession].items():
+            for _id, mlevel in pdata.items():
                 member = ctx.guild.get_member(int(_id))
                 if member is None or mlevel < level:
                     continue
