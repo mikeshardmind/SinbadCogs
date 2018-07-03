@@ -144,7 +144,7 @@ class ProfBox:
         )
         embed.set_author(name=title)
         embed.add_field(
-            title="Disclaimer",
+            name="Disclaimer",
             value=(
                 "This is only a list of who have signed up, "
                 "be considerate of people's time and discord status when "
