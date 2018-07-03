@@ -142,7 +142,7 @@ class ProfBox:
         embed = discord.Embed(
             color=(ctx.guild.me.color or discord.Embed.Empty), description=body
         )
-        embed.set_author(text=title)
+        embed.set_author(name=title)
         embed.add_field(
             title="Disclaimer",
             value=(
