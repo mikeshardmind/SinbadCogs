@@ -17,12 +17,13 @@ class ProfBox:
     __author__ = "mikeshardmind(Sinbad#0001)"
     __version__ = "1.0.1"
 
+    default_guild = {k: {} for k in valid_profs}
+
     def __init__(self):
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_member(igns=[], profs={k: 1 for k in valid_profs})
-        self.config.register_guild(profs={k: {} for k in valid_profs})
+        self.config.register_guild(**self.default_guild)
 
     def wip(**kwargs):
         """
@@ -53,8 +54,10 @@ class ProfBox:
         Register yourself as having a specific profession level
         """
 
-        async with self.config.member(ctx.author).profs() as pdata:
-            pdata.update({profession: level})
+        cfg = getattr(self.config.guild(ctx.guild), profession)
+
+        async with cfg() as guild_prof_data:
+            guild_prof_data.update({str(ctx.author.id): level})
         await ctx.tick()
 
     @wip()
@@ -79,14 +82,11 @@ class ProfBox:
         """
         Register multiple professions quickly
         """
-        async with self.config.member(ctx.author).profs() as pdata:
-            pdata.update(profession_list)
-        async with self.config.guild(ctx.guild).profs() as pdata:
-            temp = {k: v for k, v in pdata.items()}
-            for prof, level in profession_list.items():
-                if prof not in temp:
-                    temp[prof] = {}
-                temp[prof][str(ctx.author.id)] = level
+        for prof, level in profession_list.items():
+            cfg = getattr(self.config.guild(ctx.guild), prof)
+            async with cfg() as guild_prof_data:
+                guild_prof_data.update({str(ctx.author.id): level})
+
         await ctx.tick()
 
     @_group.command(name="find")
@@ -106,7 +106,8 @@ class ProfBox:
         """
         status_prio = {"online": 1, "idle": 2, "dnd": 4, "offline": 5}
         matches = []
-        async with self.config.guild(ctx.guild).profs() as pdata:
+        cfg = getattr(self.config.guild(ctx.guild), prof)
+        async with cfg() as guild_prof_data:
             for _id, mlevel in pdata[profession].items():
                 member = ctx.guild.get_member(int(_id))
                 if member is None or mlevel < level:
