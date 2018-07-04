@@ -73,21 +73,20 @@ class ComplexActionConverter(commands.RoleConverter):
         )
         hum_or_bot.add_argument("--everyone", action="store_true", default=False)
 
-        vals = parser.parse_args(arg.split())
+        vals = vars(parser.parse_args(arg.split()))
 
-        if not vals.add or vals.remove:
+        if not vals['add'] or vals['remove']:
             raise commands.BadArgument("Must provide at least one action")
         if not any(
-            (vals.humans, vals.everyone, vals.bots, vals.any, vals.all, vals.none)
+            (vals['humans'], vals['everyone'], vals['bots'], vals['any'], vals['all'], vals['none'])
         ):
             raise commands.BadArgument(
                 "You need to provide at least 1 search criterion"
             )
 
-        ret = vars(vals)
         for attr in ("any", "all", "none", "add", "remove"):
-            ret[attr] = [await super().convert(r) for r in ret[attr]]
-        return ret
+            vals[attr] = [await super().convert(r) for r in vals[attr]]
+        return vals
 
 
 class ComplexSearchConverter(commands.RoleConverter):
