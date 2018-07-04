@@ -60,11 +60,11 @@ class ComplexActionConverter(commands.RoleConverter):
         parser = argparse.ArgumentParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
         )
-        parser.add_argument("--has-any", nargs="*", dest="any")
-        parser.add_argument("--has-all", nargs="*", dest="all")
-        parser.add_argument("--has-none", nargs="*", dest="none")
-        parser.add_argument("--add", nargs="*", dest="add")
-        parser.add_argument("--remove", nargs="*", dest="remove")
+        parser.add_argument("--has-any", nargs="*", dest="any", default=[])
+        parser.add_argument("--has-all", nargs="*", dest="all", default=[])
+        parser.add_argument("--has-none", nargs="*", dest="none", default=[])
+        parser.add_argument("--add", nargs="*", dest="add", default=[])
+        parser.add_argument("--remove", nargs="*", dest="remove", default=[])
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
             "--only-humans", action="store_true", default=False, dest="humans"
@@ -86,7 +86,7 @@ class ComplexActionConverter(commands.RoleConverter):
             )
 
         for attr in ("any", "all", "none", "add", "remove"):
-            vals[attr] = [await super().convert(r) for r in vals[attr]]
+            vals[attr] = [await super(ComplexActionConverter, self).convert(ctx, r) for r in vals[attr]]
         return vals
 
 
@@ -135,5 +135,5 @@ class ComplexSearchConverter(commands.RoleConverter):
 
         ret = vars(vals)
         for attr in ("any", "all", "none", "add", "remove"):
-            ret[attr] = [await super().convert(r) for r in ret[attr]]
+            ret[attr] = [await super(ComplexActionConverter, self).convert(r) for r in ret[attr]]
         return ret
