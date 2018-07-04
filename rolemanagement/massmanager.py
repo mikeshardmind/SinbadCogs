@@ -66,9 +66,7 @@ class MassManager:
         pass
 
     @mrole.command(name="bots")
-    async def mrole_bots(
-        self, ctx: commands.Context, *, roles: myconvs.RoleSyntaxConverter
-    ):
+    async def mrole_bots(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
         """
         adds/removes roles to all bots.
 
@@ -98,9 +96,7 @@ class MassManager:
         await ctx.tick()
 
     @mrole.command(name="all")
-    async def mrole_all(
-        self, ctx: commands.Context, *, roles: myconvs.RoleSyntaxConverter
-    ):
+    async def mrole_all(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
         """
         adds/removes roles to all users.
 
@@ -129,9 +125,7 @@ class MassManager:
         await ctx.tick()
 
     @mrole.command(name="humans")
-    async def mrole_humans(
-        self, ctx: commands.Context, *, roles: myconvs.RoleSyntaxConverter
-    ):
+    async def mrole_humans(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
         """
         adds/removes roles to all humans.
 
@@ -162,11 +156,7 @@ class MassManager:
 
     @mrole.command(name="user")
     async def mrole_user(
-        self,
-        ctx: commands.Context,
-        user: discord.Member,
-        *,
-        roles: myconvs.RoleSyntaxConverter,
+        self, ctx: commands.Context, user: discord.Member, *, roles: RoleSyntaxConverter
     ):
         """
         adds/removes roles to a user
@@ -194,11 +184,7 @@ class MassManager:
 
     @mrole.command(name="in")
     async def mrole_user(
-        self,
-        ctx: commands.Context,
-        role: discord.Role,
-        *,
-        roles: myconvs.RoleSyntaxConverter,
+        self, ctx: commands.Context, role: discord.Role, *, roles: RoleSyntaxConverter
     ):
         """
         adds/removes roles to all users with a specified role
@@ -227,9 +213,7 @@ class MassManager:
         await ctx.tick()
 
     @mrole.command(name="search")
-    async def mrole_search(
-        self, ctx: commands.Context, *, roles: myconvs.RoleSyntaxConverter
-    ):
+    async def mrole_search(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
         """
         Searches for users with the specified role criteria
 
@@ -262,7 +246,7 @@ class MassManager:
 
     @mrole.command(name="complex", hidden=True)
     async def mrole_complex(
-        self, ctx: commands.Context, *, query: myconvs.ComplexActionConverter
+        self, ctx: commands.Context, *, query: ComplexActionConverter
     ):
         """
         help later...
