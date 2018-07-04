@@ -74,7 +74,7 @@ class ComplexActionConverter(commands.RoleConverter):
         )
         hum_or_bot.add_argument("--everyone", action="store_true", default=False)
 
-        vals = vars(parser.parse_args(shlex.split(arg))
+        vals = vars(parser.parse_args(shlex.split(arg)))
 
         if not vals['add'] and not vals['remove']:
             raise commands.BadArgument("Must provide at least one action")
