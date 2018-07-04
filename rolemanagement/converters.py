@@ -57,38 +57,35 @@ class ComplexActionConverter(commands.RoleConverter):
     async def convert(self, ctx: commands.Context, arg: str) -> dict:
 
         parser = argparse.ArgumentParser(
-            description="Role management syntax help",
-            add_help=False,
-            allow_abbrev=True,
+            description="Role management syntax help", add_help=False, allow_abbrev=True
         )
-        parser.add_argument('--has-any', nargs='*', dest='any')
-        parser.add_argument('--has-all', nargs='*', dest='all')
-        parser.add_argument('--has-none', nargs='*', dest='none')
-        parser.add_argument('--add', nargs='*')
-        parser.add_argument('--remove', nargs='*')
+        parser.add_argument("--has-any", nargs="*", dest="any")
+        parser.add_argument("--has-all", nargs="*", dest="all")
+        parser.add_argument("--has-none", nargs="*", dest="none")
+        parser.add_argument("--add", nargs="*")
+        parser.add_argument("--remove", nargs="*")
         hum_or_bot = parser.add_mutually_exclusive_group()
-        hum_or_bot.add_argument('--only-humans', action='store_true', default=False, dest='humans')
-        hum_or_bot.add_argument('--only-bots', action='store_true', default=False, dest='bots')
-        hum_or_bot.add_argument('--everyone', action='store_true', default=False)
+        hum_or_bot.add_argument(
+            "--only-humans", action="store_true", default=False, dest="humans"
+        )
+        hum_or_bot.add_argument(
+            "--only-bots", action="store_true", default=False, dest="bots"
+        )
+        hum_or_bot.add_argument("--everyone", action="store_true", default=False)
 
         vals = parser.parse_args(arg.split())
 
         if not vals.add or vals.remove:
             raise commands.BadArgument("Must provide at least one action")
         if not any(
-            (
-                vals.humans,
-                vals.everyone,
-                vals.bots,
-                vals.any,
-                vals.all,
-                vals.none,
-            )
+            (vals.humans, vals.everyone, vals.bots, vals.any, vals.all, vals.none)
         ):
-            raise commands.BadArgument("You need to provide at least 1 search criterion")
+            raise commands.BadArgument(
+                "You need to provide at least 1 search criterion"
+            )
 
         ret = vars(vals)
-        for attr in ('any', 'all', 'none', 'add', 'remove'):
+        for attr in ("any", "all", "none", "add", "remove"):
             ret[attr] = [await super().convert(r) for r in ret[attr]]
         return ret
 
@@ -110,40 +107,33 @@ class ComplexSearchConverter(commands.RoleConverter):
     async def convert(self, ctx: commands.Context, arg: str) -> dict:
 
         parser = argparse.ArgumentParser(
-            description="Role management syntax help",
-            add_help=False,
-            allow_abbrev=True,
+            description="Role management syntax help", add_help=False, allow_abbrev=True
         )
-        parser.add_argument('--has-any', nargs='*', dest='any')
-        parser.add_argument('--has-all', nargs='*', dest='all')
-        parser.add_argument('--has-none', nargs='*', dest='none')
+        parser.add_argument("--has-any", nargs="*", dest="any")
+        parser.add_argument("--has-all", nargs="*", dest="all")
+        parser.add_argument("--has-none", nargs="*", dest="none")
         output = parser.add_mutually_exclusive_group()
-        output.add_argument('--csv', action='store_true', default=False)
-        output.add_argument('--embed', action='store_true', default=False)
+        output.add_argument("--csv", action="store_true", default=False)
+        output.add_argument("--embed", action="store_true", default=False)
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
-            '--only-humans', action='store_true', default=False, dest='humans')
+            "--only-humans", action="store_true", default=False, dest="humans"
+        )
         hum_or_bot.add_argument(
-            '--only-bots', action='store_true', default=False, dest='bots')
-        hum_or_bot.add_argument(
-            '--everyone', action='store_true', default=False)
+            "--only-bots", action="store_true", default=False, dest="bots"
+        )
+        hum_or_bot.add_argument("--everyone", action="store_true", default=False)
 
         vals = parser.parse_args(arg.split())
 
         if not any(
-            (
-                vals.humans,
-                vals.everyone,
-                vals.bots,
-                vals.any,
-                vals.all,
-                vals.none,
-            )
+            (vals.humans, vals.everyone, vals.bots, vals.any, vals.all, vals.none)
         ):
             raise commands.BadArgument(
-                "You need to provide at least 1 search criterion")
+                "You need to provide at least 1 search criterion"
+            )
 
         ret = vars(vals)
-        for attr in ('any', 'all', 'none', 'add', 'remove'):
+        for attr in ("any", "all", "none", "add", "remove"):
             ret[attr] = [await super().convert(r) for r in ret[attr]]
         return ret

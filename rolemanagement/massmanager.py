@@ -1,7 +1,7 @@
 import discord
 from typing import Tuple, List
 from redbot.core import checks, commands
-from .converters import RoleSyntaxConverter, ComplexRoleSyntaxConverter
+from .converters import RoleSyntaxConverter, ComplexActionConverter
 from redbot.core.utils.chat_formatting import pagify
 
 
@@ -11,7 +11,7 @@ class MassManager:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.0.6a"
+    __version__ = "0.0.7a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -66,7 +66,9 @@ class MassManager:
         pass
 
     @mrole.command(name="bots")
-    async def mrole_bots(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
+    async def mrole_bots(
+        self, ctx: commands.Context, *, roles: myconvs.RoleSyntaxConverter
+    ):
         """
         adds/removes roles to all bots.
 
@@ -96,7 +98,9 @@ class MassManager:
         await ctx.tick()
 
     @mrole.command(name="all")
-    async def mrole_all(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
+    async def mrole_all(
+        self, ctx: commands.Context, *, roles: myconvs.RoleSyntaxConverter
+    ):
         """
         adds/removes roles to all users.
 
@@ -125,7 +129,9 @@ class MassManager:
         await ctx.tick()
 
     @mrole.command(name="humans")
-    async def mrole_humans(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
+    async def mrole_humans(
+        self, ctx: commands.Context, *, roles: myconvs.RoleSyntaxConverter
+    ):
         """
         adds/removes roles to all humans.
 
@@ -156,7 +162,11 @@ class MassManager:
 
     @mrole.command(name="user")
     async def mrole_user(
-        self, ctx: commands.Context, user: discord.Member, *, roles: RoleSyntaxConverter
+        self,
+        ctx: commands.Context,
+        user: discord.Member,
+        *,
+        roles: myconvs.RoleSyntaxConverter,
     ):
         """
         adds/removes roles to a user
@@ -184,7 +194,11 @@ class MassManager:
 
     @mrole.command(name="in")
     async def mrole_user(
-        self, ctx: commands.Context, role: discord.Role, *, roles: RoleSyntaxConverter
+        self,
+        ctx: commands.Context,
+        role: discord.Role,
+        *,
+        roles: myconvs.RoleSyntaxConverter,
     ):
         """
         adds/removes roles to all users with a specified role
@@ -213,7 +227,9 @@ class MassManager:
         await ctx.tick()
 
     @mrole.command(name="search")
-    async def mrole_search(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
+    async def mrole_search(
+        self, ctx: commands.Context, *, roles: myconvs.RoleSyntaxConverter
+    ):
         """
         Searches for users with the specified role criteria
 
@@ -246,28 +262,13 @@ class MassManager:
 
     @mrole.command(name="complex", hidden=True)
     async def mrole_complex(
-        self, ctx: commands.Context, *, query: ComplexRoleSyntaxConverter
+        self, ctx: commands.Context, *, query: myconvs.ComplexActionConverter
     ):
         """
-        Takes 2 sets of role parameters seperated by a semicolon
-
-        The first one selects the members to apply the roles to
-
-        The second specifies what roles:
-
-        Example:
-        To find all users who are in both teams, and remove all those teams
-        from them:
-
-        [p]massrole complex +Red Team, +Blue Team; -Red Team, -Blue Team
-        
-        Example 2:
-        To find all admins in the red team, and swap them to the blue team:
-
-        [p]massrole complex +Admins, +Red Team; -Red Team, +Blue Team
+        help later...
         """
 
-        search, apply = query
+        apply = {"+": query["add"], "-": query["remove"]}
         if not self.all_are_valid_roles(ctx, apply):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
@@ -276,14 +277,27 @@ class MassManager:
 
         members = set(ctx.guild.members)
 
-        for r in search["+"]:
-            members &= set(r.members)
-        for r in search["-"]:
-            members -= set(r.members)
+        if not query["everyone"]:
+
+            if query["bots"]:
+                members = {m for m in members if m.bot}
+            elif query["humans"]:
+                members = {m for m in members if not m.bot}
+
+            for role in query["all"]:
+                members &= set(role.members)
+            for role in query["none"]:
+                members -= set(role.members)
+
+            if query["any"]:
+                any_union = set()
+                for role in query["any"]:
+                    any_union |= set(role.members)
+                members &= any_union
 
         for member in members:
             await self.update_roles_atomically(
-                member, give=apply["+"], remove=apply["-"]
+                member, give=query["add"], remove=query["remove"]
             )
 
         await ctx.tick()
