@@ -11,7 +11,7 @@ class MassManager:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.0.7a"
+    __version__ = "0.0.8a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -249,7 +249,16 @@ class MassManager:
         self, ctx: commands.Context, *, query: ComplexActionConverter
     ):
         """
-        help later...
+        Basic flags...
+        
+        --has-all roles
+        --has-none roles
+        --has-any roles
+        --add roles
+        --remove roles
+        --only-humans
+        --only-bots
+        --everyone
         """
 
         apply = {"+": query["add"], "-": query["remove"]}
