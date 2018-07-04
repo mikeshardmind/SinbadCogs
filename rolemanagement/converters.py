@@ -76,7 +76,7 @@ class ComplexActionConverter(commands.RoleConverter):
 
         vals = vars(parser.parse_args(shlex.split(arg))
 
-        if not (vals['add'] or vals['remove']):
+        if not vals['add'] and not vals['remove']:
             raise commands.BadArgument("Must provide at least one action")
         if not any(
             (vals['humans'], vals['everyone'], vals['bots'], vals['any'], vals['all'], vals['none'])
