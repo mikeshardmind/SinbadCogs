@@ -62,8 +62,8 @@ class ComplexActionConverter(commands.RoleConverter):
         parser.add_argument("--has-any", nargs="*", dest="any")
         parser.add_argument("--has-all", nargs="*", dest="all")
         parser.add_argument("--has-none", nargs="*", dest="none")
-        parser.add_argument("--add", nargs="*")
-        parser.add_argument("--remove", nargs="*")
+        parser.add_argument("--add", nargs="*", dest="add")
+        parser.add_argument("--remove", nargs="*", dest="remove")
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
             "--only-humans", action="store_true", default=False, dest="humans"
