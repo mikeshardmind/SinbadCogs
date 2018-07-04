@@ -102,16 +102,16 @@ class ComplexSearchConverter(commands.RoleConverter):
     """
 
     def __init__(self):
-        super(ComplexActionConverter, self).__init__()
+        super(ComplexSearchConverter, self).__init__()
 
     async def convert(self, ctx: commands.Context, arg: str) -> dict:
 
         parser = argparse.ArgumentParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
         )
-        parser.add_argument("--has-any", nargs="*", dest="any")
-        parser.add_argument("--has-all", nargs="*", dest="all")
-        parser.add_argument("--has-none", nargs="*", dest="none")
+        parser.add_argument("--has-any", nargs="*", dest="any", default=[])
+        parser.add_argument("--has-all", nargs="*", dest="all", default=[])
+        parser.add_argument("--has-none", nargs="*", dest="none", default=[])
         output = parser.add_mutually_exclusive_group()
         output.add_argument("--csv", action="store_true", default=False)
         output.add_argument("--embed", action="store_true", default=False)
@@ -135,5 +135,5 @@ class ComplexSearchConverter(commands.RoleConverter):
 
         ret = vars(vals)
         for attr in ("any", "all", "none", "add", "remove"):
-            ret[attr] = [await super(ComplexActionConverter, self).convert(r) for r in ret[attr]]
+            ret[attr] = [await super(ComplexSearchConverter, self).convert(ctx, r) for r in ret[attr]]
         return ret
