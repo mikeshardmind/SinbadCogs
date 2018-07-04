@@ -1,4 +1,5 @@
 import argparse
+import shlex
 from redbot.core import commands
 
 
@@ -123,7 +124,7 @@ class ComplexSearchConverter(commands.RoleConverter):
         )
         hum_or_bot.add_argument("--everyone", action="store_true", default=False)
 
-        vals = parser.parse_args(arg.split())
+        vals = parser.parse_args(shlex.split())
 
         if not any(
             (vals.humans, vals.everyone, vals.bots, vals.any, vals.all, vals.none)
