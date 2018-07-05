@@ -12,7 +12,7 @@ class MassManager:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.2a"
+    __version__ = "1.1.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -300,12 +300,12 @@ class MassManager:
             del csvf
             del data
 
-    @mrole.command(name="modify", hidden=True)
+    @mrole.command(name="modify")
     async def mrole_complex(
         self, ctx: commands.Context, *, query: ComplexActionConverter
     ):
         """
-        Basic flags...
+        Similar to search, while also applying/removing roles to people who match
         
         --has-all roles
         --has-none roles
