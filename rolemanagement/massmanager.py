@@ -295,7 +295,7 @@ class MassManager:
                 file=discord.File(data, filename=f"{ctx.message.id.csc}"),
             )
 
-    @mrole.command(name="complex", hidden=True)
+    @mrole.command(name="modify", hidden=True)
     async def mrole_complex(
         self, ctx: commands.Context, *, query: ComplexActionConverter
     ):
