@@ -131,6 +131,8 @@ class ProfBox:
             return await ctx.send("No matches.")
 
         matches = sorted(matches)
+        if len(matches) > 20:
+            matches = matches[:20]
 
         title = f"Matches for level {level} {profession}"
 
