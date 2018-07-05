@@ -1,8 +1,10 @@
 import discord
 from typing import Tuple, List
+import itertools
 from redbot.core import checks, commands
-from .converters import RoleSyntaxConverter, ComplexActionConverter
-from redbot.core.utils.chat_formatting import pagify
+from .converters import RoleSyntaxConverter, ComplexActionConverter, ComplexSearchConverter
+import csv
+import io
 
 
 class MassManager:
@@ -11,7 +13,7 @@ class MassManager:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.0.8a"
+    __version__ = "1.0.0a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -58,14 +60,21 @@ class MassManager:
 
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
-    @commands.group(name="massrole", autohelp=True)
+    @commands.group(name="massrole", autohelp=True, aliases=['mrole'])
     async def mrole(self, ctx: commands.Context):
         """
         Commands for mass role management
         """
         pass
 
-    @mrole.command(name="bots")
+    @mrole.group(name="dynomode", autohelp=True)
+    async def drole(self, ctx: commands.Context):
+        """
+        Provides syntax similar to dyno bots for ease of transition
+        """
+        pass
+
+    @drole.command(name="bots")
     async def mrole_bots(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
         """
         adds/removes roles to all bots.
@@ -95,7 +104,7 @@ class MassManager:
 
         await ctx.tick()
 
-    @mrole.command(name="all")
+    @drole.command(name="all")
     async def mrole_all(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
         """
         adds/removes roles to all users.
@@ -108,7 +117,6 @@ class MassManager:
         Example Usage:
 
         [p]massrole all +RoleToGive, -RoleToRemove
-
         """
 
         if not self.all_are_valid_roles(ctx, roles):
@@ -124,7 +132,7 @@ class MassManager:
 
         await ctx.tick()
 
-    @mrole.command(name="humans")
+    @drole.command(name="humans")
     async def mrole_humans(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
         """
         adds/removes roles to all humans.
@@ -154,7 +162,7 @@ class MassManager:
 
         await ctx.tick()
 
-    @mrole.command(name="user")
+    @drole.command(name="user")
     async def mrole_user(
         self, ctx: commands.Context, user: discord.Member, *, roles: RoleSyntaxConverter
     ):
@@ -182,7 +190,7 @@ class MassManager:
 
         await ctx.tick()
 
-    @mrole.command(name="in")
+    @drole.command(name="in")
     async def mrole_user(
         self, ctx: commands.Context, role: discord.Role, *, roles: RoleSyntaxConverter
     ):
@@ -213,36 +221,79 @@ class MassManager:
         await ctx.tick()
 
     @mrole.command(name="search")
-    async def mrole_search(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
+    async def mrole_search(self, ctx: commands.Context, *, query: ComplexSearchConverter):
         """
         Searches for users with the specified role criteria
 
-        Example Usage to find all users in the "Admins" role who are not in
-        either of the "bots" or "Blue Team" roles
+        --has-all roles
+        --has-none roles
+        --has-any roles
+        --only-humans
+        --only-bots
+        --csv
 
-        [p]massrole search +Admins, -bots, -Blue Team
-
-        Not specifying any `+` roles will still work as will not any `-`
-
-        Example usage to find all users who aren't in the "Read Rules" role:
-
-        [p]massrole search -Read Rules
+        csv output will be used if output would exceed embed limits, or if flag is provided
         """
 
         members = set(ctx.guild.members)
 
-        for r in roles["+"]:
-            members &= set(r.members)
-        for r in roles["-"]:
-            members -= set(r.members)
+        if not query["everyone"]:
 
-        output = "\n".join(
-            f'{member} {("(" + member.nick + ")") if member.nick else ""}'
-            for member in members
-        )
+            if query["bots"]:
+                members = {m for m in members if m.bot}
+            elif query["humans"]:
+                members = {m for m in members if not m.bot}
 
-        for page in pagify(output):
-            await ctx.send(page)
+            for role in query["all"]:
+                members &= set(role.members)
+            for role in query["none"]:
+                members -= set(role.members)
+
+            if query["any"]:
+                any_union = set()
+                for role in query["any"]:
+                    any_union |= set(role.members)
+                members &= any_union
+
+        if len(members) < 50 and not query['csv']:
+
+            def chunker(iterable, size=3):
+                it = iter(iterable)
+                while True:
+                    chunk = (x.mention for x in itertools.islice(it, size))
+                if not chunk:
+                    return
+                yield chunk
+
+            description = "\n".join(" ".join(chunk) for chunk in chunker(members))
+            color = ctx.guild.me.color if ctx.guild else discord.Embed.Empty
+            embed = discord.Embed(description=description, color=color)
+            await ctx.send(embed=embed, content=f"Search results for {ctx.author.mention}")
+
+        else:
+            csvf = io.StringIO()
+            fieldnames = ['ID', 'Display Name', 'Username#Discrim', 'Joined Server', 'Joined Discord']
+            fmt = "%Y-%m-%d"
+            writer = csv.DictWriter(csvf, fieldnames=fieldnames)
+            writer.writeheader()
+            for member in members:
+                writer.writerow(
+                    {
+                        'ID': member.id,
+                        'Display Name': member.display_name,
+                        'Username#Discrim': str(member),
+                        'Joined Server': member.joined_at.strftime(fmt),
+                        'Joined Discord': member.created_at.strftime(fmt),
+                    }
+                )
+
+            csvf.seek(0)
+            data = io.BytesIO(csvf.read().encode())
+            data.seek(0)
+            await ctx.send(
+                content=f"Data for {ctx.author.mention}",
+                file=discord.File(data, filename=f"{ctx.message.id.csc}"),
+            )
 
     @mrole.command(name="complex", hidden=True)
     async def mrole_complex(

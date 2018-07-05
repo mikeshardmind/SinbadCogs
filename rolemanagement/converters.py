@@ -98,7 +98,6 @@ class ComplexSearchConverter(commands.RoleConverter):
     --only-humans
     --only-bots
     --csv
-    --embed
     """
 
     def __init__(self):
@@ -112,9 +111,7 @@ class ComplexSearchConverter(commands.RoleConverter):
         parser.add_argument("--has-any", nargs="*", dest="any", default=[])
         parser.add_argument("--has-all", nargs="*", dest="all", default=[])
         parser.add_argument("--has-none", nargs="*", dest="none", default=[])
-        output = parser.add_mutually_exclusive_group()
-        output.add_argument("--csv", action="store_true", default=False)
-        output.add_argument("--embed", action="store_true", default=False)
+        parser.add_argument("--csv", action="store_true", default=False)
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
             "--only-humans", action="store_true", default=False, dest="humans"
