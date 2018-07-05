@@ -294,6 +294,8 @@ class MassManager:
                 content=f"Data for {ctx.author.mention}",
                 file=discord.File(data, filename=f"{ctx.message.id.csc}"),
             )
+            csvf.close()
+            data.close()
 
     @mrole.command(name="modify", hidden=True)
     async def mrole_complex(
