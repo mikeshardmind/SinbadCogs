@@ -12,7 +12,7 @@ class MassManager:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.1a"
+    __version__ = "1.0.2a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -293,7 +293,7 @@ class MassManager:
             data.seek(0)
             await ctx.send(
                 content=f"Data for {ctx.author.mention}",
-                files=[discord.File(data, filename=f"{ctx.message.id.csc}")],
+                files=[discord.File(data, filename=f"{ctx.message.id}.csv")],
             )
             csvf.close()
             data.close()
