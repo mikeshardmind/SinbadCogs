@@ -114,10 +114,10 @@ class ComplexSearchConverter(commands.RoleConverter):
         parser.add_argument("--csv", action="store_true", default=False)
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
-            "--only-humans", action="store_true", default=False, dest="humans"
+            "--only-humans", "--humans", action="store_true", default=False, dest="humans"
         )
         hum_or_bot.add_argument(
-            "--only-bots", action="store_true", default=False, dest="bots"
+            "--only-bots", "--bots", action="store_true", default=False, dest="bots"
         )
         hum_or_bot.add_argument("--everyone", action="store_true", default=False)
 
@@ -131,6 +131,6 @@ class ComplexSearchConverter(commands.RoleConverter):
             )
 
         ret = vars(vals)
-        for attr in ("any", "all", "none", "add", "remove"):
+        for attr in ("any", "all", "none"):
             ret[attr] = [await super(ComplexSearchConverter, self).convert(ctx, r) for r in ret[attr]]
         return ret
