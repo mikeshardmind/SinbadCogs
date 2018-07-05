@@ -114,10 +114,10 @@ class ComplexSearchConverter(commands.RoleConverter):
         parser.add_argument("--csv", action="store_true", default=False)
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
-            "--only-humans", "--humans", action="store_true", default=False, dest="humans"
+            "--only-humans", action="store_true", default=False, dest="humans"
         )
         hum_or_bot.add_argument(
-            "--only-bots", "--bots", action="store_true", default=False, dest="bots"
+            "--only-bots", action="store_true", default=False, dest="bots"
         )
         hum_or_bot.add_argument("--everyone", action="store_true", default=False)
 
