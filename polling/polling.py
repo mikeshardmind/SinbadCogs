@@ -12,7 +12,7 @@ class Polling:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.1b"
+    __version__ = "1.0.2b"
 
     @commands.command()
     async def votecount(
@@ -28,7 +28,7 @@ class Polling:
 
         responses = {
             str(r): [x for x in await r.users().flatten() if not x.bot]
-            for r in message.reactions
+            for r in m.reactions
         }
 
         await self.send_dict(ctx, responses)
