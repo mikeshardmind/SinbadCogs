@@ -1,6 +1,5 @@
 import discord
 from typing import Tuple, List
-import itertools
 from redbot.core import checks, commands
 from .converters import RoleSyntaxConverter, ComplexActionConverter, ComplexSearchConverter
 import csv
@@ -13,7 +12,7 @@ class MassManager:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.0a"
+    __version__ = "1.0.1a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -257,15 +256,17 @@ class MassManager:
 
         if len(members) < 50 and not query['csv']:
 
-            def chunker(iterable, size=3):
-                it = iter(iterable)
-                while True:
-                    chunk = (x.mention for x in itertools.islice(it, size))
-                if not chunk:
-                    return
-                yield chunk
+            def chunker(memberset, size=3):
+                ret_str = ""
+                for i, m in enumerate(memberset, 1):
+                    ret_str += m.mention
+                    if i % size == 0:
+                        ret_str += "\n"
+                    else:
+                        ret_str += " "
+                return ret_str
 
-            description = "\n".join(" ".join(chunk) for chunk in chunker(members))
+            description = chunker(members)
             color = ctx.guild.me.color if ctx.guild else discord.Embed.Empty
             embed = discord.Embed(description=description, color=color)
             await ctx.send(embed=embed, content=f"Search results for {ctx.author.mention}")
@@ -292,10 +293,12 @@ class MassManager:
             data.seek(0)
             await ctx.send(
                 content=f"Data for {ctx.author.mention}",
-                file=discord.File(data, filename=f"{ctx.message.id.csc}"),
+                files=[discord.File(data, filename=f"{ctx.message.id.csc}")],
             )
             csvf.close()
             data.close()
+            del csvf
+            del data
 
     @mrole.command(name="modify", hidden=True)
     async def mrole_complex(
