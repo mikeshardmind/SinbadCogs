@@ -1,7 +1,11 @@
 import discord
 from typing import Tuple, List
 from redbot.core import checks, commands
-from .converters import RoleSyntaxConverter, ComplexActionConverter, ComplexSearchConverter
+from .converters import (
+    RoleSyntaxConverter,
+    ComplexActionConverter,
+    ComplexSearchConverter,
+)
 import csv
 import io
 
@@ -12,7 +16,8 @@ class MassManager:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.1.0"
+    __version__ = "1.3.0"
+    __flavor__ = "Now, with permission filters"
 
     def __init__(self, bot):
         self.bot = bot
@@ -59,7 +64,7 @@ class MassManager:
 
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
-    @commands.group(name="massrole", autohelp=True, aliases=['mrole'])
+    @commands.group(name="massrole", autohelp=True, aliases=["mrole"])
     async def mrole(self, ctx: commands.Context):
         """
         Commands for mass role management
@@ -219,22 +224,10 @@ class MassManager:
 
         await ctx.tick()
 
-    @mrole.command(name="search")
-    async def mrole_search(self, ctx: commands.Context, *, query: ComplexSearchConverter):
+    def search_filter(self, members: set, query: dict) -> set:
         """
-        Searches for users with the specified role criteria
-
-        --has-all roles
-        --has-none roles
-        --has-any roles
-        --only-humans
-        --only-bots
-        --csv
-
-        csv output will be used if output would exceed embed limits, or if flag is provided
+        Reusable
         """
-
-        members = set(ctx.guild.members)
 
         if not query["everyone"]:
 
@@ -254,7 +247,59 @@ class MassManager:
                     any_union |= set(role.members)
                 members &= any_union
 
-        if len(members) < 50 and not query['csv']:
+            if query["hasperm"]:
+                perms = discord.Permissions()
+                perms.update(**{x: "True" for x in query["hasperm"]})
+                members = {m for m in members if m.guild_permissions >= perms}
+
+            if query["anyperm"]:
+
+                def has_any(mem):
+                    for perm, value in iter(mem.guild_permissions):
+                        if value and perm in query["anyperm"]:
+                            return True
+                    else:
+                        return False
+
+                members = {m for m in members if has_any(m)}
+
+            if query["notperm"]:
+
+                def has_none(mem):
+                    for perm, value in iter(mem.guild_permissions):
+                        if value and perm in query["notperm"]:
+                            return False
+                    else:
+                        return True
+
+                members = {m for m in members if has_none(m)}
+
+        return members
+
+    @mrole.command(name="search")
+    async def mrole_search(
+        self, ctx: commands.Context, *, query: ComplexSearchConverter
+    ):
+        """
+        Searches for users with the specified role criteria
+
+        --has-all roles
+        --has-none roles
+        --has-any roles
+        --has-perm permissions
+        --any-perm permissions
+        --not-perm permissions
+        --only-humans
+        --only-bots
+        --csv
+
+        csv output will be used if output would exceed embed limits, or if flag is provided
+        """
+
+        members = set(ctx.guild.members)
+        members = self.search_filter(members, query)
+
+        if len(members) < 50 and not query["csv"]:
 
             def chunker(memberset, size=3):
                 ret_str = ""
@@ -269,22 +314,30 @@ class MassManager:
             description = chunker(members)
             color = ctx.guild.me.color if ctx.guild else discord.Embed.Empty
             embed = discord.Embed(description=description, color=color)
-            await ctx.send(embed=embed, content=f"Search results for {ctx.author.mention}")
+            await ctx.send(
+                embed=embed, content=f"Search results for {ctx.author.mention}"
+            )
 
         else:
             csvf = io.StringIO()
-            fieldnames = ['ID', 'Display Name', 'Username#Discrim', 'Joined Server', 'Joined Discord']
+            fieldnames = [
+                "ID",
+                "Display Name",
+                "Username#Discrim",
+                "Joined Server",
+                "Joined Discord",
+            ]
             fmt = "%Y-%m-%d"
             writer = csv.DictWriter(csvf, fieldnames=fieldnames)
             writer.writeheader()
             for member in members:
                 writer.writerow(
                     {
-                        'ID': member.id,
-                        'Display Name': member.display_name,
-                        'Username#Discrim': str(member),
-                        'Joined Server': member.joined_at.strftime(fmt),
-                        'Joined Discord': member.created_at.strftime(fmt),
+                        "ID": member.id,
+                        "Display Name": member.display_name,
+                        "Username#Discrim": str(member),
+                        "Joined Server": member.joined_at.strftime(fmt),
+                        "Joined Discord": member.created_at.strftime(fmt),
                     }
                 )
 
@@ -310,6 +363,9 @@ class MassManager:
         --has-all roles
         --has-none roles
         --has-any roles
+        --has-perm permissions
+        --any-perm permissions
+        --not-perm permissions
         --add roles
         --remove roles
         --only-humans
@@ -325,24 +381,7 @@ class MassManager:
             )
 
         members = set(ctx.guild.members)
-
-        if not query["everyone"]:
-
-            if query["bots"]:
-                members = {m for m in members if m.bot}
-            elif query["humans"]:
-                members = {m for m in members if not m.bot}
-
-            for role in query["all"]:
-                members &= set(role.members)
-            for role in query["none"]:
-                members -= set(role.members)
-
-            if query["any"]:
-                any_union = set()
-                for role in query["any"]:
-                    any_union |= set(role.members)
-                members &= any_union
+        members = self.search_filter(members, query)
 
         for member in members:
             await self.update_roles_atomically(
