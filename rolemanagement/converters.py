@@ -24,22 +24,6 @@ class RoleSyntaxConverter(commands.RoleConverter):
         return ret
 
 
-class ComplexRoleSyntaxConverter(RoleSyntaxConverter):
-    def __init__(self):
-        super(ComplexRoleSyntaxConverter, self).__init__()
-
-    async def convert(self, ctx: commands.Context, argument: str):
-        args = [c.strip() for c in argument.split(";")]
-        if len(args) != 2:
-            raise commands.BadArgument("Requires both a search and operation")
-
-        ret = [
-            (await super(ComplexRoleSyntaxConverter, self).convert(ctx, arg))
-            for arg in args
-        ]
-        return ret
-
-
 class ComplexActionConverter(commands.RoleConverter):
     """
     --has-all roles
@@ -84,6 +68,7 @@ class ComplexActionConverter(commands.RoleConverter):
 
         if not vals["add"] and not vals["remove"]:
             raise commands.BadArgument("Must provide at least one action")
+
         if not any(
             (
                 vals["humans"],
@@ -92,6 +77,9 @@ class ComplexActionConverter(commands.RoleConverter):
                 vals["any"],
                 vals["all"],
                 vals["none"],
+                vals["hasperm"],
+                vals["notperm"],
+                vals["anyperm"],
             )
         ):
             raise commands.BadArgument(
@@ -163,6 +151,9 @@ class ComplexSearchConverter(commands.RoleConverter):
                 vals["any"],
                 vals["all"],
                 vals["none"],
+                vals["hasperm"],
+                vals["notperm"],
+                vals["anyperm"],
             )
         ):
             raise commands.BadArgument(
