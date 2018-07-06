@@ -1,6 +1,7 @@
 import argparse
 import shlex
 from redbot.core import commands
+import discord
 
 
 class RoleSyntaxConverter(commands.RoleConverter):
@@ -121,58 +122,65 @@ class ComplexSearchConverter(commands.RoleConverter):
         super(ComplexSearchConverter, self).__init__()
 
     async def convert(self, ctx: commands.Context, arg: str) -> dict:
-
-        parser = argparse.ArgumentParser(
-            description="Role management syntax help", add_help=False, allow_abbrev=True
-        )
-        parser.add_argument("--has-any", nargs="*", dest="any", default=[])
-        parser.add_argument("--has-all", nargs="*", dest="all", default=[])
-        parser.add_argument("--has-none", nargs="*", dest="none", default=[])
-        parser.add_argument("--has-perms", nargs="*", dest="hasperm", default=[])
-        parser.add_argument("--any-perm", nargs="*", dest="anyperm", default=[])
-        parser.add_argument("--not-perm", nargs="*", dest="notperm", default=[])
-        parser.add_argument("--csv", action="store_true", default=False)
-        hum_or_bot = parser.add_mutually_exclusive_group()
-        hum_or_bot.add_argument(
-            "--only-humans", action="store_true", default=False, dest="humans"
-        )
-        hum_or_bot.add_argument(
-            "--only-bots", action="store_true", default=False, dest="bots"
-        )
-        hum_or_bot.add_argument("--everyone", action="store_true", default=False)
-
-        vals = vars(parser.parse_args(shlex.split(arg)))
-
-        if not any(
-            (
-                vals["humans"],
-                vals["everyone"],
-                vals["bots"],
-                vals["any"],
-                vals["all"],
-                vals["none"],
-                vals["hasperm"],
-                vals["notperm"],
-                vals["anyperm"],
+        try:
+            parser = argparse.ArgumentParser(
+                description="Role management syntax help",
+                add_help=False,
+                allow_abbrev=True,
             )
-        ):
-            raise commands.BadArgument(
-                "You need to provide at least 1 search criterion"
+            parser.add_argument("--has-any", nargs="*", dest="any", default=[])
+            parser.add_argument("--has-all", nargs="*", dest="all", default=[])
+            parser.add_argument("--has-none", nargs="*", dest="none", default=[])
+            parser.add_argument("--has-perms", nargs="*", dest="hasperm", default=[])
+            parser.add_argument("--any-perm", nargs="*", dest="anyperm", default=[])
+            parser.add_argument("--not-perm", nargs="*", dest="notperm", default=[])
+            parser.add_argument("--csv", action="store_true", default=False)
+            hum_or_bot = parser.add_mutually_exclusive_group()
+            hum_or_bot.add_argument(
+                "--only-humans", action="store_true", default=False, dest="humans"
             )
+            hum_or_bot.add_argument(
+                "--only-bots", action="store_true", default=False, dest="bots"
+            )
+            hum_or_bot.add_argument("--everyone", action="store_true", default=False)
 
-        for attr in ("any", "all", "none"):
-            vals[attr] = [
-                await super(ComplexSearchConverter, self).convert(ctx, r)
-                for r in vals[attr]
-            ]
+            vals = vars(parser.parse_args(shlex.split(arg)))
 
-        for attr in ("hasperm", "anyperm", "notperm"):
+            if not any(
+                (
+                    vals["humans"],
+                    vals["everyone"],
+                    vals["bots"],
+                    vals["any"],
+                    vals["all"],
+                    vals["none"],
+                    vals["hasperm"],
+                    vals["notperm"],
+                    vals["anyperm"],
+                )
+            ):
+                raise commands.BadArgument(
+                    "You need to provide at least 1 search criterion"
+                )
 
-            vals[attr] = [
-                i.replace("_", " ").lower().replace(" ", "_").replace("server", "guild")
-                for i in vals[attr]
-            ]
-            if any(perm not in dir(discord.Permissions) for perm in vals[attr]):
-                raise commands.BadArgument("You gave an invalid permission")
+            for attr in ("any", "all", "none"):
+                vals[attr] = [
+                    await super(ComplexSearchConverter, self).convert(ctx, r)
+                    for r in vals[attr]
+                ]
 
-        return vals
+            for attr in ("hasperm", "anyperm", "notperm"):
+
+                vals[attr] = [
+                    i.replace("_", " ")
+                    .lower()
+                    .replace(" ", "_")
+                    .replace("server", "guild")
+                    for i in vals[attr]
+                ]
+                if any(perm not in dir(discord.Permissions) for perm in vals[attr]):
+                    raise commands.BadArgument("You gave an invalid permission")
+
+            return vals
+        except Exception as e:
+            print(e)

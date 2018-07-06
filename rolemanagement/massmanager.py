@@ -249,7 +249,7 @@ class MassManager:
 
             if query["hasperm"]:
                 perms = discord.Permissions()
-                perms.update(**{x: "True" for x in query["hasperm"]})
+                perms.update(**{x: True for x in query["hasperm"]})
                 members = {m for m in members if m.guild_permissions >= perms}
 
             if query["anyperm"]:
