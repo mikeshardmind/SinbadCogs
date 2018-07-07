@@ -4,8 +4,8 @@
     "name": "RoleManagement",
     "disabled": false,
     "short": "Role Management tools",
-    "description": "this isn't ready for public use",
+    "description": "This is very much an alpha. It should fail safely, but there may still be bugs.",
     "tags": [],
-    "hidden": true,
+    "hidden": false,
     "min_python_version": [3, 6, 0]
 }
