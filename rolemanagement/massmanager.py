@@ -25,8 +25,8 @@ class MassManager:
     async def update_roles_atomically(
         self,
         who: discord.Member,
-        give: List[discord.Role] = [],
-        remove: List[discord.Role] = [],
+        give: List[discord.Role] = None,
+        remove: List[discord.Role] = None,
     ):
         """
         Give and remove roles as a single op

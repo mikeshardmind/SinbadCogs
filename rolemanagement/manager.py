@@ -155,8 +155,8 @@ class RoleManagement:
     async def update_roles_atomically(
         self,
         who: discord.Member,
-        give: List[discord.Role] = [],
-        remove: List[discord.Role] = [],
+        give: List[discord.Role] = None,
+        remove: List[discord.Role] = None,
     ):
         """
         Give and remove roles as a single op
@@ -381,14 +381,52 @@ class RoleManagement:
         """
 
         if assignable is None:
-            is_assignable = await self.config.role(role).selfrole()
+            is_assignable = await self.config.role(role).self_role()
             return await ctx.send(
                 "{role} {verb} sticky".format(
                     role=role.name, verb=("is" if is_assignable else "is not")
                 )
             )
 
-        await self.config.role(role).self_assignable.set(assignable)
+        await self.config.role(role).self_role.set(assignable)
         await ctx.tick()
+
+    @commands.guild_only()
+    @commands.group(name="srole", autohelp=True)
+    async def srole(self, ctx: commands.Context):
+        """
+        Self assignable role commands
+        """
+        pass
+
+    @srole.command(name="add")
+    async def sadd(self, ctx: commands.Context, *, role: discord.Role):
+        """
+        Join a role
+        """
+        eligible, remove = await self.is_eligible(ctx.author, role)
+        eligible &= await self.config.role(role).self_role()
+        if not eligible:
+            return await ctx.send(
+                f"You aren't allowed to add `{role}` to yourself {ctx.author.mention}!"
+            )
+        else:
+            await self.update_roles_atomically(
+                who=ctx.author, give=[role], remove=remove
+            )
+            await ctx.tick()
+
+    @srole.command(name="remove")
+    async def srem(self, ctx: commands.Context, *, role: discord.Role):
+        """
+        leave a role
+        """
+        if await self.config.role(role).self_removable():
+            await self.update_roles_atomically(who=ctx.author, give=None, remove=[role])
+            await ctx.tick()
+        else:
+            await ctx.send(
+                f"You aren't allowed to remove `{role}` from yourself {ctx.author.mention}!`"
+            )
 
     # End commands
