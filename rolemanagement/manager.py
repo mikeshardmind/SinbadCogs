@@ -10,7 +10,7 @@ class RoleManagement:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "0.0.4a"
+    __version__ = "0.0.5a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -285,7 +285,7 @@ class RoleManagement:
                 )
 
     @rgroup.command("unexclusive")
-    async def set_exclusivity(self, ctx: commands.Context, *roles: discord.Role):
+    async def unset_exclusivity(self, ctx: commands.Context, *roles: discord.Role):
         """
         Takes any number of roles, and removes their exclusivity settings
         """
