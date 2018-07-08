@@ -10,57 +10,10 @@ import csv
 import io
 
 
-class MassManager:
+class MassManagementMixin:
     """
     Mass role operations
     """
-
-    __author__ = "mikeshardmind"
-    __version__ = "1.3.0"
-    __flavor__ = "Now, with permission filters"
-
-    def __init__(self, bot):
-        self.bot = bot
-
-    async def update_roles_atomically(
-        self,
-        who: discord.Member,
-        give: List[discord.Role] = None,
-        remove: List[discord.Role] = None,
-    ):
-        """
-        Give and remove roles as a single op
-        """
-        give = give or []
-        remove = remove or []
-        roles = [r for r in who.roles if r not in remove]
-        roles.extend([r for r in give if r not in roles])
-        if sorted(roles) == sorted(who.roles):
-            return
-        payload = {"roles": [r.id for r in roles]}
-        await self.bot.http.request(
-            discord.http.Route(
-                "PATCH",
-                "/guilds/{guild_id}/members/{user_id}",
-                guild_id=who.guild.id,
-                user_id=who.id,
-            ),
-            json=payload,
-        )
-
-    def all_are_valid_roles(self, ctx, role_dict: dict) -> bool:
-        """
-        Quick heirarchy check on a role set in syntax returned
-        """
-        roles = role_dict["+"] + role_dict["-"]
-        author = ctx.author
-        author_allowed = ctx.guild.owner == author or all(
-            ctx.author.top_role > role for role in roles
-        )
-        bot_allowed = ctx.guild.me.guild_permissions.manage_roles and all(
-            ctx.guild.me.top_role > role for role in roles
-        )
-        return author_allowed and bot_allowed
 
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
@@ -93,8 +46,8 @@ class MassManager:
         [p]massrole bots +RoleToGive, -RoleToRemove
 
         """
-
-        if not self.all_are_valid_roles(ctx, roles):
+        give, remove = roles["+"], roles["-"]
+        if not self.all_are_valid_roles(ctx, (give + remove)):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -102,9 +55,7 @@ class MassManager:
 
         for member in ctx.guild.members:
             if member.bot:
-                await self.update_roles_atomically(
-                    member, give=roles["+"], remove=roles["-"]
-                )
+                await self.update_roles_atomically(member, give=give, remove=remove)
 
         await ctx.tick()
 
@@ -123,7 +74,8 @@ class MassManager:
         [p]massrole all +RoleToGive, -RoleToRemove
         """
 
-        if not self.all_are_valid_roles(ctx, roles):
+        give, remove = roles["+"], roles["-"]
+        if not self.all_are_valid_roles(ctx, (give + remove)):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -151,8 +103,8 @@ class MassManager:
         [p]massrole humans +RoleToGive, -RoleToRemove
 
         """
-
-        if not self.all_are_valid_roles(ctx, roles):
+        give, remove = roles["+"], roles["-"]
+        if not self.all_are_valid_roles(ctx, (give + remove)):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -183,8 +135,8 @@ class MassManager:
         [p]massrole user Sinbad#0001 +RoleToGive, -RoleToRemove
 
         """
-
-        if not self.all_are_valid_roles(ctx, roles):
+        give, remove = roles["+"], roles["-"]
+        if not self.all_are_valid_roles(ctx, (give + remove)):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -211,7 +163,8 @@ class MassManager:
         [p]massrole in "Red Team" +Champions, -Losers
         """
 
-        if not self.all_are_valid_roles(ctx, roles):
+        give, remove = roles["+"], roles["-"]
+        if not self.all_are_valid_roles(ctx, (give + remove)):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -373,7 +326,7 @@ class MassManager:
         --everyone
         """
 
-        apply = {"+": query["add"], "-": query["remove"]}
+        apply = query["add"] + query["remove"]
         if not self.all_are_valid_roles(ctx, apply):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
