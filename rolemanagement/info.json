@@ -4,7 +4,7 @@
     "name": "RoleManagement",
     "disabled": false,
     "short": "Role Management tools",
-    "description": "This is very much an alpha. It should fail safely, but there may still be bugs.",
+    "description": "React roles with requirements, selfroles with requirements, role based member search and more.",
     "tags": [],
     "hidden": false,
     "min_python_version": [3, 6, 0]
