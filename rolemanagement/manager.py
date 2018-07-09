@@ -1,5 +1,4 @@
 import discord
-from typing import Tuple, List
 from redbot.core import checks, commands
 from redbot.core.config import Config
 from .utils import UtilMixin
@@ -52,9 +51,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         binds a role to a reaction on a message
         """
 
-        if role >= ctx.author.top_role or (
-            role >= ctx.guild.me.top_role and ctx.author != ctx.guild.owner
-        ):
+        if not self.all_are_valid_roles(ctx, role):
             return await ctx.maybe_send_embed(
                 "Can't do that. Discord role heirarchy applies here."
             )
@@ -103,9 +100,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         unbinds a role from a reaction on a message
         """
 
-        if role >= ctx.author.top_role or (
-            role >= ctx.guild.me.top_role and ctx.author != ctx.guild.owner
-        ):
+        if not self.all_are_valid_roles(ctx, role):
             return await ctx.maybe_send_embed(
                 "Can't do that. Discord role heirarchy applies here."
             )
@@ -124,7 +119,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         """
         pass
 
-    @rgroup.command("exclusive")
+    @rgroup.command(name="exclusive")
     async def set_exclusivity(self, ctx: commands.Context, *roles: discord.Role):
         """
         Takes 2 or more roles and sets them as exclusive to eachother
@@ -141,7 +136,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
                     [r.id for r in roles if r != role and r.id not in ex_list]
                 )
 
-    @rgroup.command("unexclusive")
+    @rgroup.command(name="unexclusive")
     async def unset_exclusivity(self, ctx: commands.Context, *roles: discord.Role):
         """
         Takes any number of roles, and removes their exclusivity settings
@@ -208,7 +203,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         await self.config.role(role).requires_any.set(rids)
         await ctx.tick()
 
-    @rgroup.command(name="selfremoveable")
+    @rgroup.command(name="selfrem")
     async def selfrem(self, ctx, role: discord.Role, removable: bool = None):
         """
         Sets if a role is self-removable (default False)
@@ -227,7 +222,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         await self.config.role(role).self_removable.set(removable)
         await ctx.tick()
 
-    @rgroup.command(name="selfassignable")
+    @rgroup.command(name="selfadd")
     async def selfadd(self, ctx, role: discord.Role, assignable: bool = None):
         """
         Sets if a role is self-assignable via command
@@ -261,7 +256,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         """
         Join a role
         """
-        eligible, remove = await self.is_eligible(ctx.author, role)
+        eligible, remove = await self.is_self_assign_eligible(ctx.author, role)
         eligible &= await self.config.role(role).self_role()
         if not eligible:
             return await ctx.send(

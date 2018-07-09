@@ -1,5 +1,6 @@
 import discord
 from redbot.core import commands
+from typing import List, Tuple
 
 
 class UtilMixin:
@@ -38,7 +39,7 @@ class UtilMixin:
         Quick heirarchy check on a role set in syntax returned
         """
         author = ctx.author
-        author_allowed = ctx.guild.owner == author or all(
+        author_allowed = (ctx.guild.owner == author) or all(
             ctx.author.top_role > role for role in roles
         )
         bot_allowed = ctx.guild.me.guild_permissions.manage_roles and all(
@@ -62,7 +63,7 @@ class UtilMixin:
                 return False, None
 
         async with self.config.role(role).requires_all() as req_all:
-            if not all(r.id in req_all for r in who.roles):
+            if req_all and not all(r.id in req_all for r in who.roles):
                 return False, None
 
         async with self.config.role(role).exclusive_to() as ex:
