@@ -343,7 +343,7 @@ class MassManagementMixin:
         self, ctx: commands.Context, *, query: ComplexActionConverter
     ):
         """
-        Similar to search, while also applying/removing roles to people who match
+        Similar syntax to search, while applying/removing roles
         
         --has-all roles
         --has-none roles
