@@ -4,7 +4,7 @@ from redbot.core import commands
 import discord
 
 
-class RoleSyntaxConverter(commands.RoleConverter):
+class DynoSyntaxConverter(commands.RoleConverter):
     def __init__(self):
         super(RoleSyntaxConverter, self).__init__()
 
@@ -23,6 +23,28 @@ class RoleSyntaxConverter(commands.RoleConverter):
         if not set(ret["+"]).isdisjoint(ret["-"]):
             raise commands.BadArgument("That's not a valid search.")
         return ret
+
+
+class RoleSyntaxConverter(commands.RoleConverter):
+    async def convert(self, ctx, arg: str):
+        parser = argparse.ArgumentParser(
+            description="Role management syntax help", add_help=False, allow_abbrev=True
+        )
+        parser.add_argument("--add", nargs="*", dest="add", default=[])
+        parser.add_argument("--remove", nargs="*", dest="remove", default=[])
+
+        vals = vars(parser.parse_args(shlex.split(arg)))
+
+        if not vals["add"] and not vals["remove"]:
+            raise commands.BadArgument("Must provide at least one action")
+
+        for attr in ("add", "remove"):
+            vals[attr] = [
+                await super(ComplexActionConverter, self).convert(ctx, r)
+                for r in vals[attr]
+            ]
+
+        return vals
 
 
 class ComplexActionConverter(commands.RoleConverter):
