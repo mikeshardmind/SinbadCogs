@@ -4,6 +4,7 @@ from .converters import (
     RoleSyntaxConverter,
     ComplexActionConverter,
     ComplexSearchConverter,
+    DynoSyntaxConverter,
 )
 import csv
 import io
@@ -23,6 +24,8 @@ class MassManagementMixin:
         """
         pass
 
+    # start dyno mode
+
     @mrole.group(name="dynomode", autohelp=True)
     async def drole(self, ctx: commands.Context):
         """
@@ -31,7 +34,7 @@ class MassManagementMixin:
         pass
 
     @drole.command(name="bots")
-    async def mrole_bots(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
+    async def drole_bots(self, ctx: commands.Context, *, roles: DynoSyntaxConverter):
         """
         adds/removes roles to all bots.
 
@@ -59,7 +62,7 @@ class MassManagementMixin:
         await ctx.tick()
 
     @drole.command(name="all")
-    async def mrole_all(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
+    async def drole_all(self, ctx: commands.Context, *, roles: DynoSyntaxConverter):
         """
         adds/removes roles to all users.
 
@@ -88,7 +91,7 @@ class MassManagementMixin:
         await ctx.tick()
 
     @drole.command(name="humans")
-    async def mrole_humans(self, ctx: commands.Context, *, roles: RoleSyntaxConverter):
+    async def drole_humans(self, ctx: commands.Context, *, roles: DynoSyntaxConverter):
         """
         adds/removes roles to all humans.
 
@@ -118,8 +121,8 @@ class MassManagementMixin:
         await ctx.tick()
 
     @drole.command(name="user")
-    async def mrole_user(
-        self, ctx: commands.Context, user: discord.Member, *, roles: RoleSyntaxConverter
+    async def drole_user(
+        self, ctx: commands.Context, user: discord.Member, *, roles: DynoSyntaxConverter
     ):
         """
         adds/removes roles to a user
@@ -146,8 +149,8 @@ class MassManagementMixin:
         await ctx.tick()
 
     @drole.command(name="in")
-    async def mrole_user(
-        self, ctx: commands.Context, role: discord.Role, *, roles: RoleSyntaxConverter
+    async def drole_user_in(
+        self, ctx: commands.Context, role: discord.Role, *, roles: DynoSyntaxConverter
     ):
         """
         adds/removes roles to all users with a specified role
@@ -175,6 +178,8 @@ class MassManagementMixin:
             )
 
         await ctx.tick()
+
+    # end dyno transitional stuff
 
     def search_filter(self, members: set, query: dict) -> set:
         """
@@ -227,6 +232,34 @@ class MassManagementMixin:
                 members = {m for m in members if has_none(m)}
 
         return members
+
+    @mrole.command(name="user")
+    async def mrole_user(
+        self, ctx: commands.Context, user: discord.Member, *, roles: RoleSyntaxConverter
+    ):
+        """
+        adds/removes roles to a user
+
+        You cannot add and remove the same role
+
+        Example Usage:
+
+        [p]massrole user Sinbad#0001 --add RoleToGive "Role with spaces to give" 
+        --remove RoleToRemove "some other role to remove" Somethirdrole
+
+        For role operations based on role membership, permissions had, or whether someone is a bot
+        (or even just add to/remove from all) see `[p]massrole search` and `[p]massrole modify` 
+        """
+        give, remove = roles["+"], roles["-"]
+        if not self.all_are_valid_roles(ctx, (give + remove)):
+            return await ctx.send(
+                "Either you or I don't have the required permissions "
+                "or position in the hierarchy."
+            )
+
+        await self.update_roles_atomically(user, give=roles["+"], remove=roles["-"])
+
+        await ctx.tick()
 
     @mrole.command(name="search")
     async def mrole_search(
