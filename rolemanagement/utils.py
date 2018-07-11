@@ -15,24 +15,19 @@ class UtilMixin:
         remove: List[discord.Role] = None,
     ):
         """
-        Give and remove roles as a single op
+        Give and remove roles as a single op with some slight sanity
+        wrapping
         """
+        me = who.guild.me
         give = give or []
         remove = remove or []
         roles = [r for r in who.roles if r not in remove]
         roles.extend([r for r in give if r not in roles])
         if sorted(roles) == sorted(who.roles):
             return
-        payload = {"roles": [r.id for r in roles]}
-        await self.bot.http.request(
-            discord.http.Route(
-                "PATCH",
-                "/guilds/{guild_id}/members/{user_id}",
-                guild_id=who.guild.id,
-                user_id=who.id,
-            ),
-            json=payload,
-        )
+        if any(r >= me.top_role for r in roles) or not me.guild_permissions.manage_roles:
+            raise discord.Forbidden("Can't do that.")
+        await who.edit(roles=roles)
 
     def all_are_valid_roles(self, ctx, *roles: discord.Role) -> bool:
         """
