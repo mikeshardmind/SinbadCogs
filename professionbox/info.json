@@ -1,5 +1,7 @@
 {
-    "author": "mikeshardmind",
+    "author": [
+        "mikeshardmind(Sinbad#0001)"
+    ],
     "install_msg": "I won't support this one unless you specifically were told to use it by me.",
     "name": "ProfessionBox",
     "disabled": false,

@@ -1,5 +1,5 @@
 {
-    "author": "mikeshardmind(Sinbad#0001)",
+    "author": ["mikeshardmind(Sinbad#0001)"],
     "install_msg": "If you need help, I have a channel in https://discord.gg/GET4DVk",
     "name": "MessageBox",
     "disabled": false,

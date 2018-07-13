@@ -1,5 +1,5 @@
 {
-    "author": "mikeshardmind(Sinbad#0001)",
+    "author": ["mikeshardmind(Sinbad#0001)"],
     "install_msg": "This only works on bots running as root (setrlimit syscall)... \\N{NEUTRAL FACE}",
     "name": "Calculator",
     "disabled": false,
