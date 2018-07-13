@@ -4,15 +4,16 @@ from redbot.core.config import Config
 from .utils import UtilMixin
 from .massmanager import MassManagementMixin
 from .events import EventMixin
+from .notifications import NotificationMixin
 
 
-class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
+class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, NotificationMixin):
     """
     Cog for role management
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.1.1b"
+    __version__ = "1.2.0b"
 
     def __init__(self, bot):
         self.bot = bot
@@ -33,6 +34,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         self.config.register_custom(
             "REACTROLE", roleid=None
         )  # ID : Message.id, str(React)
+        self.config.register_guild(notify_channel=None)
         super().__init__()
 
     @commands.guild_only()
