@@ -66,8 +66,11 @@ class EventMixin:
         if role in member.roles:
             return
 
-        can, remove = await self.is_self_assign_eligible(member, role)
-        if can:
+        try:
+            remove = await self.is_self_assign_eligible(member, role)
+        except Exception:
+            pass
+        else:
             await self.update_roles_atomically(member, give=[role], remove=remove)
 
     async def on_raw_reaction_remove(

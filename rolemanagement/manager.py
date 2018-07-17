@@ -258,10 +258,14 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, NotificationMix
         """
         Join a role
         """
-        eligible, remove = await self.is_self_assign_eligible(ctx.author, role)
-        eligible &= await self.config.role(role).self_role()
+        try:
+            remove = await self.is_self_assign_eligible(ctx.author, role)
+            eligible = await self.config.role(role).self_role()
+        except Exception:
+            eligible = False
+
         if not eligible:
-            return await ctx.send(
+            await ctx.send(
                 f"You aren't allowed to add `{role}` to yourself {ctx.author.mention}!"
             )
         else:
