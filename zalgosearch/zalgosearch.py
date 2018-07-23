@@ -52,5 +52,5 @@ class ZalgoSearch:
         if nick is None:
             nick = await self.config.guild(ctx.guild).rename_to()
 
-        async for to_rename in _filter_by_zalgo(ctx.guild.members):
+        async for to_rename in self._filter_by_zalgo(ctx.guild.members):
             await to_rename.edit(nick=nick)
