@@ -42,6 +42,7 @@ class ZalgoSearch:
 
     @commands.guild_only()
     @checks.mod_or_permissions(manage_nicknames=True)
+    @commands.bot_has_permissions(manage_nicknames=True)
     @commands.command(name="zalgocheck")
     async def zalgocheck(self, ctx: commands.Context, nick: str = None):
         """
