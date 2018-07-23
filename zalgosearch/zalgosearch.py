@@ -19,7 +19,7 @@ class ZalgoSearch:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.0a"
+    __version__ = "1.0.0b"
 
     def __init__(self, bot: "Red"):
         self.bot = bot
@@ -34,12 +34,14 @@ class ZalgoSearch:
                 yield member
 
     async def on_member_join(self, member: discord.Member):
-        if ZALGO_REGEX.match(member.display_name):
-            await member.edit(nick=(await self.config.guild(member.guild).rename_to()))
+        if member.guild.me.guild_permissions.manage_nicknames:
+            if ZALGO_REGEX.match(member.display_name):
+                await member.edit(nick=(await self.config.guild(member.guild).rename_to()))
 
     async def on_member_update(self, _before, member: discord.Member):
-        if ZALGO_REGEX.match(member.display_name):
-            await member.edit(nick=(await self.config.guild(member.guild).rename_to()))
+        if member.guild.me.guild_permissions.manage_nicknames:
+            if ZALGO_REGEX.match(member.display_name):
+                await member.edit(nick=(await self.config.guild(member.guild).rename_to()))
 
     @commands.guild_only()
     @checks.mod_or_permissions(manage_nicknames=True)
