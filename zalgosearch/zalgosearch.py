@@ -1,6 +1,6 @@
 import re
 import asyncio
-from typing import Sequence, AsyncGenerator as AG
+from typing import Sequence
 
 import discord
 from redbot.core import commands, checks
@@ -28,7 +28,7 @@ class ZalgoSearch:
         )
         self.config.register_guild(rename_to="zalgo is not allowed")
 
-    async def _filter_by_zalgo(self, members: Sequence[discord.Member]) -> AG[discord.Member]:
+    async def _filter_by_zalgo(self, members: Sequence[discord.Member]):
         for member in members:
             if ZALGO_REGEX.match(member.display_name):
                 yield member
