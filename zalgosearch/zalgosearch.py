@@ -27,7 +27,7 @@ class ZalgoSearch:
         )
         self.config.register_guild(rename_to="zalgo is not allowed")
 
-    async def _filter_by_zalgo(*members: discord.Member):
+    async def _filter_by_zalgo(members: discord.Member):
         for member in members:
             if ZALGO_REGEX.match(member.display_name):
                 yield member
