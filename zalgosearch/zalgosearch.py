@@ -21,7 +21,7 @@ class ZalgoSearch:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.1b"
+    __version__ = "1.0.2b"
 
     def __init__(self, bot: "Red"):
         self.bot = bot
@@ -35,7 +35,7 @@ class ZalgoSearch:
         for member in members:
             if ZALGO_REGEX.match(member.display_name):
                 yield member
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.01)
 
     async def on_member_join(self, member: discord.Member):
         if member.guild.me.guild_permissions.manage_nicknames:
@@ -48,17 +48,14 @@ class ZalgoSearch:
                 await member.edit(nick=(await self.config.guild(member.guild).rename_to()))
 
     @commands.guild_only()
-    @checks.is_owner()
+    @checks.mod_or_permissions(manage_nicknames=True)
     @commands.bot_has_permissions(manage_nicknames=True)
     @commands.command(name="zalgocheck", hidden=True)
     async def zalgocheck(self, ctx: commands.Context, nick: str = None):
         """
         Mass remove zalgo names
 
-        This is hidden and owner locked
-        
-        because it's less tested than the event based filter, and still pretty
-        frickin slow. The event based handling included is significantly safer.
+        This is hidden because it's less tested than the event based filter.
         """
 
         if ctx.guild.id in self.running:
