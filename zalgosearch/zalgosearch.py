@@ -29,6 +29,7 @@ class ZalgoSearch:
             self, identifier=78631113035100160, force_registration=True
         )
         self.config.register_guild(rename_to="zalgo is not allowed")
+        self.running = set()
 
     async def _filter_by_zalgo(self, members: Sequence[discord.Member]):
         for member in members:
@@ -57,6 +58,9 @@ class ZalgoSearch:
         This is hidden because it's less tested than the event based filter.
         """
 
+        if ctx.guild.id in self.running:
+            return await ctx.send("Already searching, please hold.")
+        self.running.update(ctx.guild.id)
         if nick is None:
             nick = await self.config.guild(ctx.guild).rename_to()
 
@@ -71,3 +75,5 @@ class ZalgoSearch:
             await ctx.send(
                 "Hey, your members either aren't assholes, or the autofilter already caught them."
             )
+        
+        self.running.remove(ctx.guild.id)
