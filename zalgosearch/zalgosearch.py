@@ -50,6 +50,7 @@ class ZalgoSearch:
             and member.display_name == m_before.display_name
         ):
             return
+        self.seen_cache.update((member.id, member.guild.id))
         if member.guild.me.guild_permissions.manage_nicknames:
             if ZALGO_REGEX.match(member.display_name):
                 await member.edit(nick=(await self.config.guild(member.guild).rename_to()))
