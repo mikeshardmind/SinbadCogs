@@ -48,14 +48,17 @@ class ZalgoSearch:
                 await member.edit(nick=(await self.config.guild(member.guild).rename_to()))
 
     @commands.guild_only()
-    @checks.mod_or_permissions(manage_nicknames=True)
+    @checks.is_owner()
     @commands.bot_has_permissions(manage_nicknames=True)
     @commands.command(name="zalgocheck", hidden=True)
     async def zalgocheck(self, ctx: commands.Context, nick: str = None):
         """
         Mass remove zalgo names
 
-        This is hidden because it's less tested than the event based filter.
+        This is hidden and owner locked
+        
+        because it's less tested than the event based filter, and still pretty
+        frickin slow. The event based handling included is significantly safer.
         """
 
         if ctx.guild.id in self.running:
