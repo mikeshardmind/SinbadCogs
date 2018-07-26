@@ -107,7 +107,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, NotificationMix
                 "Can't do that. Discord role heirarchy applies here."
             )
 
-        cfg = self.config.custom("REACTROLE", message.id, eid)
+        cfg = self.config.custom("REACTROLE", msgid, str(emoji))
         await cfg.roleid.clear()
         await ctx.tick()
 
@@ -127,15 +127,15 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, NotificationMix
         Takes 2 or more roles and sets them as exclusive to eachother
         """
 
-        roles = set(roles)
+        _roles = set(roles)
 
-        if len(roles) < 2:
+        if len(_roles) < 2:
             return await ctx.send("You need to provide at least 2 roles")
 
-        for role in roles:
+        for role in _roles:
             async with self.config.role(role).exclusive_to() as ex_list:
                 ex_list.extend(
-                    [r.id for r in roles if r != role and r.id not in ex_list]
+                    [r.id for r in _roles if r != role and r.id not in ex_list]
                 )
 
     @rgroup.command(name="unexclusive")
@@ -144,14 +144,14 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, NotificationMix
         Takes any number of roles, and removes their exclusivity settings
         """
 
-        roles = set(roles)
+        _roles = set(roles)
 
         if len(roles) < 1:
             return await ctx.send("You need to provide at least a role to do this to")
 
-        for role in roles:
+        for role in _roles:
             ex_list = await self.config.role(role).exclusive_to()
-            ex_list = [idx for idx in ex_list if idx not in [r.id for r in roles]]
+            ex_list = [idx for idx in ex_list if idx not in [r.id for r in _roles]]
             await self.config.role(role).exclusive_to.set(ex_list)
 
     @rgroup.command(name="sticky")

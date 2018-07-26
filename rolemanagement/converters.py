@@ -5,16 +5,17 @@ import discord
 
 
 class DynoSyntaxConverter(commands.RoleConverter):
+    
     def __init__(self):
-        super(RoleSyntaxConverter, self).__init__()
+        super().__init__()
 
     async def convert(self, ctx: commands.Context, argument: str):
         args = [c.strip() for c in argument.split(",")]
-        ret = {"+": [], "-": []}
+        ret: dict = {"+": [], "-": []}
 
         for arg in args:
             ret[arg[0]].append(
-                await super(RoleSyntaxConverter, self).convert(ctx, arg[1:])
+                await super().convert(ctx, arg[1:])
             )
 
         if not (ret["+"] or ret["-"]):
@@ -26,6 +27,10 @@ class DynoSyntaxConverter(commands.RoleConverter):
 
 
 class RoleSyntaxConverter(commands.RoleConverter):
+    
+    def __init__(self):
+        super().__init__()
+
     async def convert(self, ctx, arg: str):
         parser = argparse.ArgumentParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
@@ -40,7 +45,7 @@ class RoleSyntaxConverter(commands.RoleConverter):
 
         for attr in ("add", "remove"):
             vals[attr] = [
-                await super(ComplexActionConverter, self).convert(ctx, r)
+                await super().convert(ctx, r)
                 for r in vals[attr]
             ]
 
@@ -63,7 +68,7 @@ class ComplexActionConverter(commands.RoleConverter):
     """
 
     def __init__(self):
-        super(ComplexActionConverter, self).__init__()
+        super().__init__()
 
     async def convert(self, ctx: commands.Context, arg: str) -> dict:
 
@@ -111,7 +116,7 @@ class ComplexActionConverter(commands.RoleConverter):
 
         for attr in ("any", "all", "none", "add", "remove"):
             vals[attr] = [
-                await super(ComplexActionConverter, self).convert(ctx, r)
+                await super().convert(ctx, r)
                 for r in vals[attr]
             ]
 
@@ -141,7 +146,7 @@ class ComplexSearchConverter(commands.RoleConverter):
     """
 
     def __init__(self):
-        super(ComplexSearchConverter, self).__init__()
+        super().__init__()
 
     async def convert(self, ctx: commands.Context, arg: str) -> dict:
         parser = argparse.ArgumentParser(
@@ -184,7 +189,7 @@ class ComplexSearchConverter(commands.RoleConverter):
 
         for attr in ("any", "all", "none"):
             vals[attr] = [
-                await super(ComplexSearchConverter, self).convert(ctx, r)
+                await super().convert(ctx, r)
                 for r in vals[attr]
             ]
 

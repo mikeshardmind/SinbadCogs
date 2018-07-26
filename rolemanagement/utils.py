@@ -1,6 +1,6 @@
 import discord
 from redbot.core import commands
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from .exceptions import (
     ConflictingRoleException,
@@ -67,7 +67,7 @@ class UtilMixin:
 
         return ret
 
-    async def check_required(self, who: discord.Member, role: discord.Role):
+    async def check_required(self, who: discord.Member, role: discord.Role) -> None:
         """
         Raises an error on missing reqs
         """
@@ -84,7 +84,9 @@ class UtilMixin:
         if req_any_fail or req_all_fail:
             raise MissingRequirementsException(miss_all=req_all_fail, miss_any=req_any_Fail)
 
-    async def check_exclusivity(self, who: discord.Member, role: discord.Role) -> list:
+    async def check_exclusivity(
+            self, who: discord.Member, role: discord.Role
+    ) -> Optional[List[discord.Role]]:
         """
         Returns a list of roles to remove, or raises an error
         """

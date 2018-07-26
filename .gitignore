@@ -96,3 +96,6 @@ ENV/
 
 # mytemplates
 template/
+
+# extras
+.mypy_cache
