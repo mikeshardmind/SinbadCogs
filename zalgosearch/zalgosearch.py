@@ -1,8 +1,9 @@
 import re
 import asyncio
-from typing import Sequence
+from typing import Iterable, AsyncGenerator
 
 import discord
+from redbot import Red
 from redbot.core import commands, checks
 from redbot.core.config import Config
 
@@ -21,18 +22,20 @@ class ZalgoSearch:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.3b"
+    __version__ = "1.0.4b"
 
-    def __init__(self, bot: "Red"):
+    def __init__(self, bot: "Red") -> None:
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
         self.config.register_guild(rename_to="zalgo is not allowed")
-        self.running = set()
-        self.seen_cache = set()
+        self.running: set = set()
+        self.seen_cache: set = set()
 
-    async def _filter_by_zalgo(self, members: Sequence[discord.Member]):
+    async def _filter_by_zalgo(
+            self, members: Iterable[discord.Member]
+    ) -> AsyncGenerator[discord.Member, None]:
         for member in members:
             if ZALGO_REGEX.match(member.display_name):
                 yield member
@@ -73,7 +76,8 @@ class ZalgoSearch:
             nick = await self.config.guild(ctx.guild).rename_to()
 
         found_count = 0
-        async for to_rename in self._filter_by_zalgo(ctx.guild.members):
+        to_check = filter(lambda m: m.top_role < ctx.guild.me.top_role, ctx.guild.members)
+        async for to_rename in self._filter_by_zalgo(to_check):
             await to_rename.edit(nick=nick)
             found_count += 1
             
