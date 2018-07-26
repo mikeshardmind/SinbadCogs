@@ -364,7 +364,7 @@ class MassManagementMixin:
         """
 
         apply = query["add"] + query["remove"]
-        if not self.all_are_valid_roles(ctx, apply):
+        if not self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
