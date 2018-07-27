@@ -74,7 +74,7 @@ class EventMixin(RoleMeta):
         except Exception:
             pass
         else:
-            await self.update_roles_atomically(member, give=[role], remove=remove)
+            await self.update_roles_atomically(who=member, give=[role], remove=remove)
 
     async def on_raw_reaction_remove(
         self, payload: discord.raw_models.RawReactionActionEvent
@@ -99,4 +99,4 @@ class EventMixin(RoleMeta):
             if role not in member.roles:
                 return
             if guild.me.guild_permissions.manage_roles and guild.me.top_role > role:
-                await self.update_roles_atomically(member, give=None, remove=[role])
+                await self.update_roles_atomically(who=member, give=None, remove=[role])

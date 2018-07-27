@@ -9,8 +9,9 @@ from .converters import (
 import csv
 import io
 
+from .abc import RoleMeta
 
-class MassManagementMixin:
+class MassManagementMixin(RoleMeta):
     """
     Mass role operations
     """
@@ -57,7 +58,7 @@ class MassManagementMixin:
 
         for member in ctx.guild.members:
             if member.bot:
-                await self.update_roles_atomically(member, give=give, remove=remove)
+                await self.update_roles_atomically(who=member, give=give, remove=remove)
 
         await ctx.tick()
 
@@ -85,7 +86,7 @@ class MassManagementMixin:
 
         for member in ctx.guild.members:
             await self.update_roles_atomically(
-                member, give=roles["+"], remove=roles["-"]
+                who=member, give=roles["+"], remove=roles["-"]
             )
 
         await ctx.tick()
@@ -115,7 +116,7 @@ class MassManagementMixin:
         for member in ctx.guild.members:
             if not member.bot:
                 await self.update_roles_atomically(
-                    member, give=roles["+"], remove=roles["-"]
+                    who=member, give=roles["+"], remove=roles["-"]
                 )
 
         await ctx.tick()
@@ -144,7 +145,7 @@ class MassManagementMixin:
                 "or position in the hierarchy."
             )
 
-        await self.update_roles_atomically(user, give=roles["+"], remove=roles["-"])
+        await self.update_roles_atomically(who=user, give=roles["+"], remove=roles["-"])
 
         await ctx.tick()
 
@@ -174,7 +175,7 @@ class MassManagementMixin:
 
         for member in role.members:
             await self.update_roles_atomically(
-                member, give=roles["+"], remove=roles["-"]
+                who=member, give=roles["+"], remove=roles["-"]
             )
 
         await ctx.tick()
@@ -199,7 +200,7 @@ class MassManagementMixin:
                 members -= set(role.members)
 
             if query["any"]:
-                any_union = set()
+                any_union: set = set()
                 for role in query["any"]:
                     any_union |= set(role.members)
                 members &= any_union
@@ -257,7 +258,7 @@ class MassManagementMixin:
                 "or position in the hierarchy."
             )
 
-        await self.update_roles_atomically(user, give=roles["+"], remove=roles["-"])
+        await self.update_roles_atomically(who=user, give=roles["+"], remove=roles["-"])
 
         await ctx.tick()
 
@@ -370,7 +371,7 @@ class MassManagementMixin:
 
         for member in members:
             await self.update_roles_atomically(
-                member, give=query["add"], remove=query["remove"]
+                who=member, give=query["add"], remove=query["remove"]
             )
 
         await ctx.tick()

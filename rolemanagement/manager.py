@@ -13,7 +13,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, NotificationMix
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.2.0b"
+    __version__ = "2.0.0a"
 
     def __init__(self, bot):
         self.bot = bot

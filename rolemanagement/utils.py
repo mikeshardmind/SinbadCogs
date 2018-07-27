@@ -2,6 +2,7 @@ import discord
 from redbot.core import commands
 from typing import List, Tuple, Optional
 
+from .abc import RoleMeta
 from .exceptions import (
     ConflictingRoleException,
     MissingRequirementsException,
@@ -9,7 +10,7 @@ from .exceptions import (
 )
 
 
-class UtilMixin:
+class UtilMixin(RoleMeta):
     """
     Mixin for utils, some of which need things stored in the class
     """
@@ -50,12 +51,12 @@ class UtilMixin:
 
     async def is_self_assign_eligible(
         self, who: discord.Member, role: discord.Role
-    ) -> list:
+    ) -> List[discord.Role]:
         """
         Returns a list of roles to be removed if this one is added, or raises an
         exception
         """
-        ret = []
+        ret: List[discord.Role] = []
 
         await self.check_required(who, role)
 
@@ -72,7 +73,8 @@ class UtilMixin:
         Raises an error on missing reqs
         """
 
-        req_any_fail, req_all_fail = [], []
+        req_any_fail: list = []
+        req_all_fail: list = []
 
         async with self.config.role(role).requires_any() as req_any:
             if req_any and not any(r.id in req_any for r in who.roles):
@@ -82,19 +84,24 @@ class UtilMixin:
             req_all_fail = list(set(req_all) - set(who.roles))
 
         if req_any_fail or req_all_fail:
-            raise MissingRequirementsException(miss_all=req_all_fail, miss_any=req_any_Fail)
+            raise MissingRequirementsException(miss_all=req_all_fail, miss_any=req_any_fail)
+
+        return None
 
     async def check_exclusivity(
             self, who: discord.Member, role: discord.Role
-    ) -> Optional[List[discord.Role]]:
+    ) -> List[discord.Role]:
         """
         Returns a list of roles to remove, or raises an error
         """
+        ret: List[discord.Role]
 
         async with self.config.role(role).exclusive_to() as ex:
             if any(r.id in ex for r in who.roles):
                 conflicts = [r for r in who.roles if r.id in ex]
                 if await self.config.role(role).toggle_on_exclusive():
-                    return conflicts
+                    ret = conflicts
                 else:
                     raise ConflictingRoleException(conflicts=conflicts)
+
+        return ret
