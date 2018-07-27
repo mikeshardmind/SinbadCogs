@@ -6,7 +6,7 @@ from typing import List, no_type_check
 import discord
 
 
-class RoleMeta(ABC):
+class MixinMeta(ABC):
     """
     Metaclass for well behaved type hint detection with composite class.
     """
@@ -20,9 +20,11 @@ class RoleMeta(ABC):
     @abstractmethod
     def bot(self):
         raise NotImplementedError()
-    
+
     @abstractmethod
-    async def is_self_assign_eligible(self, who: discord.Member, role: discord.Role) -> List[discord.Role]:
+    async def is_self_assign_eligible(
+        self, who: discord.Member, role: discord.Role
+    ) -> List[discord.Role]:
         raise NotImplementedError()
 
     @abstractmethod

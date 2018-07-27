@@ -9,9 +9,10 @@ from .converters import (
 import csv
 import io
 
-from .abc import RoleMeta
+from .abc import MixinMeta
 
-class MassManagementMixin(RoleMeta):
+
+class MassManagementMixin(MixinMeta):
     """
     Mass role operations
     """

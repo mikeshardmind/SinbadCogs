@@ -1,6 +1,7 @@
 import discord
 from redbot.core import checks, commands
 from redbot.core.config import Config
+
 from .utils import UtilMixin
 from .massmanager import MassManagementMixin
 from .events import EventMixin

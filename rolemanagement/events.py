@@ -1,10 +1,9 @@
 import discord
 
-from .abc import RoleMeta
+from .abc import MixinMeta
 
 
-class EventMixin(RoleMeta):
-
+class EventMixin(MixinMeta):
     def __init__(self, *args, **kwargs):
         pass
 

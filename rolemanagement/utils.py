@@ -2,7 +2,7 @@ import discord
 from redbot.core import commands
 from typing import List, Tuple, Optional
 
-from .abc import RoleMeta
+from .abc import MixinMeta
 from .exceptions import (
     ConflictingRoleException,
     MissingRequirementsException,
@@ -10,7 +10,7 @@ from .exceptions import (
 )
 
 
-class UtilMixin(RoleMeta):
+class UtilMixin(MixinMeta):
     """
     Mixin for utils, some of which need things stored in the class
     """
@@ -32,7 +32,10 @@ class UtilMixin(RoleMeta):
         roles.extend([r for r in give if r not in roles])
         if sorted(roles) == sorted(who.roles):
             return
-        if any(r >= me.top_role for r in roles) or not me.guild_permissions.manage_roles:
+        if (
+            any(r >= me.top_role for r in roles)
+            or not me.guild_permissions.manage_roles
+        ):
             raise discord.Forbidden("Can't do that.")
         await who.edit(roles=roles)
 
@@ -84,12 +87,14 @@ class UtilMixin(RoleMeta):
             req_all_fail = list(set(req_all) - set(who.roles))
 
         if req_any_fail or req_all_fail:
-            raise MissingRequirementsException(miss_all=req_all_fail, miss_any=req_any_fail)
+            raise MissingRequirementsException(
+                miss_all=req_all_fail, miss_any=req_any_fail
+            )
 
         return None
 
     async def check_exclusivity(
-            self, who: discord.Member, role: discord.Role
+        self, who: discord.Member, role: discord.Role
     ) -> List[discord.Role]:
         """
         Returns a list of roles to remove, or raises an error

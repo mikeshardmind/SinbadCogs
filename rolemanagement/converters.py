@@ -5,7 +5,6 @@ import discord
 
 
 class DynoSyntaxConverter(commands.RoleConverter):
-    
     def __init__(self):
         super().__init__()
 
@@ -14,9 +13,7 @@ class DynoSyntaxConverter(commands.RoleConverter):
         ret: dict = {"+": [], "-": []}
 
         for arg in args:
-            ret[arg[0]].append(
-                await super().convert(ctx, arg[1:])
-            )
+            ret[arg[0]].append(await super().convert(ctx, arg[1:]))
 
         if not (ret["+"] or ret["-"]):
             raise commands.BadArgument("This requires at least one role operation.")
@@ -27,7 +24,6 @@ class DynoSyntaxConverter(commands.RoleConverter):
 
 
 class RoleSyntaxConverter(commands.RoleConverter):
-    
     def __init__(self):
         super().__init__()
 
@@ -44,10 +40,7 @@ class RoleSyntaxConverter(commands.RoleConverter):
             raise commands.BadArgument("Must provide at least one action")
 
         for attr in ("add", "remove"):
-            vals[attr] = [
-                await super().convert(ctx, r)
-                for r in vals[attr]
-            ]
+            vals[attr] = [await super().convert(ctx, r) for r in vals[attr]]
 
         return vals
 
@@ -115,10 +108,7 @@ class ComplexActionConverter(commands.RoleConverter):
             )
 
         for attr in ("any", "all", "none", "add", "remove"):
-            vals[attr] = [
-                await super().convert(ctx, r)
-                for r in vals[attr]
-            ]
+            vals[attr] = [await super().convert(ctx, r) for r in vals[attr]]
 
         for attr in ("hasperm", "anyperm", "notperm"):
 
@@ -188,10 +178,7 @@ class ComplexSearchConverter(commands.RoleConverter):
             )
 
         for attr in ("any", "all", "none"):
-            vals[attr] = [
-                await super().convert(ctx, r)
-                for r in vals[attr]
-            ]
+            vals[attr] = [await super().convert(ctx, r) for r in vals[attr]]
 
         for attr in ("hasperm", "anyperm", "notperm"):
 
