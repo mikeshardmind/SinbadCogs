@@ -15,7 +15,7 @@ class ProfBox:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.2"
+    __version__ = "1.0.3"
 
     default_guild = {k: {} for k in valid_profs}
 
@@ -159,7 +159,8 @@ class ProfBox:
                 "This is only a list of who have signed up, "
                 "be considerate of people's time and discord status when "
                 "using this tool to find a professional."
-                "\nDespite the appearance of the embed, none of these are actually mentions."
+                "\nDespite the appearance of the embed, none of these are actually mentions. "
+                "Please be considerate with your own mention usage."
             ),
         )
         await ctx.send(embed=embed)
