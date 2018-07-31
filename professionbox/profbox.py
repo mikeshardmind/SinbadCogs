@@ -137,7 +137,7 @@ class ProfBox:
         def chunker(memberset, size=3):
             ret_str = ""
             for i, m in enumerate(memberset, 1):
-                ret_str += m.mention
+                ret_str += m[-1].mention
                 if i % size == 0:
                     ret_str += "\n"
                 else:
@@ -145,8 +145,6 @@ class ProfBox:
             return ret_str
 
         title = f"Matches for level {level} {profession}"
-
-        body = chunker(matches)
 
         embed = discord.Embed(
             color=(ctx.guild.me.color or discord.Embed.Empty), description=body
