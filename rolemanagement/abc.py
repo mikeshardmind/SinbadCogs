@@ -38,5 +38,5 @@ class MixinMeta(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def all_are_valid_roles(self, ctx, *roles: discord.Role) -> bool:
+    async def all_are_valid_roles(self, ctx, *roles: discord.Role) -> bool:
         raise NotImplementedError()

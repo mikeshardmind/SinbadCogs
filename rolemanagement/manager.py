@@ -54,7 +54,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, NotificationMix
         binds a role to a reaction on a message
         """
 
-        if not self.all_are_valid_roles(ctx, role):
+        if not await self.all_are_valid_roles(ctx, role):
             return await ctx.maybe_send_embed(
                 "Can't do that. Discord role heirarchy applies here."
             )
@@ -103,7 +103,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, NotificationMix
         unbinds a role from a reaction on a message
         """
 
-        if not self.all_are_valid_roles(ctx, role):
+        if not await self.all_are_valid_roles(ctx, role):
             return await ctx.maybe_send_embed(
                 "Can't do that. Discord role heirarchy applies here."
             )

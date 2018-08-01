@@ -39,14 +39,14 @@ class UtilMixin(MixinMeta):
             raise discord.Forbidden("Can't do that.")
         await who.edit(roles=roles)
 
-    def all_are_valid_roles(self, ctx, *roles: discord.Role) -> bool:
+    async def all_are_valid_roles(self, ctx, *roles: discord.Role) -> bool:
         """
         Quick heirarchy check on a role set in syntax returned
         """
         author = ctx.author
         author_allowed = (ctx.guild.owner == author) or all(
             ctx.author.top_role > role for role in roles
-        )
+        ) or await ctx.bot.is_owner(ctx.author)
         bot_allowed = ctx.guild.me.guild_permissions.manage_roles and all(
             ctx.guild.me.top_role > role for role in roles
         )
