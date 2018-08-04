@@ -1,0 +1,12 @@
+{
+    "author": ["mikeshardmind(Sinbad#0001)"],
+    "install_msg": "Kills users joining with an invite link in name, no server specific settings, load at own risk.",
+    "name": "linkjoinkiller",
+    "disabled": false,
+    "short": "Kills users joining with an invite link in name",
+    "description": "Kills users joining with an invite link in name",
+    "tags": [
+    ],
+    "hidden": false,
+    "min_python_version": [3, 6, 0]
+}
