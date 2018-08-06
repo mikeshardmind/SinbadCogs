@@ -38,7 +38,7 @@ class BanSync:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.4b"
+    __version__ = "1.0.5b"
 
     def __init__(self, bot):
         self.bot = bot
