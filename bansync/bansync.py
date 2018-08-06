@@ -43,6 +43,22 @@ class BanSync:
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(name='bulkban')
+    async def bulkban(self, ctx, *ids: str):
+        """
+        bulk global bans by id
+        """
+        rsn = f"Global ban authorized by {ctx.author}({ctx.author.id})"
+        _ids = set(ids)
+        results = {i: await self.targeted_global_ban(ctx, i, rsn) for i in _ids}
+
+        if all(results.values()):
+            await ctx.message.add_reaction(BANMOJI)
+        elif not any(results.values()):
+            await ctx.send(UNWORTHY)
+        else:
+            await ctx.send("I got some of those, but other's couldn't be banned for some reason.")
+
     @commands.command(name="bansyncdebuginfo", hidden=True)
     async def debuginfo(self, ctx):
         await ctx.send(
@@ -185,6 +201,14 @@ class BanSync:
         """
         Swing the heaviest of ban hammers
         """
+        banned = await self.targeted_global_ban(ctx, user, rsn)
+        if banned:
+            await ctx.message.add_reaction(BANMOJI)
+        else:
+            await ctx.send(UNWORTHY)
+
+
+    async def targeted_global_ban(self, ctx: commands.Context, user: str, rsn: str = None):
         conv = commands.UserConverter()
         try:
             x = await conv.convert(ctx, user)
@@ -198,7 +222,5 @@ class BanSync:
             for guild in self.guild_discovery(ctx, [])
         ]
 
-        if any(exit_codes):
-            await ctx.message.add_reaction(BANMOJI)
-        else:
-            await ctx.send(UNWORTHY)
+        return any(exit_codes)
+            
