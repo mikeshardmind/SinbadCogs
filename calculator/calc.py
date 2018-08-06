@@ -1,4 +1,5 @@
 import sys
+import subprocess
 
 from redbot.core import commands
 from redbot.core.i18n import Translator, cog_i18n
