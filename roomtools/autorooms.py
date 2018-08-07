@@ -12,38 +12,15 @@ from redbot.core import checks
 from redbot.core.utils.chat_formatting import pagify
 
 from .checks import aa_active
+from .abcs import MixedMeta
 
 
-class AutoRooms:
+class AutoRooms(MixedMeta):
     """
     Automagical Discord Voice Channels
     """
 
-    __author__ = "mikeshardmind"
-    __version__ = "6.0.0"
-
-    antispam_intervals = [
-        (timedelta(seconds=5), 3),
-        (timedelta(minutes=1), 5),
-        (timedelta(hours=1), 30),
-    ]
-
-    def __init__(self, bot: Red):
-        self.bot = bot
-        self.config = Config.get_conf(
-            self, identifier=78631113035100160, force_registration=True
-        )
-        self.config.register_guild(active=False, ownership=False)
-        self.config.register_channel(
-            ownership=None, gameroom=False, autoroom=False, clone=False
-        )
-        self._antispam = {}
-        self.bot.loop.create_task(self._cleanup(load=True))
-
-    async def on_resumed(self):
-        await self._cleanup(load=True)
-
-    async def _cleanup(self, *guilds: discord.Guild, load: bool = False):
+    async def ar_cleanup(self, *guilds: discord.Guild, load: bool = False):
         if load:
             await asyncio.sleep(10)
 
@@ -52,7 +29,7 @@ class AutoRooms:
 
         for guild in guilds:
             for channel in guild.voice_channels:
-                conf = self.config.channel(channel)
+                conf = self.ar_config.channel(channel)
                 if not await conf.clone():
                     continue
                 if (
@@ -68,7 +45,7 @@ class AutoRooms:
                     else:
                         await conf.clear()
 
-    async def on_voice_state_update(
+    async def on_voice_state_update_ar(
         self,
         member: discord.Member,
         before: discord.VoiceState,
@@ -85,13 +62,13 @@ class AutoRooms:
             self._antispam[member.id] = AntiSpam(self.antispam_intervals)
         if not self._antispam[member.id].spammy:
             if after.channel:
-                if await self.config.guild(after.channel.guild).active():
-                    conf = self.config.channel(after.channel)
+                if await self.ar_config.guild(after.channel.guild).active():
+                    conf = self.ar_config.channel(after.channel)
                     if await conf.autoroom() or await conf.gameroom():
                         await self.generate_room_for(who=member, source=after.channel)
 
         if before.channel:
-            await self._cleanup(before.channel.guild)
+            await self.ar_cleanup(before.channel.guild)
 
     async def generate_room_for(
         self, *, who: discord.Member, source: discord.VoiceChannel
@@ -100,9 +77,9 @@ class AutoRooms:
         makes autorooms
         """
 
-        ownership = await self.config.channel(source).ownership()
+        ownership = await self.ar_config.channel(source).ownership()
         if ownership is None:
-            ownership = await self.config.guild(source.guild).ownership()
+            ownership = await self.ar_config.guild(source.guild).ownership()
 
         category = source.category
 
@@ -120,7 +97,7 @@ class AutoRooms:
             )
 
         cname = None
-        if await self.config.channel(source).gameroom():
+        if await self.ar_config.channel(source).gameroom():
             with contextlib.suppress(Exception):
                 cname = who.activity.name
             if cname is None:
@@ -133,12 +110,12 @@ class AutoRooms:
                 cname, category=category, overwrites=overwrites
             )
         except discord.Forbidden:
-            await self.config.guild(source.guild).active.set(False)
+            await self.ar_config.guild(source.guild).active.set(False)
             return
         except discord.HTTPException:
             pass
         else:
-            await self.config.channel(chan).clone.set(True)
+            await self.ar_config.channel(chan).clone.set(True)
             if who.id not in self._antispam:
                 self._antispam[who.id] = AntiSpam(self.antispam_intervals)
             self._antispam[who.id].stamp()
@@ -167,7 +144,7 @@ class AutoRooms:
         Interactive prompt for editing the autoroom behavior for specific
         channels
         """
-        conf = self.config.channel(channel)
+        conf = self.ar_config.channel(channel)
 
         if not await conf.autoroom():
             return await ctx.send("That isn't an autoroom")
@@ -225,8 +202,8 @@ class AutoRooms:
         turns autorooms on and off
         """
         if val is None:
-            val = not await self.config.guild(ctx.guild).active()
-        await self.config.guild(ctx.guild).active.set(val)
+            val = not await self.ar_config.guild(ctx.guild).active()
+        await self.ar_config.guild(ctx.guild).active.set(val)
         await ctx.send(("Autorooms are now " + "activated" if val else "deactivated"))
 
     @aa_active()
@@ -235,7 +212,7 @@ class AutoRooms:
     async def makeclone(self, ctx: commands.Context, channel: discord.VoiceChannel):
         """Takes a channel, turns that voice channel into an autoroom"""
 
-        await self.config.channel(channel).autoroom.set(True)
+        await self.ar_config.channel(channel).autoroom.set(True)
         await ctx.tick()
 
     @checks.admin_or_permissions(manage_channels=True)
@@ -243,7 +220,7 @@ class AutoRooms:
     async def remclone(self, ctx, channel: discord.VoiceChannel):
         """Takes a channel, removes that channel from the clone list"""
 
-        await self.config.channel(channel).clear()
+        await self.ar_config.channel(channel).clear()
         await ctx.tick()
 
     @aa_active()
@@ -253,7 +230,7 @@ class AutoRooms:
         """Lists the current autorooms"""
         clist = []
         for c in ctx.guild.voice_channels:
-            if await self.config.channel(c).autoroom():
+            if await self.ar_config.channel(c).autoroom():
                 clist.append("({0.id}) {0.name}".format(c))
 
         output = ", ".join(clist)
@@ -268,8 +245,8 @@ class AutoRooms:
         requires the "Manage Channels" permission
         Defaults to false"""
         if val is None:
-            val = not await self.config.guild(ctx.guild).active()
-        await self.config.guild(ctx.guild).active.set(val)
+            val = not await self.ar_config.guild(ctx.guild).active()
+        await self.ar_config.guild(ctx.guild).active.set(val)
         await ctx.send(
             (
                 "Autorooms are "
