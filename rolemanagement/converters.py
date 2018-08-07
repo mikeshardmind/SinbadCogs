@@ -1,31 +1,32 @@
 import argparse
 import shlex
-from redbot.core import commands
+from redbot.core.commands import RoleConverter, Context, BadArgument
 import discord
 
 
-class DynoSyntaxConverter(commands.RoleConverter):
+class DynoSyntaxConverter(RoleConverter):
     def __init__(self):
-        super(RoleSyntaxConverter, self).__init__()
+        super().__init__()
 
-    async def convert(self, ctx: commands.Context, argument: str):
+    async def convert(self, ctx: Context, argument: str):
         args = [c.strip() for c in argument.split(",")]
-        ret = {"+": [], "-": []}
+        ret: dict = {"+": [], "-": []}
 
         for arg in args:
-            ret[arg[0]].append(
-                await super(RoleSyntaxConverter, self).convert(ctx, arg[1:])
-            )
+            ret[arg[0]].append(await super(DynoSyntaxConverter, self).convert(ctx, arg[1:]))
 
         if not (ret["+"] or ret["-"]):
-            raise commands.BadArgument("This requires at least one role operation.")
+            raise BadArgument("This requires at least one role operation.")
 
         if not set(ret["+"]).isdisjoint(ret["-"]):
-            raise commands.BadArgument("That's not a valid search.")
+            raise BadArgument("That's not a valid search.")
         return ret
 
 
-class RoleSyntaxConverter(commands.RoleConverter):
+class RoleSyntaxConverter(RoleConverter):
+    def __init__(self):
+        super().__init__()
+
     async def convert(self, ctx, arg: str):
         parser = argparse.ArgumentParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
@@ -36,18 +37,15 @@ class RoleSyntaxConverter(commands.RoleConverter):
         vals = vars(parser.parse_args(shlex.split(arg)))
 
         if not vals["add"] and not vals["remove"]:
-            raise commands.BadArgument("Must provide at least one action")
+            raise BadArgument("Must provide at least one action")
 
         for attr in ("add", "remove"):
-            vals[attr] = [
-                await super(ComplexActionConverter, self).convert(ctx, r)
-                for r in vals[attr]
-            ]
+            vals[attr] = [await super(RoleSyntaxConverter, self).convert(ctx, r) for r in vals[attr]]
 
         return vals
 
 
-class ComplexActionConverter(commands.RoleConverter):
+class ComplexActionConverter(RoleConverter):
     """
     --has-all roles
     --has-none roles
@@ -63,9 +61,9 @@ class ComplexActionConverter(commands.RoleConverter):
     """
 
     def __init__(self):
-        super(ComplexActionConverter, self).__init__()
+        super().__init__()
 
-    async def convert(self, ctx: commands.Context, arg: str) -> dict:
+    async def convert(self, ctx: Context, arg: str) -> dict:
 
         parser = argparse.ArgumentParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
@@ -85,12 +83,12 @@ class ComplexActionConverter(commands.RoleConverter):
         hum_or_bot.add_argument(
             "--only-bots", action="store_true", default=False, dest="bots"
         )
-        hum_or_bot.add_argument("--everyone", action="store_true", default=False)
+        hum_or_bot.add_argument("--everyone", action="store_true", default=False, dest="everyone")
 
         vals = vars(parser.parse_args(shlex.split(arg)))
 
         if not vals["add"] and not vals["remove"]:
-            raise commands.BadArgument("Must provide at least one action")
+            raise BadArgument("Must provide at least one action")
 
         if not any(
             (
@@ -105,14 +103,13 @@ class ComplexActionConverter(commands.RoleConverter):
                 vals["anyperm"],
             )
         ):
-            raise commands.BadArgument(
+            raise BadArgument(
                 "You need to provide at least 1 search criterion"
             )
 
         for attr in ("any", "all", "none", "add", "remove"):
             vals[attr] = [
-                await super(ComplexActionConverter, self).convert(ctx, r)
-                for r in vals[attr]
+                await super(ComplexActionConverter, self).convert(ctx, r) for r in vals[attr]
             ]
 
         for attr in ("hasperm", "anyperm", "notperm"):
@@ -122,12 +119,12 @@ class ComplexActionConverter(commands.RoleConverter):
                 for i in vals[attr]
             ]
             if any(perm not in dir(discord.Permissions) for perm in vals[attr]):
-                raise commands.BadArgument("You gave an invalid permission")
+                raise BadArgument("You gave an invalid permission")
 
         return vals
 
 
-class ComplexSearchConverter(commands.RoleConverter):
+class ComplexSearchConverter(RoleConverter):
     """
     --has-all roles
     --has-none roles
@@ -137,13 +134,14 @@ class ComplexSearchConverter(commands.RoleConverter):
     --has-perm permissions
     --any-perm permissions
     --not-perm permissions
+    --everyone
     --csv
     """
 
     def __init__(self):
-        super(ComplexSearchConverter, self).__init__()
+        super().__init__()
 
-    async def convert(self, ctx: commands.Context, arg: str) -> dict:
+    async def convert(self, ctx: Context, arg: str) -> dict:
         parser = argparse.ArgumentParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
         )
@@ -161,7 +159,7 @@ class ComplexSearchConverter(commands.RoleConverter):
         hum_or_bot.add_argument(
             "--only-bots", action="store_true", default=False, dest="bots"
         )
-        hum_or_bot.add_argument("--everyone", action="store_true", default=False)
+        hum_or_bot.add_argument("--everyone", action="store_true", default=False, dest="everyone")
 
         vals = vars(parser.parse_args(shlex.split(arg)))
 
@@ -178,15 +176,12 @@ class ComplexSearchConverter(commands.RoleConverter):
                 vals["anyperm"],
             )
         ):
-            raise commands.BadArgument(
+            raise BadArgument(
                 "You need to provide at least 1 search criterion"
             )
 
         for attr in ("any", "all", "none"):
-            vals[attr] = [
-                await super(ComplexSearchConverter, self).convert(ctx, r)
-                for r in vals[attr]
-            ]
+            vals[attr] = [await super(ComplexSearchConverter, self).convert(ctx, r) for r in vals[attr]]
 
         for attr in ("hasperm", "anyperm", "notperm"):
 
@@ -195,6 +190,6 @@ class ComplexSearchConverter(commands.RoleConverter):
                 for i in vals[attr]
             ]
             if any(perm not in dir(discord.Permissions) for perm in vals[attr]):
-                raise commands.BadArgument("You gave an invalid permission")
+                raise BadArgument("You gave an invalid permission")
 
         return vals

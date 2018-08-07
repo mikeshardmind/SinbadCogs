@@ -1,10 +1,9 @@
 import discord
 
+from .abc import MixinMeta
 
-class EventMixin:
-    def __init__(self, *args, **kwargs):
-        pass
 
+class EventMixin(MixinMeta):
     async def on_member_update(self, before, after):
 
         if before.roles == after.roles:
@@ -64,9 +63,12 @@ class EventMixin:
         if role in member.roles:
             return
 
-        can, remove = await self.is_self_assign_eligible(member, role)
-        if can:
-            await self.update_roles_atomically(member, give=[role], remove=remove)
+        try:
+            remove = await self.is_self_assign_eligible(member, role)
+        except Exception:
+            pass
+        else:
+            await self.update_roles_atomically(who=member, give=[role], remove=remove)
 
     async def on_raw_reaction_remove(
         self, payload: discord.raw_models.RawReactionActionEvent
@@ -91,4 +93,4 @@ class EventMixin:
             if role not in member.roles:
                 return
             if guild.me.guild_permissions.manage_roles and guild.me.top_role > role:
-                await self.update_roles_atomically(member, give=None, remove=[role])
+                await self.update_roles_atomically(who=member, give=None, remove=[role])

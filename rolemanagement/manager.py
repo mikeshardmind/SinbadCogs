@@ -1,9 +1,11 @@
 import discord
 from redbot.core import checks, commands
 from redbot.core.config import Config
+
 from .utils import UtilMixin
 from .massmanager import MassManagementMixin
 from .events import EventMixin
+from .notifications import NotificationMixin
 
 
 class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
@@ -11,8 +13,9 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
     Cog for role management
     """
 
-    __author__ = "mikeshardmind"
-    __version__ = "1.1.2b"
+    __author__ = "mikeshardmind (Sinbad#0001)"
+    __version__ = "3.0.0"
+
 
     def __init__(self, bot):
         self.bot = bot
@@ -33,7 +36,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         self.config.register_custom(
             "REACTROLE", roleid=None
         )  # ID : Message.id, str(React)
-        super().__init__()
+        self.config.register_guild(notify_channel=None)
 
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
@@ -51,7 +54,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         binds a role to a reaction on a message
         """
 
-        if not self.all_are_valid_roles(ctx, role):
+        if not await self.all_are_valid_roles(ctx, role):
             return await ctx.maybe_send_embed(
                 "Can't do that. Discord role heirarchy applies here."
             )
@@ -100,12 +103,12 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         unbinds a role from a reaction on a message
         """
 
-        if not self.all_are_valid_roles(ctx, role):
+        if not await self.all_are_valid_roles(ctx, role):
             return await ctx.maybe_send_embed(
                 "Can't do that. Discord role heirarchy applies here."
             )
 
-        cfg = self.config.custom("REACTROLE", message.id, eid)
+        cfg = self.config.custom("REACTROLE", msgid, str(emoji))
         await cfg.roleid.clear()
         await ctx.tick()
 
@@ -125,15 +128,15 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         Takes 2 or more roles and sets them as exclusive to eachother
         """
 
-        roles = set(roles)
+        _roles = set(roles)
 
-        if len(roles) < 2:
+        if len(_roles) < 2:
             return await ctx.send("You need to provide at least 2 roles")
 
-        for role in roles:
+        for role in _roles:
             async with self.config.role(role).exclusive_to() as ex_list:
                 ex_list.extend(
-                    [r.id for r in roles if r != role and r.id not in ex_list]
+                    [r.id for r in _roles if r != role and r.id not in ex_list]
                 )
 
     @rgroup.command(name="unexclusive")
@@ -142,14 +145,14 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         Takes any number of roles, and removes their exclusivity settings
         """
 
-        roles = set(roles)
+        _roles = set(roles)
 
         if len(roles) < 1:
             return await ctx.send("You need to provide at least a role to do this to")
 
-        for role in roles:
+        for role in _roles:
             ex_list = await self.config.role(role).exclusive_to()
-            ex_list = [idx for idx in ex_list if idx not in [r.id for r in roles]]
+            ex_list = [idx for idx in ex_list if idx not in [r.id for r in _roles]]
             await self.config.role(role).exclusive_to.set(ex_list)
 
     @rgroup.command(name="sticky")
@@ -256,10 +259,14 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         """
         Join a role
         """
-        eligible, remove = await self.is_self_assign_eligible(ctx.author, role)
-        eligible &= await self.config.role(role).self_role()
+        try:
+            remove = await self.is_self_assign_eligible(ctx.author, role)
+            eligible = await self.config.role(role).self_role()
+        except Exception:
+            eligible = False
+
         if not eligible:
-            return await ctx.send(
+            await ctx.send(
                 f"You aren't allowed to add `{role}` to yourself {ctx.author.mention}!"
             )
         else:
