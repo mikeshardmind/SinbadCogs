@@ -46,9 +46,9 @@ class GuildWhitelist:
 
     async def on_guild_join(self, guild: discord.Guild):
         async with self.config.whitelist() as whitelist:
-            if not any(x in whitelist for x in (guild.id, guild.owner.id)) and (
-                guild.owner.id != (await self.bot.application_info()).owner
-            ):
+            if not any(
+                x in whitelist for x in (guild.id, guild.owner.id)
+            ) and not await self.bot.is_owner(guild.owner):
                 log.info("leaving {0.id} {0.name}".format(guild))
                 await guild.leave()
 
