@@ -27,8 +27,6 @@ class EventMixin(MixinMeta):
                 if r.id not in rids:
                     rids.append(r.id)
 
-        await self.maybe_notify(before, after)  # NotificationMixin
-
     async def on_member_join(self, member):
         guild = member.guild
         if not guild.me.guild_permissions.manage_roles:

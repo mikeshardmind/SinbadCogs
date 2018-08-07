@@ -56,7 +56,8 @@ class MassManagementMixin(MixinMeta):
 
         """
         give, remove = roles["+"], roles["-"]
-        if not await self.all_are_valid_roles(ctx, (give + remove)):
+        apply = give + remove
+        if not await self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -84,7 +85,8 @@ class MassManagementMixin(MixinMeta):
         """
 
         give, remove = roles["+"], roles["-"]
-        if not await self.all_are_valid_roles(ctx, (give + remove)):
+        apply = give + remove
+        if not await self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -113,7 +115,8 @@ class MassManagementMixin(MixinMeta):
 
         """
         give, remove = roles["+"], roles["-"]
-        if not await self.all_are_valid_roles(ctx, (give + remove)):
+        apply = give + remove
+        if not await self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -145,7 +148,8 @@ class MassManagementMixin(MixinMeta):
 
         """
         give, remove = roles["+"], roles["-"]
-        if not await self.all_are_valid_roles(ctx, (give + remove)):
+        apply = give + remove
+        if not await self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -173,7 +177,8 @@ class MassManagementMixin(MixinMeta):
         """
 
         give, remove = roles["+"], roles["-"]
-        if not await self.all_are_valid_roles(ctx, (give + remove)):
+        apply = give + remove
+        if not await self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
@@ -258,7 +263,8 @@ class MassManagementMixin(MixinMeta):
         (or even just add to/remove from all) see `[p]massrole search` and `[p]massrole modify` 
         """
         give, remove = roles["+"], roles["-"]
-        if not await self.all_are_valid_roles(ctx, (give + remove)):
+        apply = give + remove
+        if not await self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
