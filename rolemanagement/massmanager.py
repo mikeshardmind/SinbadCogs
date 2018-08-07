@@ -17,6 +17,11 @@ class MassManagementMixin(MixinMeta):
     Mass role operations
     """
 
+    async def __before_invoke(self, ctx):  # ctx.guild.chunked is innaccurate.
+        if ctx.guild:
+            if any(m.joined_at is None for m in ctx.guild.members):
+                await ctx.bot.request_offline_members(ctx.guild)
+
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     @commands.group(name="massrole", autohelp=True, aliases=["mrole"])
@@ -361,7 +366,7 @@ class MassManagementMixin(MixinMeta):
         """
 
         apply = query["add"] + query["remove"]
-        if not await self.all_are_valid_roles(ctx, apply):
+        if not self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."

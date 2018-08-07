@@ -22,6 +22,7 @@ valid_profs = [
     "Jewelmagus",
     "Shoemagus",
     "Smithmagus",
+    "Craftmagus",
 ]
 
 

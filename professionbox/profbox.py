@@ -15,7 +15,7 @@ class ProfBox:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.1"
+    __version__ = "1.0.3"
 
     default_guild = {k: {} for k in valid_profs}
 
@@ -75,7 +75,7 @@ class ProfBox:
         else:
             await ctx.send("Your IGNs have been stored.")
 
-    @_group.command(name="multiregister")
+    @_group.command(name="multiregister", hidden=True)
     async def multiregister(
         self, ctx: commands.Context, *, profession_list: MultiProfConverter
     ):
@@ -131,19 +131,27 @@ class ProfBox:
             return await ctx.send("No matches.")
 
         matches = sorted(matches)
-        if len(matches) > 20:
-            matches = matches[:20]
+        if len(matches) > 50:
+            matches = matches[:50]
+
+        def chunker(memberset, size=3):
+            ret_str = ""
+            for i, m in enumerate(memberset, 1):
+                ret_str += m[-1].mention
+                if i % size == 0:
+                    ret_str += "\n"
+                else:
+                    ret_str += " "
+            return ret_str
 
         title = f"Matches for level {level} {profession}"
 
-        body = "\n".join(
-            "{member.mention} : Level {level}".format(member=x[2], level=x[1])
-            for x in matches
-        )
+        body = chunker(matches)
 
         embed = discord.Embed(
             color=(ctx.guild.me.color or discord.Embed.Empty), description=body
         )
+
         embed.set_author(name=title)
         embed.add_field(
             name="Disclaimer",
@@ -151,7 +159,8 @@ class ProfBox:
                 "This is only a list of who have signed up, "
                 "be considerate of people's time and discord status when "
                 "using this tool to find a professional."
-                "\nDespite the appearance of the embed, none of these are actually mentions."
+                "\nDespite the appearance of the embed, none of these are actually mentions. "
+                "Please be considerate with your own mention usage."
             ),
         )
         await ctx.send(embed=embed)

@@ -11,36 +11,15 @@ from redbot.core.config import Config
 from redbot.core import checks
 
 from .checks import tmpc_active
+from .abcs import MixedMeta
 
 
-class TempChannels:
+class TempChannels(MixedMeta):
     """
     Temporary Voice Channels
     """
 
-    __author__ = "mikeshardmind"
-    __version__ = "6.0.0"
-
-    antispam_intervals = [
-        (timedelta(seconds=5), 3),
-        (timedelta(minutes=1), 5),
-        (timedelta(hours=1), 30),
-    ]
-
-    def __init__(self, bot: Red):
-        self.bot = bot
-        self.config = Config.get_conf(
-            self, identifier=78631113035100160, force_registration=True
-        )
-        self._antispam = {}
-        self.config.register_guild(active=False, category=None)
-        self.config.register_channel(is_temp=False)
-        self.bot.loop.create_task(self._cleanup(load=True))
-
-    async def on_resumed(self):
-        await self._cleanup(load=True)
-
-    async def on_voice_state_update(
+    async def on_voice_state_update_tmpc(
         self,
         member: discord.Member,
         before: discord.VoiceState,
@@ -49,9 +28,9 @@ class TempChannels:
         if before.channel == after.channel:
             return
         if before.channel:
-            await self._cleanup(before.channel.guild)
+            await self.tmpc_cleanup(before.channel.guild)
 
-    async def _cleanup(self, *guilds: discord.Guild, load: bool = False):
+    async def tmpc_cleanup(self, *guilds: discord.Guild, load: bool = False):
         if load:
             await asyncio.sleep(10)
 
@@ -60,7 +39,7 @@ class TempChannels:
 
         for guild in guilds:
             for channel in guild.voice_channels:
-                conf = self.config.channel(channel)
+                conf = self.tmpc_config.channel(channel)
                 if not await conf.is_temp():
                     continue
                 if (
@@ -94,8 +73,8 @@ class TempChannels:
         """
 
         if val is None:
-            val = not await self.config.guild(ctx.guild).active()
-        await self.config.guild(ctx.guild).active.set(val)
+            val = not await self.tmpc_config.guild(ctx.guild).active()
+        await self.tmpc_config.guild(ctx.guild).active.set(val)
 
         await ctx.send(
             ("Temporary channel creation is now " + "enabled" if val else "disabled")
@@ -113,10 +92,10 @@ class TempChannels:
         """
 
         if cat is None:
-            await self.config.guild(ctx.guild).category.set(None)
-            return await send.ctx("Category cleared")
+            await self.tmpc_config.guild(ctx.guild).category.set(None)
+            return await ctx.send("Category cleared")
 
-        await self.config.guild(ctx.guild).category.set(cat.id)
+        await self.tmpc_config.guild(ctx.guild).category.set(cat.id)
         await ctx.tick()
 
     @tmpc_active()
@@ -134,7 +113,7 @@ class TempChannels:
         if not channelname:
             return await ctx.send_help()
 
-        cat_id = await self.config.guild(ctx.guild).category()
+        cat_id = await self.tmpc_config.guild(ctx.guild).category()
         cat = discord.utils.get(ctx.guild.categories, id=cat_id)
 
         ow = discord.PermissionOverwrite(manage_channels=True, manage_roles=True)
@@ -146,13 +125,13 @@ class TempChannels:
             )
         except discord.Forbidden:
             # how?
-            await self.config.guild(ctx.guild).active.set(False)
+            await self.tmpc_config.guild(ctx.guild).active.set(False)
             return
         except discord.HTTPException:
             # *sigh*
             return
 
-        await self.config.channel(created).is_temp.set(True)
+        await self.tmpc_config.channel(created).is_temp.set(True)
         self._antispam[ctx.author.id].stamp()
 
         with contextlib.suppress(Exception):

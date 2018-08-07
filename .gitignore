@@ -98,4 +98,4 @@ ENV/
 template/
 
 # extras
-.mypy_cache
+.mypy_cache/
