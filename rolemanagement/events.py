@@ -4,9 +4,6 @@ from .abc import MixinMeta
 
 
 class EventMixin(MixinMeta):
-    def __init__(self, *args, **kwargs):
-        pass
-
     async def on_member_update(self, before, after):
 
         if before.roles == after.roles:

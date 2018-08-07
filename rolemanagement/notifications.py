@@ -4,7 +4,7 @@ from collections import namedtuple
 
 RoleMockedMember = namedtuple("RoleMockedMember", ["guild", "roles", "id"])
 
-
+# stub for later
 class NotificationMixin:
     async def maybe_notify(self, before, after):
 

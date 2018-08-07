@@ -8,13 +8,13 @@ from .events import EventMixin
 from .notifications import NotificationMixin
 
 
-class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, NotificationMixin):
+class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
     """
     Cog for role management
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "2.0.0a"
+    __version__ = "3.0.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -36,7 +36,6 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, NotificationMix
             "REACTROLE", roleid=None
         )  # ID : Message.id, str(React)
         self.config.register_guild(notify_channel=None)
-        super().__init__()
 
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)

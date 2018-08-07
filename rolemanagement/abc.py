@@ -1,25 +1,20 @@
-# https://github.com/python/mypy/issues/1996
-
 from abc import ABC, abstractmethod
 from typing import List, no_type_check
 
 import discord
+from redbot.core import Config
+from redbot.core.bot import Red
 
 
 class MixinMeta(ABC):
     """
     Metaclass for well behaved type hint detection with composite class.
     """
+    # https://github.com/python/mypy/issues/1996
 
-    @no_type_check
-    @abstractmethod
-    def config(self):
-        raise NotImplementedError()
-
-    @no_type_check
-    @abstractmethod
-    def bot(self):
-        raise NotImplementedError()
+    def __init__(self, *args):
+        self.config: Config
+        self.bot: Red
 
     @abstractmethod
     async def is_self_assign_eligible(
