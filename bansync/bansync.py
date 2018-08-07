@@ -43,7 +43,7 @@ class BanSync:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='bulkban')
+    @commands.command(name="bulkban")
     async def bulkban(self, ctx, *ids: str):
         """
         bulk global bans by id
@@ -57,7 +57,9 @@ class BanSync:
         elif not any(results.values()):
             await ctx.send(UNWORTHY)
         else:
-            await ctx.send("I got some of those, but other's couldn't be banned for some reason.")
+            await ctx.send(
+                "I got some of those, but other's couldn't be banned for some reason."
+            )
 
     @commands.command(name="bansyncdebuginfo", hidden=True)
     async def debuginfo(self, ctx):
@@ -207,8 +209,9 @@ class BanSync:
         else:
             await ctx.send(UNWORTHY)
 
-
-    async def targeted_global_ban(self, ctx: commands.Context, user: str, rsn: str = None):
+    async def targeted_global_ban(
+        self, ctx: commands.Context, user: str, rsn: str = None
+    ):
         conv = commands.UserConverter()
         try:
             x = await conv.convert(ctx, user)
@@ -223,4 +226,3 @@ class BanSync:
         ]
 
         return any(exit_codes)
-            

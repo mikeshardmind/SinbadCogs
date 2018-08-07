@@ -13,7 +13,9 @@ class DynoSyntaxConverter(RoleConverter):
         ret: dict = {"+": [], "-": []}
 
         for arg in args:
-            ret[arg[0]].append(await super(DynoSyntaxConverter, self).convert(ctx, arg[1:]))
+            ret[arg[0]].append(
+                await super(DynoSyntaxConverter, self).convert(ctx, arg[1:])
+            )
 
         if not (ret["+"] or ret["-"]):
             raise BadArgument("This requires at least one role operation.")
@@ -40,7 +42,10 @@ class RoleSyntaxConverter(RoleConverter):
             raise BadArgument("Must provide at least one action")
 
         for attr in ("add", "remove"):
-            vals[attr] = [await super(RoleSyntaxConverter, self).convert(ctx, r) for r in vals[attr]]
+            vals[attr] = [
+                await super(RoleSyntaxConverter, self).convert(ctx, r)
+                for r in vals[attr]
+            ]
 
         return vals
 
@@ -83,7 +88,9 @@ class ComplexActionConverter(RoleConverter):
         hum_or_bot.add_argument(
             "--only-bots", action="store_true", default=False, dest="bots"
         )
-        hum_or_bot.add_argument("--everyone", action="store_true", default=False, dest="everyone")
+        hum_or_bot.add_argument(
+            "--everyone", action="store_true", default=False, dest="everyone"
+        )
 
         vals = vars(parser.parse_args(shlex.split(arg)))
 
@@ -103,13 +110,12 @@ class ComplexActionConverter(RoleConverter):
                 vals["anyperm"],
             )
         ):
-            raise BadArgument(
-                "You need to provide at least 1 search criterion"
-            )
+            raise BadArgument("You need to provide at least 1 search criterion")
 
         for attr in ("any", "all", "none", "add", "remove"):
             vals[attr] = [
-                await super(ComplexActionConverter, self).convert(ctx, r) for r in vals[attr]
+                await super(ComplexActionConverter, self).convert(ctx, r)
+                for r in vals[attr]
             ]
 
         for attr in ("hasperm", "anyperm", "notperm"):
@@ -159,7 +165,9 @@ class ComplexSearchConverter(RoleConverter):
         hum_or_bot.add_argument(
             "--only-bots", action="store_true", default=False, dest="bots"
         )
-        hum_or_bot.add_argument("--everyone", action="store_true", default=False, dest="everyone")
+        hum_or_bot.add_argument(
+            "--everyone", action="store_true", default=False, dest="everyone"
+        )
 
         vals = vars(parser.parse_args(shlex.split(arg)))
 
@@ -176,12 +184,13 @@ class ComplexSearchConverter(RoleConverter):
                 vals["anyperm"],
             )
         ):
-            raise BadArgument(
-                "You need to provide at least 1 search criterion"
-            )
+            raise BadArgument("You need to provide at least 1 search criterion")
 
         for attr in ("any", "all", "none"):
-            vals[attr] = [await super(ComplexSearchConverter, self).convert(ctx, r) for r in vals[attr]]
+            vals[attr] = [
+                await super(ComplexSearchConverter, self).convert(ctx, r)
+                for r in vals[attr]
+            ]
 
         for attr in ("hasperm", "anyperm", "notperm"):
 

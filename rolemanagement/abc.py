@@ -10,6 +10,7 @@ class MixinMeta(ABC):
     """
     Metaclass for well behaved type hint detection with composite class.
     """
+
     # https://github.com/python/mypy/issues/1996
 
     def __init__(self, *args):

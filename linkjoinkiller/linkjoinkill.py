@@ -1,13 +1,14 @@
 import discord
 import re
 
+
 class LinkJoinKiller:
     """
     Auto-ban users joining with invites in name.
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = '0.0.1a'
+    __version__ = "0.0.1a"
 
     def __init__(self):
         self.regex = re.compile(

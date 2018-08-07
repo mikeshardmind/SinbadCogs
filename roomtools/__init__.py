@@ -43,7 +43,6 @@ class RoomTools(AutoRooms, TempChannels):
         )
         self.bot.loop.create_task(self.on_resumed)
 
-
     async def on_resumed(self):
         await self.tmpc_cleanup(load=True)
         await self.ar_cleanup(load=True)

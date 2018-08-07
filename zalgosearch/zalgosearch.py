@@ -34,7 +34,7 @@ class ZalgoSearch:
         self.seen_cache: set = set()
 
     async def _filter_by_zalgo(
-            self, members: Iterable[discord.Member]
+        self, members: Iterable[discord.Member]
     ) -> AsyncGenerator[discord.Member, None]:
         for member in members:
             if ZALGO_REGEX.match(member.display_name):
@@ -44,19 +44,23 @@ class ZalgoSearch:
     async def on_member_join(self, member: discord.Member):
         if member.guild.me.guild_permissions.manage_nicknames:
             if ZALGO_REGEX.match(member.display_name):
-                await member.edit(nick=(await self.config.guild(member.guild).rename_to()))
+                await member.edit(
+                    nick=(await self.config.guild(member.guild).rename_to())
+                )
             self.seen_cache.update((member.id, member.guild.id))
 
     async def on_member_update(self, m_before, member: discord.Member):
         if (
-            (member.id, member.guild.id) in self.seen_cache 
-            and member.display_name == m_before.display_name
-        ):
+            member.id,
+            member.guild.id,
+        ) in self.seen_cache and member.display_name == m_before.display_name:
             return
         self.seen_cache.update((member.id, member.guild.id))
         if member.guild.me.guild_permissions.manage_nicknames:
             if ZALGO_REGEX.match(member.display_name):
-                await member.edit(nick=(await self.config.guild(member.guild).rename_to()))
+                await member.edit(
+                    nick=(await self.config.guild(member.guild).rename_to())
+                )
 
     @commands.guild_only()
     @checks.is_owner()
@@ -76,16 +80,20 @@ class ZalgoSearch:
             nick = await self.config.guild(ctx.guild).rename_to()
 
         found_count = 0
-        to_check = filter(lambda m: m.top_role < ctx.guild.me.top_role, ctx.guild.members)
+        to_check = filter(
+            lambda m: m.top_role < ctx.guild.me.top_role, ctx.guild.members
+        )
         async for to_rename in self._filter_by_zalgo(to_check):
             await to_rename.edit(nick=nick)
             found_count += 1
-            
+
         if found_count > 0:
-            await ctx.send(f"Found {found_count} users with zalgo names and renamed them")
+            await ctx.send(
+                f"Found {found_count} users with zalgo names and renamed them"
+            )
         else:
             await ctx.send(
                 "Hey, your members either aren't assholes, or the autofilter already caught them."
             )
-        
+
         self.running.remove(ctx.guild.id)
