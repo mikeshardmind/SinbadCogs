@@ -5,8 +5,6 @@ import discord
 
 
 class DynoSyntaxConverter(RoleConverter):
-    def __init__(self):
-        super().__init__()
 
     async def convert(self, ctx: Context, argument: str):
         args = [c.strip() for c in argument.split(",")]
@@ -26,17 +24,15 @@ class DynoSyntaxConverter(RoleConverter):
 
 
 class RoleSyntaxConverter(RoleConverter):
-    def __init__(self):
-        super().__init__()
 
-    async def convert(self, ctx, arg: str):
+    async def convert(self, ctx: Context, argument: str):
         parser = argparse.ArgumentParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
         )
         parser.add_argument("--add", nargs="*", dest="add", default=[])
         parser.add_argument("--remove", nargs="*", dest="remove", default=[])
 
-        vals = vars(parser.parse_args(shlex.split(arg)))
+        vals = vars(parser.parse_args(shlex.split(argument)))
 
         if not vals["add"] and not vals["remove"]:
             raise BadArgument("Must provide at least one action")
@@ -65,10 +61,7 @@ class ComplexActionConverter(RoleConverter):
     --everyone
     """
 
-    def __init__(self):
-        super().__init__()
-
-    async def convert(self, ctx: Context, arg: str) -> dict:
+    async def convert(self, ctx: Context, argument: str) -> dict:
 
         parser = argparse.ArgumentParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
@@ -92,7 +85,7 @@ class ComplexActionConverter(RoleConverter):
             "--everyone", action="store_true", default=False, dest="everyone"
         )
 
-        vals = vars(parser.parse_args(shlex.split(arg)))
+        vals = vars(parser.parse_args(shlex.split(argument)))
 
         if not vals["add"] and not vals["remove"]:
             raise BadArgument("Must provide at least one action")
@@ -144,10 +137,7 @@ class ComplexSearchConverter(RoleConverter):
     --csv
     """
 
-    def __init__(self):
-        super().__init__()
-
-    async def convert(self, ctx: Context, arg: str) -> dict:
+    async def convert(self, ctx: Context, argument: str) -> dict:
         parser = argparse.ArgumentParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
         )
@@ -169,7 +159,7 @@ class ComplexSearchConverter(RoleConverter):
             "--everyone", action="store_true", default=False, dest="everyone"
         )
 
-        vals = vars(parser.parse_args(shlex.split(arg)))
+        vals = vars(parser.parse_args(shlex.split(argument)))
 
         if not any(
             (

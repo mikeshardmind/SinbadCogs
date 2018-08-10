@@ -5,7 +5,8 @@ from redbot.core.config import Config
 from .utils import UtilMixin
 from .massmanager import MassManagementMixin
 from .events import EventMixin
-from .notifications import NotificationMixin
+# from .notifications import NotificationMixin
+from .exceptions import RoleManagementException
 
 
 class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
@@ -14,7 +15,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
     """
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "3.0.0"
+    __version__ = "3.0.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -36,6 +37,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
             "REACTROLE", roleid=None
         )  # ID : Message.id, str(React)
         self.config.register_guild(notify_channel=None)
+        super().__init__()
 
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
@@ -66,7 +68,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         if _emoji is None:
             try:
                 ctx.message.add_reaction(emoji)
-            except:
+            except discord.DiscordException:
                 return await ctx.maybe_send_embed("No such emoji")
             else:
                 _emoji = emoji
@@ -77,7 +79,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         if not any(str(r) == emoji for r in message.reactions):
             try:
                 await message.add_reaction(_emoji)
-            except Exception:
+            except discord.DiscordException:
                 return await ctx.maybe_send_embed(
                     "Hmm, that message couldn't be reacted to"
                 )
@@ -94,7 +96,6 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         self,
         ctx: commands.Context,
         role: discord.Role,
-        channel: discord.TextChannel,
         msgid: int,
         emoji: str,
     ):
@@ -261,7 +262,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         try:
             remove = await self.is_self_assign_eligible(ctx.author, role)
             eligible = await self.config.role(role).self_role()
-        except Exception:
+        except RoleManagementException:
             eligible = False
 
         if not eligible:

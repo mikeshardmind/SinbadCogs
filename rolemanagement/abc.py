@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, no_type_check
+from typing import List
 
 import discord
 from redbot.core import Config
@@ -13,7 +13,7 @@ class MixinMeta(ABC):
 
     # https://github.com/python/mypy/issues/1996
 
-    def __init__(self, *args):
+    def __init__(self, *_args):
         self.config: Config
         self.bot: Red
 

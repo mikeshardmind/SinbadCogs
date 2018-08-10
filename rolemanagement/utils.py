@@ -1,6 +1,5 @@
 import discord
-from redbot.core import commands
-from typing import List, Tuple, Optional
+from typing import List
 
 from .abc import MixinMeta
 from .exceptions import (
@@ -17,6 +16,7 @@ class UtilMixin(MixinMeta):
 
     async def update_roles_atomically(
         self,
+        *,
         who: discord.Member,
         give: List[discord.Role] = None,
         remove: List[discord.Role] = None,
@@ -36,7 +36,7 @@ class UtilMixin(MixinMeta):
             any(r >= me.top_role for r in roles)
             or not me.guild_permissions.manage_roles
         ):
-            raise discord.Forbidden("Can't do that.")
+            raise discord.Forbidden(403, "Can't do that.")
         await who.edit(roles=roles)
 
     async def all_are_valid_roles(self, ctx, *roles: discord.Role) -> bool:

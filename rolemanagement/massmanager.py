@@ -227,8 +227,7 @@ class MassManagementMixin(MixinMeta):
                     for perm, value in iter(mem.guild_permissions):
                         if value and perm in query["anyperm"]:
                             return True
-                    else:
-                        return False
+                    return False
 
                 members = {m for m in members if has_any(m)}
 
@@ -238,8 +237,7 @@ class MassManagementMixin(MixinMeta):
                     for perm, value in iter(mem.guild_permissions):
                         if value and perm in query["notperm"]:
                             return False
-                    else:
-                        return True
+                    return True
 
                 members = {m for m in members if has_none(m)}
 
