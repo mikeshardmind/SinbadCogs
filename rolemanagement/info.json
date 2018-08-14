@@ -2,12 +2,12 @@
     "author": [
         "mikeshardmind(Sinbad#0001)"
     ],
-    "install_msg": "This still has some issues being worked out and is in alpha. If you need help, I have a channel in https://discord.gg/mb85deu",
+    "install_msg": "A lot of this is still subject to large changes as needed. If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "RoleManagement",
     "disabled": false,
     "short": "Role Management tools",
     "description": "React roles with requirements, selfroles with requirements, role based member search and more.",
     "tags": [],
-    "hidden": true,
+    "hidden": false,
     "min_python_version": [3, 6, 0]
 }
