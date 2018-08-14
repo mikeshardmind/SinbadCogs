@@ -101,7 +101,7 @@ class UtilMixin(MixinMeta):
         """
         Returns a list of roles to remove, or raises an error
         """
-        ret: List[discord.Role]
+        ret: List[discord.Role] = []
 
         async with self.config.role(role).exclusive_to() as ex:
             if any(r.id in ex for r in who.roles):
