@@ -83,7 +83,7 @@ class TempChannels(MixedMeta):
     @checks.admin_or_permissions(manage_channels=True)
     @tmpcset.command(name="category")
     async def _category(
-        self, ctx: commands.Context, cat: discord.CategoryChannel = None
+        self, ctx: commands.Context, *, cat: discord.CategoryChannel = None
     ):
         """
         Sets the category for temporary channels
