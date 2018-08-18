@@ -5,7 +5,7 @@ def tmpc_active():
     async def check(ctx: commands.Context):
         if not ctx.guild:
             return False
-        cog = ctx.bot.get_cog("TempChannels")
+        cog = ctx.bot.get_cog("RoomTools")
         if not cog:
             return False
         return await cog.tmpc_config.guild(ctx.guild).active()
@@ -17,7 +17,7 @@ def aa_active():
     async def check(ctx: commands.Context):
         if not ctx.guild:
             return False
-        cog = ctx.bot.get_cog("AutoRooms")
+        cog = ctx.bot.get_cog("RoomTools")
         if not cog:
             return False
         return await cog.ar_config.guild(ctx.guild).active()

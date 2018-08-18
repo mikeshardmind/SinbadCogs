@@ -12,7 +12,7 @@ class RoomTools(AutoRooms, TempChannels):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "7.0.2"
+    __version__ = "7.0.3"
 
     antispam_intervals = [
         (timedelta(seconds=5), 3),
