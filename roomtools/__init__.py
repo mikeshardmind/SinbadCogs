@@ -41,7 +41,7 @@ class RoomTools(AutoRooms, TempChannels):
         self.ar_config.register_channel(
             ownership=None, gameroom=False, autoroom=False, clone=False
         )
-        self.bot.loop.create_task(self.on_resumed)
+        self.bot.loop.create_task(self.on_resumed())
 
     async def on_resumed(self):
         await self.tmpc_cleanup(load=True)
