@@ -8,7 +8,7 @@ def tmpc_active():
         cog = ctx.bot.get_cog("TempChannels")
         if not cog:
             return False
-        return await cog.config.guild(ctx.guild).active()
+        return await cog.tmpc_config.guild(ctx.guild).active()
 
     return commands.check(check)
 
@@ -20,6 +20,6 @@ def aa_active():
         cog = ctx.bot.get_cog("AutoRooms")
         if not cog:
             return False
-        return await cog.config.guild(ctx.guild).active()
+        return await cog.ar_config.guild(ctx.guild).active()
 
     return commands.check(check)
