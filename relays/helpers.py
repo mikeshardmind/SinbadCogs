@@ -4,6 +4,10 @@ from typing import List
 import re
 
 
+# Pulled from Red-Discordbot PR#1942 which I'm the author of, but not waiting for merge for use.
+INVITE_URL_RE = re.compile(r"(discord.gg|discordapp.com/invite|discord.me)(\S+)", re.I)
+
+
 def role_mention_cleanup(message: discord.Message) -> str:
 
     if message.guild is None:
@@ -23,10 +27,16 @@ def role_mention_cleanup(message: discord.Message) -> str:
     return result
 
 
-def embed_from_msg(message: discord.Message) -> discord.Embed:
+def embed_from_msg(
+    message: discord.Message, filter_invites=False, mod_filter_obj=None
+) -> discord.Embed:
     channel = message.channel
     server = channel.guild
     content = role_mention_cleanup(message)
+    if filter_invites:
+        content = INVITE_URL_RE.sub("[SCRUBBED INVITE]", content)
+    if mod_filter_obj:
+        pass
     author = message.author
     sname = server.name
     cname = channel.name

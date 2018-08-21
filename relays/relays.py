@@ -1,6 +1,7 @@
 import asyncio
-import discord
+from typing import Dict, Optional
 
+import discord
 from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core.bot import Red
 from redbot.core.config import Config
@@ -51,14 +52,17 @@ class Relays:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.2"
+    __version__ = "1.1.0"
 
-    def __init__(self, bot: Red):
+    def __init__(self, bot: Red) -> None:
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_global(one_ways={}, nways={})
+        self.config.register_global(one_ways={}, nways={}, scrub_invites=False)
+        self.nways: Dict[str, NwayRelay] = {}
+        self.one_ways: Dict[str, OnewayRelay] = {}
+        self.scrub_invites: Optional[bool] = None
         self.bot.loop.create_task(self.initialize())
 
     async def __before_invoke(self, ctx):
@@ -77,6 +81,7 @@ class Relays:
         self.oneways = {
             k: OnewayRelay.from_data(self.bot, **v) for k, v in onewaydict.items()
         }
+        self.scrub_invites = await self.config.scrub_invites()
 
     async def write_data(self):
         nway_data = {k: v.to_data() for k, v in self.nways.items()}
@@ -93,7 +98,7 @@ class Relays:
         return list(self.oneways.values()) + list(self.nways.values())
 
     def gather_destinations(self, message: discord.Message):
-        chans = []
+        chans: list = []
         for r in self.relay_objs:
             chans.extend(r.get_destinations(message))
         return unique(chans)
@@ -104,7 +109,9 @@ class Relays:
         while not hasattr(self, "oneways"):
             asyncio.sleep(2)
         for dest in self.gather_destinations(message):
-            await dest.send(embed=embed_from_msg(message))
+            await dest.send(
+                embed=embed_from_msg(message, filter_invites=self.scrub_invites)
+            )
 
     def validate_inputs(self, *chaninfo: str):
         ret = {}
@@ -198,6 +205,31 @@ class Relays:
             msg += "\n".join(f"{x.name} | {x.guild.name}" for x in relay.channels)
 
         return msg
+
+    @commands.group()
+    async def relayset(self, ctx: commands.Context):
+        """
+        Global relay behavior settings
+        """
+        pass
+
+    @relayset.command(name="scrubinvites")
+    async def scrinv(self, ctx: commands.Context):
+        """
+        Enable removal of invite links before message forwarding
+        """
+        self.scrub_invites = True
+        await self.config.scrub_invites.set(True)
+        await ctx.tick()
+
+    @relayset.command(name="noscrubinvites")
+    async def noscrinv(self, ctx: commands.Context):
+        """
+        Disable removal of invite links before message forwarding
+        """
+        self.scrub_invites = False
+        await self.config.scrub_invites.set(False)
+        await ctx.tick()
 
     @commands.command()
     async def makerelay(self, ctx: commands.Context, name: str, *channels: str):
