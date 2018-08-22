@@ -1,15 +1,21 @@
+import io
+import csv
+import logging
+
 import discord
 from redbot.core import checks, commands
+
 from .converters import (
     RoleSyntaxConverter,
     ComplexActionConverter,
     ComplexSearchConverter,
     DynoSyntaxConverter,
 )
-import csv
-import io
 
 from .abc import MixinMeta
+from .exceptions import RoleManagementException
+
+log = logging.getLogger("redbot.sinbadcogs.rolemanagement.massmanager")
 
 
 class MassManagementMixin(MixinMeta):
@@ -379,9 +385,29 @@ class MassManagementMixin(MixinMeta):
         members = set(ctx.guild.members)
         members = self.search_filter(members, query)
 
-        for member in members:
-            await self.update_roles_atomically(
-                who=member, give=query["add"], remove=query["remove"]
-            )
+        if len(members) > 100:
+            await ctx.send("This may take a while given the number of members to update.")
+
+        async with ctx.typing():
+            for member in members:
+                try:
+                    await self.update_roles_atomically(
+                        who=member, give=query["add"], remove=query["remove"]
+                    )
+                except RoleManagementException:
+                    log.debug(
+                        "Internal filter failure on member id %d guild id %d query %s",
+                        member.id,
+                        ctx.guild.id,
+                        query,
+                    )
+                except discord.HTTPException:
+                    log.debug(
+                        "Unpredicted failure for member id %d in guild id %d query %s",
+                        member.id,
+                        ctx.guild.id,
+                        query,
+                    )
+
 
         await ctx.tick()

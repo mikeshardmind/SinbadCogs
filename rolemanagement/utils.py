@@ -28,15 +28,16 @@ class UtilMixin(MixinMeta):
         me = who.guild.me
         give = give or []
         remove = remove or []
+        heirarchy_testing = give + remove
         roles = [r for r in who.roles if r not in remove]
         roles.extend([r for r in give if r not in roles])
         if sorted(roles) == sorted(who.roles):
             return
         if (
-            any(r >= me.top_role for r in roles)
+            any(r >= me.top_role for r in heirarchy_testing)
             or not me.guild_permissions.manage_roles
         ):
-            raise discord.Forbidden(403, "Can't do that.")
+            raise PermissionOrHierarchyException("Can't do that.")
         await who.edit(roles=roles)
 
     async def all_are_valid_roles(self, ctx, *roles: discord.Role) -> bool:
