@@ -38,7 +38,7 @@ async def wait_for_any(*, bot: Client, event_dict: EventDict, timeout: int = Non
         futures.append(future)
 
     completed, unfinished = await asyncio.wait(
-        *futures, timeout=timeout, loop=bot.loop, return_when=asyncio.FIRST_COMPLETED
+        futures, timeout=timeout, loop=bot.loop, return_when=asyncio.FIRST_COMPLETED
     )
     [t.cancel() for t in unfinished]
     try:
