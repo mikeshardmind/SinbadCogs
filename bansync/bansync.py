@@ -42,7 +42,7 @@ class BanSync:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.0b"
+    __version__ = "1.1.0"
     __flavor_text__ = "Syndication Service Support Supplemented"
 
     def __init__(self, bot):
@@ -73,7 +73,7 @@ class BanSync:
         await ctx.send(
             box(
                 "Author: {a}\nBan Sync Version: {ver} ({flavor})".format(
-                    a=self.__author__, v=self.__version__, flavor=self.__flavor_text__
+                    a=self.__author__, ver=self.__version__, flavor=self.__flavor_text__
                 )
             )
         )
@@ -157,18 +157,19 @@ class BanSync:
         self, *, usr: discord.User, sources: GuildSet, dests: GuildSet
     ):
 
-        bans = {}
+        bans: dict = {}
         banlist = set()
 
         guilds = sources | dests
 
         for guild in guilds:
+            bans[guild.id] = set()
             try:
                 g_bans = {x.user for x in await guild.bans()}
             except discord.HTTPException:
                 pass
             else:
-                bans[guild.id] = g_bans.copy()
+                bans[guild.id].update(g_bans)
                 if guild in sources:
                     banlist.update(g_bans)
 
