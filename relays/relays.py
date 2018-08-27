@@ -52,7 +52,7 @@ class Relays:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.0"
+    __version__ = "1.1.1"
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
@@ -61,12 +61,12 @@ class Relays:
         )
         self.config.register_global(one_ways={}, nways={}, scrub_invites=False)
         self.nways: Dict[str, NwayRelay] = {}
-        self.one_ways: Dict[str, OnewayRelay] = {}
+        self.oneways: Dict[str, OnewayRelay] = {}
         self.scrub_invites: Optional[bool] = None
-        self.bot.loop.create_task(self.initialize())
+        self._load_task = self.bot.loop.create_task(self.initialize())
 
     async def __before_invoke(self, ctx):
-        while not hasattr(self, "oneways"):
+        while not self._load_task.done():
             asyncio.sleep(2)
 
     async def __local_check(self, ctx):
@@ -200,9 +200,9 @@ class Relays:
             msg += "\n".join(f"{x.name} | {x.guild.name}" for x in relay.destinations)
 
         if name in self.nways:
-            relay = self.nways[name]
+            nrelay = self.nways[name]
             msg = "\n".join(NWAY_OUTPUT_TEMPLATE) + "\n"
-            msg += "\n".join(f"{x.name} | {x.guild.name}" for x in relay.channels)
+            msg += "\n".join(f"{x.name} | {x.guild.name}" for x in nrelay.channels)
 
         return msg
 
