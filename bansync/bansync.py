@@ -1,13 +1,15 @@
 import asyncio
-from typing import List
+from typing import List, Set
 
 import discord
 
 from redbot.core.utils.chat_formatting import box, pagify
-from redbot.core import commands
+from redbot.core import commands, checks
 from redbot.core.i18n import Translator, cog_i18n
+from .converters import SyndicatedConverter
 
 GuildList = List[discord.Guild]
+GuildSet = Set[discord.Guild]
 _ = Translator("BanSync", __file__)
 
 # Strings go here for ease of modification with pygettext
@@ -31,6 +33,8 @@ UNWORTHY = _("You are not worthy")
 BANMOJI = "\U0001f528"
 
 
+# pylint: disable=E1133
+# pylint doesn't seem to handle implied async generators properly yet
 @cog_i18n(_)
 class BanSync:
     """
@@ -38,7 +42,8 @@ class BanSync:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.5b"
+    __version__ = "1.1.0"
+    __flavor_text__ = "Syndication Service Support Supplemented"
 
     def __init__(self, bot):
         self.bot = bot
@@ -58,15 +63,17 @@ class BanSync:
             await ctx.send(UNWORTHY)
         else:
             await ctx.send(
-                "I got some of those, but other's couldn't be banned for some reason."
+                _(
+                    "I got some of those, but other's couldn't be banned for some reason."
+                )
             )
 
     @commands.command(name="bansyncdebuginfo", hidden=True)
     async def debuginfo(self, ctx):
         await ctx.send(
             box(
-                "Author: {a}\nBan Sync Version: {v}".format(
-                    a=self.__author__, v=self.__version__
+                "Author: {a}\nBan Sync Version: {ver} ({flavor})".format(
+                    a=self.__author__, ver=self.__version__, flavor=self.__flavor_text__
                 )
             )
         )
@@ -105,10 +112,10 @@ class BanSync:
             member = discord.Object(id=_id)
         try:
             await guild.ban(member, reason=reason, delete_message_days=0)
-        except (discord.Forbidden, discord.HTTPException) as e:
+        except discord.HTTPException:
             return False
         else:
-            return True  # TODO: modlog hook
+            return True
 
     async def guild_discovery(self, ctx: commands.context, picked: GuildList):
         for g in sorted(self.bot.guilds, key=lambda s: s.name):
@@ -146,31 +153,33 @@ class BanSync:
             else:
                 return guild
 
-    async def process_sync(self, usr: discord.User, guilds: GuildList):
-        bans = {}
+    async def process_sync(
+        self, *, usr: discord.User, sources: GuildSet, dests: GuildSet
+    ):
+
+        bans: dict = {}
+        banlist = set()
+
+        guilds = sources | dests
 
         for guild in guilds:
+            bans[guild.id] = set()
             try:
-                g_bans = [x.user for x in await guild.bans()]
-            except (discord.Forbidden, discord.HTTPException) as e:
+                g_bans = {x.user for x in await guild.bans()}
+            except discord.HTTPException:
                 pass
             else:
-                bans[guild.id] = g_bans[:]
+                bans[guild.id].update(g_bans)
+                if guild in sources:
+                    banlist.update(g_bans)
 
-        for guild in guilds:
-            to_ban = []
-            for k, v in bans.items():
-                to_ban.extend(
-                    [
-                        m
-                        for m in v
-                        if m not in bans[guild.id]
-                        and await self.ban_filter(guild, usr, m)
-                    ]
-                )
-
-            for x in to_ban:
-                await self.ban_or_hackban(guild, x.id, mod=usr, reason=BAN_REASON)
+        for guild in dests:
+            to_ban = banlist - bans[guild.id]
+            for maybe_ban in to_ban:
+                if await self.ban_filter(guild, usr, maybe_ban):
+                    await self.ban_or_hackban(
+                        guild, maybe_ban.id, mod=usr, reason=BAN_REASON
+                    )
 
     @commands.command(name="bansync")
     async def ban_sync(self, ctx, auto=False):
@@ -190,12 +199,28 @@ class BanSync:
                 else:
                     guilds.append(s)
         elif auto is True:
-            guilds = [g for g in self.bot.guilds if await self.can_sync(g, ctx.author)]
+            guilds = {g for g in self.bot.guilds if await self.can_sync(g, ctx.author)}
 
         if len(guilds) < 2:
             return await ctx.send(TOO_FEW_CHOSEN)
 
-        await self.process_sync(ctx.author, guilds)
+        await self.process_sync(usr=ctx.author, sources=guilds, dests=guilds)
+        await ctx.tick()
+
+    @checks.is_owner()
+    @commands.command(name="syndicatebans")
+    async def syndicated_bansync(self, ctx, *, query: SyndicatedConverter):
+        """
+        Push bans from one or more servers to one or more others.
+
+        This is not bi-directional, use `[p]bansync` for that.
+
+        Usage:
+        `[p]syndicatebans --sources id(s) [--destinations id(s) | --auto-destinations]`
+        """
+
+        async with ctx.typing():
+            await self.process_sync(**query)
         await ctx.tick()
 
     @commands.command(name="mjolnir", aliases=["globalban"])
