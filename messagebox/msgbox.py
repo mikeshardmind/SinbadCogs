@@ -35,6 +35,10 @@ class MessageBox:
 
     def __unload(self):
         if _old_contact:
+            try:
+                self.bot.remove_command("contact")
+            except:
+                pass
             self.bot.add_command(_old_contact)
 
     @checks.is_owner()
