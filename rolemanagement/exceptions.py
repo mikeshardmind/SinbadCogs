@@ -1,6 +1,7 @@
 class RoleManagementException(Exception):
     pass
 
+
 class PermissionOrHierarchyException(Exception):
     pass
 

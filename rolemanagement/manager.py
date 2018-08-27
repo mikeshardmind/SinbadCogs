@@ -5,6 +5,7 @@ from redbot.core.config import Config
 from .utils import UtilMixin
 from .massmanager import MassManagementMixin
 from .events import EventMixin
+
 # from .notifications import NotificationMixin
 from .exceptions import RoleManagementException
 
@@ -93,11 +94,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
     @checks.admin_or_permissions(manage_server=True)
     @commands.command(name="roleunbind")
     async def unbind_role_from_reactions(
-        self,
-        ctx: commands.Context,
-        role: discord.Role,
-        msgid: int,
-        emoji: str,
+        self, ctx: commands.Context, role: discord.Role, msgid: int, emoji: str
     ):
         """
         unbinds a role from a reaction on a message

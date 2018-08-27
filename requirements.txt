@@ -1,5 +1,5 @@
 pytz
 python-dateutil
 asteval
-black
+black==18.6b4
 yarl==0.18

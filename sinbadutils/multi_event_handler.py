@@ -8,7 +8,9 @@ Check = Callable[..., bool]
 EventDict = Dict[str, Check]
 
 
-async def wait_for_any(*, bot: Client, event_dict: EventDict, timeout: int = None) -> tuple:
+async def wait_for_any(
+    *, bot: Client, event_dict: EventDict, timeout: int = None
+) -> tuple:
     """
     Takes
     bot
@@ -19,8 +21,10 @@ async def wait_for_any(*, bot: Client, event_dict: EventDict, timeout: int = Non
 
     if none match before a prior timeout, raises asyncio.TimeoutError
     """
+
     def _check(*args):
         return True
+
     futures = []
     for event, check in event_dict.items():
         future = bot.loop.create_future()
@@ -48,23 +52,24 @@ async def wait_for_any(*, bot: Client, event_dict: EventDict, timeout: int = Non
     else:
         return result
 
-# License info is here at the bottom because 
+
+# License info is here at the bottom because
 # who wants to open up source code and see the license first?
 #
 # MIT License
-# 
+#
 # Copyright (c) 2017-2018 Michael Hall
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE

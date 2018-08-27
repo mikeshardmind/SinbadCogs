@@ -386,7 +386,9 @@ class MassManagementMixin(MixinMeta):
         members = self.search_filter(members, query)
 
         if len(members) > 100:
-            await ctx.send("This may take a while given the number of members to update.")
+            await ctx.send(
+                "This may take a while given the number of members to update."
+            )
 
         async with ctx.typing():
             for member in members:
@@ -408,6 +410,5 @@ class MassManagementMixin(MixinMeta):
                         ctx.guild.id,
                         query,
                     )
-
 
         await ctx.tick()

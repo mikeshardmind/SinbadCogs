@@ -5,7 +5,6 @@ import discord
 
 
 class DynoSyntaxConverter(RoleConverter):
-
     async def convert(self, ctx: Context, argument: str):
         args = [c.strip() for c in argument.split(",")]
         ret: dict = {"+": [], "-": []}
@@ -24,7 +23,6 @@ class DynoSyntaxConverter(RoleConverter):
 
 
 class RoleSyntaxConverter(RoleConverter):
-
     async def convert(self, ctx: Context, argument: str):
         parser = argparse.ArgumentParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
