@@ -1,7 +1,6 @@
 import discord
 from redbot.core.config import Config
-from redbot.core import commands
-from redbot.core import checks
+from redbot.core import commands, checks
 
 
 class StickyRoles:
