@@ -15,7 +15,7 @@ _ = Translator("GuildBlacklist", __file__)
 
 log = logging.getLogger("red.guildblacklist")
 
-GBL_LIST_HEADER = _("IDs in blacklist")
+GBL_LIST_HEADER = _("IDs in blacklist:\n")
 FILE_NOT_FOUND = _("That doesn't appear to be a valid path for that")
 FMT_ERROR = _("That file didn't appear to be a valid settings file")
 
