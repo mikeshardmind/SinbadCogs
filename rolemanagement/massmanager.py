@@ -1,5 +1,6 @@
 import io
 import csv
+import lzma
 import logging
 
 import discord
@@ -344,12 +345,28 @@ class MassManagementMixin(MixinMeta):
                 )
 
             csvf.seek(0)
-            data = io.BytesIO(csvf.read().encode())
+            b_data = csvf.read().encode()
+            data = io.BytesIO(b_data)
             data.seek(0)
-            await ctx.send(
-                content=f"Data for {ctx.author.mention}",
-                files=[discord.File(data, filename=f"{ctx.message.id}.csv")],
-            )
+            max_size = 8 * 1024 * 1024
+            if sys.getsizeof(data) < max_size: 
+                await ctx.send(
+                    content=f"Data for {ctx.author.mention}",
+                    files=[discord.File(data, filename=f"{ctx.message.id}.csv")],
+                )
+            else:
+                data = io.BytesIO(lzma.compress(b_data))
+                data.seek(0)
+                try:
+                    await ctx.send(
+                        content=f"(Compressed) Data for {ctx.author.mention}",
+                        files=[discord.File(data, filename=f"{ctx.message.id}.csv")],
+                    )
+                except discord.HTTPException:
+                    await ctx.send(
+                        "Even compressed, this exceeds discord's attachment limits for bots. "
+                        "Let me know this happened, and I'll look into a splitting solution."
+                    )
             csvf.close()
             data.close()
             del csvf
