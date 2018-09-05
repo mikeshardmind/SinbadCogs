@@ -10,8 +10,6 @@ from redbot.core.utils.chat_formatting import pagify
 
 _ = Translator("MessageBox", __file__)
 
-_old_contact = None
-
 
 class MessageBoxError(Exception):
     pass
@@ -24,7 +22,7 @@ class MessageBox:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.1b"
+    __version__ = "1.0.2b"
 
     def __init__(self, bot):
         self.bot = bot
@@ -110,6 +108,7 @@ class MessageBox:
 
 def setup(bot):
     n = MessageBox(bot)
+    global _old_contact
     _old_contact = bot.get_command("contact")
     if _old_contact:
         bot.remove_command(_old_contact.name)
