@@ -360,7 +360,7 @@ class MassManagementMixin(MixinMeta):
                 try:
                     await ctx.send(
                         content=f"(Compressed) Data for {ctx.author.mention}",
-                        files=[discord.File(data, filename=f"{ctx.message.id}.csv")],
+                        files=[discord.File(data, filename=f"{ctx.message.id}.csv.xz")],
                     )
                 except discord.HTTPException:
                     await ctx.send(
