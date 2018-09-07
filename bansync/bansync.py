@@ -42,7 +42,7 @@ class BanSync:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.1"
+    __version__ = "1.1.2"
     __flavor_text__ = "Syndication Service Support Supplemented"
 
     def __init__(self, bot):
@@ -247,7 +247,7 @@ class BanSync:
 
         exit_codes = [
             await self.ban_or_hackban(guild, _id, mod=ctx.author, reason=rsn) async
-            for guild in self.guild_discovery(ctx, [])
+            for guild in self.guild_discovery(ctx, set())
         ]
 
         return any(exit_codes)
