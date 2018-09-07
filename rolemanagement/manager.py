@@ -16,7 +16,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
     """
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "3.0.4a"
+    __version__ = "3.0.5a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -214,7 +214,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         if removable is None:
             is_removable = await self.config.role(role).self_removable()
             return await ctx.send(
-                "{role} {verb} sticky".format(
+                "{role} {verb} self-removable".format(
                     role=role.name, verb=("is" if is_removable else "is not")
                 )
             )
@@ -235,7 +235,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
         if assignable is None:
             is_assignable = await self.config.role(role).self_role()
             return await ctx.send(
-                "{role} {verb} sticky".format(
+                "{role} {verb} self-assignable".format(
                     role=role.name, verb=("is" if is_assignable else "is not")
                 )
             )
