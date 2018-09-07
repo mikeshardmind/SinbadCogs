@@ -75,7 +75,7 @@ class ZalgoSearch:
 
         if ctx.guild.id in self.running:
             return await ctx.send("Already searching, please hold.")
-        self.running.update(ctx.guild.id)
+        self.running.add(ctx.guild.id)
         if nick is None:
             nick = await self.config.guild(ctx.guild).rename_to()
 
