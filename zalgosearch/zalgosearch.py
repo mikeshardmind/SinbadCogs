@@ -3,7 +3,7 @@ import asyncio
 from typing import Iterable, AsyncGenerator
 
 import discord
-from redbot import Red
+from redbot.core.bot import Red
 from redbot.core import commands, checks
 from redbot.core.config import Config
 
@@ -22,7 +22,7 @@ class ZalgoSearch:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.4b"
+    __version__ = "1.0.5b"
 
     def __init__(self, bot: "Red") -> None:
         self.bot = bot
@@ -83,7 +83,7 @@ class ZalgoSearch:
         to_check = filter(
             lambda m: m.top_role < ctx.guild.me.top_role, ctx.guild.members
         )
-        async for to_rename in self._filter_by_zalgo(to_check):
+        async for to_rename in self._filter_by_zalgo(to_check):  # pylint: disable=E1133
             await to_rename.edit(nick=nick)
             found_count += 1
 
