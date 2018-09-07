@@ -42,7 +42,7 @@ class BanSync:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.0"
+    __version__ = "1.1.1"
     __flavor_text__ = "Syndication Service Support Supplemented"
 
     def __init__(self, bot):
@@ -117,12 +117,12 @@ class BanSync:
         else:
             return True
 
-    async def guild_discovery(self, ctx: commands.context, picked: GuildList):
+    async def guild_discovery(self, ctx: commands.context, picked: GuildSet):
         for g in sorted(self.bot.guilds, key=lambda s: s.name):
             if g not in picked and await self.can_sync(g, ctx.author):
                 yield g
 
-    async def interactive(self, ctx: commands.context, picked: GuildList):
+    async def interactive(self, ctx: commands.context, picked: GuildSet):
         output = ""
         guilds = [g async for g in self.guild_discovery(ctx, picked)]
         if len(guilds) == 0:
@@ -186,7 +186,7 @@ class BanSync:
         """
         syncs bans across servers
         """
-        guilds = []
+        guilds = set()
         if not auto:
             while True:
                 s = await self.interactive(ctx, guilds)
@@ -197,7 +197,7 @@ class BanSync:
                 elif s is None:
                     continue
                 else:
-                    guilds.append(s)
+                    guilds.add(s)
         elif auto is True:
             guilds = {g for g in self.bot.guilds if await self.can_sync(g, ctx.author)}
 
