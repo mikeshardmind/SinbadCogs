@@ -9,7 +9,7 @@ class QuoteTools:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.0"
+    __version__ = "1.1.1"
 
     def __init__(self, bot):
         self.bot = bot
