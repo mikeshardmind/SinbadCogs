@@ -18,7 +18,7 @@ class EmbedMaker:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "3.0.0"
+    __version__ = "3.0.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -242,7 +242,7 @@ class EmbedMaker:
         """
         name = name.lower()
         try:
-            x = await self.get_and_send(ctx.channel, ctx.guild.id, name)
+            x = await self.get_and_send(user, ctx.guild.id, name)
         except discord.Forbidden as e:
             await ctx.maybe_send_embed(
                 "User has disabled DMs from this server or blocked me"
@@ -259,7 +259,7 @@ class EmbedMaker:
         """
         name = name.lower()
         try:
-            x = await self.get_and_send(ctx.channel, "GLOBAL", name)
+            x = await self.get_and_send(user, "GLOBAL", name)
         except discord.Forbidden as e:
             await ctx.maybe_send_embed(
                 "User has disabled DMs from this server or blocked me"
