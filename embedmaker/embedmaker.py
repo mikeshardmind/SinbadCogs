@@ -18,7 +18,7 @@ class EmbedMaker:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "3.0.1"
+    __version__ = "3.0.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -52,10 +52,10 @@ class EmbedMaker:
         try:
             e = await embed_from_userstr(ctx, data)
             await ctx.send("Here's how that's gonna look", embed=e)
+        except discord.HTTPException:
+            await ctx.maybe_send_embed("Discord didn't like that embed")
         except Exception:
             await ctx.maybe_send_embed("There was something wrong with that input")
-        except (discord.Forbidden, discord.HTTPException):
-            await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
             await ctx.tick()
             await group.owner.set(ctx.author.id)
@@ -97,10 +97,10 @@ class EmbedMaker:
             name = name.lower()
             e = await embed_from_userstr(ctx, data)
             await ctx.send("Here's how that's gonna look", embed=e)
+        except discord.HTTPException:
+            await ctx.maybe_send_embed("Discord didn't like that embed")
         except Exception:
             await ctx.maybe_send_embed("There was something wrong with that input")
-        except (discord.Forbidden, discord.HTTPException):
-            await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
             await ctx.tick()
             await self.config.custom("EMBED", "GLOBAL", name).owner.set(ctx.author.id)
@@ -243,7 +243,7 @@ class EmbedMaker:
         name = name.lower()
         try:
             x = await self.get_and_send(user, ctx.guild.id, name)
-        except discord.Forbidden as e:
+        except discord.Forbidden:
             await ctx.maybe_send_embed(
                 "User has disabled DMs from this server or blocked me"
             )
@@ -260,7 +260,7 @@ class EmbedMaker:
         name = name.lower()
         try:
             x = await self.get_and_send(user, "GLOBAL", name)
-        except discord.Forbidden as e:
+        except discord.Forbidden:
             await ctx.maybe_send_embed(
                 "User has disabled DMs from this server or blocked me"
             )
