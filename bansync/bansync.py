@@ -42,20 +42,19 @@ class BanSync:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.2"
-    __flavor_text__ = "Syndication Service Support Supplemented"
+    __version__ = "1.1.3"
+    __flavor_text__ = "Now rejecting commas"
 
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(name="bulkban")
-    async def bulkban(self, ctx, *ids: str):
+    async def bulkban(self, ctx, *ids: int):
         """
         bulk global bans by id
         """
         rsn = f"Global ban authorized by {ctx.author}({ctx.author.id})"
-        _ids = set(ids)
-        results = {i: await self.targeted_global_ban(ctx, i, rsn) for i in _ids}
+        results = {i: await self.targeted_global_ban(ctx, str(i), rsn) for i in set(ids)}
 
         if all(results.values()):
             await ctx.message.add_reaction(BANMOJI)
