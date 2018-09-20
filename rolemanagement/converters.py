@@ -3,6 +3,11 @@ import shlex
 from redbot.core.commands import RoleConverter, Context, BadArgument
 import discord
 
+class NoExitParser(argparse.ArgumentParser):
+
+    def error(self, message):
+        raise BadArgument()
+
 
 class DynoSyntaxConverter(RoleConverter):
     async def convert(self, ctx: Context, argument: str):
@@ -24,7 +29,7 @@ class DynoSyntaxConverter(RoleConverter):
 
 class RoleSyntaxConverter(RoleConverter):
     async def convert(self, ctx: Context, argument: str):
-        parser = argparse.ArgumentParser(
+        parser = NoExitParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
         )
         parser.add_argument("--add", nargs="*", dest="add", default=[])
@@ -61,7 +66,7 @@ class ComplexActionConverter(RoleConverter):
 
     async def convert(self, ctx: Context, argument: str) -> dict:
 
-        parser = argparse.ArgumentParser(
+        parser = NoExitParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
         )
         parser.add_argument("--has-any", nargs="*", dest="any", default=[])
@@ -136,7 +141,7 @@ class ComplexSearchConverter(RoleConverter):
     """
 
     async def convert(self, ctx: Context, argument: str) -> dict:
-        parser = argparse.ArgumentParser(
+        parser = NoExitParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
         )
         parser.add_argument("--has-any", nargs="*", dest="any", default=[])

@@ -3,6 +3,11 @@ import argparse
 
 from redbot.core.commands import Converter, Context, BadArgument
 
+class NoExitParser(argparse.ArgumentParser):
+
+    def error(self, message):
+        raise BadArgument()
+
 
 class SyndicatedConverter(Converter):
     """
@@ -11,7 +16,7 @@ class SyndicatedConverter(Converter):
 
     async def convert(self, ctx: Context, argument: str) -> dict:
 
-        parser = argparse.ArgumentParser(
+        parser = NoExitParser(
             description="Syndicated Ban Syntax", add_help=False, allow_abbrev=True
         )
         parser.add_argument("--sources", nargs="*", dest="sources", default=[])
