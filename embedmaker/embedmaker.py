@@ -18,7 +18,7 @@ class EmbedMaker:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "3.0.2"
+    __version__ = "3.0.3"
 
     def __init__(self, bot):
         self.bot = bot

@@ -52,10 +52,8 @@ def serialize_embed(embed: discord.Embed) -> dict:
     for field in embed.fields:
         data = {}
         for attr in ["name", "value", "inline"]:
-            to_set = getattr(field, attr, None) or None
-            if to_set:
-                data[attr] = to_set
-
+            to_set = getattr(field, attr, None)
+            data[attr] = to_set
         if data:
             ret["fields"].append(data)
 
