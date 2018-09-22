@@ -1,8 +1,14 @@
 import io
 import csv
 import sys
-import lzma
 import logging
+
+try:
+    import lzma
+except Exception:
+    LZMA_AVAIL = False
+else:
+    LZMA_AVAIL = True
 
 import discord
 from redbot.core import checks, commands
@@ -356,6 +362,11 @@ class MassManagementMixin(MixinMeta):
                     files=[discord.File(data, filename=f"{ctx.message.id}.csv")],
                 )
             else:
+                if not LZMA_AVAIL:
+                    return await ctx.send(
+                        "Your server is a little large for the file upload size, "
+                        "a patch for handling this will be available soon."
+                    )
                 data = io.BytesIO(lzma.compress(b_data))
                 data.seek(0)
                 try:

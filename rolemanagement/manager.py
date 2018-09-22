@@ -16,7 +16,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
     """
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "3.0.5a"
+    __version__ = "3.0.6a"
 
     def __init__(self, bot):
         self.bot = bot
