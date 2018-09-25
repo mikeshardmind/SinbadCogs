@@ -42,8 +42,8 @@ class BanSync:
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.3"
-    __flavor_text__ = "Now rejecting commas"
+    __version__ = "1.1.4"
+    __flavor_text__ = "Now respecting heirarchy fully."
 
     def __init__(self, bot):
         self.bot = bot
@@ -104,11 +104,14 @@ class BanSync:
             can_ban &= g.me.top_role > target.top_role
         return can_ban
 
-    async def ban_or_hackban(self, guild: discord.Guild, _id: int, **kwargs):
+    async def ban_or_hackban(self, guild: discord.Guild, _id: int, *, mod: discord.User, reason: str = None):
         member = guild.get_member(_id)
-        reason = kwargs.get("reason", BAN_REASON)
+        reason = reason or BAN_REASON
+        author = guild.get_member(mod.id) or mod
         if member is None:
             member = discord.Object(id=_id)
+        if not await self.ban_filter(guild, author, member):
+            return False
         try:
             await guild.ban(member, reason=reason, delete_message_days=0)
         except discord.HTTPException:
