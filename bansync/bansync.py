@@ -107,10 +107,9 @@ class BanSync:
     async def ban_or_hackban(self, guild: discord.Guild, _id: int, *, mod: discord.User, reason: str = None):
         member = guild.get_member(_id)
         reason = reason or BAN_REASON
-        author = guild.get_member(mod.id) or mod
         if member is None:
             member = discord.Object(id=_id)
-        if not await self.ban_filter(guild, author, member):
+        if not await self.ban_filter(guild, author, mod):
             return False
         try:
             await guild.ban(member, reason=reason, delete_message_days=0)
