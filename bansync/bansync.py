@@ -109,7 +109,7 @@ class BanSync:
         reason = reason or BAN_REASON
         if member is None:
             member = discord.Object(id=_id)
-        if not await self.ban_filter(guild, author, mod):
+        if not await self.ban_filter(guild, member, mod):
             return False
         try:
             await guild.ban(member, reason=reason, delete_message_days=0)
