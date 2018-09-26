@@ -274,7 +274,7 @@ class MassManagementMixin(MixinMeta):
         For role operations based on role membership, permissions had, or whether someone is a bot
         (or even just add to/remove from all) see `[p]massrole search` and `[p]massrole modify` 
         """
-        give, remove = roles["+"], roles["-"]
+        give, remove = roles["add"], roles["remove"]
         apply = give + remove
         if not await self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(
@@ -282,7 +282,7 @@ class MassManagementMixin(MixinMeta):
                 "or position in the hierarchy."
             )
 
-        await self.update_roles_atomically(who=user, give=roles["+"], remove=roles["-"])
+        await self.update_roles_atomically(who=user, give=give, remove=remove)
 
         await ctx.tick()
 
