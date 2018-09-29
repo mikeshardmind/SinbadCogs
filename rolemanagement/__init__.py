@@ -1,4 +1,4 @@
-from .manager import RoleManagement
+from .core import RoleManagement
 
 
 def setup(bot):

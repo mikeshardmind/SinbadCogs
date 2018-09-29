@@ -1,15 +1,18 @@
+from typing import Any
 from redbot.core import commands
 
 from .helpers import find_msg, embed_from_msg
 
+Base: Any = getattr(commands, "Cog", object)
 
-class QuoteTools:
+
+class QuoteTools(Base):
     """
     Cog for quoting messages by ID
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.1"
+    __version__ = "1.1.2"
 
     def __init__(self, bot):
         self.bot = bot

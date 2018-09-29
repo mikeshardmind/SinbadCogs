@@ -1,13 +1,16 @@
+from typing import Any
 import discord
 from redbot.core import commands, checks
 from redbot.core.config import Config
 
+Base: Any = getattr(commands, "Cog", object)
 
-class AntiMentionSpam:
+
+class AntiMentionSpam(Base):
     """removes mass mention spam"""
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "1.0.2a"
+    __version__ = "1.0.3"
 
     def __init__(self, bot):
         self.bot = bot

@@ -1,18 +1,21 @@
 import asyncio
+from typing import Any
 import discord
 from datetime import datetime as dt, timedelta as td
 
 from redbot.core import commands, checks
 from redbot.core.bot import Red
 
+Base: Any = getattr(commands, "Cog", object)
 
-class Polling:
+
+class Polling(Base):
     """
     A Polling cog
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.2b"
+    __version__ = "1.0.3"
 
     @commands.command()
     async def votecount(
@@ -55,9 +58,9 @@ class Polling:
         if m is None:
             return await ctx.maybe_send_embed("No such message in that channel.")
 
-        responses = {}
-        users = []
-        multivoters = []
+        responses: dict = {}
+        users: list = []
+        multivoters: list = []
 
         for r in m.reactions:
             if emojis and str(r) not in emojis:
@@ -72,7 +75,7 @@ class Polling:
                     users.append(u)
                 responses[str(r)].append(u)
 
-        valid_votes = {k: [] for k in responses.keys()}
+        valid_votes: dict = {k: [] for k in responses.keys()}
 
         for k, v in responses.items():
             for user in v:

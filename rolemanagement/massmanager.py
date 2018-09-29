@@ -356,7 +356,7 @@ class MassManagementMixin(MixinMeta):
             data = io.BytesIO(b_data)
             data.seek(0)
             max_size = 8 * 1024 * 1024
-            if sys.getsizeof(data) < max_size: 
+            if sys.getsizeof(data) < max_size:
                 await ctx.send(
                     content=f"Data for {ctx.author.mention}",
                     files=[discord.File(data, filename=f"{ctx.message.id}.csv")],

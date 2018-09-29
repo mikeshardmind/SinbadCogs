@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, Optional
+from typing import Dict, Optional, Any, List, Union
 
 import discord
 from redbot.core.utils.chat_formatting import box, pagify
@@ -43,16 +43,17 @@ ONE_WAY_OUTPUT_TEMPLATE = [
 ]
 
 NWAY_OUTPUT_TEMPLATE = [_("Relay type: multiway"), _("Channels Channel | Guild): ")]
+Base: Any = getattr(commands, "Cog", object)
 
 
 @cog_i18n(_)
-class Relays:
+class Relays(Base):
     """
     Provides channel relays
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.1"
+    __version__ = "1.1.2"
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
@@ -90,14 +91,16 @@ class Relays:
         await self.config.nways.set(nway_data)
 
     @property
-    def relay_names(self):
+    def relay_names(self) -> List[str]:
         return list(self.oneways.keys()) + list(self.nways.keys())
 
     @property
     def relay_objs(self):
         return list(self.oneways.values()) + list(self.nways.values())
 
-    def gather_destinations(self, message: discord.Message):
+    def gather_destinations(
+        self, message: discord.Message
+    ) -> List[discord.TextChannel]:
         chans: list = []
         for r in self.relay_objs:
             chans.extend(r.get_destinations(message))
@@ -197,12 +200,16 @@ class Relays:
                     quanitity_conditional,
                 ]
             ).format(source=relay.source, template=ONE_WAY_OUTPUT_TEMPLATE)
-            msg += "\n".join(f"{x.name} | {x.guild.name}" for x in relay.destinations)
+            msg += "\n".join(
+                "{x.name} | {x.guild.name}".format(x) for x in relay.destinations
+            )
 
         if name in self.nways:
             nrelay = self.nways[name]
             msg = "\n".join(NWAY_OUTPUT_TEMPLATE) + "\n"
-            msg += "\n".join(f"{x.name} | {x.guild.name}" for x in nrelay.channels)
+            msg += "\n".join(
+                "{x.name} | {x.guild.name}".format(x) for x in nrelay.channels
+            )
 
         return msg
 

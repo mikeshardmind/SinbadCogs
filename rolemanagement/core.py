@@ -1,3 +1,4 @@
+from typing import Any
 import discord
 from redbot.core import checks, commands
 from redbot.core.config import Config
@@ -9,14 +10,16 @@ from .events import EventMixin
 # from .notifications import NotificationMixin
 from .exceptions import RoleManagementException
 
+Base: Any = getattr(commands, "Cog", object)
 
-class RoleManagement(UtilMixin, MassManagementMixin, EventMixin):
+
+class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, Base):
     """
     Cog for role management
     """
 
     __author__ = "mikeshardmind (Sinbad#0001)"
-    __version__ = "3.0.7a"
+    __version__ = "3.0.8a"
 
     def __init__(self, bot):
         self.bot = bot

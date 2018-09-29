@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 import itertools
+from typing import Any
 
 import discord
 
@@ -21,25 +22,25 @@ FMT_ERROR = _("That file didn't appear to be a valid settings file")
 
 DC_UNAVAILABLE = _("Data conversion is not available in your install.")
 
+Base: Any = getattr(commands, "Cog", object)
+
 
 @cog_i18n(_)
-class GuildWhitelist:
+class GuildWhitelist(Base):
     """
     prevent the bot from joining servers who are not whitelisted
     or whose owner is not whitelisted or the owner of the bot
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.1a"
-
-    default_globals = {"whitelist": []}
+    __version__ = "1.0.2"
 
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_global(**self.default_globals)
+        self.config.register_global(whitelist=[])
 
     async def __local_check(self, ctx: commands.Context):
         return await ctx.bot.is_owner(ctx.author)

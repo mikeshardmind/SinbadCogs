@@ -3,8 +3,8 @@ import argparse
 
 from redbot.core.commands import Converter, Context, BadArgument
 
-class NoExitParser(argparse.ArgumentParser):
 
+class NoExitParser(argparse.ArgumentParser):
     def error(self, message):
         raise BadArgument()
 

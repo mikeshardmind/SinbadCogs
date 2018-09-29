@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 import itertools
+from typing import Any
 
 import discord
 
@@ -19,25 +20,25 @@ GBL_LIST_HEADER = _("IDs in blacklist:\n")
 FILE_NOT_FOUND = _("That doesn't appear to be a valid path for that")
 FMT_ERROR = _("That file didn't appear to be a valid settings file")
 
+Base: Any = getattr(commands, "Cog", object)
+
 
 @cog_i18n(_)
-class GuildBlacklist:
+class GuildBlacklist(Base):
     """
     prevent the bot from joining servers by either
     the server's ID, or the serverowner's ID
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.1a"
-
-    default_globals = {"blacklist": []}
+    __version__ = "1.0.2"
 
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_global(**self.default_globals)
+        self.config.register_global(blacklist=[])
 
     async def __local_check(self, ctx: commands.Context):
         return await ctx.bot.is_owner(ctx.author)

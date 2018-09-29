@@ -3,8 +3,8 @@ import shlex
 from redbot.core.commands import RoleConverter, Context, BadArgument
 import discord
 
-class NoExitParser(argparse.ArgumentParser):
 
+class NoExitParser(argparse.ArgumentParser):
     def error(self, message):
         raise BadArgument()
 

@@ -1,18 +1,21 @@
+from typing import Any
 from datetime import timedelta
 
-from redbot.core import Config
+from redbot.core import Config, commands
 
 from .autorooms import AutoRooms
 from .tempchannels import TempChannels
 
+Base: Any = getattr(commands, "Cog", object)
 
-class RoomTools(AutoRooms, TempChannels):
+
+class RoomTools(AutoRooms, TempChannels, Base):
     """
     Automagical user generated rooms with configuration.
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "7.0.4"
+    __version__ = "7.0.5"
 
     antispam_intervals = [
         (timedelta(seconds=5), 3),

@@ -1,12 +1,15 @@
+from typing import Any
 import discord
 from redbot.core.config import Config
 from redbot.core import commands, checks
 
+Base: Any = getattr(commands, "Cog", object)
 
-class StickyRoles:
+
+class StickyRoles(Base):
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.0b"
+    __version__ = "1.0.1b"
 
     def __init__(self, bot):
         self.bot = bot

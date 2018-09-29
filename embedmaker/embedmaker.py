@@ -1,5 +1,6 @@
 import discord
 import logging
+from typing import Any
 
 from redbot.core import Config
 from redbot.core import commands
@@ -10,15 +11,16 @@ from .yaml_parse import embed_from_userstr
 from .utils import parse_time
 
 log = logging.getLogger("redbot.sinbadcogs.embedmaker")
+Base: Any = getattr(commands, "Cog", object)
 
 
-class EmbedMaker:
+class EmbedMaker(Base):
     """
     Storable, recallable, embed maker
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "3.0.3"
+    __version__ = "3.0.4"
 
     def __init__(self, bot):
         self.bot = bot

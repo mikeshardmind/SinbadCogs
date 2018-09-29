@@ -1,6 +1,6 @@
 import re
 import asyncio
-from typing import Iterable, AsyncGenerator
+from typing import Iterable, AsyncGenerator, Any
 
 import discord
 from redbot.core.bot import Red
@@ -11,9 +11,10 @@ from redbot.core.config import Config
 from .zalgochars import ZALGOCHARS
 
 ZALGO_REGEX = re.compile("|".join(ZALGOCHARS))
+Base: Any = getattr(commands, "Cog", object)
 
 
-class ZalgoSearch:
+class ZalgoSearch(Base):
 
     """
     Replaces display names using zalgo chars.
@@ -22,7 +23,7 @@ class ZalgoSearch:
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.5b"
+    __version__ = "1.0.6b"
 
     def __init__(self, bot: "Red") -> None:
         self.bot = bot

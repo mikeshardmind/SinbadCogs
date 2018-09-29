@@ -2,6 +2,7 @@ import io
 import sys
 import discord
 from copy import copy
+from typing import Any
 from redbot.core.config import Config
 from redbot.core import checks
 from redbot.core import commands
@@ -9,6 +10,7 @@ from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import pagify
 
 _ = Translator("MessageBox", __file__)
+Base: Any = getattr(commands, "Cog", object)
 
 
 class MessageBoxError(Exception):
@@ -16,13 +18,13 @@ class MessageBoxError(Exception):
 
 
 @cog_i18n(_)
-class MessageBox:
+class MessageBox(Base):
     """
     replace contact with something less obnoxious
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.0.2b"
+    __version__ = "1.0.3"
 
     def __init__(self, bot):
         self.bot = bot

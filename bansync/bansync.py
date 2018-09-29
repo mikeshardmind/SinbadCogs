@@ -1,5 +1,5 @@
 import asyncio
-from typing import List, Set
+from typing import List, Set, Any
 
 import discord
 
@@ -32,17 +32,18 @@ UNWORTHY = _("You are not worthy")
 
 BANMOJI = "\U0001f528"
 
+Base: Any = getattr(commands, "Cog", object)
 
 # pylint: disable=E1133
 # pylint doesn't seem to handle implied async generators properly yet
 @cog_i18n(_)
-class BanSync:
+class BanSync(Base):
     """
     synchronize your bans
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.4"
+    __version__ = "1.1.5"
     __flavor_text__ = "Now respecting heirarchy fully."
 
     def __init__(self, bot):
@@ -54,7 +55,9 @@ class BanSync:
         bulk global bans by id
         """
         rsn = f"Global ban authorized by {ctx.author}({ctx.author.id})"
-        results = {i: await self.targeted_global_ban(ctx, str(i), rsn) for i in set(ids)}
+        results = {
+            i: await self.targeted_global_ban(ctx, str(i), rsn) for i in set(ids)
+        }
 
         if all(results.values()):
             await ctx.message.add_reaction(BANMOJI)
@@ -104,7 +107,9 @@ class BanSync:
             can_ban &= g.me.top_role > target.top_role
         return can_ban
 
-    async def ban_or_hackban(self, guild: discord.Guild, _id: int, *, mod: discord.User, reason: str = None):
+    async def ban_or_hackban(
+        self, guild: discord.Guild, _id: int, *, mod: discord.User, reason: str = None
+    ):
         member = guild.get_member(_id)
         reason = reason or BAN_REASON
         if member is None:

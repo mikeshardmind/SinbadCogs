@@ -1,5 +1,6 @@
 import sys
 import subprocess
+from typing import Any
 
 from redbot.core import commands
 from redbot.core.i18n import Translator, cog_i18n
@@ -8,9 +9,11 @@ from .jailer import run_jailed
 
 _ = Translator("Calculator", __file__)
 
+Base: Any = getattr(commands, "Cog", object)
+
 
 @cog_i18n(_)
-class Calculator:
+class Calculator(Base):
     """
     This provides a safe(er) method for allowing math
     to be evaluated by the bot.
