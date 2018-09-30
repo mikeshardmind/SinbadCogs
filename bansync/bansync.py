@@ -99,7 +99,7 @@ class BanSync(Base):
             can_ban = True
 
         mod = g.get_member(mod.id)
-        if m is None:
+        if mod is None:
             return False
 
         can_ban = (
