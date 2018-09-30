@@ -58,6 +58,7 @@ class AntiMentionSpam(Base):
             if number > 0 and seconds > 0
             else "Mention interval filtering has been disabled"
         )
+        self.antispam[ctx.guild.id] = {}
         await ctx.send(message)
 
     @checks.admin_or_permissions(manage_guild=True)
