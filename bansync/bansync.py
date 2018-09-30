@@ -43,8 +43,8 @@ class BanSync(Base):
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.5"
-    __flavor_text__ = "Now respecting heirarchy fully."
+    __version__ = "1.1.6"
+    __flavor_text__ = "Now bulkbanning properly"
 
     def __init__(self, bot):
         self.bot = bot
@@ -92,17 +92,20 @@ class BanSync(Base):
         bot_allowed = g.me.guild_permissions.ban_members
         return user_allowed and bot_allowed
 
-    async def ban_filter(self, g: discord.Guild, u: discord.user, t: discord.user):
-        m = g.get_member(u.id)
-        if m is None and not await self.bot.is_owner(u):
-            return False
-        elif await self.bot.is_owner(u):
+    async def ban_filter(
+        self, g: discord.Guild, mod: discord.user, target: discord.user
+    ):
+        if await self.bot.is_owner(mod):
             can_ban = True
-        else:
-            can_ban = (
-                m.guild_permissions.ban_members and g.me.guild_permissions.ban_members
-            )
-        target = g.get_member(t.id)
+
+        mod = g.get_member(mod.id)
+        if m is None:
+            return False
+
+        can_ban = (
+            mod.guild_permissions.ban_members and g.me.guild_permissions.ban_members
+        )
+        target = g.get_member(target.id)
         if target is not None:
             can_ban &= g.me.top_role > target.top_role
         return can_ban
@@ -114,7 +117,7 @@ class BanSync(Base):
         reason = reason or BAN_REASON
         if member is None:
             member = discord.Object(id=_id)
-        if not await self.ban_filter(guild, member, mod):
+        if not await self.ban_filter(guild, mod, member):
             return False
         try:
             await guild.ban(member, reason=reason, delete_message_days=0)
