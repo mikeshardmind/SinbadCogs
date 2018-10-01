@@ -53,7 +53,7 @@ class Relays(Base):
     """
 
     __author__ = "mikeshardmind(Sinbad#0001)"
-    __version__ = "1.1.2"
+    __version__ = "1.1.3"
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
