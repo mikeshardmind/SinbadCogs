@@ -52,7 +52,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.1.4"
+    __version__ = "1.2.0"
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
@@ -107,6 +107,8 @@ class Relays(commands.Cog):
 
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:
+            return
+        if message.type.value != 0:
             return
         while not hasattr(self, "oneways"):
             asyncio.sleep(2)
