@@ -11,7 +11,7 @@ class QuoteTools(Base):
     Cog for quoting messages by ID
     """
 
-    __author__ = "mikeshardmind(Sinbad#0001)"
+    __author__ = "mikeshardmind(Sinbad)"
     __version__ = "1.1.2"
 
     def __init__(self, bot):

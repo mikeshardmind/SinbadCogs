@@ -30,7 +30,7 @@ class GuildBlacklist(Base):
     the server's ID, or the serverowner's ID
     """
 
-    __author__ = "mikeshardmind(Sinbad#0001)"
+    __author__ = "mikeshardmind(Sinbad)"
     __version__ = "1.0.2"
 
     def __init__(self, bot):

@@ -12,7 +12,7 @@ Base: Any = getattr(commands, "Cog", object)
 class AntiMentionSpam(Base):
     """removes mass mention spam"""
 
-    __author__ = "mikeshardmind (Sinbad#0001)"
+    __author__ = "mikeshardmind (Sinbad)"
     __version__ = "1.1.0"
 
     def __init__(self, bot):

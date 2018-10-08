@@ -52,7 +52,7 @@ class Relays(Base):
     Provides channel relays
     """
 
-    __author__ = "mikeshardmind(Sinbad#0001)"
+    __author__ = "mikeshardmind(Sinbad)"
     __version__ = "1.1.2"
 
     def __init__(self, bot: Red) -> None:

@@ -158,7 +158,7 @@ class MassManagementMixin(MixinMeta):
 
         Example Usage:
 
-        [p]massrole user Sinbad#0001 +RoleToGive, -RoleToRemove
+        [p]massrole user Sinbad +RoleToGive, -RoleToRemove
 
         """
         give, remove = roles["+"], roles["-"]
@@ -268,7 +268,7 @@ class MassManagementMixin(MixinMeta):
 
         Example Usage:
 
-        [p]massrole user Sinbad#0001 --add RoleToGive "Role with spaces to give" 
+        [p]massrole user Sinbad --add RoleToGive "Role with spaces to give" 
         --remove RoleToRemove "some other role to remove" Somethirdrole
 
         For role operations based on role membership, permissions had, or whether someone is a bot

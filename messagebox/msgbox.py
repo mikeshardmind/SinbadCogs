@@ -23,7 +23,7 @@ class MessageBox(Base):
     replace contact with something less obnoxious
     """
 
-    __author__ = "mikeshardmind(Sinbad#0001)"
+    __author__ = "mikeshardmind(Sinbad)"
     __version__ = "1.0.3"
 
     def __init__(self, bot):

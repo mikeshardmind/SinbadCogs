@@ -42,7 +42,7 @@ class BanSync(Base):
     synchronize your bans
     """
 
-    __author__ = "mikeshardmind(Sinbad#0001)"
+    __author__ = "mikeshardmind(Sinbad)"
     __version__ = "1.1.6"
     __flavor_text__ = "Now bulkbanning properly"
 

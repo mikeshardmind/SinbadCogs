@@ -1,7 +1,7 @@
 # SinbadCogs
 [![Build Status](https://travis-ci.org/mikeshardmind/SinbadCogs.svg?branch=v3)](https://travis-ci.org/mikeshardmind/SinbadCogs) 
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-[![Red](https://img.shields.io/badge/Red-DiscordBot-red.svg)](https://github.com/Cog-Creators/Red-DiscordBot/tree/V3/develop)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black) 
+[![Red](https://img.shields.io/badge/Red-DiscordBot-red.svg)](https://github.com/Cog-Creators/Red-DiscordBot/tree/V3/develop) 
 [![Tip Jar](https://img.shields.io/badge/Paypal-Donate-blue.svg)](https://www.paypal.me/mikeshardmind)
 
 ## Whats here?
@@ -12,7 +12,7 @@ I'll have a more in depth guide to my cogs put together at a later date.
 
 ## Contact
 
-I'm Sinbad#0001 on Discord
+I'm Sinbad on Discord
 
 Feel free to ask for help with these in [This Discord](https://discord.gg/mb85deu)
 

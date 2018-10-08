@@ -32,7 +32,7 @@ class GuildWhitelist(Base):
     or whose owner is not whitelisted or the owner of the bot
     """
 
-    __author__ = "mikeshardmind(Sinbad#0001)"
+    __author__ = "mikeshardmind(Sinbad)"
     __version__ = "1.0.2"
 
     def __init__(self, bot):

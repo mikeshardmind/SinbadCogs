@@ -1,5 +1,5 @@
 {
-    "author": ["mikeshardmind(Sinbad#0001)"],
+    "author": ["mikeshardmind(Sinbad)"],
     "install_msg": "This is an initial bare bones port of the v2 cog, more to come on this.",
     "name": "AntiMentionSpam",
     "disabled": false,

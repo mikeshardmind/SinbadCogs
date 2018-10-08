@@ -11,7 +11,7 @@ class LinkJoinKiller(Base):
     Auto-ban users joining with invites in name.
     """
 
-    __author__ = "mikeshardmind(Sinbad#0001)"
+    __author__ = "mikeshardmind(Sinbad)"
     __version__ = "0.0.2"
 
     def __init__(self):

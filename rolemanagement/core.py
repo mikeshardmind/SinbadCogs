@@ -18,7 +18,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, Base):
     Cog for role management
     """
 
-    __author__ = "mikeshardmind (Sinbad#0001)"
+    __author__ = "mikeshardmind (Sinbad)"
     __version__ = "3.0.8a"
 
     def __init__(self, bot):
