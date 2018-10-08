@@ -11,10 +11,9 @@ from redbot.core.config import Config
 from .zalgochars import ZALGOCHARS
 
 ZALGO_REGEX = re.compile("|".join(ZALGOCHARS))
-Base: Any = getattr(commands, "Cog", object)
 
 
-class ZalgoSearch(Base):
+class ZalgoSearch(commands.Cog):
 
     """
     Replaces display names using zalgo chars.

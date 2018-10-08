@@ -6,14 +6,12 @@ from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.utils.antispam import AntiSpam
 
-Base: Any = getattr(commands, "Cog", object)
 
-
-class AntiMentionSpam(Base):
+class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "1.1.0"
+    __version__ = "1.2.0"
 
     def __init__(self, bot):
         self.bot = bot

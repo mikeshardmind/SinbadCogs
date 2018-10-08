@@ -11,10 +11,9 @@ from .yaml_parse import embed_from_userstr
 from .utils import parse_time
 
 log = logging.getLogger("redbot.sinbadcogs.embedmaker")
-Base: Any = getattr(commands, "Cog", object)
 
 
-class EmbedMaker(Base):
+class EmbedMaker(commands.Cog):
     """
     Storable, recallable, embed maker
     """

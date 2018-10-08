@@ -10,7 +10,6 @@ from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import pagify
 
 _ = Translator("MessageBox", __file__)
-Base: Any = getattr(commands, "Cog", object)
 
 
 class MessageBoxError(Exception):
@@ -18,13 +17,13 @@ class MessageBoxError(Exception):
 
 
 @cog_i18n(_)
-class MessageBox(Base):
+class MessageBox(commands.Cog):
     """
     replace contact with something less obnoxious
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.3"
+    __version__ = "1.0.4"
 
     def __init__(self, bot):
         self.bot = bot

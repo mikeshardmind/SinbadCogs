@@ -20,11 +20,9 @@ GBL_LIST_HEADER = _("IDs in blacklist:\n")
 FILE_NOT_FOUND = _("That doesn't appear to be a valid path for that")
 FMT_ERROR = _("That file didn't appear to be a valid settings file")
 
-Base: Any = getattr(commands, "Cog", object)
-
 
 @cog_i18n(_)
-class GuildBlacklist(Base):
+class GuildBlacklist(commands.Cog):
     """
     prevent the bot from joining servers by either
     the server's ID, or the serverowner's ID

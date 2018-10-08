@@ -22,11 +22,9 @@ FMT_ERROR = _("That file didn't appear to be a valid settings file")
 
 DC_UNAVAILABLE = _("Data conversion is not available in your install.")
 
-Base: Any = getattr(commands, "Cog", object)
-
 
 @cog_i18n(_)
-class GuildWhitelist(Base):
+class GuildWhitelist(commands.Cog):
     """
     prevent the bot from joining servers who are not whitelisted
     or whose owner is not whitelisted or the owner of the bot

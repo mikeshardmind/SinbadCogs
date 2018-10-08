@@ -32,18 +32,16 @@ UNWORTHY = _("You are not worthy")
 
 BANMOJI = "\U0001f528"
 
-Base: Any = getattr(commands, "Cog", object)
-
 # pylint: disable=E1133
 # pylint doesn't seem to handle implied async generators properly yet
 @cog_i18n(_)
-class BanSync(Base):
+class BanSync(commands.Cog):
     """
     synchronize your bans
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.1.6"
+    __version__ = "1.1.7"
     __flavor_text__ = "Now bulkbanning properly"
 
     def __init__(self, bot):

@@ -10,10 +10,8 @@ from .events import EventMixin
 # from .notifications import NotificationMixin
 from .exceptions import RoleManagementException
 
-Base: Any = getattr(commands, "Cog", object)
 
-
-class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, Base):
+class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
     Cog for role management
     """

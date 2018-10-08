@@ -6,16 +6,14 @@ from datetime import datetime as dt, timedelta as td
 from redbot.core import commands, checks
 from redbot.core.bot import Red
 
-Base: Any = getattr(commands, "Cog", object)
 
-
-class Polling(Base):
+class Polling(commands.Cog):
     """
     A Polling cog
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.3"
+    __version__ = "1.0.4"
 
     @commands.command()
     async def votecount(

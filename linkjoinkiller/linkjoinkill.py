@@ -3,10 +3,8 @@ from typing import Any
 import discord
 from redbot.core import commands
 
-Base: Any = getattr(commands, "Cog", object)
 
-
-class LinkJoinKiller(Base):
+class LinkJoinKiller(commands.Cog):
     """
     Auto-ban users joining with invites in name.
     """

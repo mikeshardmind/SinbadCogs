@@ -43,11 +43,10 @@ ONE_WAY_OUTPUT_TEMPLATE = [
 ]
 
 NWAY_OUTPUT_TEMPLATE = [_("Relay type: multiway"), _("Channels Channel | Guild): ")]
-Base: Any = getattr(commands, "Cog", object)
 
 
 @cog_i18n(_)
-class Relays(Base):
+class Relays(commands.Cog):
     """
     Provides channel relays
     """

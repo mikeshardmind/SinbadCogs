@@ -6,7 +6,7 @@ from .helpers import find_msg, embed_from_msg
 Base: Any = getattr(commands, "Cog", object)
 
 
-class QuoteTools(Base):
+class QuoteTools(commands.Cog):
     """
     Cog for quoting messages by ID
     """
