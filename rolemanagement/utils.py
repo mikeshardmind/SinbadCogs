@@ -68,6 +68,10 @@ class UtilMixin(MixinMeta):
 
         ret = await self.check_exclusivity(who, role)
 
+        forbidden = await self.config.member(who).forbidden()
+        if role.id in forbidden:
+            raise PermissionOrHierarchyException()
+
         guild = who.guild
         if not guild.me.guild_permissions.manage_roles or role > guild.me.top_role:
             raise PermissionOrHierarchyException()
