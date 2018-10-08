@@ -52,7 +52,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.1.2"
+    __version__ = "1.1.4"
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
