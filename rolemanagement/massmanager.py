@@ -3,13 +3,6 @@ import csv
 import sys
 import logging
 
-try:
-    import lzma
-except Exception:
-    LZMA_AVAIL = False
-else:
-    LZMA_AVAIL = True
-
 import discord
 from redbot.core import checks, commands
 
@@ -259,10 +252,14 @@ class MassManagementMixin(MixinMeta):
 
     @mrole.command(name="user")
     async def mrole_user(
-        self, ctx: commands.Context, user: discord.Member, *, roles: RoleSyntaxConverter
+        self,
+        ctx: commands.Context,
+        users: commands.Greedy[discord.Member],
+        *,
+        roles: RoleSyntaxConverter,
     ):
         """
-        adds/removes roles to a user
+        adds/removes roles to one or more users
 
         You cannot add and remove the same role
 
@@ -270,6 +267,8 @@ class MassManagementMixin(MixinMeta):
 
         [p]massrole user Sinbad --add RoleToGive "Role with spaces to give" 
         --remove RoleToRemove "some other role to remove" Somethirdrole
+
+        [p]massrole user LoudMouthedUser ProfaneUser --add muted
 
         For role operations based on role membership, permissions had, or whether someone is a bot
         (or even just add to/remove from all) see `[p]massrole search` and `[p]massrole modify` 
@@ -282,7 +281,8 @@ class MassManagementMixin(MixinMeta):
                 "or position in the hierarchy."
             )
 
-        await self.update_roles_atomically(who=user, give=give, remove=remove)
+        for user in users:
+            await self.update_roles_atomically(who=user, give=give, remove=remove)
 
         await ctx.tick()
 
@@ -329,6 +329,16 @@ class MassManagementMixin(MixinMeta):
             )
 
         else:
+            await self.send_maybe_chunked_csv(ctx, list(members))
+
+    async def send_maybe_chunked_csv(self, ctx: commands.Context, members):
+        chunk_size = 50000
+        chunks = [
+            members[i : (i + chunk_size)] for i in range(0, len(members), chunk_size)
+        ]
+
+        for part, chunk in enumerate(chunks, 1):
+
             csvf = io.StringIO()
             fieldnames = [
                 "ID",
@@ -340,7 +350,7 @@ class MassManagementMixin(MixinMeta):
             fmt = "%Y-%m-%d"
             writer = csv.DictWriter(csvf, fieldnames=fieldnames)
             writer.writeheader()
-            for member in members:
+            for member in chunk:
                 writer.writerow(
                     {
                         "ID": member.id,
@@ -355,30 +365,14 @@ class MassManagementMixin(MixinMeta):
             b_data = csvf.read().encode()
             data = io.BytesIO(b_data)
             data.seek(0)
-            max_size = 8 * 1024 * 1024
-            if sys.getsizeof(data) < max_size:
-                await ctx.send(
-                    content=f"Data for {ctx.author.mention}",
-                    files=[discord.File(data, filename=f"{ctx.message.id}.csv")],
-                )
-            else:
-                if not LZMA_AVAIL:
-                    return await ctx.send(
-                        "Your server is a little large for the file upload size, "
-                        "a patch for handling this will be available soon."
-                    )
-                data = io.BytesIO(lzma.compress(b_data))
-                data.seek(0)
-                try:
-                    await ctx.send(
-                        content=f"(Compressed) Data for {ctx.author.mention}",
-                        files=[discord.File(data, filename=f"{ctx.message.id}.csv.xz")],
-                    )
-                except discord.HTTPException:
-                    await ctx.send(
-                        "Even compressed, this exceeds discord's attachment limits for bots. "
-                        "Let me know this happened, and I'll look into a splitting solution."
-                    )
+            filename = f"{ctx.message.id}"
+            if len(chunks) > 1:
+                filename += f"-part{part}"
+            filename += ".csv"
+            await ctx.send(
+                content=f"Data for {ctx.author.mention}",
+                files=[discord.File(data, filename=filename)],
+            )
             csvf.close()
             data.close()
             del csvf

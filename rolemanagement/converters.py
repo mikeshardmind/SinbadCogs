@@ -34,8 +34,10 @@ class RoleSyntaxConverter(RoleConverter):
         )
         parser.add_argument("--add", nargs="*", dest="add", default=[])
         parser.add_argument("--remove", nargs="*", dest="remove", default=[])
-
-        vals = vars(parser.parse_args(shlex.split(argument)))
+        try:
+            vals = vars(parser.parse_args(shlex.split(argument)))
+        except Exception:
+            raise BadArgument()
 
         if not vals["add"] and not vals["remove"]:
             raise BadArgument("Must provide at least one action")
@@ -88,7 +90,10 @@ class ComplexActionConverter(RoleConverter):
             "--everyone", action="store_true", default=False, dest="everyone"
         )
 
-        vals = vars(parser.parse_args(shlex.split(argument)))
+        try:
+            vals = vars(parser.parse_args(shlex.split(argument)))
+        except Exception:
+            raise BadArgument()
 
         if not vals["add"] and not vals["remove"]:
             raise BadArgument("Must provide at least one action")
@@ -161,8 +166,10 @@ class ComplexSearchConverter(RoleConverter):
         hum_or_bot.add_argument(
             "--everyone", action="store_true", default=False, dest="everyone"
         )
-
-        vals = vars(parser.parse_args(shlex.split(argument)))
+        try:
+            vals = vars(parser.parse_args(shlex.split(argument)))
+        except Exception:
+            raise BadArgument()
 
         if not any(
             (

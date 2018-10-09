@@ -17,7 +17,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.0.9a"
+    __version__ = "3.0.10a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -121,7 +121,9 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         pass
 
     @rgroup.command(name="forbid")
-    async def forbid_role(self, ctx: commands.Context, role: discord.Role,* , user: discord.Member):
+    async def forbid_role(
+        self, ctx: commands.Context, role: discord.Role, *, user: discord.Member
+    ):
         """
         Forbids a user from gaining a specific role.
         """
@@ -133,7 +135,9 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         await ctx.tick()
 
     @rgroup.command(name="unforbid")
-    async def unforbid_role(self, ctx: commands.Context, role: discord.Role,* , user: discord.Member):
+    async def unforbid_role(
+        self, ctx: commands.Context, role: discord.Role, *, user: discord.Member
+    ):
         """
         Unforbids a user from gaining a specific role.
         """
@@ -143,7 +147,6 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             else:
                 await ctx.send("Role was not forbidden")
         await ctx.tick()
-
 
     @rgroup.command(name="exclusive")
     async def set_exclusivity(self, ctx: commands.Context, *roles: discord.Role):
