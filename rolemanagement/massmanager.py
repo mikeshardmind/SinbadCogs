@@ -332,7 +332,7 @@ class MassManagementMixin(MixinMeta):
             await self.send_maybe_chunked_csv(ctx, list(members))
 
     async def send_maybe_chunked_csv(self, ctx: commands.Context, members):
-        chunk_size = 50000
+        chunk_size = 75000
         chunks = [
             members[i : (i + chunk_size)] for i in range(0, len(members), chunk_size)
         ]
