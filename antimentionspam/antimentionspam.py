@@ -19,7 +19,7 @@ class AntiMentionSpam(commands.Cog):
             self, identifier=78631113035100160, force_registration=True
         )
         self.config.register_guild(
-            max_mentions=0, threshold=0, interval=0, autoban=False,
+            max_mentions=0, threshold=0, interval=0, autoban=False
         )
         self.antispam = {}
 
@@ -44,7 +44,9 @@ class AntiMentionSpam(commands.Cog):
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="maxinterval")
-    async def set_max_interval_mentions(self, ctx: commands.Context, number: int, seconds: int):
+    async def set_max_interval_mentions(
+        self, ctx: commands.Context, number: int, seconds: int
+    ):
         """sets the maximum number of mentions allowed in a time period.
         
         (0 for both to remove setting)
@@ -78,7 +80,7 @@ class AntiMentionSpam(commands.Cog):
 
         s = await self.config.guild(guild).all()
 
-        thresh, secs, ban = s['threshold'], s['interval'], s['autoban']
+        thresh, secs, ban = s["threshold"], s["interval"], s["autoban"]
 
         if not (thresh > 0 and secs > 0):
             return
@@ -128,7 +130,9 @@ class AntiMentionSpam(commands.Cog):
 
         if ban:
             try:
-                return await guild.ban(discord.Object(id=author.id), reason="mention spam")
+                return await guild.ban(
+                    discord.Object(id=author.id), reason="mention spam"
+                )
             except:
                 pass
 
@@ -157,7 +161,7 @@ class AntiMentionSpam(commands.Cog):
 
     async def is_immune(self, message) -> bool:
         imset = getattr(self.bot, "is_automod_immune", self._is_immune)
-        return (await self.bot.is_owner(message.author) or await imset(message))
+        return await self.bot.is_owner(message.author) or await imset(message)
 
     async def _is_immune(self, message):
         author = message.author

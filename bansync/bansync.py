@@ -253,8 +253,8 @@ class BanSync(commands.Cog):
             _id = x.id
 
         exit_codes = [
-            await self.ban_or_hackban(guild, _id, mod=ctx.author, reason=rsn) async
-            for guild in self.guild_discovery(ctx, set())
+            await self.ban_or_hackban(guild, _id, mod=ctx.author, reason=rsn)
+            async for guild in self.guild_discovery(ctx, set())
         ]
 
         return any(exit_codes)
