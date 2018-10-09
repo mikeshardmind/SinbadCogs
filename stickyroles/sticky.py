@@ -26,11 +26,11 @@ class StickyRoles(commands.Cog):
         Shows the roles which are sticky.
         """
         data = await self.config.all_roles()
-        rids = {k for k, v in data.items() if v['sticky']}
+        rids = {k for k, v in data.items() if v["sticky"]}
         role_names = {r.name for r in ctx.guild.roles if r.id in rids}
         if not role_names:
             return await ctx.send("No sticky roles")
-        
+
         output = "Sticky roles:\n" + humanize_list(role_names)
         for page in pagify(output):
             await ctx.send(page)
