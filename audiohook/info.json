@@ -1,0 +1,7 @@
+{
+    "author": ["mikeshardmind(Sinbad)"],
+    "install_msg": "This is for custom use.... you probably dont want this as-is",
+    "name": "AudioHook",
+    "disabled": false,
+    "hidden": true
+}
