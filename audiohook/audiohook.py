@@ -2,7 +2,7 @@ from redbot.core import commands, checks
 from redbot.core.config import Config
 
 
-class AudioHook:
+class AudioHook(commands.Cog):
 
     __author__ = "mikeshardmind(Sinbad)"
     __version__ = "0.0.1a"
