@@ -52,7 +52,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.2.0"
+    __version__ = "1.2.1"
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
@@ -202,14 +202,14 @@ class Relays(commands.Cog):
                 ]
             ).format(source=relay.source, template=ONE_WAY_OUTPUT_TEMPLATE)
             msg += "\n".join(
-                "{x.name} | {x.guild.name}".format(x) for x in relay.destinations
+                "{x.name} | {x.guild.name}".format(x=x) for x in relay.destinations
             )
 
         if name in self.nways:
             nrelay = self.nways[name]
             msg = "\n".join(NWAY_OUTPUT_TEMPLATE) + "\n"
             msg += "\n".join(
-                "{x.name} | {x.guild.name}".format(x) for x in nrelay.channels
+                "{x.name} | {x.guild.name}".format(x=x) for x in nrelay.channels
             )
 
         return msg
