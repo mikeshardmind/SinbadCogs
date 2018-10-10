@@ -9,14 +9,15 @@ class AudioHook:
     __flavor__ = "hard-coded bullshit, not suited for general use yet."
 
     def __init__(self, bot):
-        self.bot= bot
-#        self.config = Config.get_conf(self, 78631113035100160, force_registration=True)
-#        self.config.register_global(allowed=[], associated_allows=[])
+        self.bot = bot
+
+    #        self.config = Config.get_conf(self, 78631113035100160, force_registration=True)
+    #        self.config.register_global(allowed=[], associated_allows=[])
 
     async def __permission_hook(self, ctx):
         if await ctx.bot.is_owner(ctx.author):
             return True
-        
+
         if ctx.cog.__class__.__name__ != "Audio":
             return None
 

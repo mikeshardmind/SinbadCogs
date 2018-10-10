@@ -4,7 +4,11 @@ from typing import Tuple, Optional
 from datetime import timedelta
 
 import discord
-from redbot.core.commands import MemberConverter, Context, BadArgument #, timedelta_converter, 
+from redbot.core.commands import (
+    MemberConverter,
+    Context,
+    BadArgument,
+)  # , timedelta_converter,
 
 __all__ = ["mute_converter"]
 
@@ -19,6 +23,7 @@ TIME_RE_STRING = r"\s?".join(
 )
 
 TIME_RE = re.compile(TIME_RE_STRING, re.I)
+
 
 def timedelta_converter(argument: str) -> timedelta:
     """
@@ -59,7 +64,9 @@ def mute_converter(argument: str) -> Tuple[Optional[str], Optional[timedelta]]:
         --reason being an ass
         -r timeout --timed 1hr
     """
-    mute_parser = NoExitArgparse(description="Mute Parser", add_help=False, allow_abbrev=True)
+    mute_parser = NoExitArgparse(
+        description="Mute Parser", add_help=False, allow_abbrev=True
+    )
     mute_parser.add_argument("--reason", "-r", nargs="*", dest="reason", default="")
     mute_parser.add_argument("--timed", "-t", nargs="*", dest="timed", default="")
     vals = mute_parser.parse_args(argument.split())
