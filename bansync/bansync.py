@@ -41,7 +41,7 @@ class BanSync(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.1.7"
+    __version__ = "1.1.8"
     __flavor_text__ = "Now bulkbanning properly"
 
     def __init__(self, bot):
