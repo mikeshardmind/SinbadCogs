@@ -57,7 +57,9 @@ class EventMixin(MixinMeta):
             return
 
         guild = self.bot.get_guild(payload.guild_id)
-        await self.__before_invoke(None, guild=guild)
+        if guild:
+            if any(m.joined_at is None for m in guild.members):
+                await self.bot.request_offline_members(guild)
         member = guild.get_member(payload.user_id)
         if member.bot:
             return

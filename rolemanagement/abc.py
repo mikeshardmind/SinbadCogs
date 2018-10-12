@@ -36,7 +36,3 @@ class MixinMeta(ABC):
     @abstractmethod
     async def all_are_valid_roles(self, ctx, *roles: discord.Role) -> bool:
         raise NotImplementedError()
-
-    @abstractmethod
-    async def __before_invoke(self, ctx, guild = None) -> None:
-        raise NotImplementedError()
