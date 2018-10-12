@@ -1,6 +1,6 @@
-from typing import Any
+from typing import Any, Optional
 from redbot.core import commands
-
+import discord
 from .helpers import find_messages, embed_from_msg
 
 Base: Any = getattr(commands, "Cog", object)
@@ -19,14 +19,16 @@ class QuoteTools(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def quote(self, ctx, *messageids: int):
+    async def quote(self, ctx, channels: commands.Greedy[discord.TextChannel] = None, *messageids: int):
         """
         gets (a) message(s) by ID(s)
 
         User must be able to see the message(s)
+
+        You can optionally limit search to specific channels to speed things up
         """
 
-        msgs = await find_messages(ctx, messageids)
+        msgs = await find_messages(ctx, messageids, channels)
         if not msgs:
             return await ctx.maybe_send_embed("No matching message found.")
 

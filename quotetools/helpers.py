@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Optional
 import discord
 import re
 from discord.ext import commands
@@ -92,10 +92,10 @@ async def find_msg_fallback(channels, idx: int) -> discord.Message:
 
 
 async def find_messages(
-    ctx: commands.Context, ids: Sequence[int]
+    ctx: commands.Context, ids: Sequence[int], channels: Optional[Sequence[discord.abc.GuildChannel]] = None
 ) -> Sequence[discord.Message]:
 
-    channels = await eligible_channels(ctx)
+    channels = channels or await eligible_channels(ctx)
     guilds = {c.guild for c in channels}
 
     accumulated = {i: None for i in ids}  # dict order preserved py3.6+
@@ -105,7 +105,7 @@ async def find_messages(
         accumulated.update({m.id: m for m in g._state._messages if m.id in ids})
 
     for i in ids:
-        if i in accumulated:
+        if accumulated[i] is not None:
             continue
         m = await find_msg_fallback(channels, i)
         if m:
