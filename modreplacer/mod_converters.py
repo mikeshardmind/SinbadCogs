@@ -57,15 +57,9 @@ class NoExitArgparse(argparse.ArgumentParser):
 
 
 class MuteConverter:
-    def __init__(self, reason, time_interval):
-        self.reason: Optional[str]
-        self.time_interval: Optional[str]
-
-    def __call__(self, argument):
-        return self.mute_converter(argument)
 
     @staticmethod
-    def mute_converter(argument: str) -> Tuple[Optional[str], Optional[timedelta]]:
+    async def convert(_ctx, argument: str) -> Tuple[Optional[str], Optional[timedelta]]:
         """
         Valid uses:
             User
