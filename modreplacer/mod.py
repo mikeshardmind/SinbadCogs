@@ -22,7 +22,7 @@ from redbot.core.utils.mod import (
     get_audit_reason,
 )
 from .log import log
-from .mod_converters import mute_converter
+from .mod_converters import MuteConverter
 
 from redbot.core.utils.common_filters import filter_invites, filter_various_mentions
 
@@ -962,7 +962,7 @@ class Mod(commands.Cog):
         ctx: commands.Context,
         user: discord.Member,
         *,
-        args: mute_converter = (None, None),
+        args: MuteConverter = (None, None),
     ):
         """Mutes the user in a voice channel
         
@@ -1005,7 +1005,7 @@ class Mod(commands.Cog):
         ctx: commands.Context,
         user: discord.Member,
         *,
-        args: mute_converter = (None, None),
+        args: MuteConverter = (None, None),
     ):
         """Mutes user in the current channel
         
@@ -1035,7 +1035,7 @@ class Mod(commands.Cog):
         ctx: commands.Context,
         user: discord.Member,
         *,
-        args: mute_converter = (None, None),
+        args: MuteConverter = (None, None),
     ):
         """Mutes user in the server
         
@@ -1068,7 +1068,11 @@ class Mod(commands.Cog):
         channels = [c for c in guild.channels if c.id in mute_dict["channels"]]
 
         exit_codes = [
-            (await self.unmute_user(guild, channel, guild.me, member))
+            (
+                await self.unmute_user(
+                    guild, channel, guild.me, member, reason="Temp mute exipration"
+                )
+            )
             for channel in channels
         ]
 
@@ -1269,7 +1273,7 @@ class Mod(commands.Cog):
         author = ctx.author
         guild = ctx.guild
 
-        success, message = await self.unmute_user(guild, channel, author, user)
+        success, message = await self.unmute_user(guild, channel, author, user, reason)
 
         if success:
             await ctx.send(_("User unmuted in this channel."))
@@ -1311,7 +1315,9 @@ class Mod(commands.Cog):
                     await channel.set_permissions(
                         user, overwrite=overwrites, reason=audit_reason
                     )
-            success, message = await self.unmute_user(guild, channel, author, user)
+            success, message = await self.unmute_user(
+                guild, channel, author, user, reason
+            )
             unmute_success.append((success, message))
             await asyncio.sleep(0.1)
         await ctx.send(_("User has been unmuted in this server."))
