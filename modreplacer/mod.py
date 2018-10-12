@@ -1195,9 +1195,11 @@ class Mod(commands.Cog):
             if not others:
                 await ctx.send("User already muted everywhere")
             else:
-                output = (
-                    "I tried to mute them everywhere but failed. Ways failed below:"
-                )
+                if len(locations) == 1:
+                    output = ("I tried to mute them but failed")
+                else:
+                    output = ("I tried to mute them everywhere but failed.")
+                output += " Ways failed below:"
                 for channel, message in messages.items():
                     output += f"\n{channel.name}: {message}"
                 for page in pagify(output):
