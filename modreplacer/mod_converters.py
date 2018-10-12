@@ -10,7 +10,7 @@ from redbot.core.commands import (
     BadArgument,
 )  # , timedelta_converter,
 
-__all__ = ["MuteConverter"]
+__all__ = ["mute_converter"]
 
 # I could keep this one long string, but this is much easier to read/extend.
 TIME_RE_STRING = r"\s?".join(
@@ -56,25 +56,20 @@ class NoExitArgparse(argparse.ArgumentParser):
         raise BadArgument(None, None)
 
 
-class MuteConverter:
-
-    @staticmethod
-    async def convert(_ctx, argument: str) -> Tuple[Optional[str], Optional[timedelta]]:
-        """
-        Valid uses:
-            User
-            -t [timedelta]
-            --reason being an ass
-            -r timeout --timed 1hr
-        """
-        mute_parser = NoExitArgparse(
-            description="Mute Parser", add_help=False, allow_abbrev=True
-        )
-        mute_parser.add_argument("--reason", "-r", nargs="*", dest="reason", default="")
-        mute_parser.add_argument("--timed", "-t", nargs="*", dest="timed", default="")
-        vals = mute_parser.parse_args(argument.split())
-        reason = " ".join(vals.reason) or None
-        time_interval = (
-            timedelta_converter((" ".join(vals.timed))) if vals.timed else None
-        )
-        return reason, time_interval
+def mute_converter(argument: str) -> Tuple[Optional[str], Optional[timedelta]]:
+    """
+    Valid uses:
+        User
+        -t [timedelta]
+        --reason being an ass
+        -r timeout --timed 1hr
+    """
+    mute_parser = NoExitArgparse(
+        description="Mute Parser", add_help=False, allow_abbrev=True
+    )
+    mute_parser.add_argument("--reason", "-r", nargs="*", dest="reason", default="")
+    mute_parser.add_argument("--timed", "-t", nargs="*", dest="timed", default="")
+    vals = mute_parser.parse_args(argument.split())
+    reason = " ".join(vals.reason) or None
+    time_interval = timedelta_converter((" ".join(vals.timed))) if vals.timed else None
+    return reason, time_interval

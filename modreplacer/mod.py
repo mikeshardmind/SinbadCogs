@@ -22,7 +22,7 @@ from redbot.core.utils.mod import (
     get_audit_reason,
 )
 from .log import log
-from .mod_converters import MuteConverter
+from .mod_converters import mute_converter
 
 from redbot.core.utils.common_filters import filter_invites, filter_various_mentions
 
@@ -962,7 +962,7 @@ class Mod(commands.Cog):
         ctx: commands.Context,
         user: discord.Member,
         *,
-        args: MuteConverter = (None, None),
+        args: mute_converter = (None, None),
     ):
         """Mutes the user in a voice channel
         
@@ -1005,7 +1005,7 @@ class Mod(commands.Cog):
         ctx: commands.Context,
         user: discord.Member,
         *,
-        args: MuteConverter = (None, None),
+        args: mute_converter = (None, None),
     ):
         """Mutes user in the current channel
         
@@ -1035,7 +1035,7 @@ class Mod(commands.Cog):
         ctx: commands.Context,
         user: discord.Member,
         *,
-        args: MuteConverter = (None, None),
+        args: mute_converter = (None, None),
     ):
         """Mutes user in the server
         
@@ -1196,9 +1196,9 @@ class Mod(commands.Cog):
                 await ctx.send("User already muted everywhere")
             else:
                 if len(locations) == 1:
-                    output = ("I tried to mute them but failed")
+                    output = "I tried to mute them but failed"
                 else:
-                    output = ("I tried to mute them everywhere but failed.")
+                    output = "I tried to mute them everywhere but failed."
                 output += " Ways failed below:"
                 for channel, message in messages.items():
                     output += f"\n{channel.name}: {message}"
