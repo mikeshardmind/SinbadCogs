@@ -1127,7 +1127,11 @@ class Mod(commands.Cog):
         results = {
             loc: (
                 await self.mute_user(
-                    channel=loc, author=ctx.author, user=target, reason=reason
+                    guild=loc.guild,
+                    channel=loc,
+                    author=ctx.author,
+                    user=target,
+                    reason=reason,
                 )
             )
             for loc in locations
