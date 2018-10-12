@@ -57,6 +57,7 @@ class EventMixin(MixinMeta):
             return
 
         guild = self.bot.get_guild(payload.guild_id)
+        await self.__before_invoke(None, guild=guild)
         member = guild.get_member(payload.user_id)
         if member.bot:
             return
