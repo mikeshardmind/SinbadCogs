@@ -1327,96 +1327,83 @@ class Mod(commands.Cog):
 
     async def mute_user(
         self,
-        channel: Union[discord.TextChannel, discord.VoiceChannel],
+        guild: discord.Guild,
+        channel: discord.abc.GuildChannel,
         author: discord.Member,
         user: discord.Member,
-        reason: Optional[str] = None,
+        reason: str,
     ) -> (bool, str):
         """Mutes the specified user in the specified channel"""
         overwrites = channel.overwrites_for(user)
         permissions = channel.permissions_for(user)
 
-        if isinstance(channel, discord.TextChannel):
-            apply = {"send_messages": False, "add_reactions": False}
-            to_cache = {
-                "send_messages": overwrites.send_messages,
-                "add_reactions": overwrites.add_reactions,
-            }
-            if (
-                overwrites.send_messages is False or permissions.send_messages is False
-            ) and (
-                overwrites.add_reactions is False or permissions.add_reactions is False
-            ):
-                return False, mute_unmute_issues["already_muted"]
-        else:
-            apply = {"speak": False}
-            to_cache = {"speak": overwrites.speak}
-            if overwrites.speak is False or permissions.speak is False:
-                return False, mute_unmute_issues["already_muted"]
+        if permissions.administrator:
+            return False, T_(mute_unmute_issues["is_admin"])
 
-        if not await is_allowed_by_hierarchy(
-            self.bot, self.settings, channel.guild, author, user
+        new_overs = {}
+        if not isinstance(channel, discord.TextChannel):
+            new_overs.update(speak=False)
+        if not isinstance(channel, discord.VoiceChannel):
+            new_overs.update(send_messages=False, add_reactions=False)
+
+        if all(getattr(permissions, p) is False for p in new_overs.keys()):
+            return False, T_(mute_unmute_issues["already_muted"])
+
+        elif not await is_allowed_by_hierarchy(
+            self.bot, self.settings, guild, author, user
         ):
-            return False, mute_unmute_issues["hierarchy_problem"]
+            return False, T_(mute_unmute_issues["hierarchy_problem"])
 
-        overwrites.update(**apply)
+        old_overs = {k: getattr(overwrites, k) for k in new_overs}
+        overwrites.update(**new_overs)
         try:
             await channel.set_permissions(user, overwrite=overwrites, reason=reason)
         except discord.Forbidden:
-            return False, mute_unmute_issues["permissions_issue"]
+            return False, T_(mute_unmute_issues["permissions_issue"])
         else:
-            async with self.settings.member(user).perms_cache() as cache:
-                cache.update({str(channel.id): to_cache})
-            return True, None
+            await self.settings.member(user).set_raw(
+                "perms_cache", str(channel.id), value=old_overs
+            )
+        return True, None
 
     async def unmute_user(
         self,
         guild: discord.Guild,
-        channel: Union[discord.TextChannel, discord.VoiceChannel],
+        channel: discord.abc.GuildChannel,
         author: discord.Member,
         user: discord.Member,
+        reason: str,
     ) -> (bool, str):
         overwrites = channel.overwrites_for(user)
-        permissions = channel.permissions_for(user)
         perms_cache = await self.settings.member(user).perms_cache()
-
-        if isinstance(channel, discord.TextChannel):
-            default_old_values = {"send_messages": None, "add_reactions": None}
-            if overwrites.send_messages or permissions.send_messages:
-                return False, mute_unmute_issues["already_unmuted"]
-        else:
-            default_old_values = {"speak": None}
-            if overwrites.speak or permissions.speak:
-                return False, mute_unmute_issues["already_unmuted"]
-
-        if not await is_allowed_by_hierarchy(
-            self.bot, self.settings, channel.guild, author, user
-        ):
-            return False, mute_unmute_issues["hierarchy_problem"]
 
         if channel.id in perms_cache:
             old_values = perms_cache[channel.id]
         else:
-            old_values = default_old_values
-        overwrites.update(**old_values)
-        is_empty = self.are_overwrites_empty(overwrites)
+            old_values = {"send_messages": None, "add_reactions": None, "speak": None}
 
+        if all(getattr(overwrites, k) == v for k, v in old_values.items()):
+            return False, T_(mute_unmute_issues["already_unmuted"])
+
+        elif not await is_allowed_by_hierarchy(
+            self.bot, self.settings, guild, author, user
+        ):
+            return False, T_(mute_unmute_issues["hierarchy_problem"])
+
+        overwrites.update(**old_values)
         try:
-            if not is_empty:
-                await channel.set_permissions(user, overwrite=overwrites)
-            else:
+            if overwrites.is_empty():
                 await channel.set_permissions(
-                    user, overwrite=cast(discord.PermissionOverwrite, None)
+                    user,
+                    overwrite=cast(discord.PermissionOverwrite, None),
+                    reason=reason,
                 )
+            else:
+                await channel.set_permissions(user, overwrite=overwrites, reason=reason)
         except discord.Forbidden:
             return False, T_(mute_unmute_issues["permissions_issue"])
         else:
-            try:
-                del perms_cache[channel.id]
-            except KeyError:
-                pass
-            else:
-                await self.settings.member(user).perms_cache.set(perms_cache)
+            await self.settings.member(user).clear_raw("perms_cache", str(channel.id))
             return True, None
 
     @commands.group()
@@ -1970,6 +1957,9 @@ _ = lambda s: s
 mute_unmute_issues = {
     "already_muted": _("That user can't send messages in this channel."),
     "already_unmuted": _("That user isn't muted in this channel!"),
+    "is_admin": _(
+        "That user cannot be muted, as they have the Administrator permission."
+    ),
     "hierarchy_problem": _(
         "I cannot let you do that. You are not higher than "
         "the user in the role hierarchy."

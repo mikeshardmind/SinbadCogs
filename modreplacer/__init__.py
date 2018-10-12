@@ -9,5 +9,7 @@ except ImportError:
 
 def setup(bot: Red):
     if "Mod" in bot.cogs.keys():
-        raise CogLoadError("This replaces the mod cog. Unload it first if you want this.")
+        raise CogLoadError(
+            "This replaces the mod cog. Unload it first if you want this."
+        )
     bot.add_cog(Mod(bot))
