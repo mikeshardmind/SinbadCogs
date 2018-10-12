@@ -19,7 +19,12 @@ class QuoteTools(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def quote(self, ctx, channels: commands.Greedy[discord.TextChannel] = None, *messageids: int):
+    async def quote(
+        self,
+        ctx,
+        channels: commands.Greedy[discord.TextChannel] = None,
+        *messageids: int
+    ):
         """
         gets (a) message(s) by ID(s)
 

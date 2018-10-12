@@ -92,7 +92,9 @@ async def find_msg_fallback(channels, idx: int) -> discord.Message:
 
 
 async def find_messages(
-    ctx: commands.Context, ids: Sequence[int], channels: Optional[Sequence[discord.abc.GuildChannel]] = None
+    ctx: commands.Context,
+    ids: Sequence[int],
+    channels: Optional[Sequence[discord.abc.GuildChannel]] = None,
 ) -> Sequence[discord.Message]:
 
     channels = channels or await eligible_channels(ctx)
