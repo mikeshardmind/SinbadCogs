@@ -91,8 +91,10 @@ async def find_msg_fallback(channels, idx: int) -> discord.Message:
             return m
 
 
-async def find_messages(ctx: commands.Context, ids: Sequence[int]) -> Sequence[discord.Message]:
-    
+async def find_messages(
+    ctx: commands.Context, ids: Sequence[int]
+) -> Sequence[discord.Message]:
+
     channels = await eligible_channels(ctx)
     guilds = {c.guild for c in channels}
 
@@ -111,7 +113,3 @@ async def find_messages(ctx: commands.Context, ids: Sequence[int]) -> Sequence[d
 
     filtered = [m for m in accumulated.values() if m and m.channel in channels]
     return filtered
-
-    
-    
-
