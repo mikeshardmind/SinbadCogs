@@ -1,14 +1,16 @@
 dist: xenial
 language: python
-python:
-  - "3.6.5"
 cache: pip
+notifications:
+  email: false
+sudo: true
+
+python:
+  - "3.7"
 install:
-  - pip install -U --process-dependency-links red-discordbot
-  - pip install -r requirements.txt
+  - pip install black==18.9b0
 script:
   - python -m compileall .
-  - black --check `git ls-files "*.py"`
-notifications:
-email: false
+  - black --check -N `git ls-files "*.py"`
+
 

@@ -1,4 +1,5 @@
 import sys
+
 try:
     from redbot.core.errors import CogLoadError
 except ImportError:
@@ -10,4 +11,5 @@ def setup(bot):
         raise CogLoadError("This doesn't work on your OS")
     else:
         from .calc import Calculator
+
         bot.add_cog(Calculator(bot))

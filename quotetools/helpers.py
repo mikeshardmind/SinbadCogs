@@ -1,3 +1,4 @@
+from typing import Sequence, Optional
 import discord
 import re
 from discord.ext import commands
@@ -27,8 +28,6 @@ def embed_from_msg(message: discord.Message) -> discord.Embed:
     guild = channel.guild
     content = role_mention_cleanup(message)
     author = message.author
-    sname = guild.name
-    cname = channel.name
     avatar = author.avatar_url
     footer = f"Said in {guild.name} #{channel.name}"
     try:
@@ -81,12 +80,38 @@ async def eligible_channels(ctx: commands.Context) -> list:
     return ret
 
 
-async def find_msg(ctx: commands.Context, idx: int) -> discord.Message:
+async def find_msg_fallback(channels, idx: int) -> discord.Message:
 
-    for channel in await eligible_channels(ctx):
+    for channel in channels:
         try:
             m = await channel.get_message(idx)
         except Exception:
             continue
         else:
             return m
+
+
+async def find_messages(
+    ctx: commands.Context,
+    ids: Sequence[int],
+    channels: Optional[Sequence[discord.abc.GuildChannel]] = None,
+) -> Sequence[discord.Message]:
+
+    channels = channels or await eligible_channels(ctx)
+    guilds = {c.guild for c in channels}
+
+    accumulated = {i: None for i in ids}  # dict order preserved py3.6+
+
+    for g in guilds:
+        # This can find ineligible messages, but we strip later to avoid researching
+        accumulated.update({m.id: m for m in g._state._messages if m.id in ids})
+
+    for i in ids:
+        if accumulated[i] is not None:
+            continue
+        m = await find_msg_fallback(channels, i)
+        if m:
+            accumulated[i] = m
+
+    filtered = [m for m in accumulated.values() if m and m.channel in channels]
+    return filtered
