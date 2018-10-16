@@ -1652,7 +1652,7 @@ class Mod(commands.Cog):
         try:
             if await self.process_mute_expiry(entry):
                 data = await self.settings._get_base_group("TEMPMUTE").all()
-                data.pop(eid, None)
+                data.pop(str(eid), None)
                 await self.settings._get_base_group("TEMPMUTE").set(data)
             else:
                 log.info(
