@@ -43,7 +43,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
 
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(name="rolebind")
     async def bind_role_to_reactions(
         self,
@@ -92,7 +92,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
 
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(name="roleunbind")
     async def unbind_role_from_reactions(
         self, ctx: commands.Context, role: discord.Role, msgid: int, emoji: str
