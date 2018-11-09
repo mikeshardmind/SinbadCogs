@@ -1,4 +1,6 @@
 import asyncio
+import json
+import io
 from typing import List, Set, Any
 
 import discord
@@ -10,7 +12,9 @@ from .converters import SyndicatedConverter
 
 GuildList = List[discord.Guild]
 GuildSet = Set[discord.Guild]
-_ = Translator("BanSync", __file__)
+
+T_ = Translator("BanSync", __file__)
+_ = lambda s: s  # So that unguarded strings below are not modified in place.
 
 # Strings go here for ease of modification with pygettext
 INTERACTIVE_PROMPT_I = _(
@@ -30,7 +34,25 @@ BANS_SYNCED = _("Bans have been synchronized across selected servers")
 
 UNWORTHY = _("You are not worthy")
 
+PARTIAL_SUCCESS = _(
+    "I got some of those, but other's couldn't be banned for some reason."
+)
+
+TOO_MANY_BANS_WAT = _(
+    "Contact me. You have a very interesting ban list to be too large to send."
+)
+
+EXPECTED_FILE = _(
+    "You definitely need to supply me an exported ban list to be imported."
+)
+
+INVALID_FILE = _("That wasn't an exported ban list")
+
+ALL_ALREADY_BANNED = _("That list doesn't contain anybody not already banned.")
+
 BANMOJI = "\U0001f528"
+
+_ = T_
 
 # pylint: disable=E1133
 # pylint doesn't seem to handle implied async generators properly yet
@@ -41,11 +63,80 @@ class BanSync(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.1.8"
-    __flavor_text__ = "Now bulkbanning properly"
+    __version__ = "1.2.0"
+    __flavor_text__ = "Ban export/import json."
 
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.bot_has_permissions(ban_members=True, attach_files=True)
+    @checks.admin_or_permissions(ban_members=True)
+    @commands.guild_only()
+    @commands.command(name="exportbans")
+    async def exportbans(self, ctx):
+        """
+        Exports current servers bans to json
+        """
+        bans = await ctx.guild.bans()
+
+        data = [b.user.id for b in bans]
+
+        to_file = json.dumps(data).encode()
+        fp = io.BytesIO(to_file)
+        fp.seek(0)
+        filename = f"{ctx.message.id}-bans.json"
+
+        try:
+            await ctx.send(
+                ctx.author.mention, files=[discord.File(fp, filename=filename)]
+            )
+        except discord.HTTPException:
+            await ctx.send(TOO_MANY_BANS_WAT)
+
+    @commands.bot_has_permissions(ban_members=True)
+    @checks.admin_or_permissions(ban_members=True)
+    @commands.guild_only()
+    @commands.command(name="importbans")
+    async def importbans(self, ctx):
+        """
+        Imports bans from json
+        """
+
+        if not ctx.message.attachments:
+            return await ctx.send(EXPECTED_FILE)
+
+        fp = io.BytesIO()
+        a = ctx.message.attachments[0]
+        await a.save(fp)
+        try:
+            data = json.load(fp)
+            assert isinstance(data, list)
+            assert all(isinstance(x, int) for x in data)
+        except (json.JSONDecodeError, AssertionError):
+            return await ctx.send(INVALID_FILE)
+
+        current_bans = await ctx.guild.bans()
+        to_ban = set(data) - {b.user.id for b in current_bans}
+
+        if not to_ban:
+            return await ctx.send(ALL_ALREADY_BANNED)
+
+        exit_codes = [
+            await self.ban_or_hackban(
+                ctx.guild,
+                idx,
+                mod=ctx.author,
+                reason=f"Imported ban by {ctx.author}({ctx.author.id})",
+            )
+            for idx in to_ban
+        ]
+
+        if all(exit_codes):
+            await ctx.message.add_reaction(BANMOJI)
+        elif not any(exit_codes):
+            await ctx.send(UNWORTHY)
+        else:
+            await ctx.send(PARTIAL_SUCCESS)
 
     @commands.command(name="bulkban")
     async def bulkban(self, ctx, *ids: int):
@@ -62,11 +153,7 @@ class BanSync(commands.Cog):
         elif not any(results.values()):
             await ctx.send(UNWORTHY)
         else:
-            await ctx.send(
-                _(
-                    "I got some of those, but other's couldn't be banned for some reason."
-                )
-            )
+            await ctx.send(PARTIAL_SUCCESS)
 
     @commands.command(name="bansyncdebuginfo", hidden=True)
     async def debuginfo(self, ctx):
@@ -105,7 +192,9 @@ class BanSync(commands.Cog):
         )
         target = g.get_member(target.id)
         if target is not None:
-            can_ban &= g.me.top_role > target.top_role
+            can_ban &= g.me.top_role > target.top_role or g.me == g.owner
+            can_ban &= target != g.owner
+            can_ban &= mod.top_role > target.top_role or mod == g.owner
         return can_ban
 
     async def ban_or_hackban(
