@@ -10,6 +10,9 @@ class NoExitParser(argparse.ArgumentParser):
 
 
 class DynoSyntaxConverter(RoleConverter):
+    def __init__(self):
+        super().__init__()
+
     async def convert(self, ctx: Context, argument: str):
         args = [c.strip() for c in argument.split(",")]
         ret: dict = {"+": [], "-": []}
@@ -28,6 +31,9 @@ class DynoSyntaxConverter(RoleConverter):
 
 
 class RoleSyntaxConverter(RoleConverter):
+    def __init__(self):
+        super().__init__()
+
     async def convert(self, ctx: Context, argument: str):
         parser = NoExitParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
@@ -65,6 +71,9 @@ class ComplexActionConverter(RoleConverter):
     --only-bots
     --everyone
     """
+
+    def __init__(self):
+        super().__init__()
 
     async def convert(self, ctx: Context, argument: str) -> dict:
 
@@ -144,6 +153,9 @@ class ComplexSearchConverter(RoleConverter):
     --everyone
     --csv
     """
+
+    def __init__(self):
+        super().__init__()
 
     async def convert(self, ctx: Context, argument: str) -> dict:
         parser = NoExitParser(
