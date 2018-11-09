@@ -63,7 +63,7 @@ class BanSync(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.2.0"
+    __version__ = "1.2.1"
     __flavor_text__ = "Ban export/import json."
 
     def __init__(self, bot):
@@ -121,15 +121,16 @@ class BanSync(commands.Cog):
         if not to_ban:
             return await ctx.send(ALL_ALREADY_BANNED)
 
-        exit_codes = [
-            await self.ban_or_hackban(
-                ctx.guild,
-                idx,
-                mod=ctx.author,
-                reason=f"Imported ban by {ctx.author}({ctx.author.id})",
-            )
-            for idx in to_ban
-        ]
+        async with ctx.typing():
+            exit_codes = [
+                await self.ban_or_hackban(
+                    ctx.guild,
+                    idx,
+                    mod=ctx.author,
+                    reason=f"Imported ban by {ctx.author}({ctx.author.id})",
+                )
+                for idx in to_ban
+            ]
 
         if all(exit_codes):
             await ctx.message.add_reaction(BANMOJI)
@@ -144,9 +145,10 @@ class BanSync(commands.Cog):
         bulk global bans by id
         """
         rsn = f"Global ban authorized by {ctx.author}({ctx.author.id})"
-        results = {
-            i: await self.targeted_global_ban(ctx, str(i), rsn) for i in set(ids)
-        }
+        async with ctx.typing():
+            results = {
+                i: await self.targeted_global_ban(ctx, str(i), rsn) for i in set(ids)
+            }
 
         if all(results.values()):
             await ctx.message.add_reaction(BANMOJI)
@@ -300,7 +302,8 @@ class BanSync(commands.Cog):
         if len(guilds) < 2:
             return await ctx.send(TOO_FEW_CHOSEN)
 
-        await self.process_sync(usr=ctx.author, sources=guilds, dests=guilds)
+        async with ctx.typing():
+            await self.process_sync(usr=ctx.author, sources=guilds, dests=guilds)
         await ctx.tick()
 
     @checks.is_owner()
