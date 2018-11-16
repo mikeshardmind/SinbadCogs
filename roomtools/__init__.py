@@ -13,7 +13,8 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "7.0.6"
+    __version__ = "7.0.7"
+    __flavor_text__ = "Saner grace periods"
 
     antispam_intervals = [
         (timedelta(seconds=5), 3),

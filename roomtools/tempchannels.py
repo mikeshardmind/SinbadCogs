@@ -44,7 +44,7 @@ class TempChannels(MixedMeta):
                     continue
                 if (
                     len(channel.members) == 0
-                    and (channel.created_at + timedelta(seconds=5)) < datetime.utcnow()
+                    and (channel.created_at + timedelta(seconds=20)) < datetime.utcnow()
                 ):
                     try:
                         await channel.delete(reason="temp channel cleaning")

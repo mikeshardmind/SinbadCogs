@@ -34,7 +34,7 @@ class AutoRooms(MixedMeta):
                     continue
                 if (
                     len(channel.members) == 0
-                    and (channel.created_at + timedelta(seconds=2)) < datetime.utcnow()
+                    and (channel.created_at + timedelta(seconds=0.5)) < datetime.utcnow()
                 ):
                     try:
                         await channel.delete(reason="autoroom cleaning")
