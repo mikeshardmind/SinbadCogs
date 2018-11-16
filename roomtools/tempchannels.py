@@ -32,7 +32,8 @@ class TempChannels(MixedMeta):
 
     async def tmpc_cleanup(self, *guilds: discord.Guild, load: bool = False):
         if load:
-            await asyncio.sleep(10)
+            await self.bot.wait_until_ready()
+        await asyncio.sleep(0.5)
 
         if not guilds:
             guilds = self.bot.guilds
