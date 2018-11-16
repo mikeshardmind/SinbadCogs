@@ -35,7 +35,8 @@ class AutoRooms(MixedMeta):
                     continue
                 if (
                     len(channel.members) == 0
-                    and (channel.created_at + timedelta(seconds=0.5)) < datetime.utcnow()
+                    and (channel.created_at + timedelta(seconds=0.5))
+                    < datetime.utcnow()
                 ):
                     try:
                         await channel.delete(reason="autoroom cleaning")
@@ -78,6 +79,9 @@ class AutoRooms(MixedMeta):
         makes autorooms
         """
 
+        if not source.guild.me.guild_permissions.value & 16777232 == 16777232:
+            return
+
         ownership = await self.ar_config.channel(source).ownership()
         if ownership is None:
             ownership = await self.ar_config.guild(source.guild).ownership()
@@ -89,9 +93,23 @@ class AutoRooms(MixedMeta):
         for perm in source.overwrites:
             overwrites.update({perm[0]: perm[1]})
         if ownership:
+            if who in overwrites:
+                overwrites[who].update(manage_channels=True, manage_roles=True)
+            else:
+                overwrites.update(
+                    {
+                        who: discord.PermissionOverwrite(
+                            manage_channels=True, manage_roles=True
+                        )
+                    }
+                )
+
+        if source.guild.me in overwrites:
+            overwrites[source.guild.me].update(manage_channels=True, manage_roles=True)
+        else:
             overwrites.update(
                 {
-                    who: discord.PermissionOverwrite(
+                    source.guild.me: discord.PermissionOverwrite(
                         manage_channels=True, manage_roles=True
                     )
                 }
