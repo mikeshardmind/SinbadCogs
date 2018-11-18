@@ -12,7 +12,8 @@ from redbot.core.utils.mod import mass_purge, slow_deletion
 from .relay import NwayRelay, OnewayRelay
 from .helpers import unique, embed_from_msg, txt_channel_finder
 
-_ = Translator("Relays", __file__)
+T_ = Translator("Relays", __file__)
+_ = lambda s: s
 
 NAME_EXISTS = _("A relay of that name already exists.")
 
@@ -44,6 +45,7 @@ ONE_WAY_OUTPUT_TEMPLATE = [
 
 NWAY_OUTPUT_TEMPLATE = [_("Relay type: multiway"), _("Channels Channel | Guild): ")]
 
+_ = T_
 
 @cog_i18n(_)
 class Relays(commands.Cog):
@@ -52,7 +54,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.2.1"
+    __version__ = "1.2.2"
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot

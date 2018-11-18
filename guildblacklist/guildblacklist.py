@@ -12,14 +12,16 @@ from redbot.core import __version__ as redversion
 from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core.utils.data_converter import DataConverter as dc
 
-_ = Translator("GuildBlacklist", __file__)
-
 log = logging.getLogger("red.guildblacklist")
+
+T_ = Translator("GuildBlacklist", __file__)
+_ = lambda s: s
 
 GBL_LIST_HEADER = _("IDs in blacklist:\n")
 FILE_NOT_FOUND = _("That doesn't appear to be a valid path for that")
 FMT_ERROR = _("That file didn't appear to be a valid settings file")
 
+_ = T_
 
 @cog_i18n(_)
 class GuildBlacklist(commands.Cog):
@@ -29,7 +31,7 @@ class GuildBlacklist(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.2"
+    __version__ = "1.0.3"
 
     def __init__(self, bot):
         self.bot = bot

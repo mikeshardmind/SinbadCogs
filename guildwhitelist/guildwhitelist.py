@@ -12,7 +12,8 @@ from redbot.core import __version__ as redversion
 from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core.utils.data_converter import DataConverter as dc
 
-_ = Translator("GuildWhitelist", __file__)
+T_ = Translator("GuildWhitelist", __file__)
+_ = lambda s: s
 
 log = logging.getLogger("red.guildwhitelist")
 
@@ -22,6 +23,7 @@ FMT_ERROR = _("That file didn't appear to be a valid settings file")
 
 DC_UNAVAILABLE = _("Data conversion is not available in your install.")
 
+_ = T_
 
 @cog_i18n(_)
 class GuildWhitelist(commands.Cog):
@@ -31,7 +33,7 @@ class GuildWhitelist(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.2"
+    __version__ = "1.0.3"
 
     def __init__(self, bot):
         self.bot = bot
