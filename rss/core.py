@@ -67,7 +67,7 @@ class RSS(commands.Cog):
 
     def __unload(self):
         self.bg_loop_task.cancel()
-        self.bot.loop.schedule_task(self.session.close())
+        self.bot.loop.create_task(self.session.close())
 
     __del__ = __unload  
     # This really shouldn't be neccessary, but I'll verify this later.
