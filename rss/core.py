@@ -63,7 +63,7 @@ class RSS(commands.Cog):
         )
         self.config.register_channel(feeds={})
         self.session = aiohttp.ClientSession()
-        self.bg_loop_task = self.bot.create_task(self.bg_loop())
+        self.bg_loop_task = self.bot.loop.create_task(self.bg_loop())
 
     def __unload(self):
         self.bg_loop_task.cancel()
