@@ -78,7 +78,8 @@ class AutoRooms(MixedMeta):
         """
         makes autorooms
         """
-
+        # avoid object creation for comparison, it's slower
+        # manage_channels + move_members i.e 16 | 16777216 = 16777232
         if not source.guild.me.guild_permissions.value & 16777232 == 16777232:
             return
 
@@ -141,8 +142,9 @@ class AutoRooms(MixedMeta):
             await who.move_to(chan, reason="autoroom")
             await asyncio.sleep(0.5)
             await chan.edit(**editargs)
-            # TODO: Consider creation using
+            # TODO: 
             # discord.HTTP to avoid needing the edit
+            # This extra API call is avoidable when working with the lower level tools.
 
     @commands.bot_has_permissions(manage_channels=True)
     @checks.admin_or_permissions(manage_channels=True)
