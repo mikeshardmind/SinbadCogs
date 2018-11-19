@@ -53,8 +53,8 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.0a"
-    __flavor_text__ = "Needs some testing to be sure..."
+    __version__ = "1.0.0"
+    __flavor_text__ = "MVP version, updates to come."
 
     def __init__(self, bot):
         self.bot = bot

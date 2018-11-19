@@ -13,7 +13,6 @@ def tristate(arg: str) -> Optional[bool]:
         return False
     if arg.lower() in ("none", "default"):
         return None
-
     raise commands.BadArgument(
         _(
             '"{arg}" is not a valid setting.'

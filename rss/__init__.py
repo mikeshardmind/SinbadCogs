@@ -9,7 +9,7 @@ def setup(bot):
         from .core import RSS
     except ImportError:
         raise CogLoadError(
-            "You need feedparser for this. Downloader *should* have handled this for you."
+            "You need `feedparser` for this. Downloader *should* have handled this for you."
         )
     else:
         bot.add_cog(RSS(bot))

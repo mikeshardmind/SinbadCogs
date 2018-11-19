@@ -1,6 +1,7 @@
 import html.parser
 
-# The below is semi-safe for use here.
+# The below is semi-safe for use here, 
+# wouldn't reccomend copying this without understanding it.
 # html cleanup is taken from https://stackoverflow.com/a/7778368
 
 

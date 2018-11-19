@@ -4,11 +4,11 @@
     "name": "RSS",
     "disabled": false,
     "short": "rss cog",
-    "description": "This isn't ready for use yet, and is hidden for a reason.",
+    "description": "An RSS cog.",
     "tags": [
         "rss"
     ],
-    "hidden": true,
+    "hidden": false,
     "requirements": [
         "feedparser"
     ]
