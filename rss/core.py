@@ -152,6 +152,8 @@ class RSS(commands.Cog):
         content = template.safe_substitute(**escaped_usable_fields)
 
         if embed:
+            if len(content) > 5800:
+                content = content[:5800] + _("... (Feed data too long)")
             timestamp = datetime(*entry.published_parsed[:6])
             embed_data = discord.Embed(
                 description=content, color=color, timestamp=timestamp
@@ -159,6 +161,8 @@ class RSS(commands.Cog):
             embed_data.set_footer(text=_("Published "))
             return {"content": None, "embed": embed_data}
         else:
+            if len(content) > 1950:
+                content = content[:1950] + _("... (Feed data too long)")
             return {"content": content, "embed": None}
 
     async def bg_loop(self):
