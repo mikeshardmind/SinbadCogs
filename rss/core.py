@@ -100,9 +100,9 @@ class RSS(commands.Cog):
     @staticmethod
     def process_entry_time(x):
         if "published_parsed" in x:
-            return tuple(x.published_parsed)[:6]
+            return tuple(x.get("published_parsed"))[:6]
         if "updated_parsed" in x:
-            return tuple(x.updated_parsed)[:6]
+            return tuple(x.get("updated_parsed"))[:6]
         return (0,)
 
     async def format_and_send(
