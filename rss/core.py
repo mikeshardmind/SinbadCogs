@@ -97,6 +97,14 @@ class RSS(commands.Cog):
             return None
         return ret
 
+    @staticmethod
+    def process_entry_time(x):
+        if "published_parsed" in x:
+            return tuple(x.published_parsed)[:6]
+        if "updated_parsed" in x:
+            return tuple(x.updated_parsed)[:6]
+        return (0,)
+
     async def format_and_send(
         self,
         *,
@@ -122,9 +130,10 @@ class RSS(commands.Cog):
                 return None
         else:
             last = tuple(feed_settings.get("last", (0,)))
+            
             to_send = sorted(
-                [e for e in response.entries if tuple(e.published_parsed) > last],
-                key=lambda e: tuple(e.published_parsed),
+                [e for e in response.entries if self.process_entry_time(e) > last],
+                key=self.process_entry_time,
             )
 
         last_sent = None
@@ -137,12 +146,11 @@ class RSS(commands.Cog):
                 await self.bot.send_filtered(destination, **kwargs)
             except discord.HTTPException:
                 continue
-            last_sent = list(entry.published_parsed)
+            last_sent = list(self.process_entry_time(entry))
 
         return last_sent
 
-    @staticmethod
-    def format_post(entry, embed: bool, color, template=None) -> dict:
+    def format_post(self, entry, embed: bool, color, template=None) -> dict:
 
         if template is None:
             if embed:
@@ -163,7 +171,7 @@ class RSS(commands.Cog):
         if embed:
             if len(content) > 5800:
                 content = content[:5800] + _("... (Feed data too long)")
-            timestamp = datetime(*entry.published_parsed[:6])
+            timestamp = datetime(*self.process_entry_time(entry))
             embed_data = discord.Embed(
                 description=content, color=color, timestamp=timestamp
             )
@@ -177,7 +185,6 @@ class RSS(commands.Cog):
     async def bg_loop(self):
         await self.bot.wait_until_ready()
         while self.bot.get_cog("RSS") == self:
-            await asyncio.sleep(600)  # TODO: configureable
             feeds_fetched = {}
             default_embed_settings = {}
 
@@ -216,6 +223,7 @@ class RSS(commands.Cog):
                             await self.config.channel(channel).set_raw(
                                 feed_name, "last", value=last
                             )
+            await asyncio.sleep(600)  # TODO: configureable
 
     # commands go here
 
@@ -265,7 +273,7 @@ class RSS(commands.Cog):
         await ctx.tick()
 
     @rss.command(name="list")
-    async def list_feeds(self, ctx: commands.Context, channel: Optional[discord.TextChannel]):
+    async def list_feeds(self, ctx: commands.Context, channel: Optional[discord.TextChannel] = None):
         """
         Lists the current feeds (and their locations) 
         for the current channel, or a provided one.
@@ -291,7 +299,7 @@ class RSS(commands.Cog):
                 await ctx.send(page)
 
     @rss.command(name="remove")
-    async def remove_feed(self, ctx, name: str, channel: Optional[discord.TextChannel]):
+    async def remove_feed(self, ctx, name: str, channel: Optional[discord.TextChannel] = None):
         """
         removes a feed from the current channel, or from a provided channel
 
@@ -306,7 +314,7 @@ class RSS(commands.Cog):
     @rss.command(name="embed")
     @no_type_check
     async def set_embed(
-        self, ctx, feed: str, setting: tristate, channel: Optional[discord.TextChannel]
+        self, ctx, feed: str, setting: tristate, channel: Optional[discord.TextChannel] = None
     ):
         """
         Sets if a specific feed should 
@@ -325,7 +333,7 @@ class RSS(commands.Cog):
         await ctx.tick()
 
     @rss.command(name="template")
-    async def set_template(self, ctx, feed, template, channel: Optional[discord.TextChannel]):
+    async def set_template(self, ctx, feed, template, channel: Optional[discord.TextChannel] = None):
         """
         Sets formatting for the specified feed in this, or a provided channel
 
@@ -356,7 +364,7 @@ class RSS(commands.Cog):
         await ctx.tick()
 
     @rss.command(name="resettemplate")
-    async def reset_template(self, ctx, feed, channel: Optional[discord.TextChannel]):
+    async def reset_template(self, ctx, feed, channel: Optional[discord.TextChannel] = None):
         """
         Resets the template in use for a specific feed in this, or a provided channel
         """
