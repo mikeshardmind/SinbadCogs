@@ -1,0 +1,15 @@
+{
+    "author": ["mikeshardmind(Sinbad)"],
+    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
+    "name": "RSS",
+    "disabled": false,
+    "short": "rss cog",
+    "description": "This isn't ready for use yet, and is hidden for a reason.",
+    "tags": [
+        "rss"
+    ],
+    "hidden": true,
+    "requirements": [
+        "feedparser"
+    ]
+}
