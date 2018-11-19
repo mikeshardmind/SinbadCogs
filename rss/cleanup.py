@@ -3,6 +3,7 @@ import html.parser
 # The below is semi-safe for use here.
 # html cleanup is taken from https://stackoverflow.com/a/7778368
 
+
 class HTMLTextExtractor(html.parser.HTMLParser):  # https://stackoverflow.com/a/7778368
     def __init__(self):
         super().__init__()
@@ -12,7 +13,8 @@ class HTMLTextExtractor(html.parser.HTMLParser):  # https://stackoverflow.com/a/
         self.result.append(d)
 
     def get_text(self):
-        return ''.join(self.result)
+        return "".join(self.result)
+
 
 def html_to_text(html):  # https://stackoverflow.com/a/7778368
     """Converts HTML to plain text (stripping tags and converting entities).

@@ -1,4 +1,7 @@
-from redbot.core.errors import CogLoadError
+try:
+    from redbot.core.errors import CogLoadError
+except ImportError:
+    CogLoadError = RuntimeError
 
 
 def setup(bot):
@@ -8,3 +11,5 @@ def setup(bot):
         raise CogLoadError(
             "You need feedparser for this. Downloader *should* have handled this for you."
         )
+    else:
+        bot.add_cog(RSS(bot))
