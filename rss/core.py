@@ -11,6 +11,8 @@ from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 
+from .cleanup import html_to_text
+
 
 T_ = Translator("RSS", __file__)
 
@@ -20,6 +22,24 @@ _ = lambda s: s
 #
 _ = T_
 
+USABLE_FIELDS = [
+    "author",
+    "author_detail",
+    "comments",
+    "content",
+    "contributors",
+    "created",
+    "link",
+    "name",
+    "publisher",
+    "publisher_detail",
+    "source",
+    "summary", 
+    "summary_detail",
+    "tags",
+    "title",
+    "title_detail",
+]
 
 @cog_i18n(_)
 class RSS(commands.Cog):
@@ -124,7 +144,12 @@ class RSS(commands.Cog):
 
         template = string.Template(_template)
 
-        content = template.safe_substitute(**entry)
+        escaped_usable_fields = {
+            k: (v if not isinstance(v, str) else html_to_text(v))
+            for k, v in entry if k in USABLE_FIELDS and v
+        } 
+
+        content = template.safe_substitute(**escaped_usable_fields)
 
         if embed:
             timestamp = datetime(*entry.published_parsed[:6])
