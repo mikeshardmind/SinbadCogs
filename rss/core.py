@@ -162,7 +162,7 @@ class RSS(commands.Cog):
 
         escaped_usable_fields = {
             k: (v if not isinstance(v, str) else html_to_text(v))
-            for k, v in entry
+            for k, v in entry.items()
             if k in USABLE_FIELDS and v
         }
 
