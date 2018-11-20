@@ -236,7 +236,7 @@ class RSS(commands.Cog):
         pass
 
     @rss.command(name="force")
-    async def rss_force(self, ctx, feed, channel: Optional[discord.Channel] = None):
+    async def rss_force(self, ctx, feed, channel: Optional[discord.TextChannel] = None):
         """
         Forces the latest update for a feed to post.
         """
@@ -256,6 +256,7 @@ class RSS(commands.Cog):
                 response=response,
                 feed_settings=feed,
                 embed_default=should_embed,
+                force=True,
             )
         except Exception:
             await ctx.send(_("There was an error with that."))
