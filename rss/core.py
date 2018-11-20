@@ -57,7 +57,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.6"
+    __version__ = "1.0.7"
     __flavor_text__ = "MVP + bugfixes version, updates to come."
 
     def __init__(self, bot):
@@ -383,7 +383,7 @@ class RSS(commands.Cog):
 
     @rss.command(name="template")
     async def set_template(
-        self, ctx, feed, template, channel: Optional[discord.TextChannel] = None
+        self, ctx, feed, channel: Optional[discord.TextChannel] = None, *, template: str = None
     ):
         """
         Sets formatting for the specified feed in this, or a provided channel
@@ -412,6 +412,9 @@ class RSS(commands.Cog):
         $title_detail
 
         """
+
+        if not template:
+            return await ctx.send_help()
 
         channel = channel or ctx.channel
         template = template.replace("\\t", "\t")
