@@ -53,7 +53,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.1"
+    __version__ = "1.0.2"
     __flavor_text__ = "MVP version, updates to come."
 
     def __init__(self, bot):
@@ -227,12 +227,40 @@ class RSS(commands.Cog):
 
     # commands go here
 
+    @checks.mod_or_permissions(manage_channels=True)
     @commands.group()
     async def rss(self, ctx: commands.Context):
         """
         Configuration for rss
         """
         pass
+
+    @rss.command(name="force")
+    async def rss_force(self, ctx, feed, channel: Optional[discord.Channel] = None):
+        """
+        Forces the latest update for a feed to post.
+        """
+
+        channel = channel or ctx.channel
+        feeds = await self.config.channel(channel).feeds()
+        if feed not in feeds:
+            return await ctx.send(_("No such feed."))
+
+        response = await self.fetch_feed(feed["url"])
+
+        should_embed = await self.should_embed(ctx.guild)
+
+        try:
+            last = await self.format_and_send(
+                destination=channel,
+                response=response,
+                feed_settings=feed,
+                embed_default=should_embed,
+            )
+        except Exception:
+            await ctx.send(_("There was an error with that."))
+        else:
+            await ctx.tick()
 
     @commands.cooldown(3, 60, type=commands.BucketType.user)
     @rss.command()
@@ -241,7 +269,7 @@ class RSS(commands.Cog):
         ctx: commands.Context,
         name: str,
         url: str,
-        channel: Optional[discord.TextChannel],
+        channel: Optional[discord.TextChannel] = None,
     ):
         """
         Adds a feed to the current, or a provided channel
