@@ -251,7 +251,7 @@ class RSS(commands.Cog):
         should_embed = await self.should_embed(ctx.guild)
 
         try:
-            last = await self.format_and_send(
+            await self.format_and_send(
                 destination=channel,
                 response=response,
                 feed_settings=feeds[feed],
