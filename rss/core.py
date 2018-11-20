@@ -59,7 +59,7 @@ class RSS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
-            self, identifier=78_631_113_035_100_160, force_registration=True
+            self, identifier=78631113035100160, force_registration=True
         )
         self.config.register_channel(feeds={})
         self.session = aiohttp.ClientSession()
