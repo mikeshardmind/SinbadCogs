@@ -31,8 +31,12 @@ USABLE_FIELDS = [
     "content",
     "contributors",
     "created",
+    "updated",
+    "updated_parsed"
     "link",
     "name",
+    "published",
+    "published_parsed"
     "publisher",
     "publisher_detail",
     "source",
@@ -53,7 +57,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.5"
+    __version__ = "1.0.6"
     __flavor_text__ = "MVP + bugfixes version, updates to come."
 
     def __init__(self, bot):
@@ -384,16 +388,20 @@ class RSS(commands.Cog):
         """
         Sets formatting for the specified feed in this, or a provided channel
 
-        The following have special meaning based on their content in the RSS feed data:
+        The following have special meaning based on their content in the RSS feed data.
+        Any not used will remain.
 
         $author
         $author_detail
         $comments
         $content
         $contributors
-        $created
+        $updated
+        $updated_parsed
         $link
         $name
+        $published
+        $published_parsed
         $publisher
         $publisher_detail
         $source
