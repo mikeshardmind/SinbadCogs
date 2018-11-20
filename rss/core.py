@@ -57,7 +57,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.8"
+    __version__ = "1.0.9"
     __flavor_text__ = "MVP + bugfixes version, updates to come."
 
     def __init__(self, bot):
@@ -249,10 +249,14 @@ class RSS(commands.Cog):
 
         channel = channel or ctx.channel
         feeds = await self.config.channel(channel).feeds()
-        if feed not in feeds:
+        url = None
+        if feed in feeds:
+            url = feeds[feed].get("url", None)
+
+        if url is None:
             return await ctx.send(_("No such feed."))
 
-        response = await self.fetch_feed(feeds[feed]["url"])
+        response = await self.fetch_feed(url)
 
         should_embed = await self.should_embed(ctx.guild)
 

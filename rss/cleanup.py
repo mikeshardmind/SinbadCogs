@@ -1,8 +1,14 @@
 import html.parser
+import re
+
+__all__ = ["html_to_text"]
+
+WhitespaceHandler = re.compile("<p>|<br>|<i>", flags=re.MULTILINE)
 
 # The below is semi-safe for use here,
 # wouldn't reccomend copying this without understanding it.
 # html cleanup is taken from https://stackoverflow.com/a/7778368
+# with some modifications made to better suit the needs of this.
 
 
 class HTMLTextExtractor(html.parser.HTMLParser):  # https://stackoverflow.com/a/7778368
@@ -37,6 +43,7 @@ def html_to_text(html):  # https://stackoverflow.com/a/7778368
     >>> html_to_text('&nosuchentity; &apos; ')
     "&nosuchentity; ' "
     """
+    html = WhitespaceHandler.sub("\n", html)
     s = HTMLTextExtractor()
     s.feed(html)
     return s.get_text()
