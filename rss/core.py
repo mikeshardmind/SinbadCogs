@@ -89,7 +89,7 @@ class RSS(commands.Cog):
         return await self.bot.db.embeds()
 
     async def fetch_feed(self, url: str) -> Optional[feedparser.FeedParserDict]:
-        timeout = aiohttp.client.ClientTimeout(total=5)
+        timeout = aiohttp.client.ClientTimeout(total=15)
         try:
             async with self.session.get(url, timeout=timeout) as response:
                 data = await response.read()
