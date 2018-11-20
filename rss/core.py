@@ -254,7 +254,7 @@ class RSS(commands.Cog):
             last = await self.format_and_send(
                 destination=channel,
                 response=response,
-                feed_settings=feed,
+                feed_settings=feeds[feed],
                 embed_default=should_embed,
                 force=True,
             )
