@@ -19,7 +19,7 @@ class EmbedMaker(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "3.0.5"
+    __version__ = "3.0.6"
     __flavor_text__ = "Less reactions, more Reactive."
 
     def __init__(self, bot):
@@ -217,9 +217,6 @@ class EmbedMaker(commands.Cog):
             x = await self.get_and_send(ctx.channel, ctx.guild.id, name)
         except (discord.Forbidden, discord.HTTPException) as e:
             log.error(e)
-        else:
-            if x is not None:
-                await ctx.tick()
 
     @checks.is_owner()
     @_embed.command(name="dropglobal")
@@ -228,9 +225,10 @@ class EmbedMaker(commands.Cog):
         drop a global embed here
         """
         name = name.lower()
-        x = await self.get_and_send(ctx.channel, "GLOBAL", name)
-        if x is not None:
-            await ctx.tick()
+        try:
+            x = await self.get_and_send(ctx.channel, "GLOBAL", name)
+        except (discord.Forbidden, discord.HTTPException) as e:
+            log.error(e)
 
     @checks.admin()
     @_embed.command()
