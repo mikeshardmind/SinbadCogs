@@ -53,8 +53,8 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.2"
-    __flavor_text__ = "MVP version, updates to come."
+    __version__ = "1.0.3"
+    __flavor_text__ = "MVP + bugfixes version, updates to come."
 
     def __init__(self, bot):
         self.bot = bot
@@ -246,7 +246,7 @@ class RSS(commands.Cog):
         if feed not in feeds:
             return await ctx.send(_("No such feed."))
 
-        response = await self.fetch_feed(feed["url"])
+        response = await self.fetch_feed(feeds[feed]["url"])
 
         should_embed = await self.should_embed(ctx.guild)
 
