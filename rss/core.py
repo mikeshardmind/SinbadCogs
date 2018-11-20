@@ -32,11 +32,11 @@ USABLE_FIELDS = [
     "contributors",
     "created",
     "updated",
-    "updated_parsed"
+    "updated_parsed",
     "link",
     "name",
     "published",
-    "published_parsed"
+    "published_parsed",
     "publisher",
     "publisher_detail",
     "source",
@@ -57,7 +57,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.7"
+    __version__ = "1.0.8"
     __flavor_text__ = "MVP + bugfixes version, updates to come."
 
     def __init__(self, bot):
@@ -322,7 +322,10 @@ class RSS(commands.Cog):
 
         if await ctx.embed_requested():
             output = "\n".join(
-                ["{name}: {url}".format(name=k, url=v["url"]) for k, v in data.items()]
+                [
+                    "{name}: {url}".format(name=k, url=v.get("url", "broken feed"))
+                    for k, v in data.items()
+                ]
             )
             for page in pagify(output, page_length=6000):
                 await ctx.send(
@@ -333,7 +336,7 @@ class RSS(commands.Cog):
         else:
             output = "\n".join(
                 [
-                    "{name}: <{url}>".format(name=k, url=v["url"])
+                    "{name}: <{url}>".format(name=k, url=v.get("url", "broken feed"))
                     for k, v in data.items()
                 ]
             )
@@ -383,7 +386,12 @@ class RSS(commands.Cog):
 
     @rss.command(name="template")
     async def set_template(
-        self, ctx, feed, channel: Optional[discord.TextChannel] = None, *, template: str = None
+        self,
+        ctx,
+        feed,
+        channel: Optional[discord.TextChannel] = None,
+        *,
+        template: str = None,
     ):
         """
         Sets formatting for the specified feed in this, or a provided channel
