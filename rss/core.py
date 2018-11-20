@@ -53,7 +53,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.0"
+    __version__ = "1.0.1"
     __flavor_text__ = "MVP version, updates to come."
 
     def __init__(self, bot):
@@ -289,7 +289,7 @@ class RSS(commands.Cog):
             )
             for page in pagify(output, page_length=6000):
                 await ctx.send(
-                    discord.Embed(description=page, color=(await ctx.embed_color()))
+                    embed=discord.Embed(description=page, color=(await ctx.embed_color()))
                 )
         else:
             output = "\n".join(
