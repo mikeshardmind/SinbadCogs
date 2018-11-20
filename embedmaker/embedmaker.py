@@ -19,7 +19,8 @@ class EmbedMaker(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "3.0.4"
+    __version__ = "3.0.5"
+    __flavor_text__ = "Less reactions, more Reactive."
 
     def __init__(self, bot):
         self.bot = bot
@@ -58,7 +59,6 @@ class EmbedMaker(commands.Cog):
         except Exception:
             await ctx.maybe_send_embed("There was something wrong with that input")
         else:
-            await ctx.tick()
             await group.owner.set(ctx.author.id)
             await group.embed.set(serialize_embed(e))
 
@@ -103,7 +103,6 @@ class EmbedMaker(commands.Cog):
         except Exception:
             await ctx.maybe_send_embed("There was something wrong with that input")
         else:
-            await ctx.tick()
             await self.config.custom("EMBED", "GLOBAL", name).owner.set(ctx.author.id)
             await self.config.custom("EMBED", "GLOBAL", name).embed.set(
                 serialize_embed(e)
@@ -126,7 +125,6 @@ class EmbedMaker(commands.Cog):
         except (discord.Forbidden, discord.HTTPException):
             await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
-            await ctx.tick()
             await group.owner.set(ctx.author.id)
             await group.embed.set(serialize_embed(e))
 
@@ -146,7 +144,6 @@ class EmbedMaker(commands.Cog):
         except (discord.Forbidden, discord.HTTPException):
             await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
-            await ctx.tick()
             await group.owner.set(ctx.author.id)
             await group.embed.set(serialize_embed(e))
 
