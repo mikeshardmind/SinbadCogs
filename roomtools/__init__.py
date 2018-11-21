@@ -13,7 +13,7 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "7.1.1"
+    __version__ = "7.1.2"
     __flavor_text__ = "Weird Edge case fix."
 
     antispam_intervals = [
