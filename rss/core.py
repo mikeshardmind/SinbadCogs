@@ -57,7 +57,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.9"
+    __version__ = "1.0.10"
     __flavor_text__ = "MVP + bugfixes version, updates to come."
 
     def __init__(self, bot):
@@ -208,7 +208,9 @@ class RSS(commands.Cog):
                     should_embed = default_embed_settings[channel.guild]
 
                 for feed_name, feed in data["feeds"].items():
-                    url = feed["url"]
+                    url = feed.get("url", None)
+                    if not url:
+                        continue
                     if url in feeds_fetched:
                         response = feeds_fetched[url]
                     else:
