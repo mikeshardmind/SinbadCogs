@@ -3,7 +3,7 @@ import re
 
 __all__ = ["html_to_text"]
 
-WhitespaceHandler = re.compile("<p>|<br>|<i>", flags=re.MULTILINE)
+WhitespaceHandler = re.compile("<p>|<br>|<li>", flags=re.MULTILINE)
 
 # The below is semi-safe for use here,
 # wouldn't reccomend copying this without understanding it.
