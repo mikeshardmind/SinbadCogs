@@ -41,7 +41,7 @@ class AutoRooms(MixedMeta):
                     try:
                         await channel.delete(reason="autoroom cleaning")
                     except discord.Forbidden:
-                        break  # Don't bash our heads on perms
+                        pass
                     except discord.HTTPException:
                         pass
                     else:
@@ -79,8 +79,9 @@ class AutoRooms(MixedMeta):
         makes autorooms
         """
         # avoid object creation for comparison, it's slower
-        # manage_channels + move_members i.e 16 | 16777216 = 16777232
-        if not source.guild.me.guild_permissions.value & 16777232 == 16777232:
+        # manage_channels + move_members + connect
+        #  i.e 16 | 16777216 | = 17825808
+        if not source.guild.me.guild_permissions.value & 17825808 == 17825808:
             return
 
         ownership = await self.ar_config.channel(source).ownership()
@@ -105,13 +106,19 @@ class AutoRooms(MixedMeta):
                     }
                 )
 
+        # Note: Connect is not optional. Even with manage_channels,
+        # the bot cannot edit or delete the channel
+        # if it does not have this. This is *not* documented, and was discovered by trial
+        # and error with a weird edge case someone had.
         if source.guild.me in overwrites:
-            overwrites[source.guild.me].update(manage_channels=True, manage_roles=True)
+            overwrites[source.guild.me].update(
+                manage_channels=True, manage_roles=True, connect=True
+            )
         else:
             overwrites.update(
                 {
                     source.guild.me: discord.PermissionOverwrite(
-                        manage_channels=True, manage_roles=True
+                        manage_channels=True, manage_roles=True, connect=True
                     )
                 }
             )
@@ -142,7 +149,7 @@ class AutoRooms(MixedMeta):
             await who.move_to(chan, reason="autoroom")
             await asyncio.sleep(0.5)
             await chan.edit(**editargs)
-            # TODO: 
+            # TODO:
             # discord.HTTP to avoid needing the edit
             # This extra API call is avoidable when working with the lower level tools.
 
