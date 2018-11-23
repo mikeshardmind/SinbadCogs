@@ -57,7 +57,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.13"
+    __version__ = "1.0.14"
     __flavor_text__ = "Time granularity update"
 
     def __init__(self, bot):
@@ -133,7 +133,8 @@ class RSS(commands.Cog):
             except IndexError:
                 return None
         else:
-            last = tuple(feed_settings.get("last", (0,)))[:5]
+            last = feed_settings.get("last", None)
+            last = tuple((last or (0,))[:5])
 
             to_send = sorted(
                 [e for e in response.entries if self.process_entry_time(e) > last],
@@ -227,9 +228,10 @@ class RSS(commands.Cog):
                         except Exception:
                             pass
                         else:
-                            await self.config.channel(channel).feeds.set_raw(
-                                feed_name, "last", value=last
-                            )
+                            if last:
+                                await self.config.channel(channel).feeds.set_raw(
+                                    feed_name, "last", value=last
+                                )
             await asyncio.sleep(600)  # TODO: configureable
 
     # commands go here
