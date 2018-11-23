@@ -10,7 +10,7 @@ PUNISH_PERMS = {
     "send_messages": False,
     "read_message_history": False,
     "add_reactions": False,
-    "use_external_emoji": False,
+    "external_emojis": False,
 }
 
 
