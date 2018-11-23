@@ -57,7 +57,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.12"
+    __version__ = "1.0.13"
     __flavor_text__ = "Time granularity update"
 
     def __init__(self, bot):
@@ -195,7 +195,6 @@ class RSS(commands.Cog):
             default_embed_settings = {}
 
             channel_data = await self.config.all_channels()
-            to_update = channel_data.copy()
             for channel_id, data in channel_data.items():
 
                 channel = self.bot.get_channel(channel_id)
@@ -228,7 +227,7 @@ class RSS(commands.Cog):
                         except Exception:
                             pass
                         else:
-                            await self.config.channel(channel).set_raw(
+                            await self.config.channel(channel).feeds.set_raw(
                                 feed_name, "last", value=last
                             )
             await asyncio.sleep(600)  # TODO: configureable
