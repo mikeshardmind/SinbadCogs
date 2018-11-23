@@ -57,8 +57,8 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.11"
-    __flavor_text__ = "MVP + bugfixes version, updates to come."
+    __version__ = "1.0.12"
+    __flavor_text__ = "Time granularity update"
 
     def __init__(self, bot):
         self.bot = bot
@@ -104,9 +104,9 @@ class RSS(commands.Cog):
     @staticmethod
     def process_entry_time(x):
         if "published_parsed" in x:
-            return tuple(x.get("published_parsed"))[:6]
+            return tuple(x.get("published_parsed"))[:5]
         if "updated_parsed" in x:
-            return tuple(x.get("updated_parsed"))[:6]
+            return tuple(x.get("updated_parsed"))[:5]
         return (0,)
 
     async def format_and_send(
@@ -133,7 +133,7 @@ class RSS(commands.Cog):
             except IndexError:
                 return None
         else:
-            last = tuple(feed_settings.get("last", (0,)))
+            last = tuple(feed_settings.get("last", (0,)))[:5]
 
             to_send = sorted(
                 [e for e in response.entries if self.process_entry_time(e) > last],
