@@ -23,6 +23,7 @@ FMT_ERROR = _("That file didn't appear to be a valid settings file")
 
 _ = T_
 
+
 @cog_i18n(_)
 class GuildBlacklist(commands.Cog):
     """

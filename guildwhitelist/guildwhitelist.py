@@ -25,6 +25,7 @@ DC_UNAVAILABLE = _("Data conversion is not available in your install.")
 
 _ = T_
 
+
 @cog_i18n(_)
 class GuildWhitelist(commands.Cog):
     """

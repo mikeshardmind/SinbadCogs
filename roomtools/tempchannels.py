@@ -118,7 +118,9 @@ class TempChannels(MixedMeta):
         cat = discord.utils.get(ctx.guild.categories, id=cat_id)
 
         # Connect is NOT optional.
-        ow = discord.PermissionOverwrite(manage_channels=True, manage_roles=True, connect=True)
+        ow = discord.PermissionOverwrite(
+            manage_channels=True, manage_roles=True, connect=True
+        )
         overwrites = {ctx.guild.me: ow, ctx.author: ow}
 
         try:

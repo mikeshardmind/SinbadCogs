@@ -47,6 +47,7 @@ NWAY_OUTPUT_TEMPLATE = [_("Relay type: multiway"), _("Channels Channel | Guild):
 
 _ = T_
 
+
 @cog_i18n(_)
 class Relays(commands.Cog):
     """
