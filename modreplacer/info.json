@@ -2,7 +2,7 @@
     "author": [
         "mikeshardmind(Sinbad)", "Cog-Creators"
     ],
-    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu , this tracks updates from core, but timed mute is a way away for core, so offering here.",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "Mod",
     "disabled": false,
     "short": "An override to core mod with timed mute support",
@@ -11,7 +11,7 @@
         "timed mute",
         "mod"
     ],
-    "hidden": false,
+    "hidden": true,
     "min_python_version": [
         3,
         6,
