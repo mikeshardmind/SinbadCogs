@@ -1,0 +1,17 @@
+{
+    "author": [
+        "mikeshardmind(Sinbad)"
+    ],
+    "install_msg": "This is a set of things I'm working on for core red, that aren't neccesarily ready yet. Use with care.",
+    "name": "Staging",
+    "disabled": false,
+    "short": "testing stuff here",
+    "description": "",
+    "tags": [],
+    "hidden": true,
+    "min_python_version": [
+        3,
+        6,
+        0
+    ]
+}
