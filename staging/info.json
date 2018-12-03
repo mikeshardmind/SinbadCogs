@@ -8,10 +8,5 @@
     "short": "testing stuff here",
     "description": "",
     "tags": [],
-    "hidden": true,
-    "min_python_version": [
-        3,
-        6,
-        0
-    ]
+    "hidden": true
 }
