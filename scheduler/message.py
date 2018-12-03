@@ -3,6 +3,12 @@ import logging
 import discord
 from redbot.core import commands
 import asyncio
+from collections.abc import Awaitable
+
+
+class DummyAwaitable(Awaitable):
+    def __await__(self):
+        return None
 
 
 def neuter_coroutines(klass):
@@ -10,12 +16,13 @@ def neuter_coroutines(klass):
 
     for attr in dir(klass):
         _ = getattr(klass, attr, None)
-        if attr != "_dummy_coro" and asyncio.iscoroutinefunction(_):
+        if asyncio.iscoroutinefunction(_):
 
-            def getter(self):
-                return self._dummy_coro
+            def dummy(self):
+                return DummyAwaitable()
 
-            setattr(klass, attr, getter)
+            prop = property(fget=dummy)
+            setattr(klass, attr, prop)
 
 
 @neuter_coroutines
@@ -72,6 +79,3 @@ class SchedulerMessage(discord.Message):
                 delattr(self, attr)
             except AttributeError:
                 pass
-
-    async def _dummy_coro(self, *_args, **_kwargs) -> None:
-        pass
