@@ -8,5 +8,6 @@
     "short": "",
     "description": "",
     "tags": ["scheduler"],
-    "hidden": true
+    "hidden": true,
+    "requirements": ["python-dateutil", "pytz"]
 }
