@@ -72,7 +72,7 @@ class Staging(commands.Cog):
         user_created = user.created_at.strftime("%d %b %Y %H:%M")
         created_on = _("{}\n({} days ago)").format(user_created, since_created)
 
-        data = discord.Embed(colour=(await ctx.embed_color))
+        data = discord.Embed(colour=(await ctx.embed_color()))
         data.add_field(name=_("Joined Discord on"), value=created_on)
         name = str(user)
         if user.avatar:
