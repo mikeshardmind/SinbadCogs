@@ -8,7 +8,7 @@ from collections.abc import Awaitable
 
 class DummyAwaitable(Awaitable):
     def __await__(self):
-        return None
+        yield
 
 
 def neuter_coroutines(klass):
