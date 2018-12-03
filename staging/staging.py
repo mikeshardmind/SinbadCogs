@@ -50,13 +50,13 @@ class Staging(commands.Cog):
 
         if not (user_obj or is_owner):
             return await ctx.send(_("I couldn't locate that user in shared servers"))
-        elif not user:
+        elif not user_obj:
             try:
                 user_obj = await self.bot.get_user_info(_id)
             except discord.NotFound:
                 return await ctx.send(_("No such user."))
             except discord.HTTPException:
-                await ctx.send(
+                return await ctx.send(
                     _("Something unexpected prevented this user from being found.")
                 )
             guilds: list = []
