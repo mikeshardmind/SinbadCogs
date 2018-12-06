@@ -39,7 +39,7 @@ class Runner(commands.Cog):
         """
         runs a command
         """
-        async with ctx.send_typing():
+        async with ctx.typing():
             result = await self._run(command)
             fp = io.BytesIO(result)
             fp.seek(0)
