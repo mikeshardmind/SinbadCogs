@@ -18,4 +18,4 @@ def setup(bot):
         from .runner import Runner
 
         bot.add_cog(Management(bot))
-        bot.add_cog(Runner())
+        bot.add_cog(Runner(bot))
