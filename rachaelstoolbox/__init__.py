@@ -15,5 +15,7 @@ def setup(bot):
         )
     else:
         from .management import Management
+        from .runner import Runner
 
         bot.add_cog(Management(bot))
+        bot.add_cog(Runner())
