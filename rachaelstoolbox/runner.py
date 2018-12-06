@@ -1,6 +1,5 @@
 import io
 import subprocess
-import asyncio
 import functools
 from concurrent.futures import ThreadPoolExecutor
 
@@ -15,23 +14,25 @@ class Runner(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.executor = ThreadPoolExecutor(1)
-        self.lock = asyncio.Lock()
+        self.executor = ThreadPoolExecutor()
+
+    def __unload(self):
+        self.executor.shutdown(wait=False)
 
     async def _run(self, command):
-        async with self.lock:
-            return (
-                await self.bot.loop.run_in_executor(
-                    self.executor,
-                    functools.partial(
-                        subprocess.run,
-                        command,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.STDOUT,
-                        shell=True,
-                    ),
-                )
-            ).stdout
+
+        return (
+            await self.bot.loop.run_in_executor(
+                self.executor,
+                functools.partial(
+                    subprocess.run,
+                    command,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    shell=True,
+                ),
+            )
+        ).stdout
 
     @checks.is_owner()
     @commands.command(hidden=True)
