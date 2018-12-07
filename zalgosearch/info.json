@@ -8,7 +8,7 @@
     "short": "Kill zalgo names",
     "description": "This will attempt to work everywhere right now, not config yet",
     "tags": [],
-    "hidden": false,
+    "hidden": true,
     "min_python_version": [
         3,
         6,

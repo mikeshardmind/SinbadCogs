@@ -7,6 +7,6 @@
     "description": "Kills users joining with an invite link in name",
     "tags": [
     ],
-    "hidden": false,
+    "hidden": true,
     "min_python_version": [3, 6, 0]
 }

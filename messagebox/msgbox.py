@@ -23,7 +23,8 @@ class MessageBox(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.4"
+    __version__ = "1.0.5"
+    __flavor_text__ = "Pre V3 release cleanup version."
 
     def __init__(self, bot):
         self.bot = bot
@@ -33,6 +34,7 @@ class MessageBox(commands.Cog):
         self.config.register_global(output=None)
 
     def __unload(self):
+        global _old_contact
         if _old_contact:
             try:
                 self.bot.remove_command("contact")

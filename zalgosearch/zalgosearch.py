@@ -22,7 +22,8 @@ class ZalgoSearch(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.6b"
+    __version__ = "1.0.7b"
+    __flavor_text__ = "Not suited for multi server use version."
 
     def __init__(self, bot: "Red") -> None:
         self.bot = bot

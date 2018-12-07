@@ -11,6 +11,7 @@ class LinkJoinKiller(commands.Cog):
 
     __author__ = "mikeshardmind(Sinbad)"
     __version__ = "0.0.2"
+    __flavor_text__ = "Not suited for multi-server use version."
 
     def __init__(self):
         self.regex = re.compile(

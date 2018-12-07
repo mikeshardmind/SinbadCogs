@@ -6,9 +6,14 @@ from redbot.core.utils.chat_formatting import pagify, humanize_list
 
 
 class StickyRoles(commands.Cog):
+    """
+    Lighter-weight sticky roles only version of RoleManagement.
+    You probably want that cog instead. It does more.
+    """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.1.0"
+    __version__ = "1.1.1"
+    __flavor_text__ = "If you use RoleManagement, don't use this."
 
     def __init__(self, bot):
         self.bot = bot
