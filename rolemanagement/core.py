@@ -17,7 +17,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.0.13a"
+    __version__ = "3.0.14a"
 
     def __init__(self, bot):
         self.bot = bot
@@ -164,6 +164,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 ex_list.extend(
                     [r.id for r in _roles if r != role and r.id not in ex_list]
                 )
+        await ctx.tick()
 
     @rgroup.command(name="unexclusive")
     async def unset_exclusivity(self, ctx: commands.Context, *roles: discord.Role):
@@ -180,6 +181,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             ex_list = await self.config.role(role).exclusive_to()
             ex_list = [idx for idx in ex_list if idx not in [r.id for r in _roles]]
             await self.config.role(role).exclusive_to.set(ex_list)
+        await ctx.tick()
 
     @rgroup.command(name="sticky")
     async def setsticky(self, ctx, role: discord.Role, sticky: bool = None):

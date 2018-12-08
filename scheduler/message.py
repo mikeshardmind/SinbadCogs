@@ -23,7 +23,7 @@ def neuter_coroutines(klass):
 
             prop = property(fget=dummy)
             setattr(klass, attr, prop)
-
+    return klass
 
 @neuter_coroutines
 class SchedulerMessage(discord.Message):
@@ -40,42 +40,16 @@ class SchedulerMessage(discord.Message):
         content: str,
         author: discord.User,
         channel: discord.TextChannel,
-        guild: discord.Guild = None,
     ) -> None:
         self.id = discord.utils.time_snowflake(datetime.utcnow())
         self.author = author
         self.channel = channel
+        self.content = content
+        self.guild = channel.guild
+        # Stuff below is book keeping.
         self.call = None
-        data = {
-            "mention_everyone": bool(
-                "@everyone" in content
-                and channel.permissions_for(author).mention_everyone
-            ),
-            "content": content,
-            "type": 0,
-        }
-        self._update(channel, data)
-
-    def _update(self, channel, data):
-        self.channel = channel
-        self._try_patch(data, "mention_everyone")
-        self._try_patch(
-            data, "type", lambda x: discord.enums.try_enum(discord.MessageType, x)
-        )
-        self._try_patch(data, "content")
-        self._try_patch(data, "attachments", lambda x: [])
-        self._try_patch(data, "embeds", lambda x: [])
-
-        for handler in ("author", "mentions", "mention_roles"):
-            try:
-                getattr(self, "_handle_%s" % handler)(data[handler])
-            except KeyError:
-                continue
-
-        # clear the cached properties
-        cached = filter(lambda attr: attr.startswith("_cs_"), self.__slots__)
-        for attr in cached:
-            try:
-                delattr(self, attr)
-            except AttributeError:
-                pass
+        self.mentions = []
+        self.role_mentions = []
+        self.channel_mentions = []
+        self.type = discord.MessageType(0)
+        self.tts = False
