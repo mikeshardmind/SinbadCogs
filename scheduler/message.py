@@ -25,6 +25,7 @@ def neuter_coroutines(klass):
             setattr(klass, attr, prop)
     return klass
 
+
 @neuter_coroutines
 class SchedulerMessage(discord.Message):
     """
@@ -35,11 +36,7 @@ class SchedulerMessage(discord.Message):
     """
 
     def __init__(
-        self,
-        *,
-        content: str,
-        author: discord.User,
-        channel: discord.TextChannel,
+        self, *, content: str, author: discord.User, channel: discord.TextChannel
     ) -> None:
         self.id = discord.utils.time_snowflake(datetime.utcnow())
         self.author = author

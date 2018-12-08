@@ -17,7 +17,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.0.15a"
+    __version__ = "3.0.15b"
     __flavor_text__ = "Smarter toggles and better user feedback"
 
     def __init__(self, bot):
@@ -91,7 +91,11 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
 
         cfg = self.config.custom("REACTROLE", message.id, eid)
         await cfg.roleid.set(role.id)
-        await ctx.tick()
+        await ctx.send(
+            f"Remember, the reactions only function according to "
+            f"the rules set for the roles using `{ctx.prefix}roleset`",
+            delete_after=30,
+        )
 
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
