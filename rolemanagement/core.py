@@ -17,7 +17,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.0.14a"
+    __version__ = "3.0.15a"
+    __flavor_text__ = "Smarter toggles and better user feedback"
 
     def __init__(self, bot):
         self.bot = bot
@@ -29,7 +30,6 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             requires_any=[],
             requires_all=[],
             sticky=False,
-            toggle_on_exclusive=False,
             self_removable=False,
             self_role=False,
             protected=False,
@@ -54,7 +54,10 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         emoji: str,
     ):
         """
-        binds a role to a reaction on a message
+        Binds a role to a reaction on a message...
+
+        The role is only given if the criteria for it are met. 
+        Make sure you configure the other settings for a role in [p]roleset
         """
 
         if not await self.all_are_valid_roles(ctx, role):
@@ -69,7 +72,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         _emoji = discord.utils.find(lambda e: str(e) == emoji, self.bot.emojis)
         if _emoji is None:
             try:
-                ctx.message.add_reaction(emoji)
+                await ctx.message.add_reaction(emoji)
             except discord.DiscordException:
                 return await ctx.maybe_send_embed("No such emoji")
             else:

@@ -111,7 +111,7 @@ class UtilMixin(MixinMeta):
         async with self.config.role(role).exclusive_to() as ex:
             if any(r.id in ex for r in who.roles):
                 conflicts = [r for r in who.roles if r.id in ex]
-                if await self.config.role(role).toggle_on_exclusive():
+                if await self.config.role(role).self_removable():
                     ret = conflicts
                 else:
                     raise ConflictingRoleException(conflicts=conflicts)
