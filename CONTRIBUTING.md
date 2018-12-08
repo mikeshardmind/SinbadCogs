@@ -19,4 +19,6 @@ please keep the following in mind before doing so
 
 4. If your PR resolves or is otherwise related to an open issue, please link to it.
 
+5. If your PR is for i18n support, please read more [here](TRANSLATING.md)
+
 Thanks again!
