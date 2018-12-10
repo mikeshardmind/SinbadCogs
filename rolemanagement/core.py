@@ -17,8 +17,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.0.15b"
-    __flavor_text__ = "Smarter toggles and better user feedback"
+    __version__ = "3.0.16b"
+    __flavor_text__ = "Now can find people who have no additional roles."
 
     def __init__(self, bot):
         self.bot = bot

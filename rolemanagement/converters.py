@@ -62,6 +62,7 @@ class ComplexActionConverter(RoleConverter):
     --has-all roles
     --has-none roles
     --has-any roles
+    --has-no-roles
     --has-perm permissions
     --any-perm permissions
     --not-perm permissions
@@ -83,6 +84,9 @@ class ComplexActionConverter(RoleConverter):
         parser.add_argument("--has-any", nargs="*", dest="any", default=[])
         parser.add_argument("--has-all", nargs="*", dest="all", default=[])
         parser.add_argument("--has-none", nargs="*", dest="none", default=[])
+        parser.add_argument(
+            "--has-no-roles", action="store_true", default=False, dest="noroles"
+        )
         parser.add_argument("--has-perms", nargs="*", dest="hasperm", default=[])
         parser.add_argument("--any-perm", nargs="*", dest="anyperm", default=[])
         parser.add_argument("--not-perm", nargs="*", dest="notperm", default=[])
@@ -118,6 +122,7 @@ class ComplexActionConverter(RoleConverter):
                 vals["hasperm"],
                 vals["notperm"],
                 vals["anyperm"],
+                vals["noroles"],
             )
         ):
             raise BadArgument("You need to provide at least 1 search criterion")
@@ -145,6 +150,7 @@ class ComplexSearchConverter(RoleConverter):
     --has-all roles
     --has-none roles
     --has-any roles
+    --has-no-roles
     --only-humans
     --only-bots
     --has-perm permissions
@@ -164,6 +170,9 @@ class ComplexSearchConverter(RoleConverter):
         parser.add_argument("--has-any", nargs="*", dest="any", default=[])
         parser.add_argument("--has-all", nargs="*", dest="all", default=[])
         parser.add_argument("--has-none", nargs="*", dest="none", default=[])
+        parser.add_argument(
+            "--has-no-roles", action="store_true", default=False, dest="noroles"
+        )
         parser.add_argument("--has-perms", nargs="*", dest="hasperm", default=[])
         parser.add_argument("--any-perm", nargs="*", dest="anyperm", default=[])
         parser.add_argument("--not-perm", nargs="*", dest="notperm", default=[])
@@ -194,6 +203,7 @@ class ComplexSearchConverter(RoleConverter):
                 vals["hasperm"],
                 vals["notperm"],
                 vals["anyperm"],
+                vals["noroles"],
             )
         ):
             raise BadArgument("You need to provide at least 1 search criterion")

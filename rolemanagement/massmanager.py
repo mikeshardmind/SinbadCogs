@@ -249,6 +249,10 @@ class MassManagementMixin(MixinMeta):
 
                 members = {m for m in members if has_none(m)}
 
+            if query["noroles"]:
+                # everyone is a role.
+                members = {m for m in members if len(m.roles) == 1}
+
         return members
 
     @mrole.command(name="user")
