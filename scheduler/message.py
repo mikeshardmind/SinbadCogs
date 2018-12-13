@@ -1,3 +1,4 @@
+from typing import List, Optional
 from datetime import datetime
 import logging
 import discord
@@ -43,10 +44,33 @@ class SchedulerMessage(discord.Message):
         self.channel = channel
         self.content = content
         self.guild = channel.guild
+        self.attachments: List[discord.Attachment] = []
+        # mentions
+        self.mention_everyone = (
+            "@everyone" in self.content
+            and channel.permissions_for(author).mention_everyone
+        )
+        self.mentions: Optional[List[discord.Member]] = None
+        self.role_mentions: Optional[List[discord.Role]] = None
+        self.channel_mentions: Optional[List[discord.TextChannel]] = None
+        self._handle_mentions()
         # Stuff below is book keeping.
         self.call = None
-        self.mentions = []
-        self.role_mentions = []
-        self.channel_mentions = []
         self.type = discord.MessageType(0)
         self.tts = False
+        self.pinned = False
+
+    # pylint: disable=E1133
+    def _handle_mentions(self):
+        # Yes, I'm abusing the hell out of this.
+        self.mentions = list(
+            filter(None, [self.guild.get_member(idx) for idx in self.raw_mentions])
+        )
+        self.channel_mentions = list(
+            filter(
+                None, [self.guild.get_channel(idx) for idx in self.raw_channel_mentions]
+            )
+        )
+        self.role_mentions = list(
+            filter(None, [self.guild.get_role(idx) for idx in self.raw_role_mentions])
+        )
