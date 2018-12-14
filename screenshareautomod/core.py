@@ -84,7 +84,7 @@ class ScreenshareAutoMod(commands.Cog):
                     if member != guild.owner:
                         pass
 
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.guild_only()
     @commands.group(name="screensharemod")
     async def ssg(self, ctx):
