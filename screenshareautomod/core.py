@@ -100,7 +100,7 @@ class ScreenshareAutoMod(commands.Cog):
         """
 
         val = not await self.config.guild(ctx.guild).active()
-        await self.config.guild.active.set(val)
+        await self.config.guild(ctx.guild).active.set(val)
         await ctx.send(
             f"Automoderation of screenshare {'is' if val else 'is not'} active"
         )
