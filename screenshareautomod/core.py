@@ -13,7 +13,7 @@ class ScreenshareAutoMod(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.0a"
+    __version__ = "1.0.0b"
     __flavor_text__ = "UGH, discord rolls this out without perms version."
 
     def __init__(self, bot):
@@ -99,7 +99,7 @@ class ScreenshareAutoMod(commands.Cog):
         Toggles if this cog is active
         """
 
-        val = not await self.config.guild.active()
+        val = not await self.config.guild(ctx.guild).active()
         await self.config.guild.active.set(val)
         await ctx.send(
             f"Automoderation of screenshare {'is' if val else 'is not'} active"
@@ -118,5 +118,5 @@ class ScreenshareAutoMod(commands.Cog):
         except KeyError:
             return await ctx.send_help()
 
-        await self.config.guild(guild).action.set(action_id)
+        await self.config.guild(ctx.guild).action.set(action_id)
         await ctx.tick()
