@@ -61,7 +61,7 @@ class ScreenshareAutoMod(commands.Cog):
 
         if action == AFK:
             afk_channel = guild.afk_channel
-            if guild.permissions_for(guild.me).move_members and afk_channel:
+            if guild.me.guild_permissions.move_members and afk_channel:
                 try:
                     await member.move_to(afk_channel, reason="Screenshare use.")
                 except discord.HTTPException:
@@ -69,7 +69,7 @@ class ScreenshareAutoMod(commands.Cog):
 
         elif action == KICK:
             if guild.me.top_role > member.top_role:
-                if guild.permissions_for(guild.me).kick:
+                if guild.me.guild_permissions.kick_members:
                     if member != guild.owner:
                         try:
                             await member.kick(reason="Screenshare use.")
@@ -80,7 +80,7 @@ class ScreenshareAutoMod(commands.Cog):
         return  # unreachable code below is intentional for possible extending later.
         if action == MUTE:
             if guild.me.top_role > member.top_role:
-                if guild.permissions_for(guild.me).mute_members:
+                if guild.me.guild_permissions.mute_members:
                     if member != guild.owner:
                         pass
 
