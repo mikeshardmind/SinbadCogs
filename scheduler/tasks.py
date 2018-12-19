@@ -76,10 +76,7 @@ class Task:
         if self.recur and now > self.initial:
 
             raw_interval = self.recur.total_seconds()
-            intervals_needed, seconds = divmod(
-                (now - self.initial).total_seconds(), raw_interval
-            )
 
-            return raw_interval * intervals_needed + seconds
+            return raw_interval - ((now - self.initial).total_seconds() % raw_interval)
 
         return (self.initial - now).total_seconds()
