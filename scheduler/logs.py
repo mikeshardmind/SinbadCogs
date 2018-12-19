@@ -1,5 +1,5 @@
 import logging
-from redbot.core.data_manager import core_data_path
+from redbot.core.data_manager import cog_data_path
 
 
 def get_logger(name: str):
@@ -11,7 +11,8 @@ def get_logger(name: str):
         datefmt="[%d/%m/%Y %H:%M]",
     )
 
-    logfile_path = core_data_path() / f"{name}.log"
+    logfile_path = cog_data_path(raw_name="Scheduler") / f"{name}.log"
+    
     fhandler = logging.handlers.RotatingFileHandler(  # type: ignore
         filename=str(logfile_path),
         encoding="utf-8",
@@ -19,6 +20,7 @@ def get_logger(name: str):
         maxBytes=10 ** 7,
         backupCount=5,
     )
+
     fhandler.setFormatter(fmt)
     logger.addHandler(fhandler)
 
