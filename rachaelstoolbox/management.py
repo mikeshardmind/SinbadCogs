@@ -53,7 +53,9 @@ class Management(commands.Cog):
 
         overwrites = channel.overwrites
 
-        auth_overwrites = next(filter(lambda o: o[0] == author, overwrites), (None, None))[1]
+        auth_overwrites = next(
+            filter(lambda o: o[0] == author, overwrites), (None, None)
+        )[1]
         if auth_overwrites is None:
             auth_overwrites = discord.PermissionOverwrite()
 
