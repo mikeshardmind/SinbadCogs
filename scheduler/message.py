@@ -4,12 +4,12 @@ import logging
 import discord
 from redbot.core import commands
 import asyncio
-from collections.abc import Awaitable
+import re
 
+EVERYONE_REGEX = re.compile(r"@here|@everyone")
 
-class DummyAwaitable(Awaitable):
-    def __await__(self):
-        yield
+async def dummy_awaitable(*args, **kwargs):
+    return
 
 
 def neuter_coroutines(klass):
@@ -20,7 +20,7 @@ def neuter_coroutines(klass):
         if asyncio.iscoroutinefunction(_):
 
             def dummy(self):
-                return DummyAwaitable()
+                return dummy_awaitable
 
             prop = property(fget=dummy)
             setattr(klass, attr, prop)
@@ -47,8 +47,8 @@ class SchedulerMessage(discord.Message):
         self.attachments: List[discord.Attachment] = []
         # mentions
         self.mention_everyone = (
-            "@everyone" in self.content
-            and channel.permissions_for(author).mention_everyone
+            self.channel.permissions_for(self.author).mention_everyone
+            and bool(EVERYONE_REGEX.match(self.content))
         )
         self.mentions: Optional[List[discord.Member]] = None
         self.role_mentions: Optional[List[discord.Role]] = None
