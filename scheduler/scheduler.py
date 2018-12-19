@@ -7,6 +7,9 @@ from redbot.core.i18n import Translator, cog_i18n
 from .message import SchedulerMessage
 from .logs import get_logger
 
+# This needs rewriting before I continue with what's here to properly support an eventual API
+# from .tasks import Task
+
 
 class Scheduler:
     """
@@ -23,9 +26,29 @@ class Scheduler:
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-
+        self.config.register_channel(tasks={})
         self.log = get_logger("sinbadcogs.scheduler")
-        self.bg_task = bot.loop.create_task(self.bg_loop())
+        self.bg_loop_task = bot.loop.create_task(self.bg_loop())
+        self.scheduled_things = {}
+
+    def __unload(self):
+        self.bg_loop_task.cancel()
+        [task.cancel() for task in self.scheduled_things.values()]
+
+    # This never should be needed, 
+    # but it doesn't hurt to add and could cover a weird edge case.
+    __del__ = __unload
 
     async def bg_loop(self):
-        pass
+        while self == self.bot.get_cog("Scheduler"):
+            sleep_for = await self.schedule_upcoming()
+            await asyncio.sleep(sleep_for)
+
+    async def schedule_upcoming(self):
+        """
+        Schedules some upcoming things as tasks. 
+        
+        Returns a logical amount of time to sleep for.
+        """
+        pass  # stuff here was removed since the rewrite of .tasks.Task 
+        # needs to happen changing this portion fundamentally
