@@ -26,7 +26,6 @@ def neuter_coroutines(klass):
             setattr(klass, attr, prop)
     return klass
 
-
 @neuter_coroutines
 class SchedulerMessage(discord.Message):
     """
@@ -39,30 +38,30 @@ class SchedulerMessage(discord.Message):
     def __init__(
         self, *, content: str, author: discord.User, channel: discord.TextChannel
     ) -> None:
+        # auto current time
         self.id = discord.utils.time_snowflake(datetime.utcnow())
+        # important properties for even being processed
         self.author = author
         self.channel = channel
         self.content = content
         self.guild = channel.guild
+        # this attribute being in almost everything (and needing to be) is a pain
+        self._state = self.guild._state
+        # sane values below, fresh messages which are commands should exhibit these.
+        self.call = None
+        self.type = discord.MessageType(0)
+        self.tts = False
+        self.pinned = False
+        # suport for attachments somehow later maybe?
         self.attachments: List[discord.Attachment] = []
         # mentions
         self.mention_everyone = (
             self.channel.permissions_for(self.author).mention_everyone
             and bool(EVERYONE_REGEX.match(self.content))
-        )
-        self.mentions: Optional[List[discord.Member]] = None
-        self.role_mentions: Optional[List[discord.Role]] = None
-        self.channel_mentions: Optional[List[discord.TextChannel]] = None
-        self._handle_mentions()
-        # Stuff below is book keeping.
-        self.call = None
-        self.type = discord.MessageType(0)
-        self.tts = False
-        self.pinned = False
-
-    # pylint: disable=E1133
-    def _handle_mentions(self):
-        # Yes, I'm abusing the hell out of this.
+        ) 
+        # pylint: disable=E1133
+        # pylint improperly detects the inherited properties here as not being iterable
+        # This should be fixed with typehint support added to upstream lib later
         self.mentions = list(
             filter(None, [self.guild.get_member(idx) for idx in self.raw_mentions])
         )
@@ -74,3 +73,4 @@ class SchedulerMessage(discord.Message):
         self.role_mentions = list(
             filter(None, [self.guild.get_role(idx) for idx in self.raw_role_mentions])
         )
+        # pylint: enable=E1133
