@@ -10,8 +10,11 @@ from .logs import get_logger
 # This needs rewriting before I continue with what's here to properly support an eventual API
 # from .tasks import Task
 
+_ = Translator("And I think it's gonna be a long long time...", __file__)
 
-class Scheduler:
+
+@cog_i18n(_)
+class Scheduler(commands.Cog):
     """
     A somewhat sane scheduler cog
     """
@@ -26,7 +29,7 @@ class Scheduler:
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_channel(tasks={})
+        self.config.register_channel(tasks={})  # Serialized Tasks go in here.
         self.log = get_logger("sinbadcogs.scheduler")
         self.bg_loop_task = bot.loop.create_task(self.bg_loop())
         self.scheduled_things = {}
@@ -44,7 +47,7 @@ class Scheduler:
             sleep_for = await self.schedule_upcoming()
             await asyncio.sleep(sleep_for)
 
-    async def schedule_upcoming(self):
+    async def schedule_upcoming(self) -> int:
         """
         Schedules some upcoming things as tasks. 
         
