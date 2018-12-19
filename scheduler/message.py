@@ -8,6 +8,7 @@ import re
 
 EVERYONE_REGEX = re.compile(r"@here|@everyone")
 
+
 async def dummy_awaitable(*args, **kwargs):
     return
 
@@ -25,6 +26,7 @@ def neuter_coroutines(klass):
             prop = property(fget=dummy)
             setattr(klass, attr, prop)
     return klass
+
 
 @neuter_coroutines
 class SchedulerMessage(discord.Message):
@@ -55,10 +57,9 @@ class SchedulerMessage(discord.Message):
         # suport for attachments somehow later maybe?
         self.attachments: List[discord.Attachment] = []
         # mentions
-        self.mention_everyone = (
-            self.channel.permissions_for(self.author).mention_everyone
-            and bool(EVERYONE_REGEX.match(self.content))
-        ) 
+        self.mention_everyone = self.channel.permissions_for(
+            self.author
+        ).mention_everyone and bool(EVERYONE_REGEX.match(self.content))
         # pylint: disable=E1133
         # pylint improperly detects the inherited properties here as not being iterable
         # This should be fixed with typehint support added to upstream lib later

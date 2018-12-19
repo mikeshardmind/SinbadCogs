@@ -12,7 +12,7 @@ def get_logger(name: str):
     )
 
     logfile_path = cog_data_path(raw_name="Scheduler") / f"{name}.log"
-    
+
     fhandler = logging.handlers.RotatingFileHandler(  # type: ignore
         filename=str(logfile_path),
         encoding="utf-8",

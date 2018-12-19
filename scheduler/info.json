@@ -9,5 +9,6 @@
     "description": "",
     "tags": ["scheduler"],
     "hidden": true,
-    "requirements": ["python-dateutil", "pytz"]
+    "requirements": ["python-dateutil", "pytz"],
+    "min_python_version": [3, 7, 0]
 }
