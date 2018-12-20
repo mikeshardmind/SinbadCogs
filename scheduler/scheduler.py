@@ -56,6 +56,11 @@ class Scheduler(commands.Cog):
             for t in Task.bulk_from_config(**tasks_dict):
                 self.tasks.append(t)
 
+    async def _remove_tasks(self, *tasks):
+        for task in tasks:
+            self.tasks.remove(task)
+            await self.config.channel(task.channel).clear_raw("tasks", task.uid)
+
     async def bg_loop(self):
         await self.bot.wait_until_ready()
         async with self._iter_lock:
@@ -63,6 +68,7 @@ class Scheduler(commands.Cog):
         while self == self.bot.get_cog("Scheduler"):
             async with self._iter_lock:
                 sleep_for = await self.schedule_upcoming()
+                await self._remove_tasks()
             await asyncio.sleep(sleep_for)
 
     async def delayed_wrap_and_invoke(self, task: Task, delay: int):
@@ -87,7 +93,7 @@ class Scheduler(commands.Cog):
 
         self.scheduled.clear()
 
-        to_remove = set()
+        to_remove: list = []
 
         for task in self.tasks:
             delay = task.next_call_delay
@@ -96,8 +102,8 @@ class Scheduler(commands.Cog):
                     self.delayed_wrap_and_invoke(task, delay)
                 )
                 if not task.recur:
-                    to_remove.add(task)
+                    to_remove.append(task)
 
-        self.tasks = [t for t in self.tasks if t not in to_remove]
+        await self._remove_tasks(*to_remove)
 
         return 30
