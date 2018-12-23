@@ -17,7 +17,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.0.17b"
+    __version__ = "3.0.18"
     __flavor_text__ = "Pre Settings viewer update."
 
     def __init__(self, bot):
@@ -360,6 +360,11 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         for mid, _outer in data.items():
             if not isinstance(_outer, dict):
                 continue
+            if not _outer:
+                # can have an empty dict here
+                await self.config.custom("REACTROLE", mid).clear()
+                continue
+
             for em, rdata in _outer.items():
                 role = roles.get(rdata["roleid"], None)
                 if not role:
@@ -387,3 +392,5 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                                         "REACTROLE", mid, em
                                     ).channelid.set(channel.id)
                                     break
+                    else:
+                        await self.config.custom("REACTROLE", mid).clear()
