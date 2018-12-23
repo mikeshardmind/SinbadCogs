@@ -2,6 +2,7 @@ from typing import Any
 import discord
 from redbot.core import checks, commands
 from redbot.core.config import Config
+from redbot.core.utils.chat_formatting import pagify
 
 from .utils import UtilMixin
 from .massmanager import MassManagementMixin
@@ -17,8 +18,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.0.19"
-    __flavor_text__ = "Pre Settings viewer update."
+    __version__ = "3.1.0"
+    __flavor_text__ = "Settings viewer added. (part 1)"
 
     def __init__(self, bot):
         self.bot = bot
@@ -126,6 +127,39 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         Settings for role requirements
         """
         pass
+
+    @rgroup.command(name="viewrole")
+    async def rg_view_role(self, ctx: commands.Context, role: discord.Role):
+        """
+        Views the current settings for a role
+        """
+
+        rsets = await self.config.role(role).all()
+
+        output = (
+            f"This role:\n {'is' if rsets['self_role'] else 'is not'} self assignable"
+            f"\n{'is' if rsets['self_removable'] else 'is not'} self removable"
+        )
+        if rsets["requires_any"]:
+            rstring = ", ".join(
+                r.name for r in ctx.guild.roles if r.id in rsets["requires_any"]
+            )
+            output += f"\nThis role requires any of the following roles: {rstring}"
+        if rsets["requires_all"]:
+            rstring = ", ".join(
+                r.name for r in ctx.guild.roles if r.id in rsets["requires_all"]
+            )
+            output += f"\nThis role requires all of the following roles: {rstring}"
+        if rsets["exclusive_to"]:
+            rstring = ", ".join(
+                r.name for r in ctx.guild.roles if r.id in rsets["exclusive_to"]
+            )
+            output += (
+                f"\nThis role is mutually exclusive to the following roles: {rstring}"
+            )
+
+        for page in pagify(output):
+            await ctx.send(page)
 
     @rgroup.command(name="forbid")
     async def forbid_role(
