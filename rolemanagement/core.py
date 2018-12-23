@@ -17,8 +17,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.0.16b"
-    __flavor_text__ = "Now can find people who have no additional roles."
+    __version__ = "3.0.17b"
+    __flavor_text__ = "Pre Settings viewer update."
 
     def __init__(self, bot):
         self.bot = bot
@@ -36,7 +36,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         )
         self.config.register_member(roles=[], forbidden=[])
         self.config.register_custom(
-            "REACTROLE", roleid=None
+            "REACTROLE", roleid=None, channelid=None, guildid=None
         )  # ID : Message.id, str(React)
         self.config.register_guild(notify_channel=None)
         super().__init__()
@@ -322,3 +322,68 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             await ctx.send(
                 f"You aren't allowed to remove `{role}` from yourself {ctx.author.mention}!`"
             )
+
+    # migration / update tools
+
+    @rgroup.command(name="fixup", hidden=True)
+    async def fixup(self, ctx: commands.Context):
+        """
+        Removes bad settings, finds extra info as required.
+        """
+        async with ctx.typing():
+            await self.handle_fixup(ctx.guild)
+        await ctx.tick()
+
+    @checks.is_owner()
+    @rgroup.command("fixupall", hidden=True)
+    async def fixupall(self, ctx: commands.Context):
+        """
+        Removes bad settings, finds extra info as required.
+        """
+        async with ctx.typing():
+            await self.handle_fixup(*self.bot.guilds, checking_all=True)
+        await ctx.tick()
+
+    async def handle_fixup(self, *guilds: discord.Guild, checking_all=False):
+
+        needed_perms = discord.Permissions()
+        needed_perms.update(read_messages=True, read_message_history=True)
+        roles = {}
+        channels = {}
+        data = await self.config._get_base_group("REACTROLE").all()
+        # str(messageid) -> str(emoji or emojiid) -> actual data
+
+        for guild in guilds:
+            roles.update({r.id: r for r in guild.roles})
+            channels.update({c.id: c for c in guild.text_channels})
+
+        for mid, _outer in data.items():
+            if not isinstance(_outer, dict):
+                continue
+            for em, rdata in _outer.items():
+                role = roles.get(rdata["roleid"], None)
+                if not role:
+                    if checking_all:
+                        await self.config.custom("REACTROLE", mid, em).clear()
+                    continue
+
+                gid = rdata.get("guildid", None)
+                if not gid:
+                    await self.config.custom("REACTROLE", mid, em).guildid.set(
+                        role.guild.id
+                    )
+
+                cid = rdata.get("channelid", None)
+                if not cid:
+                    for channel in role.guild.text_channels:
+                        if channel.permissions_for(role.guild.me) >= needed_perms:
+                            try:
+                                _msg = await channel.get_message(mid)
+                            except Exception:
+                                continue
+                            else:
+                                if _msg:
+                                    await self.config.custom(
+                                        "REACTROLE", mid, em
+                                    ).channelid.set(channel.id)
+                                    break
