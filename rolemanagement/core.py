@@ -17,7 +17,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.0.18"
+    __version__ = "3.0.19"
     __flavor_text__ = "Pre Settings viewer update."
 
     def __init__(self, bot):
@@ -381,11 +381,14 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 cid = rdata.get("channelid", None)
                 if not cid:
                     for channel in role.guild.text_channels:
+                        non_forbidden_encountered = False
                         if channel.permissions_for(role.guild.me) >= needed_perms:
                             try:
                                 _msg = await channel.get_message(mid)
-                            except Exception:
+                            except discord.Forbidden:
                                 continue
+                            except discord.HTTPException:
+                                non_forbidden_encountered = True
                             else:
                                 if _msg:
                                     await self.config.custom(
@@ -393,4 +396,5 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                                     ).channelid.set(channel.id)
                                     break
                     else:
-                        await self.config.custom("REACTROLE", mid).clear()
+                        if not non_forbidden_encountered:
+                            await self.config.custom("REACTROLE", mid).clear()
