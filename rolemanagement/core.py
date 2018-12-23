@@ -18,7 +18,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.1.0"
+    __version__ = "3.1.1"
     __flavor_text__ = "Settings viewer added. (part 1)"
 
     def __init__(self, bot):
@@ -129,7 +129,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         pass
 
     @rgroup.command(name="viewrole")
-    async def rg_view_role(self, ctx: commands.Context, role: discord.Role):
+    async def rg_view_role(self, ctx: commands.Context, *, role: discord.Role):
         """
         Views the current settings for a role
         """
@@ -137,7 +137,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         rsets = await self.config.role(role).all()
 
         output = (
-            f"This role:\n {'is' if rsets['self_role'] else 'is not'} self assignable"
+            f"This role:\n{'is' if rsets['self_role'] else 'is not'} self assignable"
             f"\n{'is' if rsets['self_removable'] else 'is not'} self removable"
         )
         if rsets["requires_any"]:

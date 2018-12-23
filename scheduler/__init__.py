@@ -1,8 +1,8 @@
-
 try:
     from redbot.core.errors import CogLoadError
 except ImportError:
     CogLoadError = RuntimeError
+
 
 def setup(bot):
 
@@ -16,4 +16,5 @@ def setup(bot):
         )
     else:
         from .scheduler import Scheduler
+
         bot.add_cog(Scheduler(bot))
