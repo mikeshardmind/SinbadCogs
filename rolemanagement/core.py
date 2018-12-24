@@ -42,6 +42,12 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         self.config.register_guild(notify_channel=None)
         super().__init__()
 
+    async def __before_invoke(self, ctx):  # ctx.guild.chunked is innaccurate.
+        guild = ctx.guild
+        if guild:
+            if any(m.joined_at is None for m in guild.members):
+                await ctx.bot.request_offline_members(guild)
+
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
     @checks.admin_or_permissions(manage_guild=True)

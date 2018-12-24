@@ -24,12 +24,6 @@ class MassManagementMixin(MixinMeta):
     Mass role operations
     """
 
-    async def __before_invoke(self, ctx):  # ctx.guild.chunked is innaccurate.
-        guild = ctx.guild
-        if guild:
-            if any(m.joined_at is None for m in guild.members):
-                await ctx.bot.request_offline_members(guild)
-
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     @commands.group(name="massrole", autohelp=True, aliases=["mrole"])
