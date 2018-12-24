@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, AsyncIterator, Tuple
 import discord
 from redbot.core import checks, commands
 from redbot.core.config import Config
@@ -18,7 +18,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.1.1"
+    __version__ = "3.1.2"
     __flavor_text__ = "Settings viewer added. (part 1)"
 
     def __init__(self, bot):
@@ -378,7 +378,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             await self.handle_fixup(*self.bot.guilds, checking_all=True)
         await ctx.tick()
 
-    async def handle_fixup(self, *guilds: discord.Guild, checking_all=False):
+    async def handle_fixup(self, *guilds: discord.Guild, checking_all=False) -> None:
 
         needed_perms = discord.Permissions()
         needed_perms.update(read_messages=True, read_message_history=True)
@@ -432,3 +432,72 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                     else:
                         if not non_forbidden_encountered:
                             await self.config.custom("REACTROLE", mid).clear()
+
+    # Stuff for clean interaction with react role entries
+
+    async def build_messages_for_react_roles(
+        self, *roles: discord.Role, use_embeds=True
+    ) -> AsyncIterator[str]:
+        """
+        Builds info.
+
+        Info is suitable for passing to embeds if use_embeds is True 
+        """
+
+        linkfmt = (
+            "[message](https://discordapp.com/channels/{guild_id}/{channel_id}{message_id})"
+            if use_embeds
+            else "<https://discordapp.com/channels/{guild_id}/{channel_id}{message_id}>"
+        )
+
+        for role in roles:
+            # pylint: disable=E1133
+            async for message_id, emoji_info, data in self.get_react_role_entries(role):
+
+                channel_id = data.get("channelid", None)
+                if channel_id:
+                    link = linkfmt.format(
+                        guild_id=role.guild.id,
+                        channel_id=channel_id,
+                        message_id=message_id,
+                    )
+                else:
+                    link = (
+                        f"unknown message with id {message_id}"
+                        f" (use `roleset fixup` to find missing data for this)"
+                    )
+
+                if emoji_info.isdigit():
+                    emoji = discord.utils.get(self.bot.emojis, id=int(emoji_info))
+                    emoji = emoji or f"A custom enoji with id {emoji_info}"
+                else:
+                    emoji = emoji_info
+
+                react_m = f"{role.name} is bound to {emoji} on {link}"
+                yield react_m
+
+    async def get_react_role_entries(
+        self, role: discord.Role
+    ) -> AsyncIterator[Tuple[str, str, dict]]:
+        """
+        yields:
+            str, str, dict
+            
+            first str: message id
+            second str: emoji id or unicode codepoint
+            dict: data from the corresponding:
+                config.custom("REACTROLE", messageid, emojiid)
+        """
+
+        # self.config.register_custom(
+        #    "REACTROLE", roleid=None, channelid=None, guildid=None
+        # )  # ID : Message.id, str(React)
+
+        data = await self.config._get_base_group("REACTROLE").all()
+
+        for mid, _outer in data.items():
+            if not _outer or not isinstance(_outer, dict):
+                continue
+            for em, rdata in _outer.items():
+                if rdata["roleid"] == role.id:
+                    yield (mid, em, rdata)
