@@ -18,7 +18,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.2"
+    __version__ = "3.2.4"
     __flavor_text__ = "Initial settings views ready for use, more to be provided."
 
     def __init__(self, bot):
@@ -120,8 +120,9 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 "Can't do that. Discord role heirarchy applies here."
             )
 
-        cfg = self.config.custom("REACTROLE", msgid, str(emoji))
-        await cfg.roleid.clear()
+        cfg = self.config.custom("REACTROLE", msgid)
+        async with cfg() as cfg:
+            cfg.pop(str(emoji), None)
         await ctx.tick()
 
     @commands.guild_only()
