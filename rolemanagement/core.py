@@ -18,7 +18,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.4"
+    __version__ = "3.2.5"
     __flavor_text__ = "Initial settings views ready for use, more to be provided."
 
     def __init__(self, bot):
@@ -437,6 +437,10 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 continue
 
             for em, rdata in _outer.items():
+                if not rdata:
+                    # can have an empty dict here
+                    await self.config.custom("REACTROLE", mid, em).clear()
+                    continue
                 role = roles.get(rdata["roleid"], None)
                 if not role:
                     if checking_all:
@@ -536,5 +540,5 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             if not _outer or not isinstance(_outer, dict):
                 continue
             for em, rdata in _outer.items():
-                if rdata["roleid"] == role.id:
+                if rdata and rdata["roleid"] == role.id:
                     yield (mid, em, rdata)
