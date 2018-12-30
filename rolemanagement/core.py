@@ -18,7 +18,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.1"
+    __version__ = "3.2.2"
     __flavor_text__ = "Initial settings views ready for use, more to be provided."
 
     def __init__(self, bot):
@@ -481,9 +481,9 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         """
 
         linkfmt = (
-            "[message](https://discordapp.com/channels/{guild_id}/{channel_id}{message_id})"
+            "[message](https://discordapp.com/channels/{guild_id}/{channel_id}/{message_id})"
             if use_embeds
-            else "<https://discordapp.com/channels/{guild_id}/{channel_id}{message_id}>"
+            else "<https://discordapp.com/channels/{guild_id}/{channel_id}/{message_id}>"
         )
 
         for role in roles:
