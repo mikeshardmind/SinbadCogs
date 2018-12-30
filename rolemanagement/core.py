@@ -18,7 +18,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.0"
+    __version__ = "3.2.1"
     __flavor_text__ = "Initial settings views ready for use, more to be provided."
 
     def __init__(self, bot):
@@ -141,7 +141,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         """
         # This design is intentional for later extention to view this per role
 
-        embeds = await ctx.embed_requested
+        embeds = await ctx.embed_requested()
         pagify_length = 5800 if embeds else 1800
 
         # pylint: disable=E1133
