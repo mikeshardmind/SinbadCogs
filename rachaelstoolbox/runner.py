@@ -45,3 +45,13 @@ class Runner(commands.Cog):
             fp = io.BytesIO(result)
             fp.seek(0)
         await ctx.send(files=[discord.File(fp, filename=f"{ctx.message.id}.log")])
+
+    @checks.is_owner()
+    @commands.command(hidden=True)
+    async def killshells(self, ctx):
+        """
+        kills the shells
+        """
+        self.executor.shutdown(wait=False)
+        self.executor = ThreadPoolExecutor()
+        await ctx.tick()
