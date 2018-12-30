@@ -18,8 +18,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.1.3"
-    __flavor_text__ = "Hiding things not intended for long term support."
+    __version__ = "3.2.0"
+    __flavor_text__ = "Initial settings views ready for use, more to be provided."
 
     def __init__(self, bot):
         self.bot = bot
@@ -133,6 +133,36 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         Settings for role requirements
         """
         pass
+
+    @rgroup.command(name="viewreactions")
+    async def rg_view_reactions(self, ctx: commands.Context):
+        """
+        View the reactions enabled for the server
+        """
+        # This design is intentional for later extention to view this per role
+
+        embeds = await ctx.embed_requested
+        pagify_length = 5800 if embeds else 1800
+
+        # pylint: disable=E1133
+        react_roles = "\n".join(
+            [
+                msg
+                async for msg in self.build_messages_for_react_roles(
+                    *ctx.guild.roles, use_embeds=embeds
+                )
+            ]
+        )
+
+        # ctx.send is already going to escape said menntions if any somehow get generated
+        # should also not be possible to do so without willfully being done by an admin.
+        for page in pagify(
+            react_roles,
+            escape_mass_mentions=False,
+            page_length=pagify_length,
+            shorten_by=0,
+        ):
+            await ctx.maybe_send_embed(page)
 
     @rgroup.command(name="viewrole")
     async def rg_view_role(self, ctx: commands.Context, *, role: discord.Role):
