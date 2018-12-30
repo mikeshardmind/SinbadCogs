@@ -35,7 +35,7 @@ class MassManagementMixin(MixinMeta):
 
     # start dyno mode
 
-    @mrole.group(name="dynomode", autohelp=True)
+    @mrole.group(name="dynomode", autohelp=True, hidden=True)
     async def drole(self, ctx: commands.Context):
         """
         Provides syntax similar to dyno bots for ease of transition

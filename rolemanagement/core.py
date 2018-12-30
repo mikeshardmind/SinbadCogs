@@ -18,8 +18,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.1.2"
-    __flavor_text__ = "Settings viewer added. (part 1)"
+    __version__ = "3.1.3"
+    __flavor_text__ = "Hiding things not intended for long term support."
 
     def __init__(self, bot):
         self.bot = bot
