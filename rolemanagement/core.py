@@ -18,7 +18,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.6"
+    __version__ = "3.2.7"
     __flavor_text__ = "Pagination fixes."
 
     def __init__(self, bot):
@@ -158,6 +158,9 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 )
             ]
         )
+
+        if not react_roles:
+            return await ctx.send("No react roles bound here.")
 
         # ctx.send is already going to escape said mentions if any somehow get generated
         # should also not be possible to do so without willfully being done by an admin.
