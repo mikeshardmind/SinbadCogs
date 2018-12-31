@@ -18,8 +18,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.5"
-    __flavor_text__ = "Initial settings views ready for use, more to be provided."
+    __version__ = "3.2.6"
+    __flavor_text__ = "Pagination fixes."
 
     def __init__(self, bot):
         self.bot = bot
@@ -97,7 +97,13 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 )
 
         cfg = self.config.custom("REACTROLE", message.id, eid)
-        await cfg.roleid.set(role.id)
+        await cfg.set(
+            {
+                "roleid": role.id,
+                "channelid": message.channel.id,
+                "guildid": role.guild.id,
+            }
+        )
         await ctx.send(
             f"Remember, the reactions only function according to "
             f"the rules set for the roles using `{ctx.prefix}roleset`",
@@ -142,28 +148,32 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         """
         # This design is intentional for later extention to view this per role
 
-        embeds = await ctx.embed_requested()
-        pagify_length = 5800 if embeds else 1800
-
+        use_embeds = await ctx.embed_requested()
         # pylint: disable=E1133
         react_roles = "\n".join(
             [
                 msg
                 async for msg in self.build_messages_for_react_roles(
-                    *ctx.guild.roles, use_embeds=embeds
+                    *ctx.guild.roles, use_embeds=use_embeds
                 )
             ]
         )
 
-        # ctx.send is already going to escape said menntions if any somehow get generated
+        # ctx.send is already going to escape said mentions if any somehow get generated
         # should also not be possible to do so without willfully being done by an admin.
+
+        color = None
+
         for page in pagify(
-            react_roles,
-            escape_mass_mentions=False,
-            page_length=pagify_length,
-            shorten_by=0,
+            react_roles, escape_mass_mentions=False, page_length=1800, shorten_by=0
         ):
-            await ctx.maybe_send_embed(page)
+            # unrolling iterative calling of ctx.maybe_send_embed
+            # here to reduce function and coroutine overhead.
+            if use_embeds:
+                color = color or await ctx.embed_colour()
+                await ctx.send(embed=discord.Embed(description=page, color=color))
+            else:
+                await ctx.send(page)
 
     @rgroup.command(name="viewrole")
     async def rg_view_role(self, ctx: commands.Context, *, role: discord.Role):
