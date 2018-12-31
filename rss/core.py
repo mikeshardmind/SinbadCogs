@@ -57,7 +57,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.14"
+    __version__ = "1.0.15"
     __flavor_text__ = "Time granularity update"
 
     def __init__(self, bot):
@@ -298,7 +298,11 @@ class RSS(commands.Cog):
             response = await self.fetch_feed(url)
 
             if response is None:
-                return await ctx.send(_("That didn't seem to be a valid rss feed."))
+                return await ctx.send(
+                    _("That didn't seem to be a valid rss feed. (Syntax: {}{})").format(
+                        ctx.prefix, ctx.command.signature
+                    )
+                )
 
             else:
                 feeds.update(
