@@ -33,7 +33,7 @@ class MessageLogging(commands.Cog):
             return
 
         if message.guild.id not in self.logs:
-            self.logs[message.guild.id] = get_logger(message.guild.id)
+            self.logs[message.guild.id] = get_logger(f"{message.guild.id}")
 
         content = message.content or ""
         content = content.replace("\n", "\\n")
