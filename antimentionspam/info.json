@@ -1,6 +1,6 @@
 {
     "author": ["mikeshardmind(Sinbad)"],
-    "install_msg": "This is an initial bare bones port of the v2 cog, more to come on this.",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "AntiMentionSpam",
     "disabled": false,
     "short": "filters mass mentions",
