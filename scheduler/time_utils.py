@@ -37,7 +37,7 @@ def td_format(td_object: timedelta, _: Callable = lambda x: x) -> str:
 
     strings = []
     for period_name, plural_period_name, period_seconds in periods:
-        if seconds > period_seconds:
+        if seconds >= period_seconds:
             period_value, seconds = divmod(seconds, period_seconds)
             if period_value == 0:
                 continue
