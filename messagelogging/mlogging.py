@@ -13,7 +13,7 @@ class MessageLogging(commands.Cog):
     Warning: This may not be compliant with various regions data policies.
     This should be used only in compliance with data policies.
 
-    This uses per guild rotating file handlers, so messages are not stored indefinitely.
+    This uses per channel rotating file handlers, so messages are not stored indefinitely.
 
     This is also really really abusing some things to get this working quickly
         so ya know, not ready for public use and hidden as such.
@@ -32,12 +32,12 @@ class MessageLogging(commands.Cog):
         if not (message.guild and await self.config.guild(message.guild).active()):
             return
 
-        if message.guild.id not in self.logs:
-            self.logs[message.guild.id] = get_logger(f"{message.guild.id}")
+        if message.channel.id not in self.logs:
+            self.logs[message.channel.id] = get_logger(f"{message.guild.id}-{message.channel.id}")
 
         content = message.content or ""
         content = content.replace("\n", "\\n")
-        self.logs[message.guild.id].info(
+        self.logs[message.channel.id].info(
             f"{message.author}({message.author.id}): {content}"
         )
 
