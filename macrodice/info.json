@@ -1,0 +1,13 @@
+{
+    "author": ["mikeshardmind(Sinbad)"],
+    "install_msg": "Not ready for use.",
+    "name": "MacroDice",
+    "disabled": false,
+    "short": "",
+    "description": "",
+    "tags": [
+    ],
+    "hidden": true,
+    "min_python_version": [3, 7, 0],
+    "requirements": ["dice"]
+}
