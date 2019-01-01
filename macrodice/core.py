@@ -15,16 +15,21 @@ class MacroDice(commands.Cog):
     Dice Macros
     """
 
-    def __init__(self, bot, old_roll=None):
+    def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
         self.config.register_member(macros={})
-        self._old_roll = old_roll
 
     def __unload(self):
-        self.bot.add_command(self._old_roll)
+        global _old_roll
+        if _old_roll:
+            try:
+                self.bot.remove_command("roll")
+            except:
+                pass
+            self.bot.add_command(_old_roll)
 
     @commands.guild_only()
     @no_type_check
@@ -47,3 +52,12 @@ class MacroDice(commands.Cog):
                 await ctx.send("Invalid expression")
             else:
                 await ctx.send(result)
+
+
+def setup(bot):
+    n = MacroDice(bot)
+    global _old_roll
+    _old_roll = bot.get_command("roll")
+    if _old_roll:
+        bot.remove_command(_old_roll.name)
+    bot.add_cog(n)
