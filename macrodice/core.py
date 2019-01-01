@@ -32,6 +32,7 @@ class MacroDice(commands.Cog):
             self.bot.add_command(_old_roll)
 
     @commands.guild_only()
+    @commands.command(name="roll")
     @no_type_check
     async def roll(self, ctx: commands.Context, *, expr: Union[int, str]):
         """
