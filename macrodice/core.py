@@ -52,7 +52,7 @@ class MacroDice(commands.Cog):
             except dice.DiceException:
                 await ctx.send("Invalid expression")
             else:
-                await ctx.send(result)
+                await ctx.send(f"{ctx.author.mention} {result}")
 
 
 def setup(bot):
