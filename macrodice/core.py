@@ -2,12 +2,14 @@ from typing import Union, no_type_check
 from random import randint
 
 import dice
-import discord
 
-from redbot.core import commands, checks
+from redbot.core import commands
 from redbot.core.config import Config
 
+
 DIE_EMOJI = "\N{GAME DIE}"
+
+_old_roll = None
 
 
 class MacroDice(commands.Cog):
@@ -25,10 +27,7 @@ class MacroDice(commands.Cog):
     def __unload(self):
         global _old_roll
         if _old_roll:
-            try:
-                self.bot.remove_command("roll")
-            except:
-                pass
+            self.bot.remove_command("roll")
             self.bot.add_command(_old_roll)
 
     @commands.guild_only()
