@@ -1,6 +1,5 @@
 import discord
 import logging
-from typing import Any
 
 from redbot.core import Config
 from redbot.core import commands

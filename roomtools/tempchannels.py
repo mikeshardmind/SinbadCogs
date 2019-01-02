@@ -21,7 +21,7 @@ class TempChannels(MixedMeta):
 
     async def on_voice_state_update_tmpc(
         self,
-        member: discord.Member,
+        _member: discord.Member,
         before: discord.VoiceState,
         after: discord.VoiceState,
     ):

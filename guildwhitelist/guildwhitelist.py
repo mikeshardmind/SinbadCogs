@@ -1,14 +1,12 @@
+import itertools
 import logging
 from pathlib import Path
-import itertools
-from typing import Any
 
 import discord
-
-from redbot.core import commands
-from redbot.core.i18n import Translator, cog_i18n
 from redbot.core import Config
 from redbot.core import __version__ as redversion
+from redbot.core import commands
+from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core.utils.data_converter import DataConverter as dc
 
@@ -44,7 +42,7 @@ class GuildWhitelist(commands.Cog):
         )
         self.config.register_global(whitelist=[])
 
-    async def __local_check(self, ctx: commands.Context):
+    async def __local_check(self, ctx: commands.Context) -> bool:
         return await ctx.bot.is_owner(ctx.author)
 
     async def on_guild_join(self, guild: discord.Guild):
@@ -87,7 +85,7 @@ class GuildWhitelist(commands.Cog):
             return await ctx.send_help()
 
         wl = await self.config.whitelist()
-        wl = wl + list(ids)
+        wl += list(ids)
         to_set = unique(wl)
         await self.config.whitelist.set(to_set)
         await ctx.tick()

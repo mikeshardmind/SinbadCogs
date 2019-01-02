@@ -1,7 +1,7 @@
 import asyncio
 import json
 import io
-from typing import List, Set, Any
+from typing import List, Set
 
 import discord
 
@@ -53,6 +53,7 @@ ALL_ALREADY_BANNED = _("That list doesn't contain anybody not already banned.")
 BANMOJI = "\U0001f528"
 
 _ = T_
+
 
 # pylint: disable=E1133
 # pylint doesn't seem to handle implied async generators properly yet

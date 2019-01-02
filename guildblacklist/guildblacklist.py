@@ -1,7 +1,6 @@
 import logging
 from pathlib import Path
 import itertools
-from typing import Any
 
 import discord
 
@@ -42,7 +41,7 @@ class GuildBlacklist(commands.Cog):
         )
         self.config.register_global(blacklist=[])
 
-    async def __local_check(self, ctx: commands.Context):
+    async def __local_check(self, ctx: commands.Context) -> bool:
         return await ctx.bot.is_owner(ctx.author)
 
     async def on_guild_join(self, guild: discord.Guild):
@@ -83,7 +82,7 @@ class GuildBlacklist(commands.Cog):
             return await ctx.send_help()
 
         blacklist = await self.config.blacklist()
-        blacklist = blacklist + list(ids)
+        blacklist += list(ids)
         to_set = unique(blacklist)
         await self.config.blacklist.set(to_set)
         await ctx.tick()

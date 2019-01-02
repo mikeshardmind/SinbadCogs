@@ -10,8 +10,7 @@ class AudioHook(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @staticmethod
-    async def __global_check(ctx):
+    async def __global_check(self, ctx):
         if await ctx.bot.is_owner(ctx.author):
             return True
 

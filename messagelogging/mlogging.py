@@ -1,8 +1,7 @@
-from typing import List, Optional, Dict
-
 import discord
 from redbot.core import commands, checks
 from redbot.core.config import Config
+
 from .logs import get_logger
 
 

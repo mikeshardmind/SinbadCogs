@@ -16,9 +16,7 @@ class SyndicatedConverter(Converter):
 
     async def convert(self, ctx: Context, argument: str) -> dict:
 
-        parser = NoExitParser(
-            description="Syndicated Ban Syntax", add_help=False, allow_abbrev=True
-        )
+        parser = NoExitParser(description="Syndicated Ban Syntax", add_help=False)
         parser.add_argument("--sources", nargs="*", dest="sources", default=[])
         parser.add_argument("--destinations", nargs="*", dest="dests", default=[])
         parser.add_argument(

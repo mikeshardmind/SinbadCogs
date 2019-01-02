@@ -400,7 +400,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         leave a role
         """
         if await self.config.role(role).self_removable():
-            await self.update_roles_atomically(who=ctx.author, give=None, remove=[role])
+            await self.update_roles_atomically(who=ctx.author, remove=[role])
             await ctx.tick()
         else:
             await ctx.send(

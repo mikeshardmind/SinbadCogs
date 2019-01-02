@@ -1,6 +1,5 @@
 import sys
 import subprocess
-from typing import Any
 
 from redbot.core import commands
 from redbot.core.i18n import Translator, cog_i18n
@@ -33,7 +32,7 @@ class Calculator(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def __local_check(self, ctx):
+    def __local_check(self, _ctx: commands.Context) -> bool:
         return sys.platform == "linux"
 
     @commands.command(name="calc", aliases=["calculate"])

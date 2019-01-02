@@ -23,7 +23,7 @@ class HTMLTextExtractor(html.parser.HTMLParser):  # https://stackoverflow.com/a/
         return "".join(self.result)
 
 
-def html_to_text(html):  # https://stackoverflow.com/a/7778368
+def html_to_text(html_data):  # https://stackoverflow.com/a/7778368
     """Converts HTML to plain text (stripping tags and converting entities).
     >>> html_to_text('<a href="#">Demo<!--...--> <em>(&not; \u0394&#x03b7;&#956;&#x03CE;)</em></a>')
     'Demo (\xac \u0394\u03b7\u03bc\u03ce)'
@@ -43,7 +43,7 @@ def html_to_text(html):  # https://stackoverflow.com/a/7778368
     >>> html_to_text('&nosuchentity; &apos; ')
     "&nosuchentity; ' "
     """
-    html = WhitespaceHandler.sub("\n", html)
+    html_data = WhitespaceHandler.sub("\n", html_data)
     s = HTMLTextExtractor()
-    s.feed(html)
+    s.feed(html_data)
     return s.get_text()

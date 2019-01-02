@@ -1,10 +1,7 @@
-import asyncio
-from typing import Any
-import discord
 from datetime import datetime as dt, timedelta as td
 
-from redbot.core import commands, checks
-from redbot.core.bot import Red
+import discord
+from redbot.core import commands
 
 
 class Polling(commands.Cog):

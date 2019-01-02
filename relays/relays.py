@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, Optional, Any, List, Union
+from typing import Dict, Optional, List, Union
 
 import discord
 from redbot.core.utils.chat_formatting import box, pagify
@@ -68,7 +68,7 @@ class Relays(commands.Cog):
         self.scrub_invites: Optional[bool] = None
         self._load_task = self.bot.loop.create_task(self.initialize())
 
-    async def __before_invoke(self, ctx):
+    async def __before_invoke(self, _ctx):
         while not self._load_task.done():
             asyncio.sleep(2)
 
@@ -97,7 +97,8 @@ class Relays(commands.Cog):
         return list(self.oneways.keys()) + list(self.nways.keys())
 
     @property
-    def relay_objs(self):
+    def relay_objs(self) -> List[Union[NwayRelay, OnewayRelay]]:
+        # noinspection PyTypeChecker
         return list(self.oneways.values()) + list(self.nways.values())
 
     def gather_destinations(

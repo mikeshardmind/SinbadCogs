@@ -1,5 +1,6 @@
 from itertools import starmap, chain
 
+
 # May not use this later, but I was considering this to work custom config more easily.
 def flatten_dict(dictionary: dict, levels=None):
     """Flatten a nested dictionary structure"""

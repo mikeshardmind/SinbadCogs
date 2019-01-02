@@ -78,9 +78,7 @@ class ComplexActionConverter(RoleConverter):
 
     async def convert(self, ctx: Context, argument: str) -> dict:
 
-        parser = NoExitParser(
-            description="Role management syntax help", add_help=False, allow_abbrev=True
-        )
+        parser = NoExitParser(description="Role management syntax help", add_help=False)
         parser.add_argument("--has-any", nargs="*", dest="any", default=[])
         parser.add_argument("--has-all", nargs="*", dest="all", default=[])
         parser.add_argument("--has-none", nargs="*", dest="none", default=[])
@@ -164,9 +162,7 @@ class ComplexSearchConverter(RoleConverter):
         super().__init__()
 
     async def convert(self, ctx: Context, argument: str) -> dict:
-        parser = NoExitParser(
-            description="Role management syntax help", add_help=False, allow_abbrev=True
-        )
+        parser = NoExitParser(description="Role management syntax help", add_help=False)
         parser.add_argument("--has-any", nargs="*", dest="any", default=[])
         parser.add_argument("--has-all", nargs="*", dest="all", default=[])
         parser.add_argument("--has-none", nargs="*", dest="none", default=[])
