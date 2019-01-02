@@ -1,5 +1,4 @@
-from redbot.core import commands, checks
-from redbot.core.config import Config
+from redbot.core import commands
 
 
 class AudioHook(commands.Cog):
@@ -11,17 +10,15 @@ class AudioHook(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    #        self.config = Config.get_conf(self, 78631113035100160, force_registration=True)
-    #        self.config.register_global(allowed=[], associated_allows=[])
-
-    async def __permission_hook(self, ctx):
+    @staticmethod
+    async def __global_check(ctx):
         if await ctx.bot.is_owner(ctx.author):
             return True
 
         if ctx.cog.__class__.__name__ != "Audio":
-            return None
+            return True
 
         if not ctx.guild:
-            return None
+            return True
 
         return ctx.guild.get_member(78631113035100160) is not None
