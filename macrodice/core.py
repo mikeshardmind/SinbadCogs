@@ -48,7 +48,7 @@ class MacroDice(commands.Cog):
         except TypeError:
             try:
                 result = dice.roll(expr)
-            except dice.DiceException:
+            except Exception:
                 await ctx.send("Invalid expression")
             else:
                 await ctx.send(f"{ctx.author.mention} {result}")
