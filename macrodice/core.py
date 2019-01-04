@@ -82,9 +82,9 @@ class MacroDice(commands.Cog):
         """
         hmmm
         """
-        grp = self.config.member(ctx.author).macros()
+        grp = self.config.member(ctx.author)
 
-        async with grp() as data:
+        async with grp.macros() as data:
             data.update({name: expression})
         await ctx.tick()
 
@@ -94,9 +94,9 @@ class MacroDice(commands.Cog):
         """
         hmm?
         """
-        grp = self.config.member(ctx.author).macros()
+        grp = self.config.member(ctx.author)
 
-        async with grp() as data:
+        async with grp.macros() as data:
             data.pop(name, None)
         await ctx.tick()
 
@@ -133,7 +133,7 @@ class MacroDice(commands.Cog):
         ...
         """
 
-        grp = self.config.member(ctx.author).macros()
+        grp = self.config.member(ctx.author)
 
         name = name.lower()
 
