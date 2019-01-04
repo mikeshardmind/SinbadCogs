@@ -147,7 +147,7 @@ class MacroDice(commands.Cog):
                     f"Invalid name, valid names are: {', '.join(vkeys.values())}"
                 )
 
-            data.update({'name': value})
+            data.update({name: value})
         await ctx.tick()
 
 
