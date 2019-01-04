@@ -22,7 +22,26 @@ class MacroDice(commands.Cog):
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_member(macros={})
+        self.config.register_member(
+            macros={},
+            dex=10,
+            intel=10,
+            con=10,
+            wis=10,
+            cha=10,
+            strength=10,
+            level=1,
+        )
+
+    # Yes, these are the correct 5th edition formulas.
+    
+    @staticmethod
+    def proficiency(level: int) -> int:
+        return (level + 7) // 4
+
+    @staticmethod
+    def modifier(stat: int) -> int:
+        return (stat - 10) // 2
 
     def __unload(self):
         global _old_roll
