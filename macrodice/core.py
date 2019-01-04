@@ -81,7 +81,7 @@ class MacroDice(commands.Cog):
                 def get_formatted(expr):
                     
                     return "\n".join(
-                        f"{actual} (Range: {low}-{high})"
+                        f"{actual:<4} (Range: {low}-{high})"
                         for actual, low, high in handler(expr)
                     )
 
