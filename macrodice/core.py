@@ -24,17 +24,17 @@ class MacroDice(commands.Cog):
         )
         self.config.register_member(
             macros={},
-            dex=10,
-            intel=10,
-            con=10,
-            wis=10,
-            cha=10,
+            dexterity=10,
+            intelligence=10,
+            constitution=10,
+            wisdom=10,
+            charisma=10,
             strength=10,
             level=1,
         )
 
     # Yes, these are the correct 5th edition formulas.
-    
+
     @staticmethod
     def proficiency(level: int) -> int:
         return (level + 7) // 4
@@ -57,6 +57,10 @@ class MacroDice(commands.Cog):
         Roll something
         """
 
+        await self.handle_expression(ctx, expr)
+
+    async def handle_expression(self, ctx, expr):
+
         try:
             if 100000 > expr > 0:
                 await ctx.send(
@@ -71,6 +75,80 @@ class MacroDice(commands.Cog):
                 await ctx.send("Invalid expression")
             else:
                 await ctx.send(f"{ctx.author.mention} {result}")
+
+    @commands.guild_only()
+    @commands.command(name="makemacro", hidden=True)
+    async def mmac(self, ctx, name, *, expression):
+        """
+        hmmm
+        """
+        grp = self.config.member(ctx.author).macros
+
+        async with grp() as data:
+            data.update({name: expression})
+        await ctx.tick()
+
+    @commands.guild_only()
+    @commands.command(name="removemacro", hidden=True)
+    async def rmmac(self, ctx, name):
+        """
+        hmm?
+        """
+        grp = self.config.member(ctx.author).macros
+
+        async with grp() as data:
+            data.pop(name, None)
+        await ctx.tick()
+
+    @commands.guild_only()
+    @commands.command(name="mroll", hidden=True)
+    async def mroll(self, ctx, name):
+        """
+        Rolls a macro
+        """
+
+        data = await self.config.member(ctx.author).all()
+
+        try:
+            macro = data["macros"][name]
+        except KeyError:
+            return await ctx.send("No such macro")
+
+        data.pop("macros", None)
+
+        lv = data.pop("level")
+
+        mods = {f"{k[:3]} mod": self.modifier(v) for k, v in data.items()}
+        data["pbonus"] = self.proficiency(lv)
+        data["level"] = lv
+        data.update(mods)
+        expression = macro.format(**data)
+
+        await self.handle_expression(ctx, expression)
+
+    @commands.guild_only()
+    @commands.command(name="statset", hidden=True)
+    async def statset(self, ctx, name, value: int):
+        """
+        ...
+        """
+
+        grp = self.config.member(ctx.author).macros
+
+        name = name.lower()
+
+        async with grp() as data:
+            vkeys = {k[:3]: k for k in data.keys() if k != "macros"}
+            if name in vkeys:
+                name = vkeys[name]
+
+            if name not in vkeys.values():
+                return await ctx.send(
+                    f"Invalid name, valid names are: {', '.join(vkeys.values())}"
+                )
+
+            data.update(name=value)
+        await ctx.tick()
 
 
 def setup(bot):
