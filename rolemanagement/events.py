@@ -58,8 +58,9 @@ class EventMixin(MixinMeta):
 
         guild = self.bot.get_guild(payload.guild_id)
         if guild:
-            if any(m.joined_at is None for m in guild.members):
-                await self.bot.request_offline_members(guild)
+            await self.maybe_update_guilds(guild)
+        else:
+            return
         member = guild.get_member(payload.user_id)
         if member.bot:
             return

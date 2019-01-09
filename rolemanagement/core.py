@@ -18,8 +18,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.7"
-    __flavor_text__ = "Pagination fixes."
+    __version__ = "3.2.8"
+    __flavor_text__ = "Minor API niceness."
 
     def __init__(self, bot):
         self.bot = bot
@@ -43,11 +43,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         super().__init__()
 
     async def __before_invoke(self, ctx):
-        # ctx.guild.chunked is not always accurate.
-        guild = ctx.guild
-        if guild and guild.available and guild.large:
-            if not guild.chuked or any(m.joined_at is None for m in guild.members):
-                await ctx.bot.request_offline_members(guild)
+        if ctx.guild:
+            await self.maybe_update_guilds(ctx.guild)
 
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
