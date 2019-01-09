@@ -122,9 +122,11 @@ class UtilMixin(MixinMeta):
         # ctx.guild.chunked is not always accurate.
         # discord.py#1638
         _guilds = [
-            g for g in guilds if not g.unavailable and
-            g.large and 
-            (not g.chunked or any(m.joined_at is None for m in g.members))
+            g
+            for g in guilds
+            if not g.unavailable
+            and g.large
+            and (not g.chunked or any(m.joined_at is None for m in g.members))
         ]
         if _guilds:
             await self.bot.request_offline_members(*_guilds)
