@@ -61,11 +61,11 @@ class Staging(commands.Cog):
                     _("Something unexpected prevented this user from being found.")
                 )
             guilds: list = []
-        else:  # not is_owner
+        else:
             found_guilds = [g for g in self.bot.guilds if g.get_member(_id)]
             shared_guilds = [g for g in found_guilds if ctx.author in g.members]
             guilds = found_guilds if is_owner else shared_guilds
-            if not guilds:
+            if not guilds and not (is_owner and user_obj):  # RHS can happen on user ban
                 return await ctx.send(
                     _("I couldn't locate that user in shared servers")
                 )
