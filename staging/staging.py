@@ -47,10 +47,10 @@ class Staging(commands.Cog):
             if ctx.author not in self.user_finder_as:
                 self.user_finder_as[ctx.author] = AntiSpam(antispam_intervals)
                 self.user_finder_as[ctx.author].stamp()
-
-        if not (user_obj or is_owner):
-            return await ctx.send(_("I couldn't locate that user in shared servers"))
-        elif not user_obj:
+            if user_obj is None:
+                return await ctx.send(_("I couldn't locate that user in shared servers"))
+            
+        if user_obj is None:
             try:
                 user_obj = await self.bot.get_user_info(_id)
             except discord.NotFound:
