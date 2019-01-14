@@ -69,25 +69,24 @@ class MacroDice(commands.Cog):
             else:
                 await ctx.send("Use a number between 1-100000")
         except TypeError:
+
+            def handler(exp):
+                real = dice.roll(exp)
+                mx = dice.roll_max(exp)
+                mn = dice.roll_min(exp)
+                try:
+                    yield from zip(real, mn, mx)
+                except TypeError:
+                    yield (real, mn, mx)
+
+            def get_formatted(expr):
+                return "\n".join(
+                    f"{actual:<4} (Range: {low}-{high})"
+                    for actual, low, high in handler(expr)
+                )
+
             try:
-
-                def handler(exp):
-                    real = dice.roll(exp)
-                    mx = dice.roll_max(exp)
-                    mn = dice.roll_min(exp)
-                    try:
-                        yield from zip(real, mn, mx)
-                    except TypeError:
-                        yield (real, mn, mx)
-
-                def get_formatted(expr):
-                    return "\n".join(
-                        f"{actual:<4} (Range: {low}-{high})"
-                        for actual, low, high in handler(expr)
-                    )
-
                 result = get_formatted(expr)
-
             except Exception:
                 await ctx.send("Invalid expression")
             else:

@@ -48,9 +48,10 @@ class Staging(commands.Cog):
                 self.user_finder_as[ctx.author] = AntiSpam(antispam_intervals)
                 self.user_finder_as[ctx.author].stamp()
             if user_obj is None:
-                return await ctx.send(_("I couldn't locate that user in shared servers"))
-        
-        
+                return await ctx.send(
+                    _("I couldn't locate that user in shared servers")
+                )
+
         if user_obj is None and is_owner:
             try:
                 user_obj = await self.bot.get_user_info(_id)
