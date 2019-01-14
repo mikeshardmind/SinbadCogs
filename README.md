@@ -22,10 +22,6 @@ I'm also around in the main [Red Discord Server](https://discord.gg/red)
 If you'd like to see additional features or find a bug, leave an issue
 or make a pull request
 
-## Commissions
-
-Most of the time, you'd be better off posting for a cog commission on the [dedicated site](https://cogboard.red/) for them. If you'd like to contact me specifically about comission work, you can contact me on discord. I may not respond immediately, but I will get back to you when I have the ability to do so.
-
 ## So you want to support this?
 
 The best way you can help support this is to give me feedback on bugs
