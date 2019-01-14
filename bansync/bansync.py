@@ -92,7 +92,7 @@ class BanSync(commands.Cog):
                 ctx.author.mention, files=[discord.File(fp, filename=filename)]
             )
         except discord.HTTPException:
-            await ctx.send(TOO_MANY_BANS_WAT)
+            await ctx.send(_(TOO_MANY_BANS_WAT))
 
     @commands.bot_has_permissions(ban_members=True)
     @checks.admin_or_permissions(ban_members=True)
@@ -104,7 +104,7 @@ class BanSync(commands.Cog):
         """
 
         if not ctx.message.attachments:
-            return await ctx.send(EXPECTED_FILE)
+            return await ctx.send(_(EXPECTED_FILE))
 
         fp = io.BytesIO()
         a = ctx.message.attachments[0]
@@ -114,13 +114,13 @@ class BanSync(commands.Cog):
             assert isinstance(data, list)
             assert all(isinstance(x, int) for x in data)
         except (json.JSONDecodeError, AssertionError):
-            return await ctx.send(INVALID_FILE)
+            return await ctx.send(_(INVALID_FILE))
 
         current_bans = await ctx.guild.bans()
         to_ban = set(data) - {b.user.id for b in current_bans}
 
         if not to_ban:
-            return await ctx.send(ALL_ALREADY_BANNED)
+            return await ctx.send(_(ALL_ALREADY_BANNED))
 
         async with ctx.typing():
             exit_codes = [
@@ -136,9 +136,9 @@ class BanSync(commands.Cog):
         if all(exit_codes):
             await ctx.message.add_reaction(BANMOJI)
         elif not any(exit_codes):
-            await ctx.send(UNWORTHY)
+            await ctx.send(_(UNWORTHY))
         else:
-            await ctx.send(PARTIAL_SUCCESS)
+            await ctx.send(_(PARTIAL_SUCCESS))
 
     @commands.command(name="bulkban")
     async def bulkban(self, ctx, *ids: int):
@@ -154,9 +154,9 @@ class BanSync(commands.Cog):
         if all(results.values()):
             await ctx.message.add_reaction(BANMOJI)
         elif not any(results.values()):
-            await ctx.send(UNWORTHY)
+            await ctx.send(_(UNWORTHY))
         else:
-            await ctx.send(PARTIAL_SUCCESS)
+            await ctx.send(_(PARTIAL_SUCCESS))
 
     @commands.command(name="bansyncdebuginfo", hidden=True)
     async def debuginfo(self, ctx):
@@ -228,7 +228,7 @@ class BanSync(commands.Cog):
             return -1
         for i, guild in enumerate(guilds, 1):
             output += "{}: {}\n".format(i, guild.name)
-        output += INTERACTIVE_PROMPT_I
+        output += _(INTERACTIVE_PROMPT_I)
         for page in pagify(output, delims=["\n"]):
             await ctx.send(box(page))
 
@@ -247,7 +247,7 @@ class BanSync(commands.Cog):
                 else:
                     guild = guilds[message - 1]
             except (ValueError, IndexError):
-                await ctx.send(INVALID_CHOICE)
+                await ctx.send(_(INVALID_CHOICE))
                 return None
             else:
                 return guild
@@ -277,7 +277,7 @@ class BanSync(commands.Cog):
             for maybe_ban in to_ban:
                 if await self.ban_filter(guild, usr, maybe_ban):
                     await self.ban_or_hackban(
-                        guild, maybe_ban.id, mod=usr, reason=BAN_REASON
+                        guild, maybe_ban.id, mod=usr, reason=_(BAN_REASON)
                     )
 
     @commands.command(name="bansync")
@@ -292,7 +292,7 @@ class BanSync(commands.Cog):
                 if s == -1:
                     break
                 if s == -2:
-                    return await ctx.send(ASYNCIOTIMEOUT)
+                    return await ctx.send(_(ASYNCIOTIMEOUT))
                 elif s is None:
                     continue
                 else:
@@ -301,7 +301,7 @@ class BanSync(commands.Cog):
             guilds = {g for g in self.bot.guilds if await self.can_sync(g, ctx.author)}
 
         if len(guilds) < 2:
-            return await ctx.send(TOO_FEW_CHOSEN)
+            return await ctx.send(_(TOO_FEW_CHOSEN))
 
         async with ctx.typing():
             await self.process_sync(usr=ctx.author, sources=guilds, dests=guilds)
@@ -332,7 +332,7 @@ class BanSync(commands.Cog):
         if banned:
             await ctx.message.add_reaction(BANMOJI)
         else:
-            await ctx.send(UNWORTHY)
+            await ctx.send(_(UNWORTHY))
 
     async def targeted_global_ban(
         self, ctx: commands.Context, user: str, rsn: str = None
