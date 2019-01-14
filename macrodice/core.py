@@ -75,10 +75,12 @@ class MacroDice(commands.Cog):
                     real = dice.roll(exp)
                     mx = dice.roll_max(exp)
                     mn = dice.roll_min(exp)
-                    yield from zip(real, mn, mx)
+                    try:
+                        yield from zip(real, mn, mx)
+                    except TypeError:
+                        yield (real, mn, mx)
 
                 def get_formatted(expr):
-
                     return "\n".join(
                         f"{actual:<4} (Range: {low}-{high})"
                         for actual, low, high in handler(expr)
