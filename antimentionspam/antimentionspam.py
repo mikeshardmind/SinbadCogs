@@ -10,8 +10,8 @@ class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "1.3.1"
-    __flavor_text__ = "The version I fix missing parentheses from an airport."
+    __version__ = "1.3.2"
+    __flavor_text__ = "The version I fix an output."
 
     def __init__(self, bot):
         self.bot = bot
@@ -116,7 +116,7 @@ class AntiMentionSpam(commands.Cog):
         if enabled is None:
             enabled = not await self.config.guild(ctx.guild).mute()
         await self.config.guild(ctx.guild).mute.set(enabled)
-        await ctx.send(f"Ban from single message settings: {enabled}")
+        await ctx.send(f"Mute on exceeding set limits: {enabled}")
 
     async def process_intervals(self, message: discord.Message):
         guild = message.guild
