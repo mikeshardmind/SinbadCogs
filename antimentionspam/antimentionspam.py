@@ -116,7 +116,7 @@ class AntiMentionSpam(commands.Cog):
         if enabled is None:
             enabled = not await self.config.guild(ctx.guild).mute()
         await self.config.guild(ctx.guild).mute.set(enabled)
-        await ctx.send(f"Ban from single message settings: {enabled}")
+        await ctx.send(f"Mute on exceeding set limits: {enabled}")
 
     async def process_intervals(self, message: discord.Message):
         guild = message.guild
