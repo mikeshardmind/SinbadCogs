@@ -10,8 +10,8 @@ class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "1.3.1"
-    __flavor_text__ = "The version I fix missing parentheses from an airport."
+    __version__ = "1.3.2"
+    __flavor_text__ = "The version I fix an output."
 
     def __init__(self, bot):
         self.bot = bot
