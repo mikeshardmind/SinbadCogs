@@ -10,8 +10,8 @@ class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "1.3.0"
-    __flavor_text__ = "The version with more options for handling people."
+    __version__ = "1.3.1"
+    __flavor_text__ = "The version I fix missing parentheses from an airport."
 
     def __init__(self, bot):
         self.bot = bot
@@ -91,7 +91,7 @@ class AntiMentionSpam(commands.Cog):
         if msg.lower() == "clear":
             msg = ""
         await self.config.guild(ctx.guild).warnmsg.set(msg)
-        await ctx.tick
+        await ctx.tick()
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="singlebantoggle")
