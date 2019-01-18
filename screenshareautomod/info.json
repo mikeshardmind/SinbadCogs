@@ -8,5 +8,5 @@
     "short": "Handle screenshare (ab)use",
     "description": "Handle screenshare (ab)use",
     "tags": [],
-    "hidden": true
+    "hidden": false
 }

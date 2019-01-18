@@ -78,6 +78,7 @@ class ScreenshareAutoMod(commands.Cog):
                         except discord.HTTPException:  # or even API issues.
                             pass
         return  # unreachable code below is intentional for possible extending later.
+        # pylint: disable=W0101
         if action == MUTE:
             if guild.me.top_role > member.top_role:
                 if guild.me.guild_permissions.mute_members:
