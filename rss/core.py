@@ -27,6 +27,7 @@ _ = T_
 USABLE_FIELDS = [
     "author",
     "author_detail",
+    "description"
     "comments",
     "content",
     "contributors",
@@ -57,8 +58,8 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.15"
-    __flavor_text__ = "Time granularity update"
+    __version__ = "1.0.16"
+    __flavor_text__ = "Description support..."
 
     def __init__(self, bot):
         self.bot = bot
@@ -323,8 +324,7 @@ class RSS(commands.Cog):
         self, ctx: commands.Context, channel: Optional[discord.TextChannel] = None
     ):
         """
-        Lists the current feeds (and their locations) 
-        for the current channel, or a provided one.
+        Lists the current feeds for the current channel, or a provided one.
         """
 
         channel = channel or ctx.channel
@@ -412,6 +412,7 @@ class RSS(commands.Cog):
 
         $author
         $author_detail
+        #description
         $comments
         $content
         $contributors
