@@ -58,8 +58,8 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.16"
-    __flavor_text__ = "Description support..."
+    __version__ = "1.0.17"
+    __flavor_text__ = "Description support...(with typo correction)"
 
     def __init__(self, bot):
         self.bot = bot
@@ -412,7 +412,7 @@ class RSS(commands.Cog):
 
         $author
         $author_detail
-        #description
+        $description
         $comments
         $content
         $contributors
