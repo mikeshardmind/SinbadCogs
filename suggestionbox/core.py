@@ -18,7 +18,7 @@ class SuggestionBox(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.2b"
+    __version__ = "1.0.3b"
     __flavor_text__ = "V2 featues version, more soon."
 
     def __init__(self, bot):
@@ -43,7 +43,6 @@ class SuggestionBox(commands.Cog):
         """
         pass
 
-    
     @sset.command(name="make")
     async def sset_make(self, ctx, *, channel: discord.TextChannel):
         """
@@ -68,11 +67,16 @@ class SuggestionBox(commands.Cog):
 
         await ctx.tick()
 
-
     @has_active_box()
     @commands.guild_only()  # TODO # Change this with additional logic.
     @commands.command()
-    async def suggest(self, ctx, channel: Optional[discord.TextChannel] = None, *, suggestion: str = ""):
+    async def suggest(
+        self,
+        ctx,
+        channel: Optional[discord.TextChannel] = None,
+        *,
+        suggestion: str = "",
+    ):
         """
         Suggest something.
         """
@@ -81,7 +85,7 @@ class SuggestionBox(commands.Cog):
             self.antispam[ctx.guild] = {}
 
         if ctx.author not in self.antispam[ctx.guild]:
-           self.antispam[ctx.guild][ctx.author] = AntiSpam([])
+            self.antispam[ctx.guild][ctx.author] = AntiSpam([])
 
         if self.antispam[ctx.guild][ctx.author].spammy:
             return await ctx.send(_("You've send too many suggestions recently."))
@@ -89,12 +93,12 @@ class SuggestionBox(commands.Cog):
         if channel is None:
             ids = await self.config.guild(ctx.guild).boxes()
             channels = [c for c in ctx.guild.text_channels if c.id in ids]
-            
+
             if not channels:
                 return await ctx.send(
                     _("Cannot find channels to send to, even though configured.")
                 )
-            
+
             if len(channels) == 1:
                 channel, = channels
             else:
@@ -102,9 +106,7 @@ class SuggestionBox(commands.Cog):
                     "Multiple suggestion boxes available, "
                     "Please try again specifying one of these as the channel:"
                 )
-                output = (
-                    f'{base_error}\n{", ".join(c.mention for c in channels)}'
-                )
+                output = f'{base_error}\n{", ".join(c.mention for c in channels)}'
                 return await ctx.send(output)
 
         if not suggestion:
@@ -114,14 +116,11 @@ class SuggestionBox(commands.Cog):
         if not (perms.send_messages and perms.embed_links):
             return await ctx.send(_("I don't have the required permissions"))
 
-        embed = discord.Embed(
-            color=(await ctx.embed_color()),
-            description=suggestion,
-        )
+        embed = discord.Embed(color=(await ctx.embed_color()), description=suggestion)
 
         embed.set_author(
             name=_("New suggestion from {author_info}").format(
-                author_info=f"{ctx.author.display_name}({ctx.author.id})"
+                author_info=f"{ctx.author.display_name} ({ctx.author.id})"
             ),
             icon_url=ctx.author.avatar_url,
         )
@@ -136,8 +135,10 @@ class SuggestionBox(commands.Cog):
                 data.update(
                     channel=channel.id, suggestion=suggestion, author=ctx.author.id
                 )
-            self.antispam[ctx.guild][ctx.author].stamp()            
-            await ctx.send(f'{ctx.author.mention}: {_("Your suggestion has been sent")}')
+            self.antispam[ctx.guild][ctx.author].stamp()
+            await ctx.send(
+                f'{ctx.author.mention}: {_("Your suggestion has been sent")}'
+            )
 
         if ctx.channel.permissions_for(ctx.guild.me).manage_messages:
             try:
