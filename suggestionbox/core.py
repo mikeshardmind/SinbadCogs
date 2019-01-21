@@ -1,3 +1,5 @@
+from typing import Optional
+
 import discord
 from redbot.core.config import Config
 from redbot.core import commands, checks
@@ -16,7 +18,7 @@ class SuggestionBox(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.1b"
+    __version__ = "1.0.2b"
     __flavor_text__ = "V2 featues version, more soon."
 
     def __init__(self, bot):
@@ -70,7 +72,7 @@ class SuggestionBox(commands.Cog):
     @has_active_box()
     @commands.guild_only()  # TODO # Change this with additional logic.
     @commands.command()
-    async def suggest(self, ctx, channel: discord.TextChannel = None, *, suggestion: str = ""):
+    async def suggest(self, ctx, channel: Optional[discord.TextChannel] = None, *, suggestion: str = ""):
         """
         Suggest something.
         """
@@ -121,7 +123,7 @@ class SuggestionBox(commands.Cog):
             name=_("New suggestion from {author_info}").format(
                 author_info=f"{ctx.author.display_name}({ctx.author.id})"
             ),
-            icon_url=ctx.author.avatar,
+            icon_url=ctx.author.avatar_url,
         )
 
         try:
