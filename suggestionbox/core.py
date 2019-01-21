@@ -16,7 +16,7 @@ class SuggestionBox(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.0b"
+    __version__ = "1.0.1b"
     __flavor_text__ = "V2 featues version, more soon."
 
     def __init__(self, bot):
@@ -81,7 +81,7 @@ class SuggestionBox(commands.Cog):
         if ctx.author not in self.antispam[ctx.guild]:
            self.antispam[ctx.guild][ctx.author] = AntiSpam([])
 
-        if self.antispam[ctx.guild][ctx.author].spammy():
+        if self.antispam[ctx.guild][ctx.author].spammy:
             return await ctx.send(_("You've send too many suggestions recently."))
 
         if channel is None:
