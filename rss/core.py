@@ -58,7 +58,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.19"
+    __version__ = "1.0.20"
     __flavor_text__ = "Field value de-aliasing."
 
     def __init__(self, bot):
@@ -179,8 +179,8 @@ class RSS(commands.Cog):
         content = template.safe_substitute(**escaped_usable_fields)
 
         if embed:
-            if len(content) > 5800:
-                content = content[:5800] + _("... (Feed data too long)")
+            if len(content) > 1980:
+                content = content[:1900] + _("... (Feed data too long)")
             timestamp = datetime(*self.process_entry_time(entry))
             embed_data = discord.Embed(
                 description=content, color=color, timestamp=timestamp
