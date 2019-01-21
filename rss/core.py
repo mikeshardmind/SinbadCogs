@@ -27,7 +27,7 @@ _ = T_
 USABLE_FIELDS = [
     "author",
     "author_detail",
-    "description"
+    "description",
     "comments",
     "content",
     "contributors",
@@ -58,7 +58,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.17"
+    __version__ = "1.0.18"
     __flavor_text__ = "Description support...(with typo correction)"
 
     def __init__(self, bot):
