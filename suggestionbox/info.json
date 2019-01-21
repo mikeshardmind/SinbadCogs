@@ -1,0 +1,12 @@
+{
+    "author": [
+        "mikeshardmind(Sinbad)"
+    ],
+    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu More to come on this later, this is an initial offering for transition from V2, but will gain more features later on.",
+    "name": "SuggestionBox",
+    "disabled": false,
+    "short": "configureable suggestion boxes",
+    "description": "configureable suggestion boxes",
+    "tags": [],
+    "hidden": false
+}
