@@ -58,8 +58,8 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.18"
-    __flavor_text__ = "Description support...(with typo correction)"
+    __version__ = "1.0.19"
+    __flavor_text__ = "Field value de-aliasing."
 
     def __init__(self, bot):
         self.bot = bot
@@ -168,10 +168,12 @@ class RSS(commands.Cog):
 
         template = string.Template(_template)
 
+        data = {k: getattr(entry, k, None) for k in USABLE_FIELDS}
+
         escaped_usable_fields = {
             k: (v if not isinstance(v, str) else html_to_text(v))
-            for k, v in entry.items()
-            if k in USABLE_FIELDS and v
+            for k, v in data.items()
+            if v
         }
 
         content = template.safe_substitute(**escaped_usable_fields)
