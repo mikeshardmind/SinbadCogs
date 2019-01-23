@@ -18,8 +18,8 @@ class EmbedMaker(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "3.0.6"
-    __flavor_text__ = "Less reactions, more Reactive."
+    __version__ = "3.0.7"
+    __flavor_text__ = "Even more color support."
 
     def __init__(self, bot):
         self.bot = bot
@@ -213,7 +213,7 @@ class EmbedMaker(commands.Cog):
         """
         name = name.lower()
         try:
-            x = await self.get_and_send(ctx.channel, ctx.guild.id, name)
+            await self.get_and_send(ctx.channel, ctx.guild.id, name)
         except (discord.Forbidden, discord.HTTPException) as e:
             log.error(e)
 
@@ -225,7 +225,7 @@ class EmbedMaker(commands.Cog):
         """
         name = name.lower()
         try:
-            x = await self.get_and_send(ctx.channel, "GLOBAL", name)
+            await self.get_and_send(ctx.channel, "GLOBAL", name)
         except (discord.Forbidden, discord.HTTPException) as e:
             log.error(e)
 

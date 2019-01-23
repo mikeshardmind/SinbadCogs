@@ -34,7 +34,10 @@ async def embed_from_userstr(ctx: commands.Context, string: str) -> discord.Embe
                         ).value
                     except Exception:
                         try:
-                            to_set = int(to_set)
+                            if isinstance(to_set, str) and to_set.startswith("#"):
+                                to_set = int(to_set.lstrip("#"), 16)
+                            else:
+                                to_set = int(to_set)
                         except Exception:
                             raise
                     else:
