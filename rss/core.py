@@ -24,6 +24,8 @@ _ = lambda s: s
 #
 _ = T_
 
+DONT_HTML_SCRUB = ["link", "source", "updated", "updated_parsed"]
+
 USABLE_FIELDS = [
     "author",
     "author_detail",
@@ -58,8 +60,8 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.20"
-    __flavor_text__ = "Field value de-aliasing."
+    __version__ = "1.0.21"
+    __flavor_text__ = "Don't run html cleanup on link field"
 
     def __init__(self, bot):
         self.bot = bot
@@ -170,11 +172,12 @@ class RSS(commands.Cog):
 
         data = {k: getattr(entry, k, None) for k in USABLE_FIELDS}
 
-        escaped_usable_fields = {
-            k: (v if not isinstance(v, str) else html_to_text(v))
-            for k, v in data.items()
-            if v
-        }
+        def maybe_clean(key, val):
+            if isinstance(val, str) and key not in DONT_HTML_SCRUB:
+                return html_to_text(val)
+            return val
+
+        escaped_usable_fields = {k: maybe_clean(k, v) for k, v in data.items() if v}
 
         content = template.safe_substitute(**escaped_usable_fields)
 
