@@ -106,17 +106,15 @@ class UtilMixin(MixinMeta):
         """
         Returns a list of roles to remove, or raises an error
         """
-        ret: List[discord.Role] = []
 
-        async with self.config.role(role).exclusive_to() as ex:
-            if any(r.id in ex for r in who.roles):
-                conflicts = [r for r in who.roles if r.id in ex]
-                if await self.config.role(role).self_removable():
-                    ret = conflicts
-                else:
-                    raise ConflictingRoleException(conflicts=conflicts)
+        data = await self.config.all_roles()
+        ex = data.get(role.id, {}).get("exclusive_to", [])
+        conflicts: List[discord.Role] = [r for r in who.roles if r.id in ex]
 
-        return ret
+        for r in conflicts:
+            if not data.get(r.id, {}).get("self_removable", False):
+                raise ConflictingRoleException(conflicts=conflicts)
+        return conflicts
 
     async def maybe_update_guilds(self, *guilds: discord.Guild):
         # ctx.guild.chunked is not always accurate.
