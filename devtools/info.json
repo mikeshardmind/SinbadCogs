@@ -1,0 +1,14 @@
+{
+    "author": ["mikeshardmind(Sinbad)"],
+    "install_msg": "Hidden dev tools",
+    "name": "DevTools",
+    "disabled": false,
+    "short": "Some dev tools",
+    "description": "Some dev tools",
+    "tags": [],
+    "hidden": true,
+    "min_python_version": [3, 6, 0],
+    "requirements": [
+        "asteval"
+    ]
+}
