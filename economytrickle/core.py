@@ -47,6 +47,9 @@ class EconomyTrickle(commands.Cog):
             self.main_loop_task.cancel()
             [t.cancel() for t in self.extra_tasks]
 
+    async def on_message(self, message):
+        self.recordhandler.proccess_message(message)
+
     async def main_loop(self):
 
         minutes = defaultdict(int)
@@ -75,14 +78,20 @@ class EconomyTrickle(commands.Cog):
 
             def vpred(mem: discord.Member):
                 with contextlib.suppress(AttributeError):
-                    return mem.voice.channel.id not in data["blacklisted_channels"]
+                    return (
+                        mem.voice.channel.id not in data["blacklisted_channels"]
+                        and not mem.bot
+                    )
 
         else:
             mpred = lambda m: m.channel.id in data["whitelisted_channels"]
 
             def vpred(mem: discord.Member):
                 with contextlib.suppress(AttributeError):
-                    return mem.voice.channel.id in data["whitelisted_channels"]
+                    return (
+                        mem.voice.channel.id in data["whitelisted_channels"]
+                        and not mem.bot
+                    )
 
         has_active_message = set(
             self.recordhandler.get_active_for_guild(
@@ -144,3 +153,4 @@ class EconomyTrickle(commands.Cog):
         Sets this as active (or not)
         """
         await self.config.guild(ctx.guild).active.set(active)
+        await ctx.tick()
