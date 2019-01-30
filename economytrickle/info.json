@@ -1,0 +1,12 @@
+{
+    "author": [
+        "mikeshardmind(Sinbad)"
+    ],
+    "install_msg": "Not ready for use yet. Won't load. Feel free to keep an eye on progress.",
+    "name": "EconomyTrickle",
+    "disabled": false,
+    "short": "Gives active users credits",
+    "description": "Gives active users credits",
+    "hidden": true,
+    "min_python_version": [3, 6, 4]
+}
