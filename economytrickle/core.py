@@ -49,7 +49,8 @@ class EconomyTrickle(commands.Cog):
             [t.cancel() for t in self.extra_tasks]
 
     async def on_message(self, message):
-        self.recordhandler.proccess_message(message)
+        if message.guild and await self.config.guild(message.guild).active():
+            self.recordhandler.proccess_message(message)
 
     async def main_loop(self):
 
