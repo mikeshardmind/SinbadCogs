@@ -140,8 +140,7 @@ class EconomyTrickle(commands.Cog):
             await bank.deposit_credits(member, to_give)
 
         # cleanup old message objects
-        before = after - timedelta(seconds=1)
-        self.recordhandler.clear_before(guild=guild, before=before)
+        self.recordhandler.clear_before(guild=guild, before=after)
 
     # Commands go here
 
