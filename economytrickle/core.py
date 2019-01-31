@@ -36,6 +36,7 @@ class EconomyTrickle(commands.Cog):
             maximum_bonus=None,
             extra_voice_xp=0,
             extra_message_xp=0,
+            custom_level_table={},  # TODO
         )
         self.config.register_member(xp=0, level=0)
         self.recordhandler = RecordHandler()
@@ -136,6 +137,10 @@ class EconomyTrickle(commands.Cog):
                 bonus = min(data["maximum_bonus"], bonus)
 
             await bank.deposit_credits(member, to_give)
+
+        # cleanup old message objects
+        before = after - timedelta(seconds=1)
+        self.recordhandler.clear_before(guild=guild, before=before)
 
     # Commands go here
 
