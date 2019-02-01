@@ -51,14 +51,15 @@ class DevTools(commands.Cog):
             f'\n```\n"{to_send}"\n```'
         )
 
-
     @checks.admin_or_permissions(manage_messages=True)
     @commands.guild_only()
     @commands.command()
     async def unspoil(self, ctx, message_id: int):
         """ Get what was said without spoiler tags """
 
-        message = discord.utils.get(ctx.guild._state._messages, channel=ctx.channel, id=message_id)
+        message = discord.utils.get(
+            ctx.guild._state._messages, channel=ctx.channel, id=message_id
+        )
         if message is None:
             try:
                 message = await ctx.channel.get_message(message_id)
@@ -72,4 +73,4 @@ class DevTools(commands.Cog):
         text = SPOILER_RE.sub(r"\g<CONTENT>", message.content)
         text = text.strip()
         if text:
-            await ctx.send(text)        
+            await ctx.send(text)
