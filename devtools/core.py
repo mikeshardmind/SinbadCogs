@@ -13,7 +13,7 @@ class DevTools(commands.Cog):
     """ Some tools """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.1"
+    __version__ = "1.0.2"
     __flavor_text__ = "Stuff"
 
     def __init__(self, bot):
@@ -41,15 +41,24 @@ class DevTools(commands.Cog):
         if isinstance(emoji, str):
             open_b, close_b = "{", "}"
             to_send = "".join(f"\\N{open_b}{ud.name(c)}{close_b}" for c in emoji)
-            e_type = "unicode"
+            await ctx.send(
+                f"To send or react with this unicode emoji, send or react with:"
+                f'\n```\n"{to_send}"\n```'
+            )
         else:
-            to_send = str(emoji)
-            e_type = "custom"
-
-        await ctx.send(
-            f"To send or react with this {e_type} emoji, send or react with:"
-            f'\n```\n"{to_send}"\n```'
-        )
+            await ctx.send(
+                f"This is a custom emoji. To send it or react with it, "
+                f"you can get the emoji object and send it or react with it. "
+                f"Bots don't need nitro, but do need the emote to use it. Example: "
+                f"\n```py\n"
+                f"emoji = discord.utils.get(bot.emojis, id={emoji.id})  "
+                f"# This is the id of the emoji you reacted with\n"
+                f"if emoji:\n"
+                f'    await ctx.send("Some string {{}}".format(emoji))\n'
+                f"    await ctx.message.add_reaction(emoji)\n"
+                f"else:\n"
+                f'    await ctx.send("I can\'t use that emoji")\n```'
+            )
 
     @checks.admin_or_permissions(manage_messages=True)
     @commands.guild_only()
