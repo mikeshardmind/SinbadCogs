@@ -39,7 +39,10 @@ class Staging(commands.Cog):
             user_obj: discord.User = user
         except AttributeError:
             _id = user
-            user_obj = self.bot.get_user(_id)
+            if _id in {m.id for m in self.bot.get_all_members()}:
+                user_obj = self.bot.get_user(_id)  # stale cache avoidance
+            else:
+                user_obj = None
 
         is_owner = await ctx.bot.is_owner(ctx.author)
 
