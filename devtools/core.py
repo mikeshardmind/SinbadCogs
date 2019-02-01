@@ -55,7 +55,7 @@ class DevTools(commands.Cog):
     @checks.admin_or_permissions(manage_messages=True)
     @commands.guild_only()
     @commands.command()
-    async def unspoil(self, ctx, message_id):
+    async def unspoil(self, ctx, message_id: int):
         """ Get what was said without spoiler tags """
 
         message = discord.utils.get(ctx.guild._state._messages, channel=ctx.channel, id=message_id)
