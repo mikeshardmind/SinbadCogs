@@ -13,7 +13,7 @@ class DevTools(commands.Cog):
     """ Some tools """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.2"
+    __version__ = "1.0.3"
     __flavor_text__ = "Stuff"
 
     def __init__(self, bot):
@@ -51,7 +51,7 @@ class DevTools(commands.Cog):
                 f"you can get the emoji object and send it or react with it. "
                 f"Bots don't need nitro, but do need the emote to use it. Example: "
                 f"\n```py\n"
-                f"emoji = discord.utils.get(bot.emojis, id={emoji.id})  "
+                f"emoji = discord.utils.get(bot.emojis, id={emoji.id})\n"
                 f"# This is the id of the emoji you reacted with\n"
                 f"if emoji:\n"
                 f'    await ctx.send("Some string {{}}".format(emoji))\n'
