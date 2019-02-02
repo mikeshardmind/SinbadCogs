@@ -53,7 +53,7 @@ class Scheduler(commands.Cog):
             ):
                 continue
             tasks_dict = channel_data.get("tasks", {})
-            for t in Task.bulk_from_config(**tasks_dict):
+            for t in Task.bulk_from_config(bot=self.bot, **tasks_dict):
                 self.tasks.append(t)
 
     async def _remove_tasks(self, *tasks):
