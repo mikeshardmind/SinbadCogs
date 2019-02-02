@@ -27,7 +27,7 @@ class Task:
     async def get_message(self, bot):
 
         pfx = (await bot.get_prefix(self.channel))[0]
-        content = self.content + pfx
+        content = f"{pfx}{self.content}"
         return SchedulerMessage(
             content=content, author=self.author, channel=self.channel
         )
@@ -40,7 +40,7 @@ class Task:
                 "author": self.author.id,
                 "content": self.content,
                 "channel": self.channel.id,
-                "initial": self.initial.timestamp,
+                "initial": self.initial.timestamp(),
                 "recur": self.recur.total_seconds() if self.recur else None,
             }
         }

@@ -65,10 +65,9 @@ class Scheduler(commands.Cog):
         await self.bot.wait_until_ready()
         async with self._iter_lock:
             await self._load_tasks()
-        while self == self.bot.get_cog("Scheduler"):
+        while self is self.bot.get_cog("Scheduler"):
             async with self._iter_lock:
                 sleep_for = await self.schedule_upcoming()
-                await self._remove_tasks()
             await asyncio.sleep(sleep_for)
 
     async def delayed_wrap_and_invoke(self, task: Task, delay: int):
