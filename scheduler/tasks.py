@@ -1,5 +1,5 @@
 import discord
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, field
 from typing import Optional, Union, cast
 
@@ -52,7 +52,7 @@ class Task:
             cid = data.pop("channel", 0)
             aid = data.pop("author", 0)
             initial_ts = data.pop("initial", 0)
-            initial = datetime.fromtimestamp(initial_ts)
+            initial = datetime.fromtimestamp(initial_ts, tz=timezone.utc)
             recur_raw = data.pop("recur", None)
             recur = timedelta(seconds=recur_raw) if recur_raw else None
             channel = bot.get_channel(cid)
@@ -71,7 +71,7 @@ class Task:
     @property
     def next_call_delay(self) -> float:
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         if self.recur and now < self.initial:
 
