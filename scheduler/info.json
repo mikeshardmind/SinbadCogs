@@ -2,11 +2,11 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "This is a basic implementation. More features soon.",
+    "install_msg": "This is a basic implementation. More features soon. Locked to mods and higher by default, use permissions to allow others. If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "Scheduler",
     "disabled": false,
-    "short": "",
-    "description": "",
+    "short": "A timezone aware scheduler cog",
+    "description": "A timezone aware scheduler cog",
     "tags": ["scheduler"],
     "hidden": false,
     "requirements": ["python-dateutil", "pytz"],
