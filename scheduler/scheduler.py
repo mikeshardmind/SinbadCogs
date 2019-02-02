@@ -10,7 +10,6 @@ from .message import SchedulerMessage
 from .logs import get_logger
 from .tasks import Task
 from .converters import Schedule, non_numeric
-from .errors import AmbiguousTaskError, TaskNotFoundError
 
 _ = Translator("And I think it's gonna be a long long time...", __file__)
 
