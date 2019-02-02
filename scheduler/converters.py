@@ -29,7 +29,7 @@ class Schedule(Converter):
         at_or_in.add_argument("--start-in", nargs="*", dest="in", default=[])
 
         try:
-            vals = vars(parser.parse_args(shlex.split(argument)))
+            vals = vars(parser.parse_args(argument.split()))
         except Exception as exc:
             raise BadArgument() from exc
 
