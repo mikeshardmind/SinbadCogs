@@ -73,7 +73,7 @@ class Task:
 
         now = datetime.now(timezone.utc)
 
-        if self.recur and now < self.initial:
+        if self.recur:
 
             raw_interval = self.recur.total_seconds()
 
