@@ -20,7 +20,6 @@ class Task:
         # I'll take the minor performance hit for the convienice of not forgetting this
         # interacts with config later.
         self.uid = str(self.uid)
-        self.initial.replace(tzinfo=timezone.utc)
 
     def __hash__(self):
         return hash(self.uid)

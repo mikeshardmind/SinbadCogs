@@ -1,7 +1,7 @@
 import argparse
 import shlex
 from typing import Optional, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from redbot.core.commands import Context, BadArgument, Converter
 
 from .time_utils import parse_time, parse_timedelta
@@ -48,7 +48,7 @@ class Schedule(Converter):
                     raise BadArgument("I couldn't understand that time interval")
                 else:
                     if delta == "in":
-                        start = datetime.utcnow() + parsed
+                        start = datetime.now(timezone.utc) + parsed
                     else:
                         recur = parsed
                         if recur.total_seconds() < 60:
