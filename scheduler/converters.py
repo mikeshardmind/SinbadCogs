@@ -6,14 +6,16 @@ from redbot.core.commands import Context, BadArgument, Converter
 
 from .time_utils import parse_time, parse_timedelta
 
+
 class NoExitParser(argparse.ArgumentParser):
     def error(self, message):
         raise BadArgument()
 
 
 class Schedule(Converter):
-
-    async def convert(self, ctx: Context, argument: str) -> Tuple[datetime, Optional[timedelta]]:
+    async def convert(
+        self, ctx: Context, argument: str
+    ) -> Tuple[datetime, Optional[timedelta]]:
 
         start: datetime
         recur: Optional[timedelta] = None
@@ -29,7 +31,7 @@ class Schedule(Converter):
         except Exception as exc:
             raise BadArgument() from exc
 
-        if not vals['at'] or vals ['in']:
+        if not vals["at"] or vals["in"]:
             raise BadArgument("You must provide one of `--start-in` of `--start-at`")
 
         for delta in ("in", "every"):
@@ -48,7 +50,7 @@ class Schedule(Converter):
                                 "I'll get ratelimited."
                             )
 
-        if vals['at']:
+        if vals["at"]:
             try:
                 start = parse_time(" ".join(vals["at"]))
             except Exception:

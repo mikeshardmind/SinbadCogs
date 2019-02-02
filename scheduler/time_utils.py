@@ -17,6 +17,7 @@ TIME_RE_STRING = r"\s?".join(
 
 TIME_RE = re.compile(TIME_RE_STRING, re.I)
 
+
 def gen_tzinfos():
     for zone in pytz.common_timezones:
         try:
@@ -63,6 +64,6 @@ def parse_timedelta(argument: str) -> Optional[timedelta]:
     matches = TIME_RE.match(argument)
     if matches:
         params = {k: int(v) for k, v in matches.groupdict().items() if v is not None}
-        if params:     
+        if params:
             return timedelta(**params)
     return None

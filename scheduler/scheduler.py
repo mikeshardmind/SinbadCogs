@@ -135,7 +135,7 @@ class Scheduler(commands.Cog):
 
         async with self._iter_lock:
             async with self.config.channel(ctx.channel).tasks() as tsks:
-                tsks.update(t.to_config())    
+                tsks.update(t.to_config())
             self.tasks.append(t)
-        
+
         await ctx.tick()
