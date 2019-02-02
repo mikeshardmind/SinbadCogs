@@ -18,8 +18,10 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.9"
-    __flavor_text__ = "Fixed handling of self removable conflicting roles."
+    __version__ = "3.2.10"
+    __flavor_text__ = (
+        "Emergency hotfix: Discord Server Discovery breaks optimization in discord.py edition."
+    )
 
     def __init__(self, bot):
         self.bot = bot
