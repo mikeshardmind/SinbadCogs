@@ -1,9 +1,21 @@
+import re
 from datetime import datetime as dt, timedelta
-from typing import Callable
+from typing import Callable, Optional
+
 import pytz
 from dateutil.tz import gettz
 from dateutil import parser
 
+TIME_RE_STRING = r"\s?".join(
+    [
+        r"((?P<days>\d+?)\s?(d(ays?)?))?",
+        r"((?P<hours>\d+?)\s?(hours?|hrs|hr?))?",
+        r"((?P<minutes>\d+?)\s?(minutes?|mins?|m))?",
+        r"((?P<seconds>\d+?)\s?(seconds?|secs?|s))?",
+    ]
+)
+
+TIME_RE = re.compile(TIME_RE_STRING, re.I)
 
 def gen_tzinfos():
     for zone in pytz.common_timezones:
@@ -45,3 +57,12 @@ def td_format(td_object: timedelta, _: Callable = lambda x: x) -> str:
             strings.append(f"{period_value} {unit}")
 
     return ", ".join(strings)
+
+
+def parse_timedelta(argument: str) -> Optional[timedelta]:
+    matches = TIME_RE.match(argument)
+    if matches:
+        params = {k: int(v) for k, v in matches.groupdict().items() if v is not None}
+        if params:     
+            return timedelta(**params)
+    return None

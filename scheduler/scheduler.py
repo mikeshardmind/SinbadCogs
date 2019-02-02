@@ -1,13 +1,16 @@
 import asyncio
 import discord
+from datetime import datetime, timedelta
+from typing import cast, Tuple, Optional, no_type_check
 from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 
 from .message import SchedulerMessage
 from .logs import get_logger
-
 from .tasks import Task
+
+from .converters import Schedule
 
 _ = Translator("And I think it's gonna be a long long time...", __file__)
 
@@ -106,3 +109,33 @@ class Scheduler(commands.Cog):
         await self._remove_tasks(*to_remove)
 
         return 30
+
+    # Commands go here
+
+    @checks.mod_or_permissions(manage_guild=True)
+    @commands.command()
+    @no_type_check
+    async def schedule(self, ctx, event_name, command, schedule: Schedule):
+        """
+        Schedule something
+        """
+        schedule: Tuple[datetime, Optional[timedelta]]
+
+        start, recur = Schedule  # pylint: disable=unpacking-non-sequence
+
+        t = Task(
+            uid=ctx.message.id,
+            nicename=event_name,
+            author=ctx.author,
+            content=command,
+            channel=ctx.channel,
+            initial=start,
+            recur=recur,
+        )
+
+        async with self._iter_lock:
+            async with self.config.channel(ctx.channel).tasks() as tsks:
+                tsks.update(t.to_config())    
+            self.tasks.append(t)
+        
+        await ctx.tick()
