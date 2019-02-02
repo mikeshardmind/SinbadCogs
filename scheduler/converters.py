@@ -15,13 +15,15 @@ class NoExitParser(argparse.ArgumentParser):
 class Schedule(Converter):
     async def convert(
         self, ctx: Context, argument: str
-    ) -> Tuple[datetime, Optional[timedelta]]:
+    ) -> Tuple[str, datetime, Optional[timedelta]]:
 
         start: datetime
         recur: Optional[timedelta] = None
+        command: str
 
         parser = NoExitParser(description="Scheduler event parsing", add_help=False)
         parser.add_argument("--every", nargs="*", dest="every", default=[])
+        parser.add_argument("command", nargs="*")
         at_or_in = parser.add_mutually_exclusive_group()
         at_or_in.add_argument("--start-at", nargs="*", dest="at", default=[])
         at_or_in.add_argument("--start-in", nargs="*", dest="in", default=[])
@@ -33,6 +35,11 @@ class Schedule(Converter):
 
         if not (vals["at"] or vals["in"]):
             raise BadArgument("You must provide one of `--start-in` of `--start-at`")
+
+        if not vals["command"]:
+            raise BadArgument("You have to provide a command to run")
+
+        command = " ".join(vals["command"])
 
         for delta in ("in", "every"):
             if vals[delta]:
@@ -56,4 +63,4 @@ class Schedule(Converter):
             except Exception:
                 raise BadArgument("I couldn't understand that starting time.") from None
 
-        return start, recur
+        return command, start, recur

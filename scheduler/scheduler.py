@@ -115,13 +115,13 @@ class Scheduler(commands.Cog):
     @checks.mod_or_permissions(manage_guild=True)
     @commands.command()
     @no_type_check
-    async def schedule(self, ctx, event_name, command, *, schedule: Schedule):
+    async def schedule(self, ctx, event_name, *, schedule: Schedule):
         """
         Schedule something
         """
-        schedule: Tuple[datetime, Optional[timedelta]]
+        schedule: Tuple[str, datetime, Optional[timedelta]]
 
-        start, recur = schedule
+        command, start, recur = schedule
 
         t = Task(
             uid=ctx.message.id,
