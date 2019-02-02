@@ -2,13 +2,13 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "Not ready for use yet. Won't load. Feel free to keep an eye on progress.",
+    "install_msg": "This is a basic implementation. More features soon.",
     "name": "Scheduler",
     "disabled": false,
     "short": "",
     "description": "",
     "tags": ["scheduler"],
-    "hidden": true,
+    "hidden": false,
     "requirements": ["python-dateutil", "pytz"],
     "min_python_version": [3, 7, 0]
 }

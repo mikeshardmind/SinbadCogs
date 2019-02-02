@@ -57,10 +57,14 @@ class Scheduler(commands.Cog):
             for t in Task.bulk_from_config(bot=self.bot, **tasks_dict):
                 self.tasks.append(t)
 
-    async def _remove_tasks(self, *tasks):
+    async def _remove_tasks(self, *tasks: Task):
         for task in tasks:
             self.tasks.remove(task)
             await self.config.channel(task.channel).clear_raw("tasks", task.uid)
+            try:
+                self.scheduled[task.uid].cancel()
+            except KeyError:
+                pass
 
     async def bg_loop(self):
         await self.bot.wait_until_ready()
@@ -148,6 +152,42 @@ class Scheduler(commands.Cog):
     async def schedule(self, ctx, event_name: non_numeric, *, schedule: Schedule):
         """
         Schedule something
+
+        Usage:
+            [p]schedule eventname command [args]
+
+        args:
+
+            you must provide at least one of:
+
+                --start-in interval
+                --start-at time
+        
+            you may also provide:
+
+                --every interval
+
+            for recurring tasks
+
+        intervals look like:
+
+            5 minutes
+            1 mintue 30 seconds
+            1 hour
+            2 days
+            30 days
+            (etc)
+
+        times look like:
+            February 14 at 6pm EDT
+
+        times default to UTC if no timezone provided.
+
+        Example use:
+
+            [p]schedule autosync bansync True --start-at 12AM --every 1 day
+
+        This can also execute aliases.
         """
         schedule: Tuple[str, datetime, Optional[timedelta]]
 
@@ -175,11 +215,10 @@ class Scheduler(commands.Cog):
 
         await ctx.send(
             f"Task Scheduled. You can cancel this task with "
-            f"`{ctx.clean_prefix}unschedule {ctx.message.id}`"
+            f"{ctx.clean_prefix}unschedule {ctx.message.id} "
             f"or with `{ctx.clean_prefix}unschedule {event_name}`"
         )
 
-    @checks.mod_or_permissions(manage_guild=True)
     @commands.command()
     async def unschedule(self, ctx, info):
         """
@@ -198,7 +237,7 @@ class Scheduler(commands.Cog):
 
         elif len(tasks) > 1:
             self.log.WARNING(
-                f"Mutiple tasks where should be unique, task data: {tasks}"
+                f"Mutiple tasks where should be unique. Task data: {tasks}"
             )
             return await ctx.send(
                 "There seems to have been breakage here. Cleaning up and logging incident."
@@ -207,3 +246,13 @@ class Scheduler(commands.Cog):
         else:
             await self._remove_tasks(*tasks)
             await ctx.tick()
+
+    @commands.command(hidden=True)
+    async def showscheduled(self, ctx):
+        """ shows your scheduled tasks in this channel """
+
+        await ctx.send(
+            "Sorry, This isn't implemented yet. "
+            "I wanted to get the base functionality out and available. "
+            "This will be added soon."
+        )
