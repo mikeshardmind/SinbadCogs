@@ -20,9 +20,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.0"
+    __version__ = "1.0.1"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "This is mediocre first effort, to be improved."
+    __flavor_text__ = "Alias support"
 
     def __init__(self, bot):
         self.bot = bot
@@ -83,6 +83,10 @@ class Scheduler(commands.Cog):
         message = await task.get_message(self.bot)
         context = await self.bot.get_context(message)
         await self.bot.invoke(context)
+        alias_cog = self.bot.get_cog("Alias")
+        if alias_cog:
+            await alias_cog.on_message(message)
+        # TODO: allow registering additional cogs to process on_message for.
 
     async def schedule_upcoming(self) -> int:
         """
@@ -250,6 +254,7 @@ class Scheduler(commands.Cog):
     @commands.command(hidden=True)
     async def showscheduled(self, ctx):
         """ shows your scheduled tasks in this channel """
+        # TODO: This + administrative management of scheduled commands.
 
         await ctx.send(
             "Sorry, This isn't implemented yet. "
