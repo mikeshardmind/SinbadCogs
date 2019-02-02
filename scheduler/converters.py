@@ -31,7 +31,7 @@ class Schedule(Converter):
         except Exception as exc:
             raise BadArgument() from exc
 
-        if not vals["at"] or vals["in"]:
+        if not (vals["at"] or vals["in"]):
             raise BadArgument("You must provide one of `--start-in` of `--start-at`")
 
         for delta in ("in", "every"):
