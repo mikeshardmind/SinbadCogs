@@ -119,6 +119,7 @@ class UtilMixin(MixinMeta):
     async def maybe_update_guilds(self, *guilds: discord.Guild):
         # ctx.guild.chunked is not always accurate.
         # discord.py#1638
+        return  # emergency fix for breakage on server discovery
         _guilds = [
             g
             for g in guilds

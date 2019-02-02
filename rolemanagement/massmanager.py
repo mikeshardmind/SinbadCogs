@@ -355,7 +355,7 @@ class MassManagementMixin(MixinMeta):
                         "ID": member.id,
                         "Display Name": member.display_name,
                         "Username#Discrim": str(member),
-                        "Joined Server": member.joined_at.strftime(fmt),
+                        "Joined Server": member.joined_at.strftime(fmt) if member.joined_at else None,
                         "Joined Discord": member.created_at.strftime(fmt),
                     }
                 )
