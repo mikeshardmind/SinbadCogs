@@ -1,7 +1,7 @@
 import asyncio
 import discord
 from datetime import datetime, timedelta
-from typing import cast, Tuple, Optional, no_type_check
+from typing import Tuple, Optional, List, no_type_check
 from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
@@ -9,8 +9,8 @@ from redbot.core.i18n import Translator, cog_i18n
 from .message import SchedulerMessage
 from .logs import get_logger
 from .tasks import Task
-
-from .converters import Schedule
+from .converters import Schedule, non_numeric
+from .errors import AmbiguousTaskError, TaskNotFoundError
 
 _ = Translator("And I think it's gonna be a long long time...", __file__)
 
@@ -24,7 +24,6 @@ class Scheduler(commands.Cog):
     __version__ = "1.0.0"
     __author__ = "mikeshardmind(Sinbad)"
     __flavor_text__ = "This is mediocre first effort, to be improved."
-    # pending actually allowing it to be loaded by adding a setup once ready
 
     def __init__(self, bot):
         self.bot = bot
@@ -110,12 +109,46 @@ class Scheduler(commands.Cog):
 
         return 30
 
+    async def fetch_task_by_attrs_exact(self, **kwargs) -> List[Task]:
+
+        def pred(item):
+            try:
+                return kwargs and all(getattr(item, k) == v for k, v in kwargs.items())
+            except AttributeError:
+                return False
+    
+        async with self._iter_lock:
+            return [t for t in self.tasks if pred(t)]
+
+    async def fetch_task_by_attrs_lax(
+        self, lax: Optional[dict] = None, strict: Optional[dict] = None
+    ) -> List[Task]:
+
+        def pred(item):
+            try:
+                if strict:
+                    if not all(getattr(item, k) == v for k, v in strict.items()):
+                        return False
+            except AttributeError:
+                return False
+            if lax:
+                return any(getattr(item, k, None) == v for k, v in lax.items())
+            return True
+
+        async with self._iter_lock:
+            return [t for t in self.tasks if pred(t)]
+
+    async def fetch_tasks_by_guild(self, guild: discord.Guild) -> List[Task]:
+
+        async with self._iter_lock:
+            return [t for t in self.tasks if t.channel in guild.text_channels]
+
     # Commands go here
 
     @checks.mod_or_permissions(manage_guild=True)
     @commands.command()
     @no_type_check
-    async def schedule(self, ctx, event_name, *, schedule: Schedule):
+    async def schedule(self, ctx, event_name: non_numeric, *, schedule: Schedule):
         """
         Schedule something
         """
@@ -133,9 +166,43 @@ class Scheduler(commands.Cog):
             recur=recur,
         )
 
+        if await self.fetch_task_by_attrs_exact(
+            author=ctx.author, channel=ctx.channel, nicename=event_name
+        ):
+            return await ctx.send("You already have an event by that name here.")
+
         async with self._iter_lock:
             async with self.config.channel(ctx.channel).tasks() as tsks:
                 tsks.update(t.to_config())
             self.tasks.append(t)
 
-        await ctx.tick()
+        await ctx.send(
+            f"Task Scheduled. You can cancel this task with "
+            f"`{ctx.clean_prefix}unschedule {ctx.message.id}`"
+            f"or with `{ctx.clean_prefix}unschedule {event_name}`"
+        )
+
+    @checks.mod_or_permissions(manage_guild=True)
+    @commands.command()
+    async def unschedule(self, ctx, info):
+        """
+        unschedule something.
+        """
+
+        tasks = await self.fetch_task_by_attrs_lax(
+            lax={"uid": info, "nicename": info},
+            strict={"author": ctx.author, "channel": ctx.channel},
+        )
+
+        if not tasks:
+            return await ctx.send(
+                f"Hmm, I couldn't find that task. (try `{ctx.clean_prefix}showscheduled`)"
+            )
+
+        elif len(tasks) > 1:
+            self.log.WARNING(f"Mutiple tasks where should be unique, task data: {tasks}")
+            return await ctx.send("There seems to have been breakage here. Cleaning up and logging incident.")
+
+        else:
+            await self._remove_tasks(*tasks)
+            await ctx.tick()
