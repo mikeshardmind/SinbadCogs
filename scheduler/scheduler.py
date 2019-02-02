@@ -110,20 +110,18 @@ class Scheduler(commands.Cog):
         return 30
 
     async def fetch_task_by_attrs_exact(self, **kwargs) -> List[Task]:
-
         def pred(item):
             try:
                 return kwargs and all(getattr(item, k) == v for k, v in kwargs.items())
             except AttributeError:
                 return False
-    
+
         async with self._iter_lock:
             return [t for t in self.tasks if pred(t)]
 
     async def fetch_task_by_attrs_lax(
         self, lax: Optional[dict] = None, strict: Optional[dict] = None
     ) -> List[Task]:
-
         def pred(item):
             try:
                 if strict:
@@ -200,8 +198,12 @@ class Scheduler(commands.Cog):
             )
 
         elif len(tasks) > 1:
-            self.log.WARNING(f"Mutiple tasks where should be unique, task data: {tasks}")
-            return await ctx.send("There seems to have been breakage here. Cleaning up and logging incident.")
+            self.log.WARNING(
+                f"Mutiple tasks where should be unique, task data: {tasks}"
+            )
+            return await ctx.send(
+                "There seems to have been breakage here. Cleaning up and logging incident."
+            )
 
         else:
             await self._remove_tasks(*tasks)
