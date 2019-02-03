@@ -20,11 +20,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.5"
+    __version__ = "1.0.6"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = (
-        "More debug info to figure something out later."
-    )
+    __flavor_text__ = "Less premature task killing."
 
     def __init__(self, bot):
         self.bot = bot
@@ -60,13 +58,10 @@ class Scheduler(commands.Cog):
                 self.tasks.append(t)
 
     async def _remove_tasks(self, *tasks: Task):
-        for task in tasks:
-            self.tasks.remove(task)
-            await self.config.channel(task.channel).clear_raw("tasks", task.uid)
-            try:
-                self.scheduled[task.uid].cancel()
-            except KeyError:
-                pass
+        async with self._iter_lock:
+            for task in tasks:
+                self.tasks.remove(task)
+                await self.config.channel(task.channel).clear_raw("tasks", task.uid)
 
     async def bg_loop(self):
         await self.bot.wait_until_ready()
@@ -99,7 +94,7 @@ class Scheduler(commands.Cog):
 
         # TODO: improve handlng of next time return
         while not all(task.done() for task in self.scheduled.values()):
-            self.log.INFO("Some tasks didn't occur, waiting a moment.")
+            self.log.info("Some tasks didn't occur, waiting a moment.")
             await asyncio.sleep(10)
 
         for v in self.scheduled.values():
