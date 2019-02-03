@@ -29,11 +29,9 @@ def neuter_coroutines(klass):
 
 
 async def replacement_delete_messages(self, messages):
-    message_ids = list(
-        {m.id for m in messages if m.__class__.__name__ != "SchedulerMessage"}
-    )
+    message_ids = list({m.id for m in messages if type(m) == discord.Message})
 
-    if not messages:
+    if not message_ids:
         return
 
     if len(message_ids) == 1:
@@ -46,9 +44,6 @@ async def replacement_delete_messages(self, messages):
         )
 
     await self._state.http.delete_messages(self.id, message_ids)
-
-
-discord.TextChannel.delete_messages = replacement_delete_messages
 
 
 @neuter_coroutines
