@@ -68,8 +68,7 @@ class Scheduler(commands.Cog):
         async with self._iter_lock:
             await self._load_tasks()
         while self is self.bot.get_cog("Scheduler"):
-            async with self._iter_lock:
-                sleep_for = await self.schedule_upcoming()
+            sleep_for = await self.schedule_upcoming()
             await asyncio.sleep(sleep_for)
 
     async def delayed_wrap_and_invoke(self, task: Task, delay: int):
@@ -93,16 +92,19 @@ class Scheduler(commands.Cog):
         """
 
         # TODO: improve handlng of next time return
-        while not all(task.done() for task in self.scheduled.values()):
-            self.log.info("Some tasks didn't occur, waiting a moment.")
-            await asyncio.sleep(10)
 
-        for v in self.scheduled.values():
-            try:
-                v.result()
-            except Exception:
-                self.log.exception("Dead task ", exc_info=True)
-        self.scheduled.clear()
+        async with self._iter_lock:
+            to_pop = []
+            for k, v in self.scheduled.items():
+                if v.done():
+                    to_pop.append(k)
+                    try:
+                        v.result()
+                    except Exception:
+                        self.log.exception("Dead task ", exc_info=True)
+
+            for k in to_pop:
+                self.scheduled.pop(k, None)
 
         to_remove: list = []
 
