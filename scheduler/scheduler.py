@@ -111,7 +111,7 @@ class Scheduler(commands.Cog):
 
         for task in self.tasks:
             delay = task.next_call_delay
-            if delay < 30:
+            if delay < 30 and task.uid not in self.scheduled:
                 self.scheduled[task.uid] = asyncio.create_task(
                     self.delayed_wrap_and_invoke(task, delay)
                 )
