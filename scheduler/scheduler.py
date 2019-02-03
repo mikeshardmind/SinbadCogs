@@ -20,10 +20,10 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.4"
+    __version__ = "1.0.5"
     __author__ = "mikeshardmind(Sinbad)"
     __flavor_text__ = (
-        "Fix interaction with cleanup/ discord.TextChannel.delete_messages"
+        "More debug info to figure something out later."
     )
 
     def __init__(self, bot):
@@ -102,6 +102,11 @@ class Scheduler(commands.Cog):
             self.log.INFO("Some tasks didn't occur, waiting a moment.")
             await asyncio.sleep(10)
 
+        for v in self.scheduled.values():
+            try:
+                v.result()
+            except Exception:
+                self.log.exception("Dead task ", exc_info=True)
         self.scheduled.clear()
 
         to_remove: list = []
@@ -253,7 +258,7 @@ class Scheduler(commands.Cog):
             )
 
         elif len(tasks) > 1:
-            self.log.WARNING(
+            self.log.warning(
                 f"Mutiple tasks where should be unique. Task data: {tasks}"
             )
             return await ctx.send(
