@@ -5,6 +5,7 @@ from typing import Tuple, Optional, List, no_type_check
 from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
+from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 from .message import SchedulerMessage
 from .logs import get_logger
@@ -20,9 +21,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.6"
+    __version__ = "1.0.7"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "Less premature task killing."
+    __flavor_text__ = "UX improvements"
 
     def __init__(self, bot):
         self.bot = bot
@@ -166,6 +167,7 @@ class Scheduler(commands.Cog):
     # Commands go here
 
     @checks.mod_or_permissions(manage_guild=True)
+    @commands.guild_only()
     @commands.command()
     @no_type_check
     async def schedule(self, ctx, event_name: non_numeric, *, schedule: Schedule):
@@ -238,6 +240,7 @@ class Scheduler(commands.Cog):
             f"or with `{ctx.clean_prefix}unschedule {event_name}`"
         )
 
+    @commands.guild_only()
     @commands.command()
     async def unschedule(self, ctx, info):
         """
@@ -266,13 +269,29 @@ class Scheduler(commands.Cog):
             await self._remove_tasks(*tasks)
             await ctx.tick()
 
-    @commands.command(hidden=True)
-    async def showscheduled(self, ctx):
-        """ shows your scheduled tasks in this channel """
+    @commands.guild_only()
+    @commands.command()
+    async def showscheduled(self, ctx: commands.Context, all_channels: bool = False):
+        """ shows your scheduled tasks in this, or all channels """
         # TODO: This + administrative management of scheduled commands.
 
-        await ctx.send(
-            "Sorry, This isn't implemented yet. "
-            "I wanted to get the base functionality out and available. "
-            "This will be added soon."
-        )
+        if all_channels:
+            tasks = await self.fetch_tasks_by_guild(ctx.guild)
+            tasks = [t for t in tasks if t.author == ctx.author]
+        else:
+            tasks = await self.fetch_task_by_attrs_exact(
+                author=ctx.author, channel=ctx.channel
+            )
+
+        if not tasks:
+            return await ctx.send("No scheduled tasks")
+
+        color = await ctx.embed_color()
+
+        count = len(tasks)
+        embeds = [
+            t.to_embed(index=i, page_count=count, color=color)
+            for i, t in enumerate(tasks, 1)
+        ]
+
+        await menu(ctx, embeds, DEFAULT_CONTROLS)

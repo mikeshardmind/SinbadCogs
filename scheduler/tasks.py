@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Union, cast
 
 from .message import SchedulerMessage
+from .time_utils import td_format
 
 
 @dataclass()
@@ -80,3 +81,28 @@ class Task:
             return raw_interval - ((now - self.initial).total_seconds() % raw_interval)
 
         return (self.initial - now).total_seconds()
+
+    def to_embed(self, index: int, page_count: int, color: discord.Color):
+
+        now = datetime.now(timezone.utc)
+        next_run_at = now + timedelta(seconds=self.next_call_delay)
+        embed = discord.Embed(color=color, timestamp=next_run_at)
+        embed.title = f"Now viewing {index} of {page_count} selected tasks"
+        embed.add_field(name="Command", value=f"[p]{self.content}")
+        embed.add_field(name="Channel", value=self.channel.mention)
+        embed.add_field(name="Creator", value=self.author.mention)
+
+        fmt_date = self.initial.strftime("%A %B %-d, %Y at %-I%p %Z")
+        if self.initial > now:
+            description = f"{self.nicename} starts running on {fmt_date}."
+        else:
+            description = f"{self.nicename} started running on {fmt_date}."
+
+        if self.recur:
+            description += f"\nIt repeats every {td_format(self.recur)}"
+            footer = "Next runtime:"
+        else:
+            footer = "Runtime:"
+
+        embed.set_footer(text=footer)
+        embed.description = description
