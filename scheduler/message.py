@@ -29,7 +29,9 @@ def neuter_coroutines(klass):
 
 
 async def replacement_delete_messages(self, messages):
-    message_ids = list({m.id for m in messages if type(m) == discord.Message})
+    message_ids = list(
+        {m.id for m in messages if m.__class__.__name__ != "SchedulerMessage"}
+    )
 
     if not message_ids:
         return
