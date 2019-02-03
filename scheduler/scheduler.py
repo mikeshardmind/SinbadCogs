@@ -20,9 +20,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.1"
+    __version__ = "1.0.2"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "Alias support"
+    __flavor_text__ = "CC support, a typo fix, and part of an undocumented external API"
 
     def __init__(self, bot):
         self.bot = bot
@@ -83,9 +83,10 @@ class Scheduler(commands.Cog):
         message = await task.get_message(self.bot)
         context = await self.bot.get_context(message)
         await self.bot.invoke(context)
-        alias_cog = self.bot.get_cog("Alias")
-        if alias_cog:
-            await alias_cog.on_message(message)
+        for cog_name in ("CustomCommands", "Alias"):
+            cog = self.bot.get_cog(cog_name)
+            if cog:
+                await cog.on_message(message)
         # TODO: allow registering additional cogs to process on_message for.
 
     async def schedule_upcoming(self) -> int:
@@ -115,6 +116,16 @@ class Scheduler(commands.Cog):
         await self._remove_tasks(*to_remove)
 
         return 30
+
+    @property
+    def task_class(self):
+        """ API class Access """
+        return Task
+
+    async def submit_task(self, task: Task):
+        """ externally safe API """
+        async with self._iter_lock:
+            self.tasks.append(task)
 
     async def fetch_task_by_attrs_exact(self, **kwargs) -> List[Task]:
         def pred(item):
@@ -176,7 +187,7 @@ class Scheduler(commands.Cog):
         intervals look like:
 
             5 minutes
-            1 mintue 30 seconds
+            1 minute 30 seconds
             1 hour
             2 days
             30 days
