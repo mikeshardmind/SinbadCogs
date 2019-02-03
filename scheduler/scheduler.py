@@ -120,7 +120,7 @@ class Scheduler(commands.Cog):
 
         await self._remove_tasks(*to_remove)
 
-        return 30
+        return 10
 
     @property
     def task_class(self):
