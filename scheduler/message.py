@@ -29,11 +29,26 @@ def neuter_coroutines(klass):
 
 
 async def replacement_delete_messages(self, messages):
-    to_delete = []
-    for m in messages:
-        if m.__class__.__name__ != "SchedulerMessage" and m.id not in to_delete:
-            to_delete.append(m)
-    await discord.TextChannel.delete_messages(self.channel, to_delete)
+    message_ids = list(
+        {m.id for m in messages if m.__class__.__name__ != "SchedulerMessage"}
+    )
+
+    if not messages:
+        return
+
+    if len(message_ids) == 1:
+        await self._state.http.delete_message(self.id, messages[0])
+        return
+
+    if len(message_ids) > 100:
+        raise discord.ClientException(
+            "Can only bulk delete messages up to 100 messages"
+        )
+
+    await self._state.http.delete_messages(self.id, message_ids)
+
+
+discord.TextChannel.delete_messages = replacement_delete_messages
 
 
 @neuter_coroutines
@@ -53,7 +68,6 @@ class SchedulerMessage(discord.Message):
         # important properties for even being processed
         self.author = author
         self.channel = channel
-        self.channel.delete_messages = replacement_delete_messages
         self.content = content
         self.guild = channel.guild
         # this attribute being in almost everything (and needing to be) is a pain
