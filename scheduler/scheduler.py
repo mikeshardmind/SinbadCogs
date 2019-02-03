@@ -21,9 +21,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.7"
+    __version__ = "1.0.8"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "UX improvements"
+    __flavor_text__ = "Fix for windows + transparency on low initial start-in"
 
     def __init__(self, bot):
         self.bot = bot
@@ -234,11 +234,21 @@ class Scheduler(commands.Cog):
                 tsks.update(t.to_config())
             self.tasks.append(t)
 
-        await ctx.send(
+        ret = (
             f"Task Scheduled. You can cancel this task with "
             f"{ctx.clean_prefix}unschedule {ctx.message.id} "
             f"or with `{ctx.clean_prefix}unschedule {event_name}`"
         )
+
+        if recur and t.next_call_delay < 60:
+            ret += (
+                "\nWith the intial start being set so soon, "
+                "you might have missed an initial use being scheduled by the loop. "
+                "you may find the very first expected run of this was missed or otherwise seems late. "
+                "Future runs will be on time."  # fractions of a second in terms of accuracy.
+            )
+
+        await ctx.send(ret)
 
     @commands.guild_only()
     @commands.command()

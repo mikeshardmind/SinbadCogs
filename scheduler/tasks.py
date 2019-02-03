@@ -92,7 +92,12 @@ class Task:
         embed.add_field(name="Channel", value=self.channel.mention)
         embed.add_field(name="Creator", value=self.author.mention)
 
-        fmt_date = self.initial.strftime("%A %B %-d, %Y at %-I%p %Z")
+        try:
+            fmt_date = self.initial.strftime("%A %B %-d, %Y at %-I%p %Z")
+        except ValueError:  # Windows
+            # This looks less natural, but I'm not doing this piecemeal to emulate.
+            fmt_date = self.initial.strftime("%A %B %d, %Y at %I%p %Z")
+
         if self.initial > now:
             description = f"{self.nicename} starts running on {fmt_date}."
         else:
