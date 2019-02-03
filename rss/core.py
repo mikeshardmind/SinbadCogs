@@ -60,8 +60,8 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.21"
-    __flavor_text__ = "Don't run html cleanup on link field"
+    __version__ = "1.0.22"
+    __flavor_text__ = "Slow responses wont kill the loop now."
 
     def __init__(self, bot):
         self.bot = bot
@@ -96,7 +96,7 @@ class RSS(commands.Cog):
         try:
             async with self.session.get(url, timeout=timeout) as response:
                 data = await response.read()
-        except aiohttp.ClientError:
+        except (aiohttp.ClientError, asyncio.TimeoutError):
             return None
 
         ret = feedparser.parse(data)
