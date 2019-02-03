@@ -20,9 +20,11 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.2"
+    __version__ = "1.0.3"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "CC support, a typo fix, and part of an undocumented external API"
+    __flavor_text__ = (
+        "Fix interaction with cleanup/ discord.TextChannel.delete_messages"
+    )
 
     def __init__(self, bot):
         self.bot = bot

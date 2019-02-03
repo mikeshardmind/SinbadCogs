@@ -28,6 +28,14 @@ def neuter_coroutines(klass):
     return klass
 
 
+async def replacement_delete_messages(self, messages):
+    to_delete = []
+    for m in messages:
+        if m.__class__.__name__ != "SchedulerMessage" and m.id not in to_delete:
+            to_delete.append(m)
+    await discord.TextChannel.delete_messages(self.channel, to_delete)
+
+
 @neuter_coroutines
 class SchedulerMessage(discord.Message):
     """
@@ -45,6 +53,7 @@ class SchedulerMessage(discord.Message):
         # important properties for even being processed
         self.author = author
         self.channel = channel
+        self.channel.delete_messages = replacement_delete_messages
         self.content = content
         self.guild = channel.guild
         # this attribute being in almost everything (and needing to be) is a pain
