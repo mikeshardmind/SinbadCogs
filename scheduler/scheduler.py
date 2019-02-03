@@ -21,9 +21,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.8"
+    __version__ = "1.0.9"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "Fix for windows + transparency on low initial start-in"
+    __flavor_text__ = "Logical start time fix."
 
     def __init__(self, bot):
         self.bot = bot

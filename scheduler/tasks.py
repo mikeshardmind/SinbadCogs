@@ -74,13 +74,11 @@ class Task:
 
         now = datetime.now(timezone.utc)
 
-        if self.recur:
-
+        if self.recur and now >= self.initial:
             raw_interval = self.recur.total_seconds()
-
             return raw_interval - ((now - self.initial).total_seconds() % raw_interval)
-
-        return (self.initial - now).total_seconds()
+        else:
+            return (self.initial - now).total_seconds()
 
     def to_embed(self, index: int, page_count: int, color: discord.Color):
 
