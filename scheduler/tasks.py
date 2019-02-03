@@ -106,3 +106,4 @@ class Task:
 
         embed.set_footer(text=footer)
         embed.description = description
+        return embed
