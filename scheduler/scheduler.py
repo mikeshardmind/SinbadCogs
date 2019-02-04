@@ -1,6 +1,6 @@
 import asyncio
 import discord
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Tuple, Optional, List, no_type_check
 from redbot.core import commands, checks
 from redbot.core.config import Config
@@ -10,7 +10,7 @@ from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 from .message import SchedulerMessage
 from .logs import get_logger
 from .tasks import Task
-from .converters import Schedule, non_numeric
+from .converters import Schedule, non_numeric, TempMute
 
 _ = Translator("And I think it's gonna be a long long time...", __file__)
 
@@ -21,9 +21,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.12"
+    __version__ = "1.0.13"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "Hidden upgrades to be tested"
+    __flavor_text__ = "Tempmute wrapper"
 
     def __init__(self, bot):
         self.bot = bot
@@ -405,3 +405,135 @@ class Scheduler(commands.Cog):
 
         await self._remove_tasks(*tasks)
         await ctx.tick()
+
+    @commands.guild_only()
+    @commands.group()
+    async def tempmute(self, ctx):
+        """
+        binding for mute + scheduled unmute 
+        This exists only until it is added to core red
+
+        relies on core commands for mute/unmute
+        This may show up in help for people who cannot use it.
+
+        This does not support voice mutes, sorry.
+        """
+        pass
+
+    @tempmute.command(usage="<user> [reason] [args]")
+    async def channel(self, ctx, user, *, mute: TempMute):
+        """
+        binding for mute + scheduled unmute 
+        This exists only until it is added to core red
+
+        args can be 
+            --until time
+        or
+            --for interval
+
+        intervals look like:
+
+            5 minutes
+            1 minute 30 seconds
+            1 hour
+            2 days
+            30 days
+            (etc)
+
+        times look like:
+            February 14 at 6pm EDT
+
+        times default to UTC if no timezone provided.
+        """
+
+        reason, unmute_time = mute
+
+        now = datetime.now(timezone.utc)
+
+        mute_task = Task(
+            uid=f"mute-{ctx.message.id}",
+            nicename=f"mute-{ctx.message.id}",
+            author=ctx.author,
+            content=f"mute channel {user.id} {reason}",
+            channel=ctx.channel,
+            initial=now,
+            recur=None,
+        )
+
+        unmute_task = Task(
+            uid=f"unmute-{ctx.message.id}",
+            nicename=f"unmute-{ctx.message.id}",
+            author=ctx.author,
+            content=f"unmute channel {user.id} Scheduler: Scheduled Unmute",
+            channel=ctx.channel,
+            initial=unmute_time,
+            recur=None,
+        )
+
+        async with self._iter_lock:
+            self.scheduled[mute_task.uid] = asyncio.create_task(
+                self.delayed_wrap_and_invoke(mute_task, 0)
+            )
+
+            async with self.config.channel(ctx.channel).tasks() as tsks:
+                tsks.update(unmute_task.to_config())
+            self.tasks.append(unmute_task)
+
+    @tempmute.command(usage="<user> [reason] [args]", aliases=["guild"])
+    async def server(self, ctx, user, *, mute: TempMute):
+        """
+        binding for mute + scheduled unmute 
+        This exists only until it is added to core red
+
+        args can be 
+            --until time
+        or
+            --for interval
+
+        intervals look like:
+
+            5 minutes
+            1 minute 30 seconds
+            1 hour
+            2 days
+            30 days
+            (etc)
+
+        times look like:
+            February 14 at 6pm EDT
+
+        times default to UTC if no timezone provided.
+        """
+
+        reason, unmute_time = mute
+
+        now = datetime.now(timezone.utc)
+
+        mute_task = Task(
+            uid=f"mute-{ctx.message.id}",
+            nicename=f"mute-{ctx.message.id}",
+            author=ctx.author,
+            content=f"mute server {user.id} {reason}",
+            channel=ctx.channel,
+            initial=now,
+            recur=None,
+        )
+
+        unmute_task = Task(
+            uid=f"unmute-{ctx.message.id}",
+            nicename=f"unmute-{ctx.message.id}",
+            author=ctx.author,
+            content=f"unmute server {user.id} Scheduler: Scheduled Unmute",
+            channel=ctx.channel,
+            initial=unmute_time,
+            recur=None,
+        )
+
+        async with self._iter_lock:
+            self.scheduled[mute_task.uid] = asyncio.create_task(
+                self.delayed_wrap_and_invoke(mute_task, 0)
+            )
+
+            async with self.config.channel(ctx.channel).tasks() as tsks:
+                tsks.update(unmute_task.to_config())
+            self.tasks.append(unmute_task)

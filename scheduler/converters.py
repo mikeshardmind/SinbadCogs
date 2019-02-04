@@ -40,7 +40,7 @@ class Schedule(Converter):
             raise BadArgument() from exc
 
         if not (vals["at"] or vals["in"]):
-            raise BadArgument("You must provide one of `--start-in` of `--start-at`")
+            raise BadArgument("You must provide one of `--start-in` or `--start-at`")
 
         if not vals["command"]:
             raise BadArgument("You have to provide a command to run")
@@ -70,3 +70,40 @@ class Schedule(Converter):
                 raise BadArgument("I couldn't understand that starting time.") from None
 
         return command, start, recur
+
+
+class TempMute(Converter):
+    async def convert(self, ctx: Context, argument: str) -> Tuple[str, datetime]:
+
+        start: datetime
+        reason: str
+
+        parser = NoExitParser(description="Scheduler event parsing", add_help=False)
+        parser.add_argument("reason", nargs="*")
+        at_or_in = parser.add_mutually_exclusive_group()
+        at_or_in.add_argument("--until", nargs="*", dest="until", default=[])
+        at_or_in.add_argument("--for", nargs="*", dest="for", default=[])
+
+        try:
+            vals = vars(parser.parse_args(argument.split()))
+        except Exception as exc:
+            raise BadArgument() from exc
+
+        if not (vals["until"] or vals["for"]):
+            raise BadArgument("You must provide one of `--until` or `--for`")
+
+        reason = " ".join(vals["reason"])
+
+        if vals["for"]:
+            parsed = parse_timedelta(" ".join(vals["for"]))
+            if not parsed:
+                raise BadArgument("I couldn't understand that time interval")
+            start = datetime.now(timezone.utc) + parsed
+
+        if vals["until"]:
+            try:
+                start = parse_time(" ".join(vals["at"]))
+            except Exception:
+                raise BadArgument("I couldn't understand that unmute time.") from None
+
+        return reason, start
