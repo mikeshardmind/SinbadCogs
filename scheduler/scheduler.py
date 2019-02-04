@@ -311,7 +311,7 @@ class Scheduler(commands.Cog):
     
     @rrc.command(hidden=True)
     async def rrcc(self, ctx, *, reminder):
-        await ctx.invoke(self.reminder, reminder=reminder)
+        await ctx.invoke(ctx.bot.get_command("remindme"), reminder=reminder)
 
     @commands.command(name="remindme", hidden=True)
     async def reminder(self, ctx, *, reminder: Schedule):
