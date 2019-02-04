@@ -21,9 +21,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.11"
+    __version__ = "1.0.12"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "Admin cancels."
+    __flavor_text__ = "Hidden upgrades to be tested"
 
     def __init__(self, bot):
         self.bot = bot
@@ -305,10 +305,53 @@ class Scheduler(commands.Cog):
 
         await menu(ctx, embeds, DEFAULT_CONTROLS)
 
+    @commands.group(name="remind", hidden=True)
+    async def rrc(self, ctx):
+        pass
+    
+    @rrc.command(hidden=True)
+    async def rrcc(self, ctx):
+        await ctx.invoke(self.reminder)
+
+    @commands.command(name="remindme", hidden=True)
+    async def reminder(self, ctx, reminder: Schedule):
+        """ hidden until I test this more """
+
+        command, start, recur = reminder
+
+        t = Task(
+            uid=ctx.message.id,
+            nicename=f"reminder-{ctx.message.id}",
+            author=ctx.author,
+            content=f"schedhelpers selfwhisper {command}",
+            channel=ctx.channel,
+            initial=start,
+            recur=recur,
+        )
+
+        async with self._iter_lock:
+            async with self.config.channel(ctx.channel).tasks() as tsks:
+                tsks.update(t.to_config())
+            self.tasks.append(t)
+
+        await ctx.tick()
+
+    @commands.check(lambda ctx: ctx.message.__class__.__name__ == "SchedulerMessage")
     @commands.group(hidden=True, name="schedhelpers")
     async def helpers(self, ctx):
         """ helper commands for scheduler use """
         pass
+
+    @helpers.command(name="say")
+    async def say(self, ctx, *, content):
+        await ctx.send(content)
+
+    @helpers.command(name="selfwhisper")
+    async def swhisp(self, ctx, *, content):
+        try:
+            await ctx.author.send(content)
+        except Exception:
+            pass
 
     @commands.admin_or_permissions(manage_guild=True)
     @commands.guild_only()
