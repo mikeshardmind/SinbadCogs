@@ -305,14 +305,6 @@ class Scheduler(commands.Cog):
 
         await menu(ctx, embeds, DEFAULT_CONTROLS)
 
-    @commands.group(name="remind", hidden=True)
-    async def rrc(self, ctx):
-        pass
-    
-    @rrc.command(hidden=True)
-    async def rrcc(self, ctx, *, reminder: Schedule):
-        await ctx.invoke(self.reminder, reminder=reminder)
-
     @commands.command(name="remindme", hidden=True)
     async def reminder(self, ctx, *, reminder: Schedule):
         """ hidden until I test this more """
