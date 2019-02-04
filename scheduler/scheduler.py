@@ -21,9 +21,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.9"
+    __version__ = "1.0.11"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "Logical start time fix."
+    __flavor_text__ = "Admin cancels."
 
     def __init__(self, bot):
         self.bot = bot
@@ -236,7 +236,7 @@ class Scheduler(commands.Cog):
 
         ret = (
             f"Task Scheduled. You can cancel this task with "
-            f"{ctx.clean_prefix}unschedule {ctx.message.id} "
+            f"`{ctx.clean_prefix}unschedule` {ctx.message.id} "
             f"or with `{ctx.clean_prefix}unschedule {event_name}`"
         )
 
@@ -283,7 +283,6 @@ class Scheduler(commands.Cog):
     @commands.command()
     async def showscheduled(self, ctx: commands.Context, all_channels: bool = False):
         """ shows your scheduled tasks in this, or all channels """
-        # TODO: This + administrative management of scheduled commands.
 
         if all_channels:
             tasks = await self.fetch_tasks_by_guild(ctx.guild)
@@ -305,3 +304,69 @@ class Scheduler(commands.Cog):
         ]
 
         await menu(ctx, embeds, DEFAULT_CONTROLS)
+
+    @commands.group(hidden=True, name="schedhelpers")
+    async def helpers(self, ctx):
+        """ helper commands for scheduler use """
+        pass
+
+    @commands.admin_or_permissions(manage_guild=True)
+    @commands.guild_only()
+    @commands.group()
+    async def scheduleradmin(self, ctx):
+        """ Administrative commands for scheduler """
+        pass
+
+    @scheduleradmin.command()
+    async def viewall(self, ctx):
+        """ view all scheduled events in a guild """
+
+        tasks = await self.fetch_tasks_by_guild(ctx.guild)
+
+        if not tasks:
+            return await ctx.send("No scheduled tasks")
+
+        color = await ctx.embed_color()
+
+        count = len(tasks)
+        embeds = [
+            t.to_embed(index=i, page_count=count, color=color)
+            for i, t in enumerate(tasks, 1)
+        ]
+
+        await menu(ctx, embeds, DEFAULT_CONTROLS)
+
+    @scheduleradmin.command()
+    async def kill(self, ctx, *, task_id: int):
+        """ kill another user's task (id only) """
+
+        tasks = await self.fetch_task_by_attrs_exact(uid=task_id)
+
+        if not tasks:
+            return await ctx.send(
+                f"Hmm, I couldn't find that task. (try `{ctx.clean_prefix}showscheduled`)"
+            )
+
+        elif len(tasks) > 1:
+            self.log.warning(
+                f"Mutiple tasks where should be unique. Task data: {tasks}"
+            )
+            return await ctx.send(
+                "There seems to have been breakage here. Cleaning up and logging incident."
+            )
+
+        else:
+            await self._remove_tasks(*tasks)
+            await ctx.tick()
+
+    @scheduleradmin.command()
+    async def killchannel(self, ctx, channel: discord.TextChannel):
+        """ kill all in a channel """
+
+        tasks = await self.fetch_task_by_attrs_exact(channel=channel)
+
+        if not tasks:
+            return await ctx.send("No scheduled tasks in that channel.")
+
+        await self._remove_tasks(*tasks)
+        await ctx.tick()
