@@ -21,7 +21,7 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.13"
+    __version__ = "1.0.14"
     __author__ = "mikeshardmind(Sinbad)"
     __flavor_text__ = "Tempmute wrapper"
 
@@ -421,7 +421,7 @@ class Scheduler(commands.Cog):
         pass
 
     @tempmute.command(usage="<user> [reason] [args]")
-    async def channel(self, ctx, user, *, mute: TempMute):
+    async def channel(self, ctx, user: discord.Member, *, mute: TempMute):
         """
         binding for mute + scheduled unmute 
         This exists only until it is added to core red
@@ -480,7 +480,7 @@ class Scheduler(commands.Cog):
             self.tasks.append(unmute_task)
 
     @tempmute.command(usage="<user> [reason] [args]", aliases=["guild"])
-    async def server(self, ctx, user, *, mute: TempMute):
+    async def server(self, ctx, user: discord.Member, *, mute: TempMute):
         """
         binding for mute + scheduled unmute 
         This exists only until it is added to core red
