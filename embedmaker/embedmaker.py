@@ -18,8 +18,8 @@ class EmbedMaker(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "3.0.7"
-    __flavor_text__ = "Even more color support."
+    __version__ = "3.0.8"
+    __flavor_text__ = "Improvements in field handling."
 
     def __init__(self, bot):
         self.bot = bot
