@@ -75,17 +75,7 @@ def deserialize_embed(conf: dict) -> discord.Embed:
             to_set = {_k: _v for _k, _v in v.items() if _v}
             getattr(e, "set_" + k)(**to_set)
 
-    bool_dict = {"true": True, "false": False}
     for f in conf["fields"]:
-        to_set = {_k: _v for _k, _v in f.items() if _v}
-        if "inline" in to_set:
-            try:
-                tc = to_set["inline"].lower()
-            except AttributeError:
-                to_set["inline"] = True
-            else:
-                to_set["inline"] = bool_dict.get(tc, True)
-
-        e.add_field(**to_set)
+        e.add_field(**f)
 
     return e
