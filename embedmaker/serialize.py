@@ -45,7 +45,7 @@ def serialize_embed(embed: discord.Embed) -> dict:
         ret["settable"][k] = {}
         for attr in v.keys():
             to_set = getattr(proxy, attr, None)
-            if to_set is not None:
+            if to_set or to_set is False:  # specifically not None or embed.Empty
                 ret["settable"][k][attr] = to_set
 
     ret["fields"] = []
@@ -53,7 +53,7 @@ def serialize_embed(embed: discord.Embed) -> dict:
         data = {}
         for attr in ["name", "value", "inline"]:
             to_set = getattr(field, attr, None)
-            if to_set is not None:
+            if to_set or to_set is False:  # specifically not None or embed.Empty
                 data[attr] = to_set
         if data:
             ret["fields"].append(data)
