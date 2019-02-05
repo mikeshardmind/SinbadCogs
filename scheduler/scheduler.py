@@ -21,9 +21,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.14"
+    __version__ = "1.0.15"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "Tempmute wrapper"
+    __flavor_text__ = "Cleanup `[p]cleanup`"
 
     def __init__(self, bot):
         self.bot = bot
@@ -236,7 +236,7 @@ class Scheduler(commands.Cog):
 
         ret = (
             f"Task Scheduled. You can cancel this task with "
-            f"`{ctx.clean_prefix}unschedule` {ctx.message.id} "
+            f"`{ctx.clean_prefix}unschedule {ctx.message.id}` "
             f"or with `{ctx.clean_prefix}unschedule {event_name}`"
         )
 
