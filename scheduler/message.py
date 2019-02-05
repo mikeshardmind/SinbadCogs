@@ -29,21 +29,23 @@ def neuter_coroutines(klass):
 
 
 async def replacement_delete_messages(self, messages):
-    messages = [m for m in messages if m.__class__.__name__ != "SchedulerMessage"]
+    message_ids = list(
+        {m.id for m in messages if m.__class__.__name__ != "SchedulerMessage"}
+    )
 
-    if not messages:
+    if not message_ids:
         return
 
-    if len(messages) == 1:
-        await self._state.http.delete_message(self.id, messages[0])
+    if len(message_ids) == 1:
+        await self._state.http.delete_message(self.id, message_ids[0])
         return
 
-    if len(messages) > 100:
+    if len(message_ids) > 100:
         raise discord.ClientException(
             "Can only bulk delete messages up to 100 messages"
         )
 
-    await self._state.http.delete_messages(self.id, [m.id for m in messages])
+    await self._state.http.delete_messages(self.id, message_ids)
 
 
 @neuter_coroutines
