@@ -25,11 +25,18 @@ class Schedule(Converter):
 
         start: datetime
         recur: Optional[timedelta] = None
-        command: str
+        command: Optional[str] = None
+
+        command, *arguments = argument.split(" -- ")
+        if arguments:
+            argument = " -- ".join(arguments)
+        else:
+            command = None
 
         parser = NoExitParser(description="Scheduler event parsing", add_help=False)
         parser.add_argument("--every", nargs="*", dest="every", default=[])
-        parser.add_argument("command", nargs="*")
+        if not command:
+            parser.add_argument("command", nargs="*")
         at_or_in = parser.add_mutually_exclusive_group()
         at_or_in.add_argument("--start-at", nargs="*", dest="at", default=[])
         at_or_in.add_argument("--start-in", nargs="*", dest="in", default=[])
