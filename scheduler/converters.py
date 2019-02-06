@@ -49,10 +49,10 @@ class Schedule(Converter):
         if not (vals["at"] or vals["in"]):
             raise BadArgument("You must provide one of `--start-in` or `--start-at`")
 
-        if not vals["command"]:
+        if not command and not vals["command"]:
             raise BadArgument("You have to provide a command to run")
 
-        command = " ".join(vals["command"])
+        command = command or " ".join(vals["command"])
 
         for delta in ("in", "every"):
             if vals[delta]:
