@@ -21,9 +21,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.16"
+    __version__ = "1.0.17"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "Cleanup `[p]cleanup`"
+    __flavor_text__ = "Apple Proofing"
 
     def __init__(self, bot):
         self.bot = bot

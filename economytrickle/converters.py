@@ -38,7 +38,7 @@ def settings_converter(user_input: str) -> dict:
 
     for value in (
         "econ_per_interval",
-        "bonus_per_level", 
+        "bonus_per_level",
         "level_xp_base",
         "xp_lv_increase",
         "xp_per_interval",
@@ -53,13 +53,11 @@ def settings_converter(user_input: str) -> dict:
                     f"{value} must be a non-negative integer value"
                 )
 
-    
     for value in ("maximum_level", "maximum_bonus"):
         if value in args:
             try:
-                assert (
-                    args[value] is None or 
-                    (args[value] == int(args[value]) and args[value] >= 0)
+                assert args[value] is None or (
+                    args[value] == int(args[value]) and args[value] >= 0
                 )
             except AssertionError:
                 raise commands.BadArgument(
@@ -67,4 +65,3 @@ def settings_converter(user_input: str) -> dict:
                 )
 
     return args
-    
