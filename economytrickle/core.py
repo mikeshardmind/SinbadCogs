@@ -20,7 +20,7 @@ class EconomyTrickle(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.0"
+    __version__ = "1.0.1"
     __flavor_text__ = "Mediocre first effort."
 
     def __init__(self, bot):

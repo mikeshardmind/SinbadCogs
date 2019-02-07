@@ -30,10 +30,10 @@ def settings_converter(user_input: str) -> dict:
     if "interval" in args:
         try:
             assert args["interval"] == int(args["interval"])
-            assert args["interval"] > 5
+            assert args["interval"] >= 5
         except AssertionError:
             raise commands.BadArgument(
-                "Interval must be an integer value greater than 5"
+                "Interval must be an integer value 5 or greater"
             ) from None
 
     for value in (
