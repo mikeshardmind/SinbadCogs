@@ -2,11 +2,11 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "Not ready for use yet. Won't load. Feel free to keep an eye on progress.",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "EconomyTrickle",
     "disabled": false,
     "short": "Gives active users credits",
-    "description": "Gives active users credits",
-    "hidden": true,
+    "description": "Gives active users credits. With configureable settings for activity, amount, and more.",
+    "hidden": false,
     "min_python_version": [3, 6, 4]
 }
