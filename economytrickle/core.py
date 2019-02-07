@@ -160,7 +160,7 @@ class EconomyTrickle(commands.Cog):
 
     @ect.command()
     @no_type_check
-    async def setstuff(self, ctx, *, data: configable_guild_defaults):
+    async def setstuff(self, ctx, *, data: settings_converter):
         """
         Set other variables
 
