@@ -20,7 +20,7 @@ class EconomyTrickle(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.1"
+    __version__ = "1.0.2"
     __flavor_text__ = "Mediocre first effort."
 
     def __init__(self, bot):
@@ -180,7 +180,9 @@ class EconomyTrickle(commands.Cog):
         ```
         """
 
-        async with self.config.guild(ctx.guild) as gsettings:
+        group = self.config._get_base_group(self.config.GUILD, ctx.guild.id)
+
+        async with group() as gsettings:
             gsettings.update(data)
         await ctx.tick()
 
