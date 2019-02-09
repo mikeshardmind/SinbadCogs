@@ -26,6 +26,10 @@ class MessageLogging(commands.Cog):
         )
         self.config.register_guild(active=False)
 
+    def __unload(self):
+        for log in self.logs.values():
+            log.handlers = []
+
     async def on_message(self, message: discord.Message):
 
         if not (message.guild and await self.config.guild(message.guild).active()):
