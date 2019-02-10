@@ -8,7 +8,7 @@
     "tags": [
         "math", "calc", "calculator"
     ],
-    "hidden": false,
+    "hidden": true,
     "min_python_version": [3, 6, 0],
     "requirements": [
         "asteval"
