@@ -5,12 +5,8 @@
     "disabled": false,
     "short": "Safely allow math evals",
     "description": "Uses resource limited subprocess and asteval to (safely) parse math",
-    "tags": [
-        "math", "calc", "calculator"
-    ],
+    "tags": ["math", "calc", "calculator"],
     "hidden": true,
     "min_python_version": [3, 6, 0],
-    "requirements": [
-        "asteval"
-    ]
+    "requirements": ["asteval"]
 }
