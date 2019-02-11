@@ -78,20 +78,14 @@ class EconomyTrickle(commands.Cog):
 
             def vpred(mem: discord.Member):
                 with contextlib.suppress(AttributeError):
-                    return (
-                        mem.voice.channel.id not in data["blacklist"]
-                        and not mem.bot
-                    )
+                    return mem.voice.channel.id not in data["blacklist"] and not mem.bot
 
         else:
             mpred = lambda m: m.channel.id in data["whitelist"]
 
             def vpred(mem: discord.Member):
                 with contextlib.suppress(AttributeError):
-                    return (
-                        mem.voice.channel.id in data["whitelist"]
-                        and not mem.bot
-                    )
+                    return mem.voice.channel.id in data["whitelist"] and not mem.bot
 
         has_active_message = set(
             self.recordhandler.get_active_for_guild(
