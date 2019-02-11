@@ -21,9 +21,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.17"
+    __version__ = "1.0.18"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "Apple Proofing"
+    __flavor_text__ = "Now bypassing interactivity on cleanup."
 
     def __init__(self, bot):
         self.bot = bot
@@ -36,10 +36,20 @@ class Scheduler(commands.Cog):
         self.scheduled = {}  # Might change this to a list later.
         self.tasks = []
         self._iter_lock = asyncio.Lock()
+        self._original_cleanup_check = None
+
+        cleanup = bot.get_cog("Cleanup")
+        if cleanup:
+            self.try_patch_cleanup(cleanup)
 
     def __unload(self):
         self.bg_loop_task.cancel()
         [task.cancel() for task in self.scheduled.values()]
+        self.log.handlers = []
+        if self._original_cleanup_check:
+            cog = self.bot.get_cog("Cleanup")
+            if cog:
+                cog.check_100_plus = self._original_cleanup_check
 
     # This never should be needed,
     # but it doesn't hurt to add and could cover a weird edge case.
@@ -537,3 +547,29 @@ class Scheduler(commands.Cog):
             async with self.config.channel(ctx.channel).tasks() as tsks:
                 tsks.update(unmute_task.to_config())
             self.tasks.append(unmute_task)
+
+    async def on_cog_add(self, cog):
+
+        if cog.__class__.__name__ != "Cleanup":
+            return
+
+        self.try_patch_cleanup(cog)
+
+    def try_patch_cleanup(self, cog: commands.Cog):
+        to_alter = getattr(cog, "check_100_plus", None)
+
+        if to_alter is None:
+            return
+
+        def wrapper(func):
+            async def injected_on_check_100_plus(ctx, number):
+                if ctx.message.__class__.__name__ == "SchedulerMessage":
+                    return True
+                else:
+                    return await func(ctx, number)
+
+            return injected_on_check_100_plus
+
+        self._original_cleanup_check = to_alter
+        cog.check_100_plus = wrapper(to_alter)
+        self.log.info("Patched redbot's cleanup cog's check_100_plus`")
