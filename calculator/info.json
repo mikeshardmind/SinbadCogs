@@ -1,6 +1,6 @@
 {
     "author": ["mikeshardmind(Sinbad)"],
-    "install_msg": "This only works on bots running as root (setrlimit syscall)... \\N{NEUTRAL FACE}",
+    "install_msg": "This cog isn't receiving support. This only works on bots running as root (setrlimit syscall)... \\N{NEUTRAL FACE}",
     "name": "Calculator",
     "disabled": false,
     "short": "Safely allow math evals",
