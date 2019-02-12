@@ -21,7 +21,7 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.18"
+    __version__ = "1.0.19"
     __author__ = "mikeshardmind(Sinbad)"
     __flavor_text__ = "Now bypassing interactivity on cleanup."
 
@@ -382,7 +382,7 @@ class Scheduler(commands.Cog):
         await menu(ctx, embeds, DEFAULT_CONTROLS)
 
     @scheduleradmin.command()
-    async def kill(self, ctx, *, task_id: int):
+    async def kill(self, ctx, *, task_id):
         """ kill another user's task (id only) """
 
         tasks = await self.fetch_task_by_attrs_exact(uid=task_id)
