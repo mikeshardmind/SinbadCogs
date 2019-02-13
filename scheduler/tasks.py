@@ -5,8 +5,10 @@ from typing import Optional, Union, cast
 
 from .message import SchedulerMessage
 from .time_utils import td_format
+from .dataclass_tools import add_slots
 
 
+@add_slots
 @dataclass()
 class Task:
     nicename: str
