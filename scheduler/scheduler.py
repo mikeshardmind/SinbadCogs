@@ -11,6 +11,7 @@ from .message import SchedulerMessage
 from .logs import get_logger
 from .tasks import Task
 from .converters import Schedule, non_numeric, TempMute
+from .checks import can_run_command
 
 _ = Translator("And I think it's gonna be a long long time...", __file__)
 
@@ -21,9 +22,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.19"
+    __version__ = "1.0.20"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "Now bypassing interactivity on cleanup."
+    __flavor_text__ = "Improving UX"
 
     def __init__(self, bot):
         self.bot = bot
@@ -178,14 +179,14 @@ class Scheduler(commands.Cog):
 
     @checks.mod_or_permissions(manage_guild=True)
     @commands.guild_only()
-    @commands.command()
+    @commands.command(usage="<eventname> <command> <args>")
     @no_type_check
     async def schedule(self, ctx, event_name: non_numeric, *, schedule: Schedule):
         """
         Schedule something
 
         Usage:
-            [p]schedule eventname command [args]
+            [p]schedule eventname command args
 
         args:
 
@@ -217,6 +218,10 @@ class Scheduler(commands.Cog):
         Example use:
 
             [p]schedule autosync bansync True --start-at 12AM --every 1 day
+
+        Example use with other parsed commands:
+
+        [p]schedule autosyndicate syndicatebans --sources 133049272517001216 --auto-destinations -- --start-at 12AM --every 1 hour
 
         This can also execute aliases.
         """
@@ -424,12 +429,13 @@ class Scheduler(commands.Cog):
         This exists only until it is added to core red
 
         relies on core commands for mute/unmute
-        This may show up in help for people who cannot use it.
+        This *may* show up in help for people who cannot use it.
 
         This does not support voice mutes, sorry.
         """
         pass
 
+    @can_run_command("mute channel")
     @tempmute.command(usage="<user> [reason] [args]")
     async def channel(self, ctx, user: discord.Member, *, mute: TempMute):
         """
@@ -489,6 +495,7 @@ class Scheduler(commands.Cog):
                 tsks.update(unmute_task.to_config())
             self.tasks.append(unmute_task)
 
+    @can_run_command("mute server")
     @tempmute.command(usage="<user> [reason] [args]", aliases=["guild"])
     async def server(self, ctx, user: discord.Member, *, mute: TempMute):
         """
