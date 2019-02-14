@@ -13,7 +13,7 @@ please keep the following in mind before doing so
   Any PRs made should conform to this.
 
 3. Any code which interacts with external APIs must avoid making known bad API requests. 
-  Any PR which simplifies code, but ssacrifices this using a try/except block will be rejected.
+  Any PR which simplifies code, but sacrifices this using a try/except block will be rejected.
   (N.B. try/except blocks are still usable, 
   but avoiding the known bad cases first is a requirement if it involves an external service)
 
