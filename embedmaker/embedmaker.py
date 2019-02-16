@@ -18,8 +18,8 @@ class EmbedMaker(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "3.0.10"
-    __flavor_text__ = "Adds self send commands."
+    __version__ = "3.0.11"
+    __flavor_text__ = "Unicode Support"
 
     def __init__(self, bot):
         self.bot = bot
