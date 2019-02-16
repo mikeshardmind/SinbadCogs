@@ -85,7 +85,7 @@ class BanSync(commands.Cog):
         """
         Options for bansync
         """
-    
+
     @checks.guildowner_or_permissions(administrator=True)
     @commands.guild_only()
     @bansyncset.command()
@@ -308,7 +308,12 @@ class BanSync(commands.Cog):
                 return guild
 
     async def process_sync(
-        self, *, usr: discord.User, sources: GuildSet, dests: GuildSet, auto: bool=False
+        self,
+        *,
+        usr: discord.User,
+        sources: GuildSet,
+        dests: GuildSet,
+        auto: bool = False,
     ):
 
         bans: dict = {}
@@ -359,10 +364,11 @@ class BanSync(commands.Cog):
         elif auto is True:
             # I'm removing the exclusions here differently than syndicate
             # I'd have to redesign a large portion of your converters or
-            # Have poorly defined behavior on automatic bansyncs otherwise. --Liz 
+            # Have poorly defined behavior on automatic bansyncs otherwise. --Liz
             exclusions = await self.config.excluded_from_automatic()
             guilds: GuildSet = {
-                g for g in self.bot.guilds 
+                g
+                for g in self.bot.guilds
                 if g.id not in exclusions and await self.can_sync(g, ctx.author)
             }
 
@@ -415,7 +421,8 @@ class BanSync(commands.Cog):
             _id = x.id
 
         excluded: GuildSet = {
-            g for g in self.bot.guilds
+            g
+            for g in self.bot.guilds
             if g.id in await self.config.excluded_from_automatic()
         }
 
