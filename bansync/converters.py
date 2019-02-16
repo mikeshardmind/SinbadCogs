@@ -34,10 +34,11 @@ class SyndicatedConverter(Converter):
 
         if vals.auto:
             ret["dests"] = guilds - ret["sources"]
+            ret["auto"] = True
         elif vals.dests:
             ret["dests"] = set()
             for guild in guilds:
-                to_comp = str(guild.id)  # PEP 505 when?
+                to_comp = str(guild.id)
                 if to_comp in vals.dests and to_comp not in ret["sources"]:
                     ret["dests"].add(guild)
         else:

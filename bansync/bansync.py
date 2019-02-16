@@ -1,14 +1,18 @@
 import asyncio
 import json
 import io
-from typing import List, Set
+from typing import List, Set, TYPE_CHECKING
 
 import discord
 
 from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core import commands, checks
+from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 from .converters import SyndicatedConverter
+
+if TYPE_CHECKING:
+    from redbot import Red
 
 GuildList = List[discord.Guild]
 GuildSet = Set[discord.Guild]
@@ -50,6 +54,10 @@ INVALID_FILE = _("That wasn't an exported ban list")
 
 ALL_ALREADY_BANNED = _("That list doesn't contain anybody not already banned.")
 
+ALREADY_EXCLUDED = _("This server has already opted out of these actions.")
+
+NOT_EXCLUDED = _("This server has not opted out of these actions.")
+
 BANMOJI = "\U0001f528"
 
 _ = T_
@@ -64,11 +72,58 @@ class BanSync(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.2.1"
-    __flavor_text__ = "Ban export/import json."
+    __version__ = "1.3.0"
+    __flavor_text__ = "Automatic exclusions"
 
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: "Red" = bot
+        self.config = Config.get_conf(self, identifier=78631113035100160)
+        self.config.register_global(excluded_from_automatic=[])
+
+    @commands.group()
+    async def bansyncset(self, ctx):
+        """
+        Options for bansync
+        """
+    
+    @checks.guildowner_or_permissions(administrator=True)
+    @commands.guild_only()
+    @bansyncset.command()
+    async def automaticoptout(self, ctx):
+        """
+        This allows you to opt a server out of being selected for some actions
+
+        The current things it will prevent:
+
+        mjolnir|globalban
+        bansync with automatic destinations
+        syndicatebans with automatic destinations
+
+        Things it will not prevent:
+
+        bansync with an explicit choice to include the server.
+        syndicatebans with automatic destinations
+        """
+        async with self.config.excluded_from_automatic() as exclusions:
+            if ctx.guild.id in exclusions:
+                return await ctx.send(_(ALREADY_EXCLUDED))
+            exclusions.append(ctx.guild.id)
+        await ctx.tick()
+
+    @checks.guildowner_or_permissions(administrator=True)
+    @commands.guild_only()
+    @bansyncset.command()
+    async def automaticoptin(self, ctx):
+        """
+        This allows you to opt back into certain automatic actions.
+
+        See `[p]help bansyncset automaticoptout` for more details
+        """
+        async with self.config.excluded_from_automatic() as exclusions:
+            if ctx.guild.id not in exclusions:
+                return await ctx.send(_(NOT_EXCLUDED))
+            exclusions.remove(ctx.guild.id)
+        await ctx.tick()
 
     @commands.bot_has_permissions(ban_members=True, attach_files=True)
     @checks.admin_or_permissions(ban_members=True)
@@ -253,11 +308,15 @@ class BanSync(commands.Cog):
                 return guild
 
     async def process_sync(
-        self, *, usr: discord.User, sources: GuildSet, dests: GuildSet
+        self, *, usr: discord.User, sources: GuildSet, dests: GuildSet, auto: bool=False
     ):
 
         bans: dict = {}
         banlist = set()
+
+        if auto:
+            exclusions = await self.config.excluded_from_automatic()
+            dests = {g for g in dests if g.id not in exclusions}
 
         guilds = sources | dests
 
@@ -285,8 +344,8 @@ class BanSync(commands.Cog):
         """
         syncs bans across servers
         """
-        guilds = set()
         if not auto:
+            guilds = set()
             while True:
                 s = await self.interactive(ctx, guilds)
                 if s == -1:
@@ -298,7 +357,14 @@ class BanSync(commands.Cog):
                 else:
                     guilds.add(s)
         elif auto is True:
-            guilds = {g for g in self.bot.guilds if await self.can_sync(g, ctx.author)}
+            # I'm removing the exclusions here differently than syndicate
+            # I'd have to redesign a large portion of your converters or
+            # Have poorly defined behavior on automatic bansyncs otherwise. --Liz 
+            exclusions = await self.config.excluded_from_automatic()
+            guilds: GuildSet = {
+                g for g in self.bot.guilds 
+                if g.id not in exclusions and await self.can_sync(g, ctx.author)
+            }
 
         if len(guilds) < 2:
             return await ctx.send(_(TOO_FEW_CHOSEN))
@@ -337,6 +403,9 @@ class BanSync(commands.Cog):
     async def targeted_global_ban(
         self, ctx: commands.Context, user: str, rsn: str = None
     ):
+        """
+        This respects the exclusions in config
+        """
         conv = commands.UserConverter()
         try:
             x = await conv.convert(ctx, user)
@@ -345,9 +414,14 @@ class BanSync(commands.Cog):
         else:
             _id = x.id
 
+        excluded: GuildSet = {
+            g for g in self.bot.guilds
+            if g.id in await self.config.excluded_from_automatic()
+        }
+
         exit_codes = [
             await self.ban_or_hackban(guild, _id, mod=ctx.author, reason=rsn)
-            async for guild in self.guild_discovery(ctx, set())
+            async for guild in self.guild_discovery(ctx, excluded)
         ]
 
         return any(exit_codes)
