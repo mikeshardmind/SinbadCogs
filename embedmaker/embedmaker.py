@@ -1,5 +1,6 @@
 import discord
 import logging
+import io
 
 from redbot.core import Config
 from redbot.core import commands
@@ -18,8 +19,8 @@ class EmbedMaker(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "3.0.11"
-    __flavor_text__ = "Unicode Support"
+    __version__ = "3.0.12"
+    __flavor_text__ = "Allow yaml file uploads"
 
     def __init__(self, bot):
         self.bot = bot
@@ -38,7 +39,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
-    @_embed.command(name="advmake", hidden=True)
+    @_embed.command(name="advmake")
     async def make_adv(self, ctx: commands.Context, name: str, *, data: str):
         """
         makes an embed from valid yaml
@@ -60,6 +61,110 @@ class EmbedMaker(commands.Cog):
         else:
             await group.owner.set(ctx.author.id)
             await group.embed.set(serialize_embed(e))
+
+    @_embed.command(name="uploadnostore")
+    @commands.bot_has_permissions(embed_links=True)
+    async def no_storage_upload(self, ctx):
+        """
+        Quickly make an embed without intent to store
+        """
+        try:
+            with io.BytesIO() as fp:
+                await ctx.message.attachments[0].save(fp)
+                data = fp.read()
+                data = data.decode("utf-8")
+        except IndexError:
+            return await ctx.send("You need to upload a file")
+
+        try:
+            e = await embed_from_userstr(ctx, data)
+            await ctx.send(embed=e)
+        except discord.HTTPException:
+            await ctx.send("Discord didn't like that embed", delete_after=30)
+        except Exception:
+            await ctx.send("There was something wrong with that input", delete_after=30)
+
+    @_embed.command(name="advnostore")
+    @commands.bot_has_permissions(embed_links=True)
+    async def no_storage_upload(self, ctx, *, data):
+        """
+        Quickly make an embed without intent to store
+        """
+        try:
+            e = await embed_from_userstr(ctx, data)
+            await ctx.send(embed=e)
+        except discord.HTTPException:
+            await ctx.send("Discord didn't like that embed", delete_after=30)
+        except Exception:
+            await ctx.send("There was something wrong with that input", delete_after=30)
+
+
+    @commands.guild_only()
+    @commands.bot_has_permissions(embed_links=True)
+    @_embed.command(name="upload")
+    async def make_upload(self, ctx: commands.Context, name: str):
+        """
+        makes an embed from valid yaml file upload
+
+        Note: Fields should be provided as nested key: value pairs,
+        keys indicating position.
+        """
+        name = name.lower()
+        group = self.config.custom("EMBED", ctx.guild.id, name)
+        if await group.owner() not in (ctx.author.id, None):
+            return await ctx.maybe_send_embed("An embed with that name already exists!")
+            
+        try:
+            with io.BytesIO() as fp:
+                await ctx.message.attachments[0].save(fp)
+                data = fp.read()
+                data = data.decode("utf-8")
+        except IndexError:
+            return await ctx.send("You need to upload a file")
+
+        try:
+            e = await embed_from_userstr(ctx, data)
+            await ctx.send("Here's how that's gonna look", embed=e)
+        except discord.HTTPException:
+            await ctx.maybe_send_embed("Discord didn't like that embed")
+        except Exception:
+            await ctx.maybe_send_embed("There was something wrong with that input")
+        else:
+            await group.owner.set(ctx.author.id)
+            await group.embed.set(serialize_embed(e))
+
+    @commands.bot_has_permissions(embed_links=True)
+    @checks.is_owner()
+    @_embed.command(name="uploadglobal")
+    async def make_global_upload(self, ctx: commands.Context, name: str):
+        """
+        makes an embed from valid yaml file upload
+
+        Note: Fields should be provided as nested key: value pairs,
+        keys indicating position.
+        """
+
+        try:
+            with io.BytesIO() as fp:
+                await ctx.message.attachments[0].save(fp)
+                data = fp.read()
+                data = data.decode("utf-8")
+        except IndexError:
+            return await ctx.send("You need to upload a file")
+
+        try:
+            name = name.lower()
+            e = await embed_from_userstr(ctx, data)
+            await ctx.send("Here's how that's gonna look", embed=e)
+        except discord.HTTPException:
+            await ctx.maybe_send_embed("Discord didn't like that embed")
+        except Exception:
+            await ctx.maybe_send_embed("There was something wrong with that input")
+        else:
+            await self.config.custom("EMBED", "GLOBAL", name).owner.set(ctx.author.id)
+            await self.config.custom("EMBED", "GLOBAL", name).embed.set(
+                serialize_embed(e)
+            )
 
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command(name="event")
@@ -85,7 +190,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.bot_has_permissions(embed_links=True)
     @checks.is_owner()
-    @_embed.command(name="advmakeglobal", hidden=True)
+    @_embed.command(name="advmakeglobal")
     async def make_global_adv(self, ctx: commands.Context, name: str, *, data: str):
         """
         makes an embed from valid yaml
