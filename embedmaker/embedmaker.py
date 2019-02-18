@@ -98,7 +98,6 @@ class EmbedMaker(commands.Cog):
         except Exception:
             await ctx.send("There was something wrong with that input", delete_after=30)
 
-
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command(name="upload")
@@ -113,7 +112,7 @@ class EmbedMaker(commands.Cog):
         group = self.config.custom("EMBED", ctx.guild.id, name)
         if await group.owner() not in (ctx.author.id, None):
             return await ctx.maybe_send_embed("An embed with that name already exists!")
-            
+
         try:
             with io.BytesIO() as fp:
                 await ctx.message.attachments[0].save(fp)
