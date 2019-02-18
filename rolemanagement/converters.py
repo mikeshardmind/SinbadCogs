@@ -63,6 +63,9 @@ class ComplexActionConverter(RoleConverter):
     --has-none roles
     --has-any roles
     --has-no-roles
+    --has-exactly-nroles
+    --has-more-than-nroles
+    --has-less-than-nroles
     --has-perm permissions
     --any-perm permissions
     --not-perm permissions
@@ -90,6 +93,9 @@ class ComplexActionConverter(RoleConverter):
         parser.add_argument("--not-perm", nargs="*", dest="notperm", default=[])
         parser.add_argument("--add", nargs="*", dest="add", default=[])
         parser.add_argument("--remove", nargs="*", dest="remove", default=[])
+        parser.add_argument("--has-exactly-nroles", dest="quantity", type=int)
+        parser.add_argument("--has-more-than-nroles", dest="gt", type=int)
+        parser.add_argument("--has-less-than-nroles", dest="lt", type=int)
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
             "--only-humans", action="store_true", default=False, dest="humans"
@@ -121,6 +127,9 @@ class ComplexActionConverter(RoleConverter):
                 vals["notperm"],
                 vals["anyperm"],
                 vals["noroles"],
+                bool(vals["quantity"] is not None),
+                bool(vals["gt"] is not None),
+                bool(vals["lt"] is not None),
             )
         ):
             raise BadArgument("You need to provide at least 1 search criterion")
@@ -149,6 +158,9 @@ class ComplexSearchConverter(RoleConverter):
     --has-none roles
     --has-any roles
     --has-no-roles
+    --has-exactly-nroles
+    --has-more-than-nroles
+    --has-less-than-nroles
     --only-humans
     --only-bots
     --has-perm permissions
@@ -173,6 +185,11 @@ class ComplexSearchConverter(RoleConverter):
         parser.add_argument("--any-perm", nargs="*", dest="anyperm", default=[])
         parser.add_argument("--not-perm", nargs="*", dest="notperm", default=[])
         parser.add_argument("--csv", action="store_true", default=False)
+        parser.add_argument(
+            "--has-exactly-nroles", dest="quantity", type=int, default=None
+        )
+        parser.add_argument("--has-more-than-nroles", dest="gt", type=int, default=None)
+        parser.add_argument("--has-less-than-nroles", dest="lt", type=int, default=None)
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
             "--only-humans", action="store_true", default=False, dest="humans"
@@ -200,6 +217,9 @@ class ComplexSearchConverter(RoleConverter):
                 vals["notperm"],
                 vals["anyperm"],
                 vals["noroles"],
+                bool(vals["quantity"] is not None),
+                bool(vals["gt"] is not None),
+                bool(vals["lt"] is not None),
             )
         ):
             raise BadArgument("You need to provide at least 1 search criterion")

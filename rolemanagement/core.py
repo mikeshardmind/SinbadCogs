@@ -18,8 +18,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.10"
-    __flavor_text__ = "Emergency hotfix: Discord Server Discovery breaks optimization in discord.py edition."
+    __version__ = "3.2.11"
+    __flavor_text__ = "More filters"
 
     def __init__(self, bot):
         self.bot = bot

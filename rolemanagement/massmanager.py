@@ -247,6 +247,34 @@ class MassManagementMixin(MixinMeta):
                 # everyone is a role.
                 members = {m for m in members if len(m.roles) == 1}
 
+            if query["quantity"] is not None:  # 0 is a valid option for this
+                quantity = query["quantity"] + 1
+                # everyone is a role,
+                # but I'm making the decision it isn't useful
+                # to users to have to remember that it is -- Liz
+
+                members = {m for m in members if len(m.roles) == quantity}
+
+            if query["lt"] is not None or query["gt"] is not None:
+
+                if query["gt"] is not None:
+                    lower_bound = query["gt"] + 1
+                else:
+                    lower_bound = 0
+
+                if query["lt"] is not None:
+                    upper_bound = query["lt"] + 1
+                else:
+                    upper_bound = 1000
+                    # I don't think discord will ever increase the maximum roles per server
+                    # The current amount is 255
+                    # so this should cover the unlikely increase to 511 but not to 1023
+                    # --Liz
+
+                members = {
+                    m for m in members if lower_bound < len(m.roles) < upper_bound
+                }
+
         return members
 
     @mrole.command(name="user")
@@ -295,11 +323,20 @@ class MassManagementMixin(MixinMeta):
         --has-all roles
         --has-none roles
         --has-any roles
+
+        --has-no-roles
+        --has-exactly-nroles number
+        --has-more-than-nroles number
+        --has-less-than-nroles number
+
         --has-perm permissions
         --any-perm permissions
         --not-perm permissions
+        
         --only-humans
         --only-bots
+        --everyone
+
         --csv
 
         csv output will be used if output would exceed embed limits, or if flag is provided
@@ -389,14 +426,22 @@ class MassManagementMixin(MixinMeta):
         --has-all roles
         --has-none roles
         --has-any roles
+
+        --has-no-roles
+        --has-exactly-nroles number
+        --has-more-than-nroles number
+        --has-less-than-nroles number
+
         --has-perm permissions
         --any-perm permissions
         --not-perm permissions
-        --add roles
-        --remove roles
+        
         --only-humans
         --only-bots
         --everyone
+        
+        --add roles
+        --remove roles
         """
 
         apply = query["add"] + query["remove"]
