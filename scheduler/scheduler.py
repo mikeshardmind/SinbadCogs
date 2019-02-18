@@ -22,9 +22,9 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.20"
+    __version__ = "1.0.21"
     __author__ = "mikeshardmind(Sinbad)"
-    __flavor_text__ = "Improving UX"
+    __flavor_text__ = "Unhidden remindme."
 
     def __init__(self, bot):
         self.bot = bot
@@ -190,7 +190,7 @@ class Scheduler(commands.Cog):
 
         args:
 
-            you must provide at least one of:
+            you must provide one of:
 
                 --start-in interval
                 --start-at time
@@ -320,9 +320,44 @@ class Scheduler(commands.Cog):
 
         await menu(ctx, embeds, DEFAULT_CONTROLS)
 
-    @commands.command(name="remindme", hidden=True)
+    @commands.command(name="remindme", usage="<what to be reminded of> <args>")
     async def reminder(self, ctx, *, reminder: Schedule):
-        """ hidden until I test this more """
+        """
+        Schedule a reminder DM from the bot
+
+        Usage:
+            [p]remindme to do something [args]
+
+        args:
+
+            you must provide one of:
+
+                --start-in interval
+                --start-at time
+        
+            you may also provide:
+
+                --every interval
+
+            for recurring reminders
+
+        intervals look like:
+
+            5 minutes
+            1 minute 30 seconds
+            1 hour
+            2 days
+            30 days
+            (etc)
+
+        times look like:
+            February 14 at 6pm EDT
+
+        times default to UTC if no timezone provided.
+
+        example usage:
+            `[p]remindme get some fresh air --start-in 4 hours`
+        """
 
         command, start, recur = reminder
 
