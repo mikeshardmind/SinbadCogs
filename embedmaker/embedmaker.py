@@ -86,7 +86,7 @@ class EmbedMaker(commands.Cog):
 
     @_embed.command(name="advnostore")
     @commands.bot_has_permissions(embed_links=True)
-    async def no_storage_upload(self, ctx, *, data):
+    async def no_storage_adv(self, ctx, *, data):
         """
         Quickly make an embed without intent to store
         """
