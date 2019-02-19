@@ -1,14 +1,11 @@
-import itertools
 import logging
-from pathlib import Path
-
 import discord
 from redbot.core import Config
 from redbot.core import __version__ as redversion
-from redbot.core import commands
+from redbot.core import commands, checks
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
-from redbot.core.utils.data_converter import DataConverter as dc
+
 
 T_ = Translator("GuildWhitelist", __file__)
 _ = lambda s: s
@@ -42,9 +39,6 @@ class GuildWhitelist(commands.Cog):
         )
         self.config.register_global(whitelist=[])
 
-    async def __local_check(self, ctx: commands.Context) -> bool:
-        return await ctx.bot.is_owner(ctx.author)
-
     async def on_guild_join(self, guild: discord.Guild):
         async with self.config.whitelist() as whitelist:
             if not any(
@@ -53,6 +47,7 @@ class GuildWhitelist(commands.Cog):
                 log.info("leaving {0.id} {0.name}".format(guild))
                 await guild.leave()
 
+    @checks.is_owner()
     @commands.group(name="guildwhitelist", autohelp=True)
     async def gwl(self, ctx: commands.Context):
         """
@@ -84,10 +79,10 @@ class GuildWhitelist(commands.Cog):
         if len(ids) == 0:
             return await ctx.send_help()
 
-        wl = await self.config.whitelist()
-        wl += list(ids)
-        to_set = unique(wl)
-        await self.config.whitelist.set(to_set)
+        async with self.config.whitelist() as whitelist:
+            for idx in ids:
+                if idx not in whitelist:
+                    whitelist.append(idx)
         await ctx.tick()
 
     @gwl.command(name="list")
@@ -112,40 +107,8 @@ class GuildWhitelist(commands.Cog):
         if len(ids) == 0:
             return await ctx.send_help()
 
-        wl = await self.config.whitelist()
-        wl = [i for i in wl if i not in ids]
-        await self.config.whitelist.set(wl)
+        async with self.config.whitelist() as whitelist:
+            for idx in ids:
+                if idx in whitelist:
+                    whitelist.remove(idx)
         await ctx.tick()
-
-    @gwl.command(name="import", disabled=True)
-    async def gwl_import(self, ctx: commands.Context, path: str):
-        """
-        pass the full path of the v2 settings.json
-        for this cog
-        """
-
-        v2_data = Path(path) / "data" / "serverwhitelist" / "list.json"
-        if not v2_data.is_file():
-            return await ctx.send(FILE_NOT_FOUND)
-
-        existing_ids = await self.config.whitelist()
-
-        def converter(data):
-            return [int(x) for x in data.keys()]
-
-        try:
-            imported_items = converter(dc.json_load(path))
-            to_set = list(set(imported_items + existing_ids))
-            await self.config.whitelist.set(to_set)
-        except FileNotFoundError:
-            return await ctx.send(FILE_NOT_FOUND)
-        except (ValueError, AttributeError, TypeError):
-            return await ctx.send(FMT_ERROR)
-        else:
-            await ctx.tick()
-
-
-def unique(a):
-    indices = sorted(range(len(a)), key=a.__getitem__)
-    indices = set(next(it) for k, it in itertools.groupby(indices, key=a.__getitem__))
-    return [x for i, x in enumerate(a) if i in indices]
