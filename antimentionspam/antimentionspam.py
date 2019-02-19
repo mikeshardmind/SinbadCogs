@@ -9,9 +9,7 @@ from redbot.core.utils.antispam import AntiSpam
 class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
-    __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "1.3.2"
-    __flavor_text__ = "The version I fix an output."
+    __version__ = "2.0.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -235,19 +233,8 @@ class AntiMentionSpam(commands.Cog):
                 )
 
     async def is_immune(self, message) -> bool:
-        imset = getattr(self.bot, "is_automod_immune", self._is_immune)
         author = message.author
         guild = message.guild
-        if author == guild.owner or author.top_role >= guild.me.top_role:
-            return True  # Even if they aren't, actually immune, we don't care here.
-        return await self.bot.is_owner(message.author) or await imset(message)
-
-    async def _is_immune(self, message):
-        author = message.author
-        guild = message.guild
-        return (
-            await self.bot.is_admin(message.author)
-            or await self.bot.is_mod(message.author)
-            or guild.me.top_role <= author.top_role
-            or author == guild.owner
-        )
+        if guild and (author == guild.owner or author.top_role >= guild.me.top_role):
+            return True  # Even if they aren't actually immune, we don't care here.
+        return await self.bot.is_owner(message.author) or await self.bot.is_automod_immune(message)
