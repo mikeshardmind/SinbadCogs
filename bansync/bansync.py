@@ -12,7 +12,7 @@ from redbot.core.i18n import Translator, cog_i18n
 from .converters import SyndicatedConverter
 
 if TYPE_CHECKING:
-    from redbot import Red
+    from redbot.core.bot import Red
 
 GuildList = List[discord.Guild]
 GuildSet = Set[discord.Guild]
@@ -72,7 +72,7 @@ class BanSync(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.3.0"
+    __version__ = "1.3.1"
     __flavor_text__ = "Automatic exclusions"
 
     def __init__(self, bot):
@@ -228,21 +228,21 @@ class BanSync(commands.Cog):
         m = g.get_member(u.id)
         if m:
             user_allowed |= m.guild_permissions.ban_members
-        settings = self.bot.db.guild(g)
-        _arid = await settings.admin_role()
+            settings = self.bot.db.guild(g)
+            _arid = await settings.admin_role()
+            user_allowed |= any(r.id == _arid for r in m.roles)
+
         user_allowed |= await self.bot.is_owner(u)
-        user_allowed |= any(r.id == _arid for r in u.roles)
         bot_allowed = g.me.guild_permissions.ban_members
         return user_allowed and bot_allowed
 
     async def ban_filter(
         self, g: discord.Guild, mod: discord.user, target: discord.user
     ):
-        if await self.bot.is_owner(mod):
-            can_ban = True
+        is_owner = await self.bot.is_owner(mod)
 
         mod = g.get_member(mod.id)
-        if mod is None:
+        if mod is None and not is_owner:
             return False
 
         can_ban = (
@@ -252,7 +252,7 @@ class BanSync(commands.Cog):
         if target is not None:
             can_ban &= g.me.top_role > target.top_role or g.me == g.owner
             can_ban &= target != g.owner
-            can_ban &= mod.top_role > target.top_role or mod == g.owner
+            can_ban &= mod.top_role > target.top_role or mod == g.owner or is_owner
         return can_ban
 
     async def ban_or_hackban(
@@ -350,7 +350,7 @@ class BanSync(commands.Cog):
         syncs bans across servers
         """
         if not auto:
-            guilds = set()
+            guilds: GuildSet = set()
             while True:
                 s = await self.interactive(ctx, guilds)
                 if s == -1:
@@ -372,6 +372,7 @@ class BanSync(commands.Cog):
                 if g.id not in exclusions and await self.can_sync(g, ctx.author)
             }
 
+        # noinspection PyUnboundLocalVariable
         if len(guilds) < 2:
             return await ctx.send(_(TOO_FEW_CHOSEN))
 
@@ -392,6 +393,7 @@ class BanSync(commands.Cog):
         """
 
         async with ctx.typing():
+            # noinspection PyArgumentList
             await self.process_sync(**query)
         await ctx.tick()
 
@@ -415,7 +417,7 @@ class BanSync(commands.Cog):
         conv = commands.UserConverter()
         try:
             x = await conv.convert(ctx, user)
-        except Exception:
+        except commands.BadArgument:
             _id = int(user)
         else:
             _id = x.id
