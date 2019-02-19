@@ -12,9 +12,7 @@ SPOILER_RE = re.compile(r"(?s)\|{2}(?P<CONTENT>.*?)\|{2}")
 class DevTools(commands.Cog):
     """ Some tools """
 
-    __author__ = "mikeshardmind"
-    __version__ = "1.0.3"
-    __flavor_text__ = "Stuff"
+    __version__ = "2.0.0"
 
     def __init__(self, bot):
         self.bot = bot

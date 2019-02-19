@@ -1,11 +1,11 @@
 import logging
+
 import discord
 from redbot.core import Config
 from redbot.core import __version__ as redversion
 from redbot.core import commands, checks
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
-
 
 T_ = Translator("GuildWhitelist", __file__)
 _ = lambda s: s
@@ -28,9 +28,7 @@ class GuildWhitelist(commands.Cog):
     or whose owner is not whitelisted or the owner of the bot
     """
 
-    __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.4"
-    __flavor_text__ = "Pre V3 launch cleanup version"
+    __version__ = "2.0.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -54,19 +52,6 @@ class GuildWhitelist(commands.Cog):
         settings for guildwhitelisting
         """
         pass
-
-    @gwl.command(name="debuginfo", hidden=True)
-    async def dbg_info(self, ctx: commands.Context):
-        """
-        debug info
-        """
-        ret = (
-            "Author: {}".format(self.__author__)
-            + "\nVersion: {}".format(self.__version__)
-            + "\nd.py Version {}.{}.{}".format(*discord.version_info)
-            + "\nred version {}".format(redversion)
-        )
-        await ctx.send(box(ret))
 
     @gwl.command(name="add")
     async def gwl_add(self, ctx: commands.Context, *ids: int):

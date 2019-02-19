@@ -1,5 +1,5 @@
-from .guildwhitelist import GuildWhitelist
+from . import guildwhitelist
 
 
 def setup(bot):
-    bot.add_cog(GuildWhitelist(bot))
+    bot.add_cog(guildwhitelist.GuildWhitelist(bot))

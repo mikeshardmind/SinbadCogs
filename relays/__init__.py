@@ -1,5 +1,5 @@
-from .relays import Relays
+from . import relays
 
 
 def setup(bot):
-    bot.add_cog(Relays(bot))
+    bot.add_cog(relays.Relays(bot))

@@ -1,8 +1,8 @@
+import re
+from typing import List
+
 import discord
 from redbot.core import commands
-from typing import List
-import re
-
 
 # Pulled from Red-Discordbot PR#1942 which I'm the author of, but not waiting for merge for use.
 INVITE_URL_RE = re.compile(r"(discord.gg|discordapp.com/invite|discord.me)(\S+)", re.I)

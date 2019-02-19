@@ -71,9 +71,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.3.3"
-    __flavor_text__ = "Automatic exclusions"
+    __version__ = "2.0.0"
 
     def __init__(self, bot):
         self.bot: "Red" = bot
@@ -250,7 +248,7 @@ class BanSync(commands.Cog):
         target = guild.get_member(target.id)
         if target is not None:
             can_ban &= guild.me.top_role > target.top_role or guild.me == guild.owner
-            can_ban &= target != g.owner
+            can_ban &= target != guild.owner
             can_ban &= mod.top_role > target.top_role or mod == guild.owner or is_owner
         return can_ban
 

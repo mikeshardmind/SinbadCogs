@@ -24,9 +24,7 @@ class MessageBox(commands.Cog):
     replace contact with something less obnoxious
     """
 
-    __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.5"
-    __flavor_text__ = "Pre V3 release cleanup version."
+    __version__ = "2.0.0"
 
     def __init__(self, bot):
         self.bot = bot

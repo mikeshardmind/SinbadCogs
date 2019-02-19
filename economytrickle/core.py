@@ -19,9 +19,7 @@ class EconomyTrickle(commands.Cog):
     Automatic Economy gains for active users
     """
 
-    __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.4"
-    __flavor_text__ = "Bugfixin"
+    __version__ = "2.0.0"
 
     def __init__(self, bot):
         self.bot = bot

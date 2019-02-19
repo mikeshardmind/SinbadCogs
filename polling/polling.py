@@ -9,8 +9,7 @@ class Polling(commands.Cog):
     A Polling cog
     """
 
-    __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.4"
+    __version__ = "2.0.0"
 
     @commands.command()
     async def votecount(
