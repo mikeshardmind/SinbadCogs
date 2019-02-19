@@ -38,10 +38,7 @@ class MessageBox(commands.Cog):
     def __unload(self):
         global _old_contact
         if _old_contact:
-            try:
-                self.bot.remove_command("contact")
-            except:
-                pass
+            self.bot.remove_command("contact")
             self.bot.add_command(_old_contact)
 
     @checks.is_owner()
