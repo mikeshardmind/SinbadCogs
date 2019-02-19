@@ -80,7 +80,8 @@ class Polling(commands.Cog):
 
         await self.send_dict(ctx, valid_votes)
 
-    async def send_dict(self, ctx, some_dict: dict):
+    @staticmethod
+    async def send_dict(ctx, some_dict: dict):
 
         msg = "Vote results:"
 
