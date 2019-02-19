@@ -27,12 +27,11 @@ class DevTools(commands.Cog):
         m = await ctx.send("React with the emoji you want info about")
 
         try:
-            react: discord.Reaction
             react, _user = await ctx.bot.wait_for(
                 "reaction_add",
                 check=(lambda r, u: u == ctx.author and r.message.id == m.id),
                 timeout=60,
-            )
+            )  # type: discord.Reaction, discord.User
         except asyncio.TimeoutError:
             return await ctx.send("Okay, try again later.")
         else:
@@ -60,6 +59,7 @@ class DevTools(commands.Cog):
                 f'    await ctx.send("I can\'t use that emoji")\n```'
             )
 
+    # noinspection PyProtectedMember
     @checks.admin_or_permissions(manage_messages=True)
     @commands.guild_only()
     @commands.command()
