@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 from redbot.core import commands
 import discord
 from .helpers import find_messages, embed_from_msg
@@ -46,7 +46,7 @@ class QuoteTools(commands.Cog):
                     [
                         "Author: {0}({0.id})".format(m.author),
                         "Channel: {}".format(m.channel.mention),
-                        "Time(UTC): {}".format(m.timestamp.isoformat()),
+                        "Time(UTC): {}".format(m.created_at.isoformat()),
                     ]
                 )
                 if len(msg1) + len(m.clean_content) < 2000:

@@ -90,12 +90,13 @@ async def find_msg_fallback(channels, idx: int) -> discord.Message:
     for channel in channels:
         try:
             m = await channel.get_message(idx)
-        except Exception:
+        except discord.HTTPException:
             continue
         else:
             return m
 
 
+# noinspection PyProtectedMember
 async def find_messages(
     ctx: commands.Context,
     ids: Sequence[int],
