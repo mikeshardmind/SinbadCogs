@@ -55,7 +55,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.2.2"
+    __version__ = "1.2.3"
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
@@ -70,7 +70,7 @@ class Relays(commands.Cog):
 
     async def __before_invoke(self, _ctx):
         while not self._load_task.done():
-            asyncio.sleep(2)
+            await asyncio.sleep(2)
 
     async def __local_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -115,7 +115,7 @@ class Relays(commands.Cog):
         if message.type.value != 0:
             return
         while not hasattr(self, "oneways"):
-            asyncio.sleep(2)
+            await asyncio.sleep(2)
         for dest in self.gather_destinations(message):
             await dest.send(
                 embed=embed_from_msg(message, filter_invites=self.scrub_invites)
@@ -134,7 +134,8 @@ class Relays(commands.Cog):
             ret[info] = val
         return ret
 
-    async def validation_error(self, ctx: commands.Context, validation: dict):
+    @staticmethod
+    async def validation_error(ctx: commands.Context, validation: dict):
         error_str = ""
         not_founds = [k for k, v in validation.items() if v is None]
         multi_match = [k for k, v in validation.items() if v is False]
@@ -193,6 +194,7 @@ class Relays(commands.Cog):
         return ret
 
     def get_relay_info(self, name: str):
+        msg: str
         if name in self.oneways:
             relay = self.oneways[name]
             quanitity_conditional = (
