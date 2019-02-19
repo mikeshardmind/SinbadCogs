@@ -20,7 +20,7 @@ class EconomyTrickle(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.3"
+    __version__ = "1.0.4"
     __flavor_text__ = "Bugfixin"
 
     def __init__(self, bot):
@@ -42,9 +42,9 @@ class EconomyTrickle(commands.Cog):
         self.main_loop_task = bot.loop.create_task(self.main_loop())
         self.extra_tasks = []
 
-        def __unload(self):
-            self.main_loop_task.cancel()
-            [t.cancel() for t in self.extra_tasks]
+    def __unload(self):
+        self.main_loop_task.cancel()
+        [t.cancel() for t in self.extra_tasks]
 
     async def on_message(self, message):
         if message.guild and await self.config.guild(message.guild).active():
@@ -129,6 +129,8 @@ class EconomyTrickle(commands.Cog):
             if data["maximum_bonus"] is not None:
                 bonus = min(data["maximum_bonus"], bonus)
 
+            to_give += bonus
+
             await bank.deposit_credits(member, to_give)
 
         # cleanup old message objects
@@ -174,9 +176,10 @@ class EconomyTrickle(commands.Cog):
         ```
         """
 
+        # noinspection PyProtectedMember
         group = self.config._get_base_group(self.config.GUILD, ctx.guild.id)
 
-        async with group() as gsettings:
+        async with group() as gsettings:  # type: dict
             gsettings.update(data)
         await ctx.tick()
 
