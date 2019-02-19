@@ -13,6 +13,8 @@ yaml.reader.Reader.NON_PRINTABLE = re.compile(
 )
 
 
+# TODO : Document failure cases of this for proper exception handling.
+# noinspection PyBroadException
 async def embed_from_userstr(ctx: commands.Context, string: str) -> discord.Embed:
     ret = {"initable": {}, "settable": {}, "fields": []}
     string = string.strip()
@@ -30,7 +32,7 @@ async def embed_from_userstr(ctx: commands.Context, string: str) -> discord.Embe
                     try:
                         to_set = parse_time(to_set).timestamp()
                     except Exception:
-                        x = float(to_set)
+                        to_set = float(to_set)
 
                 if inner_key in ["color", "colour"]:
                     try:

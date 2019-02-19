@@ -12,14 +12,15 @@ from .utils import parse_time
 
 log = logging.getLogger("redbot.sinbadcogs.embedmaker")
 
-
+# TODO: Remove this supression after handling `embed_from_userstr`
+# noinspection PyBroadException
 class EmbedMaker(commands.Cog):
     """
     Storable, recallable, embed maker
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "3.0.12"
+    __version__ = "3.0.13"
     __flavor_text__ = "Allow yaml file uploads"
 
     def __init__(self, bot):
@@ -51,6 +52,7 @@ class EmbedMaker(commands.Cog):
         group = self.config.custom("EMBED", ctx.guild.id, name)
         if await group.owner() not in (ctx.author.id, None):
             return await ctx.maybe_send_embed("An embed with that name already exists!")
+
         try:
             e = await embed_from_userstr(ctx, data)
             await ctx.send("Here's how that's gonna look", embed=e)
@@ -255,6 +257,7 @@ class EmbedMaker(commands.Cog):
         """
         lists the embeds here
         """
+        # noinspection PyProtectedMember
         embed_dict = await self.config._get_base_group("EMBED")()
         if ctx.guild:
             local_embeds = list(sorted(embed_dict.get(str(ctx.guild.id), {}).keys()))
@@ -308,6 +311,7 @@ class EmbedMaker(commands.Cog):
         """
         name = name.lower()
         await self.config.custom("EMBED", "GLOBAL", name).clear()
+        await ctx.tick()
 
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
