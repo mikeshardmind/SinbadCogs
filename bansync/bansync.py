@@ -52,6 +52,8 @@ EXPECTED_FILE = _(
 
 INVALID_FILE = _("That wasn't an exported ban list")
 
+INVALID_USER = _("That wasn't a valid user")
+
 ALL_ALREADY_BANNED = _("That list doesn't contain anybody not already banned.")
 
 ALREADY_EXCLUDED = _("This server has already opted out of these actions.")
@@ -72,7 +74,7 @@ class BanSync(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.3.1"
+    __version__ = "1.3.2"
     __flavor_text__ = "Automatic exclusions"
 
     def __init__(self, bot):
@@ -418,7 +420,10 @@ class BanSync(commands.Cog):
         try:
             x = await conv.convert(ctx, user)
         except commands.BadArgument:
-            _id = int(user)
+            try:
+                _id = int(user)
+            except ValueError:
+                raise commands.BadArgument(_(INVALID_USER)) from None
         else:
             _id = x.id
 
