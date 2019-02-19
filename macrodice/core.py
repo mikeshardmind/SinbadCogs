@@ -59,7 +59,8 @@ class MacroDice(commands.Cog):
 
         await self.handle_expression(ctx, expr)
 
-    async def handle_expression(self, ctx, expr):
+    @staticmethod
+    async def handle_expression(ctx, expr):
 
         try:
             if 100000 > expr > 0:
@@ -79,12 +80,13 @@ class MacroDice(commands.Cog):
                 except TypeError:
                     yield (real, mn, mx)
 
-            def get_formatted(expr):
+            def get_formatted(an_expr):
                 return "\n".join(
                     f"{actual:<4} (Range: {low}-{high})"
-                    for actual, low, high in handler(expr)
+                    for actual, low, high in handler(an_expr)
                 )
 
+            # noinspection PyBroadException
             try:
                 result = get_formatted(expr)
             except Exception:
@@ -153,7 +155,7 @@ class MacroDice(commands.Cog):
 
         name = name.lower()
 
-        async with grp() as data:
+        async with grp() as data:  # type: dict
             vkeys = {k[:3]: k for k in data.keys() if k != "macros"}
             if name in vkeys:
                 name = vkeys[name]
