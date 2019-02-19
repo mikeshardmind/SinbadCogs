@@ -1,7 +1,7 @@
 import asyncio
 import json
 import io
-from typing import List, Set, TYPE_CHECKING
+from typing import List, Set, TYPE_CHECKING, Union
 
 import discord
 
@@ -52,8 +52,6 @@ EXPECTED_FILE = _(
 
 INVALID_FILE = _("That wasn't an exported ban list")
 
-INVALID_USER = _("That wasn't a valid user")
-
 ALL_ALREADY_BANNED = _("That list doesn't contain anybody not already banned.")
 
 ALREADY_EXCLUDED = _("This server has already opted out of these actions.")
@@ -74,7 +72,7 @@ class BanSync(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.3.2"
+    __version__ = "1.3.3"
     __flavor_text__ = "Automatic exclusions"
 
     def __init__(self, bot):
@@ -204,9 +202,7 @@ class BanSync(commands.Cog):
         """
         rsn = f"Global ban authorized by {ctx.author}({ctx.author.id})"
         async with ctx.typing():
-            results = {
-                i: await self.targeted_global_ban(ctx, str(i), rsn) for i in set(ids)
-            }
+            results = {i: await self.targeted_global_ban(ctx, i, rsn) for i in set(ids)}
 
         if all(results.values()):
             await ctx.message.add_reaction(BANMOJI)
@@ -225,36 +221,37 @@ class BanSync(commands.Cog):
             )
         )
 
-    async def can_sync(self, g: discord.Guild, u: discord.User):
+    async def can_sync(self, guild: discord.Guild, mod: discord.User):
         user_allowed = False
-        m = g.get_member(u.id)
-        if m:
-            user_allowed |= m.guild_permissions.ban_members
-            settings = self.bot.db.guild(g)
+        user_allowed |= await self.bot.is_owner(mod)
+        mod = guild.get_member(mod.id)
+        if mod:
+            user_allowed |= mod.guild_permissions.ban_members
+            settings = self.bot.db.guild(guild)
             _arid = await settings.admin_role()
-            user_allowed |= any(r.id == _arid for r in m.roles)
+            user_allowed |= any(r.id == _arid for r in mod.roles)
 
-        user_allowed |= await self.bot.is_owner(u)
-        bot_allowed = g.me.guild_permissions.ban_members
+        bot_allowed = guild.me.guild_permissions.ban_members
         return user_allowed and bot_allowed
 
     async def ban_filter(
-        self, g: discord.Guild, mod: discord.user, target: discord.user
+        self, guild: discord.Guild, mod: discord.user, target: discord.user
     ):
         is_owner = await self.bot.is_owner(mod)
 
-        mod = g.get_member(mod.id)
+        mod = guild.get_member(mod.id)
         if mod is None and not is_owner:
             return False
 
-        can_ban = (
-            mod.guild_permissions.ban_members and g.me.guild_permissions.ban_members
-        )
-        target = g.get_member(target.id)
+        can_ban = guild.me.guild_permissions.ban_members
+        if not is_owner:
+            can_ban &= mod.guild_permissions.ban_members
+
+        target = guild.get_member(target.id)
         if target is not None:
-            can_ban &= g.me.top_role > target.top_role or g.me == g.owner
+            can_ban &= guild.me.top_role > target.top_role or guild.me == guild.owner
             can_ban &= target != g.owner
-            can_ban &= mod.top_role > target.top_role or mod == g.owner or is_owner
+            can_ban &= mod.top_role > target.top_role or mod == guild.owner or is_owner
         return can_ban
 
     async def ban_or_hackban(
@@ -400,7 +397,7 @@ class BanSync(commands.Cog):
         await ctx.tick()
 
     @commands.command(name="mjolnir", aliases=["globalban"])
-    async def mjolnir(self, ctx, user: str, *, rsn: str = None):
+    async def mjolnir(self, ctx, user: Union[discord.Member, int], *, rsn: str = None):
         """
         Swing the heaviest of ban hammers
         """
@@ -411,21 +408,15 @@ class BanSync(commands.Cog):
             await ctx.send(_(UNWORTHY))
 
     async def targeted_global_ban(
-        self, ctx: commands.Context, user: str, rsn: str = None
+        self, ctx: commands.Context, user: Union[discord.Member, int], rsn: str = None
     ):
         """
         This respects the exclusions in config
         """
-        conv = commands.UserConverter()
         try:
-            x = await conv.convert(ctx, user)
-        except commands.BadArgument:
-            try:
-                _id = int(user)
-            except ValueError:
-                raise commands.BadArgument(_(INVALID_USER)) from None
-        else:
-            _id = x.id
+            _id: int = user.id
+        except AttributeError:
+            _id: int = user
 
         excluded: GuildSet = {
             g
