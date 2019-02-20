@@ -287,4 +287,10 @@ class AntiMentionSpam(commands.Cog):
         guild = message.guild
         if guild and (author == guild.owner or author.top_role >= guild.me.top_role):
             return True
-        return await self.bot.is_owner(message.author) or await self.bot.is_automod_immune(message)
+
+        if await self.bot.is_owner(message.author):
+            return True
+        if await self.bot.is_automod_immune(message):
+            return True
+
+        return False
