@@ -1,18 +1,24 @@
 from datetime import timedelta
+from typing import Dict, TYPE_CHECKING
 
 import discord
 from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.utils.antispam import AntiSpam
 
+if TYPE_CHECKING:
+    from redbot.core.bot import Red
+
+__all__ = ["AntiMentionSpam"]
 
 class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
     __version__ = "2.0.0"
 
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: "Red", *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bot: "Red" = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
@@ -25,19 +31,24 @@ class AntiMentionSpam(commands.Cog):
             warnmsg="",
             ban_single=False,
         )
-        self.antispam = {}
+        self.antispam: Dict[int, Dict[int, AntiSpam]] = {}
 
     @commands.guild_only()
     @commands.group(autohelp=True)
-    async def antimentionspam(self, ctx):
-        """configuration settings for anti mention spam"""
+    async def antimentionspam(self, ctx: commands.Context):
+        """
+        Configuration settings for AntiMentionSpam
+        """
         pass
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="max")
     async def set_max_mentions(self, ctx: commands.Context, number: int):
-        """sets the maximum number of mentions allowed in a message
-        a setting of 0 disables this check"""
+        """
+        Sets the maximum number of mentions allowed in a message.
+
+        A setting of 0 disables this check.
+        """
         await self.config.guild(ctx.guild).max_mentions.set(number)
         message = (
             f"Max mentions set to {number}"
@@ -54,7 +65,7 @@ class AntiMentionSpam(commands.Cog):
         """
         sets the maximum number of mentions allowed in a time period.
 
-        (0 for both to remove setting)
+        Setting both to 0 will disable this check.
         """
         await self.config.guild(ctx.guild).threshold.set(number)
         await self.config.guild(ctx.guild).interval.set(seconds)
@@ -68,7 +79,7 @@ class AntiMentionSpam(commands.Cog):
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="autobantoggle")
-    async def autobantoggle(self, ctx, enabled: bool = None):
+    async def autobantoggle(self, ctx: commands.Context, enabled: bool = None):
         """
         Toggle automatic ban for spam (default off)
         """
@@ -81,7 +92,7 @@ class AntiMentionSpam(commands.Cog):
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="warnmsg")
-    async def warnmessage(self, ctx, *, msg: str):
+    async def warnmessage(self, ctx: commands.Context, *, msg: str):
         """
         Sets the warn message. a message of "clear" turns the warn message off
         """
@@ -93,7 +104,7 @@ class AntiMentionSpam(commands.Cog):
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="singlebantoggle")
-    async def singlebantog(self, ctx, enabled: bool = None):
+    async def singlebantog(self, ctx: commands.Context, enabled: bool = None):
         """
         Sets if single message limits allow a ban
 
@@ -106,7 +117,7 @@ class AntiMentionSpam(commands.Cog):
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="mutetoggle")
-    async def mute_toggle(self, ctx, enabled: bool = None):
+    async def mute_toggle(self, ctx: commands.Context, enabled: bool = None):
         """
         Sets if a mute should be applied on exceeding limits set.
         """
@@ -116,7 +127,20 @@ class AntiMentionSpam(commands.Cog):
         await self.config.guild(ctx.guild).mute.set(enabled)
         await ctx.send(f"Mute on exceeding set limits: {enabled}")
 
-    async def process_intervals(self, message: discord.Message):
+    async def process_intervals(self, message: discord.Message) -> bool:
+        """
+
+        Processes the interval check for messages.
+
+        Parameters
+        ----------
+        message
+            A message to process
+        Returns
+        -------
+        bool
+            If action was taken on against the author of the message.
+        """
         guild = message.guild
         author = message.author
 
@@ -125,7 +149,7 @@ class AntiMentionSpam(commands.Cog):
         thresh, secs = data["threshold"], data["interval"]
 
         if not (thresh > 0 and secs > 0):
-            return
+            return False
 
         if guild.id not in self.antispam:
             self.antispam[guild.id] = {}
@@ -135,18 +159,28 @@ class AntiMentionSpam(commands.Cog):
                 [(timedelta(seconds=secs), thresh)]
             )
 
+        # noinspection PyUnusedLocal
         for _m in message.mentions:
             self.antispam[guild.id][author.id].stamp()
 
         if self.antispam[guild.id][author.id].spammy:
-            if await self.is_immune(message):
-                return
-            await self.maybe_punish(message)
-            return True
+            if not await self.is_immune(message):
+                await self.maybe_punish(message)
+                return True
+
+        return False
 
     async def maybe_punish(
         self, message: discord.Message, single_message: bool = False
     ):
+        """
+        Handles the appropriate action on the author of a message based on settings.
+
+        Parameters
+        ----------
+        message: discord.Message
+        single_message: :obj:`bool`, optional
+        """
         guild = message.guild
         target = message.author
 
@@ -186,7 +220,7 @@ class AntiMentionSpam(commands.Cog):
                     except discord.HTTPException:
                         pass
 
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: discord.Message) -> None:
         if message.author.bot or message.guild is None:
             return
 
@@ -232,9 +266,25 @@ class AntiMentionSpam(commands.Cog):
                     f"for exceeding configured mention limit of: {limit}"
                 )
 
-    async def is_immune(self, message) -> bool:
+    async def is_immune(self, message: discord.Message) -> bool:
+        """
+        Determines if a message's author is immune from actions taken by this cog
+
+        This is determined by a combination of if the bot can take action
+        on the user and if they are considered immune from automated action.
+
+        Parameters
+        ----------
+        message: discord.Message
+            The message which triggered the check
+
+        Returns
+        -------
+        bool
+            Whether the user is or is not immune from the cog
+        """
         author = message.author
         guild = message.guild
         if guild and (author == guild.owner or author.top_role >= guild.me.top_role):
-            return True  # Even if they aren't actually immune, we don't care here.
+            return True
         return await self.bot.is_owner(message.author) or await self.bot.is_automod_immune(message)
