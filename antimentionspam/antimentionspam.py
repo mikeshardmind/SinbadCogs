@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 __all__ = ["AntiMentionSpam"]
 
+
 class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
