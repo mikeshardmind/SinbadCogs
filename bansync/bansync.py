@@ -1,5 +1,3 @@
-# cog level erro handling.
-# add logging
 import asyncio
 import io
 import json
