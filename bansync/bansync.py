@@ -1,14 +1,9 @@
-# TODO:
 # cog level erro handling.
 # add logging
-# finish typehinting
-# add some docstrings.
-# I'm handling the remaining work on this --Michael
-
 import asyncio
 import io
 import json
-from typing import List, Set, TYPE_CHECKING, Union, AsyncIterator, Dict
+from typing import List, Set, TYPE_CHECKING, Union, AsyncIterator, Dict, Optional
 
 import discord
 from redbot.core import commands, checks
@@ -16,7 +11,7 @@ from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
 
-from .converters import SyndicatedConverter
+from .converters import SyndicatedConverter, ParserError
 
 if TYPE_CHECKING:
     from redbot.core.bot import Red
@@ -195,6 +190,20 @@ class BanSync(commands.Cog):
             )
 
     async def can_sync(self, guild: discord.Guild, mod: discord.User) -> bool:
+        """
+        Determines if the specified user should
+        be considered allowed to sync bans to the specified guild
+
+        Parameters
+        ----------
+        guild: discord.Guild
+        mod: discord.User
+
+        Returns
+        -------
+        bool
+            Whether the user is considered to be allowed to sync bans to the specified guild
+        """
         user_allowed = False
         user_allowed |= await self.bot.is_owner(mod)
         mod = guild.get_member(mod.id)
@@ -210,6 +219,19 @@ class BanSync(commands.Cog):
     async def ban_filter(
         self, guild: discord.Guild, mod: discord.user, target: discord.user
     ) -> bool:
+        """
+        Determines if the specified user can ban another specified user in a guild
+
+        Parameters
+        ----------
+        guild: discord.Guild
+        mod: discord.User
+        target: discord.User
+
+        Returns
+        -------
+        bool
+        """
         is_owner: bool = await self.bot.is_owner(mod)
 
         mod = guild.get_member(mod.id)
@@ -224,12 +246,34 @@ class BanSync(commands.Cog):
         if target is not None:
             can_ban &= guild.me.top_role > target.top_role or guild.me == guild.owner
             can_ban &= target != guild.owner
-            can_ban &= mod.top_role > target.top_role or mod == guild.owner or is_owner
+            if not is_owner:
+                can_ban &= mod.top_role > target.top_role or mod == guild.owner
         return can_ban
 
     async def ban_or_hackban(
-        self, guild: discord.Guild, _id: int, *, mod: discord.User, reason: str = None
+        self,
+        guild: discord.Guild,
+        _id: int,
+        *,
+        mod: discord.User,
+        reason: Optional[str] = None,
     ) -> bool:
+        """
+
+        Attempts to ban a user in a guild, supressing errors and just returning a success or fail
+
+        Parameters
+        ----------
+        guild: discord.Guild
+        _id: int
+        mod: discord.User
+        reason: :obj:`str`, optional
+
+        Returns
+        -------
+        bool
+            Whether the ban was successful
+        """
         member = guild.get_member(_id)
         reason = reason or _("Ban synchronization")
         if member is None:
@@ -244,16 +288,30 @@ class BanSync(commands.Cog):
         return True
 
     async def guild_discovery(
-        self, ctx: commands.context, picked: GuildSet
+        self, ctx: commands.Context, excluded: GuildSet
     ) -> AsyncIterator[discord.Guild]:
+        """
+        Fetches guilds which can be considered for synchronization in the current context (lazily)
+
+        Parameters
+        ----------
+        ctx: commands.Context
+        excluded: Set[discord.Guild]
+            a set of guilds to be excluded from consideration
+
+        Yields
+        -------
+        discord.Guild
+            The next guild for use
+        """
         for g in sorted(self.bot.guilds, key=lambda s: s.name):
-            if g not in picked and await self.can_sync(g, ctx.author):
+            if g not in excluded and await self.can_sync(g, ctx.author):
                 yield g
 
-    # TODO : restructure how this func works and interacts.
-    async def interactive(self, ctx: commands.context, picked: GuildSet):
+    # TODO : restructure how this func works and interacts. (Exception based control flow)
+    async def interactive(self, ctx: commands.Context, excluded: GuildSet):
         output = ""
-        guilds = [g async for g in self.guild_discovery(ctx, picked)]
+        guilds = [g async for g in self.guild_discovery(ctx, excluded)]
         if len(guilds) == 0:
             return -1
         for i, guild in enumerate(guilds, 1):
@@ -293,6 +351,21 @@ class BanSync(commands.Cog):
         dests: GuildSet,
         auto: bool = False,
     ) -> None:
+        """
+        Processes a synchronization of bans
+
+        Parameters
+        ----------
+        usr: discord.User
+            The user who authorized the synchronization
+        sources: Set[discord.Guild]
+            The guilds to sync from
+        dests: Set[discord.Guild]
+            The guilds to sync to
+        auto: bool
+            defaults as false, if provided destinations are augmented by the set of guilds which
+            are not a source.
+        """
 
         bans: Dict[int, Set[discord.User]] = {}
         banlist: Set[discord.User] = set()
@@ -371,6 +444,21 @@ class BanSync(commands.Cog):
             await self.process_sync(**query)
         await ctx.tick()
 
+    @syndicated_bansync.error
+    async def syndicated_converter_handler(self, ctx, error):
+        """
+        Parameters
+        ----------
+        ctx: commands.Context
+        error: Exception
+        """
+
+        if isinstance(error, ParserError):
+            if error.args:
+                return await ctx.send(error.args[0])
+
+        await ctx.bot.on_command_error(ctx, error, unhandled_by_cog=True)
+
     @commands.command(name="mjolnir", aliases=["globalban"])
     async def mjolnir(self, ctx, user: Union[discord.Member, int], *, rsn: str = None):
         """
@@ -386,7 +474,22 @@ class BanSync(commands.Cog):
         self, ctx: commands.Context, user: Union[discord.Member, int], rsn: str = None
     ) -> bool:
         """
-        This respects the exclusions in config
+        Bans a user everywhere the current moderator is allowed to,
+        except the exclusions in config
+
+        Parameters
+        ----------
+        ctx: commands.Context
+            context the ban was issued from.
+        user: Union[discord.Member, int]
+            the target of the ban
+        rsn: :obj:`str`, optional
+            the reason to pass to discord for the ban.
+
+        Returns
+        -------
+        bool
+            Whether the user was banned from at least 1 guild by this action.
         """
 
         _id: int = getattr(user, "id", user)
