@@ -72,7 +72,7 @@ class BanSync(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.3.3"
+    __version__ = "1.3.4"
     __flavor_text__ = "Automatic exclusions"
 
     def __init__(self, bot):
@@ -251,7 +251,7 @@ class BanSync(commands.Cog):
         if target is not None:
             can_ban &= guild.me.top_role > target.top_role or guild.me == guild.owner
             can_ban &= target != guild.owner
-            can_ban &= mod.top_role > target.top_role or mod == guild.owner or is_owner
+            can_ban &= is_owner or mod.top_role > target.top_role or mod == guild.owner
         return can_ban
 
     async def ban_or_hackban(
