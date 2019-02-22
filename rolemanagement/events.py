@@ -1,7 +1,7 @@
 import discord
 
 from .abc import MixinMeta
-from .exceptions import RoleManagementException
+from .exceptions import RoleManagementException, PermissionOrHierarchyException
 
 
 class EventMixin(MixinMeta):
@@ -70,7 +70,7 @@ class EventMixin(MixinMeta):
 
         try:
             remove = await self.is_self_assign_eligible(member, role)
-        except RoleManagementException:
+        except (RoleManagementException, PermissionOrHierarchyException):
             pass
         else:
             await self.update_roles_atomically(who=member, give=[role], remove=remove)
