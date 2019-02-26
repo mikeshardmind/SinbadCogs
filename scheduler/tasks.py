@@ -91,6 +91,7 @@ class Task:
         embed.add_field(name="Command", value=f"[p]{self.content}")
         embed.add_field(name="Channel", value=self.channel.mention)
         embed.add_field(name="Creator", value=self.author.mention)
+        embed.add_field(name="Task ID", value=self.uid)
 
         try:
             fmt_date = self.initial.strftime("%A %B %-d, %Y at %-I%p %Z")
