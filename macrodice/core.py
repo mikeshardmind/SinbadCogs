@@ -95,7 +95,7 @@ class MacroDice(commands.Cog):
                 await ctx.send(f"{ctx.author.mention}\n```\n{result}\n```")
 
     @commands.guild_only()
-    @commands.command(name="makemacro", hidden=True)
+    @commands.command(name="makemacro")
     async def mmac(self, ctx, name, *, expression):
         """
         hmmm
@@ -107,7 +107,7 @@ class MacroDice(commands.Cog):
         await ctx.tick()
 
     @commands.guild_only()
-    @commands.command(name="removemacro", hidden=True)
+    @commands.command(name="removemacro")
     async def rmmac(self, ctx, name):
         """
         hmm?
@@ -119,7 +119,7 @@ class MacroDice(commands.Cog):
         await ctx.tick()
 
     @commands.guild_only()
-    @commands.command(name="mroll", hidden=True)
+    @commands.command(name="mroll")
     async def mroll(self, ctx, name):
         """
         Rolls a macro
@@ -145,7 +145,7 @@ class MacroDice(commands.Cog):
         await self.handle_expression(ctx, expression)
 
     @commands.guild_only()
-    @commands.command(name="statset", hidden=True)
+    @commands.command(name="statset")
     async def statset(self, ctx, name, value: int):
         """
         ...

@@ -9,7 +9,7 @@ from .massmanager import MassManagementMixin
 from .events import EventMixin
 
 # from .notifications import NotificationMixin
-from .exceptions import RoleManagementException
+from .exceptions import RoleManagementException, PermissionOrHierarchyException
 
 
 class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
@@ -18,8 +18,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.11"
-    __flavor_text__ = "More filters"
+    __version__ = "3.2.12"
+    __flavor_text__ = "Even more feedback."
 
     def __init__(self, bot):
         self.bot = bot
@@ -363,6 +363,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         await self.config.role(role).self_role.set(assignable)
         await ctx.tick()
 
+    @checks.bot_has_permissions(manage_roles=True)
     @commands.guild_only()
     @commands.group(name="srole", autohelp=True)
     async def srole(self, ctx: commands.Context):
@@ -381,6 +382,10 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             eligible = await self.config.role(role).self_role()
         except RoleManagementException:
             eligible = False
+        except PermissionOrHierarchyException:
+            return await ctx.send(
+                "I cannot assign roles which I can not manage. (Discord Hierarchy)"
+            )
 
         if not eligible:
             await ctx.send(
