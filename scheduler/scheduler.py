@@ -22,7 +22,7 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.22"
+    __version__ = "1.0.23"
     __author__ = "mikeshardmind(Sinbad)"
     __flavor_text__ = "Unhidden remindme."
 
@@ -77,6 +77,12 @@ class Scheduler(commands.Cog):
 
     async def bg_loop(self):
         await self.bot.wait_until_ready()
+        await asyncio.sleep(2)
+        _guilds = [
+            g for g in self.bot.guilds if g.large and not (g.chunked or g.unavailable)
+        ]
+        await self.bot.request_offline_members(*_guilds)
+
         async with self._iter_lock:
             await self._load_tasks()
         while self is self.bot.get_cog("Scheduler"):

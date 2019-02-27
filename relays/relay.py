@@ -2,6 +2,8 @@ from typing import List
 import discord
 from redbot.core.bot import Red
 
+# TODO: redesign objects to be safer on load.
+
 
 class NwayRelay:
     def __init__(self, *, channels: List[discord.TextChannel]) -> None:
