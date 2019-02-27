@@ -55,7 +55,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.2.3"
+    __version__ = "1.2.4"
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
@@ -66,7 +66,7 @@ class Relays(commands.Cog):
         self.nways: Dict[str, NwayRelay] = {}
         self.oneways: Dict[str, OnewayRelay] = {}
         self.scrub_invites: Optional[bool] = None
-        self._load_task = self.bot.loop.create_task(self.initialize())
+        self.loaded = False
 
     async def __before_invoke(self, _ctx):
         while not self._load_task.done():
@@ -76,6 +76,8 @@ class Relays(commands.Cog):
         return await self.bot.is_owner(ctx.author)
 
     async def initialize(self) -> None:
+        await self.bot.wait_until_ready()
+        await asyncio.sleep(2)  # can confirm wait_until_ready needs an extra moment.
         nway_dict = await self.config.nways()
         self.nways = {
             k: NwayRelay.from_data(self.bot, **v) for k, v in nway_dict.items()
@@ -85,6 +87,7 @@ class Relays(commands.Cog):
             k: OnewayRelay.from_data(self.bot, **v) for k, v in onewaydict.items()
         }
         self.scrub_invites = await self.config.scrub_invites()
+        self.loaded = True
 
     async def write_data(self):
         nway_data = {k: v.to_data() for k, v in self.nways.items()}
@@ -98,8 +101,7 @@ class Relays(commands.Cog):
 
     @property
     def relay_objs(self) -> List[Union[NwayRelay, OnewayRelay]]:
-        # noinspection PyTypeChecker
-        return list(self.oneways.values()) + list(self.nways.values())
+        return list((*self.oneways.values(), *self.nways.values()))
 
     def gather_destinations(
         self, message: discord.Message
@@ -110,12 +112,13 @@ class Relays(commands.Cog):
         return unique(chans)
 
     async def on_message(self, message: discord.Message):
+        if not self.loaded:
+            await self.initialize()
+            await asyncio.sleep(2)
         if message.author == self.bot.user:
             return
         if message.type.value != 0:
             return
-        while not hasattr(self, "oneways"):
-            await asyncio.sleep(2)
         for dest in self.gather_destinations(message):
             await dest.send(
                 embed=embed_from_msg(message, filter_invites=self.scrub_invites)
