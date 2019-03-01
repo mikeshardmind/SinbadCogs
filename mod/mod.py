@@ -12,7 +12,7 @@ def attr_killer(*names):
     return actual_killer
 
 
-@attr_killer("on_member_update")
+@attr_killer("on_member_update", "names")
 class Mod(mod.Mod):
     async def get_names_and_nicks(self, user):
         """
