@@ -6,7 +6,13 @@ def attr_killer(*names):
         cls_dict = dict(cls.__dict__)
         for name in names:
             cls_dict.pop(name, None)
-        cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)
+        bases = []
+        for base in cls.__bases__:
+            if base not in (object, type):
+                bases.append(actual_killer(base))
+            else:
+                bases.append(base)
+        cls = type(cls)(cls.__name__, tuple(bases), cls_dict)
         return cls
 
     return actual_killer
