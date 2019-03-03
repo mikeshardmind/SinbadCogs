@@ -2,4 +2,6 @@ from .mod import Mod
 
 
 def setup(bot):
-    bot.add_cog(Mod(bot))
+    cog = Mod(bot)
+    bot.add_cog(cog)
+    bot.remove_listener(cog.on_member_update)
