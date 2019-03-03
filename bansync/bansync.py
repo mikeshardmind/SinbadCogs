@@ -72,7 +72,7 @@ class BanSync(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.3.4"
+    __version__ = "1.3.5"
     __flavor_text__ = "Automatic exclusions"
 
     def __init__(self, bot):
@@ -397,12 +397,19 @@ class BanSync(commands.Cog):
         await ctx.tick()
 
     @commands.command(name="mjolnir", aliases=["globalban"])
-    async def mjolnir(self, ctx, user: Union[discord.Member, int], *, rsn: str = None):
+    async def mjolnir(
+        self,
+        ctx,
+        users: commands.Greedy[Union[discord.Member, int]],
+        *,
+        rsn: str = None,
+    ):
         """
         Swing the heaviest of ban hammers
         """
-        banned = await self.targeted_global_ban(ctx, user, rsn)
-        if banned:
+        async with ctx.typing():
+            banned = [await self.targeted_global_ban(ctx, user, rsn) for user in users]
+        if any(banned):
             await ctx.message.add_reaction(BANMOJI)
         else:
             await ctx.send(_(UNWORTHY))
