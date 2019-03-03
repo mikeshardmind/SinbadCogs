@@ -9,7 +9,7 @@ from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
 
-from .converters import SyndicatedConverter, ParserError
+from .converters import SyndicatedConverter, ParserError, MemberOrID
 
 if TYPE_CHECKING:
     from redbot.core.bot import Red
@@ -458,12 +458,15 @@ class BanSync(commands.Cog):
         await ctx.bot.on_command_error(ctx, error, unhandled_by_cog=True)
 
     @commands.command(name="mjolnir", aliases=["globalban"])
-    async def mjolnir(self, ctx, user: Union[discord.Member, int], *, rsn: str = None):
+    async def mjolnir(
+        self, ctx, users: commands.Greedy[MemberOrID], *, rsn: str = None
+    ):
         """
         Swing the heaviest of ban hammers
         """
-        banned = await self.targeted_global_ban(ctx, user, rsn)
-        if banned:
+        async with ctx.typing():
+            banned = [await self.targeted_global_ban(ctx, user, rsn) for user in users]
+        if any(banned):
             await ctx.message.add_reaction("\N{HAMMER}")
         else:
             await ctx.send(_("You are not worthy"))

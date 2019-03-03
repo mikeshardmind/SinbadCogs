@@ -1,8 +1,9 @@
 import argparse
 import shlex
+import re
 from typing import Dict, Any
 
-from redbot.core.commands import Converter, Context, BadArgument
+from redbot.core.commands import Converter, Context, BadArgument, MemberConverter
 from redbot.core.i18n import Translator
 
 _ = Translator("BanSync", __file__)
@@ -10,6 +11,23 @@ _ = Translator("BanSync", __file__)
 
 class ParserError(BadArgument):
     pass
+
+
+class MemberOrID(MemberConverter):
+    async def convert(self, ctx: Context, argument: str) -> int:
+
+        try:
+            m = await super().convert(ctx, arg)
+        except Exception:
+            pass
+        else:
+            return m.id
+
+        match = self._get_id_match(argument) or re.match(r"<@!?([0-9]+)>$", argument)
+        if match:
+            return int(match.group(1))
+
+        raise BadArgument()
 
 
 class NoExitParser(argparse.ArgumentParser):

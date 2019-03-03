@@ -19,6 +19,7 @@ class EmbedMaker(commands.Cog):
     """
     Storable, recallable, embed maker
     """
+
     __version__ = "4.0.0"
 
     def __init__(self, bot):
