@@ -343,7 +343,7 @@ class RSS(commands.Cog):
                     for k, v in data.items()
                 ]
             )
-            for page in pagify(output, page_length=6000):
+            for page in pagify(output):
                 await ctx.send(
                     embed=discord.Embed(
                         description=page, color=(await ctx.embed_color())
