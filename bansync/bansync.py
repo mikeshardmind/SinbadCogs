@@ -9,7 +9,7 @@ from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
-from .converters import SyndicatedConverter
+from .converters import SyndicatedConverter, MemberOrID
 
 if TYPE_CHECKING:
     from redbot.core.bot import Red
@@ -398,11 +398,7 @@ class BanSync(commands.Cog):
 
     @commands.command(name="mjolnir", aliases=["globalban"])
     async def mjolnir(
-        self,
-        ctx,
-        users: commands.Greedy[Union[discord.Member, int]],
-        *,
-        rsn: str = None,
+        self, ctx, users: commands.Greedy[MemberOrID], *, rsn: str = None
     ):
         """
         Swing the heaviest of ban hammers
