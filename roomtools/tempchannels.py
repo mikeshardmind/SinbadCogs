@@ -116,12 +116,13 @@ class TempChannels(MixedMeta):
 
         cat_id = await self.tmpc_config.guild(ctx.guild).category()
         cat = discord.utils.get(ctx.guild.categories, id=cat_id)
+        overwrites = dict(cat.overwrites) if cat else {}
 
-        # Connect is NOT optional.
-        ow = discord.PermissionOverwrite(
-            manage_channels=True, manage_roles=True, connect=True
-        )
-        overwrites = {ctx.guild.me: ow, ctx.author: ow}
+        for target in (ctx.guild.me, ctx.author):
+            p = overwrites.get(target, None) or discord.PermissionOverwrite()
+            # Connect is NOT optional.
+            p.update(manage_channel=True, manage_roles=True, connect=True)
+            overwrites[target] = p
 
         try:
             created = await ctx.guild.create_voice_channel(
