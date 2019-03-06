@@ -195,6 +195,7 @@ class MassManagementMixin(MixinMeta):
 
     # end dyno transitional stuff
 
+    # TODO: restructure this for less iterations? (--Liz)
     def search_filter(self, members: set, query: dict) -> set:
         """
         Reusable
@@ -275,6 +276,19 @@ class MassManagementMixin(MixinMeta):
                     m for m in members if lower_bound < len(m.roles) < upper_bound
                 }
 
+            if query["above"] or query["below"]:
+                lb, ub = query["above"], query["below"]
+
+                def in_range(m: discord.Member) -> bool:
+                    if lb and ub:
+                        return lb < m.top_role < ub.toprole
+                    elif lb:
+                        return lb < m.top_role
+                    else:
+                        return m.top_role < ub
+
+                members = {m for m in members if in_range(m)}
+
         return members
 
     @mrole.command(name="user")
@@ -332,7 +346,10 @@ class MassManagementMixin(MixinMeta):
         --has-perm permissions
         --any-perm permissions
         --not-perm permissions
-        
+
+        --above role
+        --below role
+
         --only-humans
         --only-bots
         --everyone
@@ -435,7 +452,10 @@ class MassManagementMixin(MixinMeta):
         --has-perm permissions
         --any-perm permissions
         --not-perm permissions
-        
+
+        --above role
+        --below role
+
         --only-humans
         --only-bots
         --everyone

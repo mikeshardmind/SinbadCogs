@@ -69,6 +69,8 @@ class ComplexActionConverter(RoleConverter):
     --has-perm permissions
     --any-perm permissions
     --not-perm permissions
+    --above role
+    --below role
     --add roles
     --remove roles
     --only-humans
@@ -94,8 +96,10 @@ class ComplexActionConverter(RoleConverter):
         parser.add_argument("--add", nargs="*", dest="add", default=[])
         parser.add_argument("--remove", nargs="*", dest="remove", default=[])
         parser.add_argument("--has-exactly-nroles", dest="quantity", type=int)
-        parser.add_argument("--has-more-than-nroles", dest="gt", type=int)
-        parser.add_argument("--has-less-than-nroles", dest="lt", type=int)
+        parser.add_argument("--has-more-than-nroles", dest="gt", type=int, default=None)
+        parser.add_argument("--has-less-than-nroles", dest="lt", type=int, default=None)
+        parser.add_argument("--above", dest="above", type=str, default=None)
+        parser.add_argument("--above", dest="below", type=str, default=None)
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
             "--only-humans", action="store_true", default=False, dest="humans"
@@ -130,6 +134,8 @@ class ComplexActionConverter(RoleConverter):
                 bool(vals["quantity"] is not None),
                 bool(vals["gt"] is not None),
                 bool(vals["lt"] is not None),
+                vals["above"],
+                vals["below"],
             )
         ):
             raise BadArgument("You need to provide at least 1 search criterion")
@@ -139,6 +145,11 @@ class ComplexActionConverter(RoleConverter):
                 await super(ComplexActionConverter, self).convert(ctx, r)
                 for r in vals[attr]
             ]
+
+        for attr in ("below", "above"):
+            vals[attr] = await super(ComplexActionConverter, self).convert(
+                ctx, vals[attr]
+            )
 
         for attr in ("hasperm", "anyperm", "notperm"):
 
@@ -163,6 +174,8 @@ class ComplexSearchConverter(RoleConverter):
     --has-less-than-nroles
     --only-humans
     --only-bots
+    --above role
+    --below role
     --has-perm permissions
     --any-perm permissions
     --not-perm permissions
@@ -190,6 +203,8 @@ class ComplexSearchConverter(RoleConverter):
         )
         parser.add_argument("--has-more-than-nroles", dest="gt", type=int, default=None)
         parser.add_argument("--has-less-than-nroles", dest="lt", type=int, default=None)
+        parser.add_argument("--above", dest="above", type=str, default=None)
+        parser.add_argument("--above", dest="below", type=str, default=None)
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
             "--only-humans", action="store_true", default=False, dest="humans"
@@ -220,6 +235,8 @@ class ComplexSearchConverter(RoleConverter):
                 bool(vals["quantity"] is not None),
                 bool(vals["gt"] is not None),
                 bool(vals["lt"] is not None),
+                vals["above"],
+                vals["below"],
             )
         ):
             raise BadArgument("You need to provide at least 1 search criterion")
@@ -229,6 +246,11 @@ class ComplexSearchConverter(RoleConverter):
                 await super(ComplexSearchConverter, self).convert(ctx, r)
                 for r in vals[attr]
             ]
+
+        for attr in ("below", "above"):
+            vals[attr] = await super(ComplexActionConverter, self).convert(
+                ctx, vals[attr]
+            )
 
         for attr in ("hasperm", "anyperm", "notperm"):
 
