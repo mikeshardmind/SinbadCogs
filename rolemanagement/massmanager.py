@@ -1,6 +1,7 @@
 import csv
 import io
 import logging
+from typing import Optional
 
 import discord
 from redbot.core import checks, commands
@@ -30,100 +31,93 @@ class MassManagementMixin(MixinMeta):
         """
         pass
 
-
-    # TODO: restructure this for less iterations? (--Liz)
-    def search_filter(self, members: set, query: dict) -> set:
+    @staticmethod
+    def search_filter(members: set, query: dict) -> set:
         """
         Reusable
         """
 
-        if not query["everyone"]:
+        if query["everyone"]:
+            return members
 
-            if query["bots"]:
-                members = {m for m in members if m.bot}
-            elif query["humans"]:
-                members = {m for m in members if not m.bot}
+        all_set: Optional[set] = None
+        if query["all"]:
+            first, *rest = query["all"]
+            all_set = set(first.members)
+            for other_role in rest:
+                all_set &= set(other_role.members)
 
-            for role in query["all"]:
-                members &= set(role.members)
-            for role in query["none"]:
-                members -= set(role.members)
+        none_set: Optional[set] = None
+        if query["None"]:
+            first, *rest = query["all"]
+            none_set = set(first.members)
+            for other_role in rest:
+                none_set &= set(other_role.members)
 
-            if query["any"]:
-                any_union: set = set()
-                for role in query["any"]:
-                    any_union |= set(role.members)
-                members &= any_union
+        any_set: Optional[set] = None
+        if query["any"]:
+            first, *rest = query["all"]
+            any_set = set(first.members)
+            for other_role in rest:
+                any_set += set(other_role.members)
 
-            if query["hasperm"]:
-                perms = discord.Permissions()
-                perms.update(**{x: True for x in query["hasperm"]})
-                members = {m for m in members if m.guild_permissions >= perms}
+        minimum_perms: Optional[discord.Permissions] = None
+        if query["hasperm"]:
+            minimum_perms = discord.Permissions()
+            minimum_perms.update(**{x: True for x in query["hasperm"]})
 
-            if query["anyperm"]:
+        def mfilter(m: discord.Member) -> bool:
+            if query["bots"] and not m.bot:
+                return False
+            elif query["humans"] and m.bot:
+                return False
 
-                def has_any(mem):
-                    for perm, value in iter(mem.guild_permissions):
-                        if value and perm in query["anyperm"]:
-                            return True
-                    return False
+            if query["any"] and m not in any_set:
+                return False
 
-                members = {m for m in members if has_any(m)}
+            if query["all"] and m not in all_set:
+                return False
 
-            if query["notperm"]:
+            if query["none"] and m in none_set:
+                return False
 
-                def has_none(mem):
-                    for perm, value in iter(mem.guild_permissions):
-                        if value and perm in query["notperm"]:
-                            return False
-                    return True
+            if query["hasperm"] and m.guild_permissions < minimum_perms:
+                return False
 
-                members = {m for m in members if has_none(m)}
+            if query["anyperm"] and not any(
+                bool(value and perm in query["anyperm"])
+                for perm, value in iter(m.guild_permissions)
+            ):
+                return False
 
-            if query["noroles"]:
-                # everyone is a role.
-                members = {m for m in members if len(m.roles) == 1}
+            if query["notperm"] and any(
+                bool(value and perm in query["notperm"])
+                for perm, value in iter(m.guild_permissions)
+            ):
+                return False
 
-            if query["quantity"] is not None:  # 0 is a valid option for this
-                quantity = query["quantity"] + 1
-                # everyone is a role,
-                # but I'm making the decision it isn't useful
-                # to users to have to remember that it is -- Liz
+            if query["norole"] and len(m.roles) == 1:
+                return False
 
-                members = {m for m in members if len(m.roles) == quantity}
+            # 0 is a valid option for these, everyone role not counted
+            if query["quantity"] is not None and len(m.roles) - 1 != query["quantity"]:
+                return False
 
-            if query["lt"] is not None or query["gt"] is not None:
+            if query["lt"] is not None and len(m.roles) - 1 >= query["lt"]:
+                return False
 
-                if query["gt"] is not None:
-                    lower_bound = query["gt"] + 1
-                else:
-                    lower_bound = 0
+            if query["gt"] is not None and len(m.roles) - 1 <= query["gt"]:
+                return False
 
-                if query["lt"] is not None:
-                    upper_bound = query["lt"] + 1
-                else:
-                    upper_bound = 1000
-                    # I don't think discord will ever increase the maximum roles per server
-                    # The current amount is 255
-                    # so this should cover the unlikely increase to 511 but not to 1023
-                    # --Liz
+            if query["above"] and m.top_role <= query["above"]:
+                return False
 
-                members = {
-                    m for m in members if lower_bound < len(m.roles) < upper_bound
-                }
+            if query["below"] and m.top_role >= query["below"]:
+                return False
 
-            if query["above"] or query["below"]:
-                lb, ub = query["above"], query["below"]
+            return True
 
-                def in_range(m: discord.Member) -> bool:
-                    if lb and ub:
-                        return lb < m.top_role < ub.toprole
-                    elif lb:
-                        return lb < m.top_role
-                    else:
-                        return m.top_role < ub
-
-                members = {m for m in members if in_range(m)}
+        members = {m for m in members if mfilter(m)}
 
         return members
 
