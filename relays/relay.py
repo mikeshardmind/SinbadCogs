@@ -2,47 +2,67 @@ from typing import List
 import discord
 from redbot.core.bot import Red
 
-# TODO: redesign objects to be safer on load.
-
 
 class NwayRelay:
-    def __init__(self, *, channels: List[discord.TextChannel]) -> None:
-        self.channels: List[discord.TextChannel] = channels
+    def __init__(self, *, bot: Red, channels: List[int]) -> None:
+        self.channel_ids: List[discord.TextChannel] = channels
+        self.bot = bot
+
+    @property
+    def channels(self) -> List[discord.TextChannel]:
+        ret: List[discord.TextChannel] = []
+        for idx in self.channel_ids:
+            c = self.bot.get_channel(idx)
+            if c:
+                ret.append(c)
+        return ret
 
     def get_destinations(self, message: discord.Message) -> List[discord.TextChannel]:
-        if message.channel not in self.channels:
+        if message.channel.id not in self.channels:
             return []
-        return [c for c in self.channels if c != message.channel]
-
-    @classmethod
-    def from_data(cls, bot: Red, channels: List[int]):
-        channel_objs = [c for c in bot.get_all_channels() if c.id in channels]
-        return cls(channels=channel_objs)
+        ret: List[discord.TextChannel] = []
+        for idx in self.channel_ids:
+            if idx == message.channel.id:
+                continue
+            c = self.bot.get_channel(idx)
+            if c:
+                ret.append(c)
+        return ret
 
     def to_data(self):
         return {"channels": [c.id for c in self.channels]}
 
 
 class OnewayRelay:
-    def __init__(
-        self, *, source: discord.TextChannel, destinations: List[discord.TextChannel]
-    ) -> None:
-        self.source: discord.TextChannel = source
-        self.destinations: List[discord.TextChannel] = destinations
+    def __init__(self, *, bot: Red, source: int, destinations: List[int]) -> None:
+        self.source_id: int = source
+        self.destination_ids: List[int] = destinations
+        self.bot: Red = bot
+
+    @property
+    def source(self) -> discord.TextChannel:
+        return self.bot.get_channel(self.source_id)
+
+    @property
+    def destinations(self) -> List[discord.TextChannel]:
+        ret: List[discord.TextChannel] = []
+        for idx in self.destination_ids:
+            c = self.bot.get_channel(idx)
+            if c:
+                ret.append(c)
+        return ret
 
     def get_destinations(self, message: discord.Message) -> List[discord.TextChannel]:
-        if message.channel != self.source:
+        if message.channel.id != self.source_id:
             return []
-        return [d for d in self.destinations if d != message.channel]
-
-    @classmethod
-    def from_data(cls, bot: Red, *, source: int, destinations: List[int]):
-        source_obj = discord.utils.get(bot.get_all_channels(), id=source)
-        destination_objs = [c for c in bot.get_all_channels() if c.id in destinations]
-        return cls(source=source_obj, destinations=destination_objs)
+        ret: List[discord.TextChannel] = []
+        for idx in self.destination_ids:
+            if idx == message.channel.id:
+                continue
+            c = self.bot.get_channel(idx)
+            if c:
+                ret.append(c)
+        return ret
 
     def to_data(self):
-        return {
-            "source": self.source.id,
-            "destinations": [c.id for c in self.destinations],
-        }
+        return {"source": self.source.id, "destinations": self.destination_ids}
