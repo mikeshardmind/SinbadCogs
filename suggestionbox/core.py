@@ -26,7 +26,9 @@ class SuggestionBox(commands.Cog):
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_global(boxes=[], reaction="off", forms={})  # for bot suggestions # TODO
+        self.config.register_global(
+            boxes=[], reaction="off", forms={}
+        )  # for bot suggestions # TODO
         self.config.register_guild(boxes=[], reaction="off", forms={})
         self.config.register_custom("SUGGESTION", data={})  # raw access w/ custom...
         # forms not implemented here !! # TODO
@@ -170,4 +172,4 @@ class SuggestionBox(commands.Cog):
             await msg.add_reaction("\N{THUMBS DOWN SIGN}")
 
         if reaction_setting == "off":
-            return        
+            return
