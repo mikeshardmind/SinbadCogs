@@ -49,14 +49,14 @@ class MassManagementMixin(MixinMeta):
 
         none_set: Optional[set] = None
         if query["none"]:
-            first, *rest = query["all"]
+            first, *rest = query["none"]
             none_set = set(first.members)
             for other_role in rest:
                 none_set &= set(other_role.members)
 
         any_set: Optional[set] = None
         if query["any"]:
-            first, *rest = query["all"]
+            first, *rest = query["any"]
             any_set = set(first.members)
             for other_role in rest:
                 any_set += set(other_role.members)
