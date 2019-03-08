@@ -1,5 +1,5 @@
-from .polling import Polling
+from . import polling
 
 
 def setup(bot):
-    bot.add_cog(Polling())
+    bot.add_cog(polling.Polling())

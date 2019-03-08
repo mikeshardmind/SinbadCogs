@@ -1,8 +1,16 @@
-import shlex
 import argparse
+import shlex
 import re
+from typing import Dict, Any
 
 from redbot.core.commands import Converter, Context, BadArgument, MemberConverter
+from redbot.core.i18n import Translator
+
+_ = Translator("BanSync", __file__)
+
+
+class ParserError(Exception):
+    pass
 
 
 class MemberOrID(MemberConverter):
@@ -23,13 +31,19 @@ class MemberOrID(MemberConverter):
 
 
 class NoExitParser(argparse.ArgumentParser):
+    """By default, an error on this calls sys.exit"""
+
     def error(self, message):
-        raise BadArgument()
+        # Specifically not a parser error, which we have custom handling for.
+        raise BadArgument() from None
 
 
 class SyndicatedConverter(Converter):
     """
-    Handler for this
+    Parser based converter.
+
+    Takes sources, and either
+        destinations, a flag to automatically determine destinations, or both
     """
 
     async def convert(self, ctx: Context, argument: str) -> dict:
@@ -42,13 +56,13 @@ class SyndicatedConverter(Converter):
         )
 
         vals = parser.parse_args(shlex.split(argument))
-        ret = {}
+        ret: Dict[str, Any] = {}
 
         guilds = set(ctx.bot.guilds)
 
         ret["sources"] = set(filter(lambda g: str(g.id) in vals.sources, guilds))
         if not ret["sources"]:
-            raise BadArgument("I need at least 1 source.")
+            raise ParserError(_("I need at least 1 source.")) from None
 
         if vals.auto:
             ret["dests"] = guilds - ret["sources"]
@@ -60,8 +74,12 @@ class SyndicatedConverter(Converter):
                 if to_comp in vals.dests and to_comp not in ret["sources"]:
                     ret["dests"].add(guild)
         else:
-            raise BadArgument(
-                "I need either at least one destination, or to be told to try everywhere not a source."
-            )
+            raise ParserError(
+                _(
+                    "I need either at least one destination, "
+                    " to be told to automatically determine destinations, "
+                    "or a combination of both to add extra destinations beyond the automatic."
+                )
+            ) from None
         ret["usr"] = ctx.author
         return ret

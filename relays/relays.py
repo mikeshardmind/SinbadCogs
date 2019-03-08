@@ -12,40 +12,7 @@ from redbot.core.utils.mod import mass_purge, slow_deletion
 from .relay import NwayRelay, OnewayRelay
 from .helpers import unique, embed_from_msg, txt_channel_finder
 
-T_ = Translator("Relays", __file__)
-_ = lambda s: s
-
-NAME_EXISTS = _("A relay of that name already exists.")
-
-MOAR_CHANNELS = _("You didn't give me enough channels.")
-
-UNFOUND = _("I could not find a channel for the following inputs\n")
-
-MULTIFOUND = _(
-    "The following inputs could not be matched safely, "
-    "please try again using their ID or mention\n"
-)
-
-NO_LOOPING = _("I won't set up a relay which would " "have a channel send to itself.")
-
-NO_SUCH_RELAY = _("No relay by that name")
-
-INTERACTIVE_PROMPT_HEADER = _("Please select a relay by number, " "or '-1' to quit")
-
-INVALID_CHOICE = _("That wasn't a valid choice")
-
-TIMEOUT = _("You took too long, try again later.")
-
-ONE_WAY_OUTPUT_TEMPLATE = [
-    _("Relay type: one way"),
-    _("Source (Channel | Server):"),
-    _("Destination (Channel | Server):"),
-    _("Destinations (Channel | Server):"),
-]
-
-NWAY_OUTPUT_TEMPLATE = [_("Relay type: multiway"), _("Channels Channel | Guild): ")]
-
-_ = T_
+_ = Translator("Relays", __file__)
 
 
 @cog_i18n(_)
@@ -55,7 +22,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.2.4"
+    __version__ = "2.0.0"
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
@@ -70,21 +37,18 @@ class Relays(commands.Cog):
 
     async def __before_invoke(self, _ctx):
         while not self._load_task.done():
-            await asyncio.sleep(2)
+            await asyncio.sleep(0.2)
 
     async def __local_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
 
     async def initialize(self) -> None:
         await self.bot.wait_until_ready()
-        await asyncio.sleep(2)  # can confirm wait_until_ready needs an extra moment.
         nway_dict = await self.config.nways()
-        self.nways = {
-            k: NwayRelay.from_data(self.bot, **v) for k, v in nway_dict.items()
-        }
+        self.nways = {k: NwayRelay(bot=self.bot, **v) for k, v in nway_dict.items()}
         onewaydict = await self.config.one_ways()
         self.oneways = {
-            k: OnewayRelay.from_data(self.bot, **v) for k, v in onewaydict.items()
+            k: OnewayRelay(bot=self.bot, **v) for k, v in onewaydict.items()
         }
         self.scrub_invites = await self.config.scrub_invites()
         self.loaded = True
@@ -114,7 +78,6 @@ class Relays(commands.Cog):
     async def on_message(self, message: discord.Message):
         if not self.loaded:
             await self.initialize()
-            await asyncio.sleep(2)
         if message.author == self.bot.user:
             return
         if message.type.value != 0:
@@ -143,12 +106,15 @@ class Relays(commands.Cog):
         not_founds = [k for k, v in validation.items() if v is None]
         multi_match = [k for k, v in validation.items() if v is False]
         if not_founds:
-            error_str += UNFOUND
+            error_str += _("I could not find a channel for the following inputs\n")
             error_str += "\n".join(not_founds)
             if multi_match:
                 error_str += "\n\n"
         if multi_match:
-            error_str += MULTIFOUND
+            error_str += _(
+                "The following inputs could not be matched safely, "
+                "please try again using their ID or mention\n"
+            )
             error_str += "\n".join(multi_match)
         for page in pagify(error_str):
             await ctx.send(box(page))
@@ -160,7 +126,7 @@ class Relays(commands.Cog):
             return -1
         for i, name in enumerate(names, 1):
             output += "{}: {}\n".format(i, name)
-        output += INTERACTIVE_PROMPT_HEADER
+        output += _("Please select a relay by number, " "or '-1' to quit")
         msgs_to_del = []
         for page in pagify(output, delims=["\n"]):
             msgs_to_del.append(await ctx.send(box(page)))
@@ -171,7 +137,7 @@ class Relays(commands.Cog):
         try:
             message = await self.bot.wait_for("message", check=pred, timeout=60)
         except asyncio.TimeoutError:
-            await ctx.send(TIMEOUT)
+            await ctx.send(_("You took too long, try again later."))
             ret = None
         else:
             try:
@@ -183,7 +149,7 @@ class Relays(commands.Cog):
                 else:
                     name = names[message - 1]
             except (ValueError, IndexError):
-                await ctx.send(INVALID_CHOICE)
+                await ctx.send(_("That wasn't a valid choice"))
                 ret = None
             else:
                 ret = name
@@ -203,23 +169,17 @@ class Relays(commands.Cog):
             quanitity_conditional = (
                 "{template[2]}" if len(relay.destinations) == 1 else "{template[3]}\n"
             )
-            msg = "\n".join(
-                [
-                    "{template[0]}",
-                    "{template[1]} {source.name} | {source.guild.name}",
-                    quanitity_conditional,
-                ]
-            ).format(source=relay.source, template=ONE_WAY_OUTPUT_TEMPLATE)
-            msg += "\n".join(
-                "{x.name} | {x.guild.name}".format(x=x) for x in relay.destinations
-            )
+            msg = _(
+                "Relay type: one way\n"
+                "Source (Channel | Server): {source.name} | {source.guild.name}\n"
+                "Destinations (Channel | Server):\n"
+            ).format(source=relay.source)
+            msg += "\n".join(f"{x.name} | {x.guild.name}" for x in relay.destinations)
 
         if name in self.nways:
             nrelay = self.nways[name]
-            msg = "\n".join(NWAY_OUTPUT_TEMPLATE) + "\n"
-            msg += "\n".join(
-                "{x.name} | {x.guild.name}".format(x=x) for x in nrelay.channels
-            )
+            msg = _("Relay type: multiway\nChannels Channel | Guild):\n")
+            msg += "\n".join(f"{x.name} | {x.guild.name}" for x in nrelay.channels)
 
         return msg
 
@@ -255,13 +215,15 @@ class Relays(commands.Cog):
         """
 
         if name in self.relay_names:
-            return await ctx.send(NAME_EXISTS)
+            return await ctx.send(_("A relay of that name already exists."))
 
         if len(channels) < 2:
-            return await ctx.send(MOAR_CHANNELS)
+            return await ctx.send(_("You didn't give me enough channels."))
 
         if len(channels) != len(unique(channels)):
-            return await ctx.send(NO_LOOPING)
+            return await ctx.send(
+                _("I won't set up a relay which would have a channel send to itself.")
+            )
 
         validation = self.validate_inputs(*channels)
         if not all(validation.values()):
@@ -280,13 +242,15 @@ class Relays(commands.Cog):
         """
 
         if name in self.relay_names:
-            return await ctx.send(NAME_EXISTS)
+            return await ctx.send(_("A relay of that name already exists."))
 
         if len(destinations) < 1:
-            return await ctx.send(MOAR_CHANNELS)
+            return await ctx.send(_("You didn't give me enough channels."))
 
         if source in destinations or len(unique(destinations)) != len(destinations):
-            return await ctx.send(NO_LOOPING)
+            return await ctx.send(
+                _("I won't set up a relay which would have a channel send to itself.")
+            )
 
         validation = self.validate_inputs(source, *destinations)
         if not all(validation.values()):
@@ -312,7 +276,7 @@ class Relays(commands.Cog):
                 return
 
         if name not in self.relay_names:
-            return await ctx.send(NO_SUCH_RELAY)
+            return await ctx.send(_("No relay by that name"))
 
         msg = self.get_relay_info(name)
         for page in pagify(msg):
@@ -332,7 +296,7 @@ class Relays(commands.Cog):
                 return
 
         if name not in self.relay_names:
-            return await ctx.send(NO_SUCH_RELAY)
+            return await ctx.send(_("No relay by that name"))
 
         self.nways.pop(name, None)
         self.oneways.pop(name, None)

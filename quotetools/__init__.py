@@ -1,5 +1,5 @@
-from .quotetools import QuoteTools
+from . import quotetools
 
 
 def setup(bot):
-    bot.add_cog(QuoteTools(bot))
+    bot.add_cog(quotetools.QuoteTools(bot))

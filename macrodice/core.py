@@ -1,11 +1,9 @@
-from typing import Union, no_type_check
 from random import randint
+from typing import Union, no_type_check
 
 import dice
-
 from redbot.core import commands
 from redbot.core.config import Config
-
 
 DIE_EMOJI = "\N{GAME DIE}"
 
@@ -16,6 +14,8 @@ class MacroDice(commands.Cog):
     """
     Dice Macros
     """
+
+    __version__ = "1.0.0"
 
     def __init__(self, bot):
         self.bot = bot

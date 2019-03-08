@@ -1,14 +1,15 @@
-import discord
-import logging
 import io
+import logging
 
+import discord
 from redbot.core import Config
-from redbot.core import commands
 from redbot.core import checks
+from redbot.core import commands
 from redbot.core.utils.chat_formatting import pagify
+
 from .serialize import deserialize_embed, serialize_embed
-from .yaml_parse import embed_from_userstr
 from .utils import parse_time
+from .yaml_parse import embed_from_userstr
 
 log = logging.getLogger("redbot.sinbadcogs.embedmaker")
 
@@ -19,9 +20,7 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __author__ = "mikeshardmind"
-    __version__ = "3.0.13"
-    __flavor_text__ = "Allow yaml file uploads"
+    __version__ = "4.0.0"
 
     def __init__(self, bot):
         self.bot = bot

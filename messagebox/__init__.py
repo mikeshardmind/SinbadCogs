@@ -1,1 +1,3 @@
-from .msgbox import setup  # NOQA F401
+from . import msgbox
+
+setup = msgbox.setup

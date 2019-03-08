@@ -9,27 +9,6 @@ class NoExitParser(argparse.ArgumentParser):
         raise BadArgument()
 
 
-class DynoSyntaxConverter(RoleConverter):
-    def __init__(self):
-        super().__init__()
-
-    async def convert(self, ctx: Context, argument: str):
-        args = [c.strip() for c in argument.split(",")]
-        ret: dict = {"+": [], "-": []}
-
-        for arg in args:
-            ret[arg[0]].append(
-                await super(DynoSyntaxConverter, self).convert(ctx, arg[1:])
-            )
-
-        if not (ret["+"] or ret["-"]):
-            raise BadArgument("This requires at least one role operation.")
-
-        if not set(ret["+"]).isdisjoint(ret["-"]):
-            raise BadArgument("That's not a valid search.")
-        return ret
-
-
 class RoleSyntaxConverter(RoleConverter):
     def __init__(self):
         super().__init__()

@@ -1,10 +1,9 @@
 import logging
-import discord
 
+import discord
+from redbot.core import Config
 from redbot.core import commands, checks
 from redbot.core.i18n import Translator, cog_i18n
-from redbot.core import Config
-from redbot.core import __version__ as redversion
 from redbot.core.utils.chat_formatting import box, pagify
 
 log = logging.getLogger("red.guildblacklist")
@@ -25,9 +24,7 @@ class GuildBlacklist(commands.Cog):
     the server's ID, or the serverowner's ID
     """
 
-    __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.5"
-    __flavor_text__ = "Post launch cleanup."
+    __version__ = "2.0.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -49,19 +46,6 @@ class GuildBlacklist(commands.Cog):
         settings for guildblacklisting
         """
         pass
-
-    @gbl.command(name="debuginfo", hidden=True)
-    async def dbg_info(self, ctx: commands.Context):
-        """
-        debug info
-        """
-        ret = (
-            "Author: {}".format(self.__author__)
-            + "\nVersion: {}".format(self.__version__)
-            + "\nd.py Version {}.{}.{}".format(*discord.version_info)
-            + "\nred version {}".format(redversion)
-        )
-        await ctx.send(box(ret))
 
     @gbl.command(name="add")
     async def gbl_add(self, ctx: commands.Context, *ids: int):

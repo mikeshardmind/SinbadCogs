@@ -1,1 +1,3 @@
-from .core import setup  # NOQA F401
+from . import core
+
+setup = core.setup

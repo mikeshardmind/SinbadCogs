@@ -1,8 +1,7 @@
 pytz
 python-dateutil
 asteval
-black==18.9b0
-yarl==0.18
+black
 red-discordbot
 dice
 numpy
