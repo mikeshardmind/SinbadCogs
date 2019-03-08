@@ -9,7 +9,7 @@ from redbot.core.i18n import Translator
 _ = Translator("BanSync", __file__)
 
 
-class ParserError(BadArgument):
+class ParserError(Exception):
     pass
 
 

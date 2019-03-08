@@ -455,7 +455,11 @@ class BanSync(commands.Cog):
             if error.args:
                 return await ctx.send(error.args[0])
 
-        await ctx.bot.on_command_error(ctx, error, unhandled_by_cog=True)
+        # TODO: Remove this try/except at 3.1
+        try:
+            await ctx.bot.on_command_error(ctx, error, unhandled_by_cog=True)
+        except TypeError:
+            await ctx.bot.on_command_error(ctx, error)
 
     @commands.command(name="mjolnir", aliases=["globalban"])
     async def mjolnir(
