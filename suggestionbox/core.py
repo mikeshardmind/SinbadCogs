@@ -26,8 +26,8 @@ class SuggestionBox(commands.Cog):
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_global(boxes=[], forms={})  # for bot suggestions # TODO
-        self.config.register_guild(boxes=[], forms={})
+        self.config.register_global(boxes=[], reaction="off", forms={})  # for bot suggestions # TODO
+        self.config.register_guild(boxes=[], reaction="off", forms={})
         self.config.register_custom("SUGGESTION", data={})  # raw access w/ custom...
         # forms not implemented here !! # TODO
         self.config.register_member(blocked=False)
@@ -67,6 +67,21 @@ class SuggestionBox(commands.Cog):
 
         await ctx.tick()
 
+    @sset.command(name="reaction")
+    async def sset_reaction(self, ctx, option):
+        """
+        sets reaction on suggestionbox \n\n
+        off = Don't use reactions
+        on = Use reactions
+        """
+        reaction = self.config.guild(ctx.guild).reaction()
+
+        if option in ["off", "on"]:
+            await self.config.guild(ctx.guild).reaction.set(option)
+            await ctx.tick()
+        else:
+            await ctx.send(_("You have not selected one of the options."))
+
     @has_active_box()
     @commands.guild_only()  # TODO # Change this with additional logic.
     @commands.command()
@@ -78,7 +93,9 @@ class SuggestionBox(commands.Cog):
         suggestion: str = "",
     ):
         """
-        Suggest something.
+        Suggest something. \n\n
+        Optional :
+        Channel : Mention channel to specify which channel to suggest to
         """
 
         if ctx.guild not in self.antispam:
@@ -145,3 +162,12 @@ class SuggestionBox(commands.Cog):
                 await ctx.message.delete()
             except discord.HTTPException:
                 pass
+
+        reaction_setting = await self.config.guild(ctx.guild).reaction()
+
+        if reaction_setting == "on":
+            await msg.add_reaction("\N{THUMBS UP SIGN}")
+            await msg.add_reaction("\N{THUMBS DOWN SIGN}")
+
+        if reaction_setting == "off":
+            return        
