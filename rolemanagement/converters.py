@@ -227,7 +227,7 @@ class ComplexSearchConverter(RoleConverter):
             ]
 
         for attr in ("below", "above"):
-            vals[attr] = await super(ComplexActionConverter, self).convert(
+            vals[attr] = await super(ComplexSearchConverter, self).convert(
                 ctx, vals[attr]
             )
 
