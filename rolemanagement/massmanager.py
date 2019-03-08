@@ -96,7 +96,7 @@ class MassManagementMixin(MixinMeta):
             ):
                 return False
 
-            if query["norole"] and len(m.roles) == 1:
+            if query["noroles"] and len(m.roles) == 1:
                 return False
 
             # 0 is a valid option for these, everyone role not counted
