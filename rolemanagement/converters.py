@@ -126,6 +126,8 @@ class ComplexActionConverter(RoleConverter):
             ]
 
         for attr in ("below", "above"):
+            if vals[attr] is None:
+                continue
             vals[attr] = await super(ComplexActionConverter, self).convert(
                 ctx, vals[attr]
             )
@@ -227,6 +229,8 @@ class ComplexSearchConverter(RoleConverter):
             ]
 
         for attr in ("below", "above"):
+            if vals[attr] is None:
+                continue
             vals[attr] = await super(ComplexSearchConverter, self).convert(
                 ctx, vals[attr]
             )
