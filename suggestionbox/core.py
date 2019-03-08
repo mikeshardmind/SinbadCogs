@@ -17,19 +17,28 @@ class SuggestionBox(commands.Cog):
     A configureable suggestion box cog
     """
 
-    __author__ = "mikeshardmind"
-    __version__ = "1.0.3b"
-    __flavor_text__ = "V2 featues version, more soon."
+    __version__ = "1.0.4"
 
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_global(boxes=[], forms={})  # for bot suggestions # TODO
-        self.config.register_guild(boxes=[], forms={})
-        self.config.register_custom("SUGGESTION", data={})  # raw access w/ custom...
-        # forms not implemented here !! # TODO
+        self.config.register_guild(
+            boxes=[],
+            add_reactions=False,
+            reactions=["\N{THUMBS UP SIGN}", "\N{THUMBS DOWN SIGN}"],
+            forms={},
+        )
+        # for bot suggestions # TODO
+        self.config.register_global(
+            boxes=[],
+            add_reactions=False,
+            reactions=["\N{THUMBS UP SIGN}", "\N{THUMBS DOWN SIGN}"],
+            forms={},
+        )
+        # raw access w/ customforms not implemented here !! # TODO
+        self.config.register_custom("SUGGESTION", data={})
         self.config.register_member(blocked=False)
         self.config.register_user(blocked=False)
         self.antispam = {}
@@ -67,6 +76,40 @@ class SuggestionBox(commands.Cog):
 
         await ctx.tick()
 
+    @sset.command(name="addreactions")
+    async def sset_adds_reactions(self, ctx, option: bool = None):
+        """
+        sets whether to add reactions to each suggestion
+
+        displays current setting without a provided option.
+
+        off = Don't use reactions
+        on = Use reactions
+        """
+        if option is None:
+            current = await self.config.guild(ctx.guild).add_reactions()
+            if current:
+                return await ctx.send(
+                    _(
+                        "I am adding reactions to suggestions."
+                        "\nUse {command} for more information"
+                    ).format(
+                        command=f"`{ctx.clean_prefix}help suggestionset addreactions`"
+                    )
+                )
+            else:
+                return await ctx.send(
+                    _(
+                        "I am not adding reactions to suggestions."
+                        "\nUse {command} for more information"
+                    ).format(
+                        command=f"`{ctx.clean_prefix}help suggestionset addreactions`"
+                    )
+                )
+
+        await self.config.guild(ctx.guild).add_reactions.set(option)
+        await ctx.tick()
+
     @has_active_box()
     @commands.guild_only()  # TODO # Change this with additional logic.
     @commands.command()
@@ -79,6 +122,9 @@ class SuggestionBox(commands.Cog):
     ):
         """
         Suggest something.
+
+        Options
+        channel : Mention channel to specify which channel to suggest to
         """
 
         if ctx.guild not in self.antispam:
@@ -90,9 +136,9 @@ class SuggestionBox(commands.Cog):
         if self.antispam[ctx.guild][ctx.author].spammy:
             return await ctx.send(_("You've send too many suggestions recently."))
 
+        ids = await self.config.guild(ctx.guild).boxes()
+        channels = [c for c in ctx.guild.text_channels if c.id in ids]
         if channel is None:
-            ids = await self.config.guild(ctx.guild).boxes()
-            channels = [c for c in ctx.guild.text_channels if c.id in ids]
 
             if not channels:
                 return await ctx.send(
@@ -108,6 +154,9 @@ class SuggestionBox(commands.Cog):
                 )
                 output = f'{base_error}\n{", ".join(c.mention for c in channels)}'
                 return await ctx.send(output)
+
+        elif channel not in channels:
+            return await ctx.send(_("That channel is not a suggestionbox."))
 
         if not suggestion:
             return await ctx.send(_("Please try again while including a suggestion."))
@@ -145,3 +194,8 @@ class SuggestionBox(commands.Cog):
                 await ctx.message.delete()
             except discord.HTTPException:
                 pass
+
+        if await self.config.guild(ctx.guild).add_reactions():
+
+            for reaction in await self.config.guild(ctx.guild).reactions():
+                await msg.add_reaction(reaction)
