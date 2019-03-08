@@ -78,7 +78,7 @@ class ComplexActionConverter(RoleConverter):
         parser.add_argument("--has-more-than-nroles", dest="gt", type=int, default=None)
         parser.add_argument("--has-less-than-nroles", dest="lt", type=int, default=None)
         parser.add_argument("--above", dest="above", type=str, default=None)
-        parser.add_argument("--above", dest="below", type=str, default=None)
+        parser.add_argument("--below", dest="below", type=str, default=None)
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
             "--only-humans", action="store_true", default=False, dest="humans"
@@ -183,7 +183,7 @@ class ComplexSearchConverter(RoleConverter):
         parser.add_argument("--has-more-than-nroles", dest="gt", type=int, default=None)
         parser.add_argument("--has-less-than-nroles", dest="lt", type=int, default=None)
         parser.add_argument("--above", dest="above", type=str, default=None)
-        parser.add_argument("--above", dest="below", type=str, default=None)
+        parser.add_argument("--below", dest="below", type=str, default=None)
         hum_or_bot = parser.add_mutually_exclusive_group()
         hum_or_bot.add_argument(
             "--only-humans", action="store_true", default=False, dest="humans"
