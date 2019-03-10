@@ -63,6 +63,7 @@ class SuggestionBox(commands.Cog):
             vote_whitelist=[],  # list of ids, may be member or role
             # blacklist always applies, whitelist applies if exists.
             vote_formula="threshold",  # should be a string in Formulas.AVAILABLE
+            formula_int=10,  # obviously, configureable.
         )
         self.config.register_custom(
             "QUEUE_MESSAGE",
@@ -74,7 +75,7 @@ class SuggestionBox(commands.Cog):
             moved_message_id=None,
             moved_channel_id=None,
             votes=[],  # List[List[int, Action]],
-            # ordered by vote, removing duplicate votes.
+            # ordered by vote, removing duplicate votes, only storing valid votes
         )
         self.config.register_member(blocked=False)
         self.config.register_user(blocked=False)
