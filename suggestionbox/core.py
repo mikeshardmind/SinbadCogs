@@ -1,4 +1,5 @@
 from typing import Optional
+from enum import IntEnum
 
 import discord
 from redbot.core.config import Config
@@ -7,6 +8,7 @@ from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.antispam import AntiSpam
 
 from .checks import has_active_box
+from .app_queues import Action, State, Formulas
 
 _ = Translator("??", __file__)
 
@@ -28,17 +30,52 @@ class SuggestionBox(commands.Cog):
             boxes=[],
             add_reactions=False,
             reactions=["\N{THUMBS UP SIGN}", "\N{THUMBS DOWN SIGN}"],
-            forms={},
+            forms={},  # TODO: Interactive forms.
+            approval_queues={},
+            log_channel=None,
         )
         # for bot suggestions # TODO
         self.config.register_global(
             boxes=[],
             add_reactions=False,
             reactions=["\N{THUMBS UP SIGN}", "\N{THUMBS DOWN SIGN}"],
-            forms={},
+            forms={},  # TODO: Interactive forms.
+            approval_queues={},
         )
         # raw access w/ customforms not implemented here !! # TODO
         self.config.register_custom("SUGGESTION", data={})
+
+        # Intended access method:
+        # self.config.custom("APPROVAL_QUEUE", guild_id, queue_name)
+        # queue_name is admind defined.
+        self.config.register_custom(
+            "APPROVAL_QUEUE",
+            initial_channel=None,  # id
+            approved_channel=None,  # id
+            rejection_channel=None,  # optional, id
+            approval_emoji=None,  # should be the result of `str(emoji_object)`
+            rejection_emoji=None,  # see ^
+            minimum_days_to_vote=0,  # minimum days in server
+            minimum_days_to_suggest=0,  # minimum days in server
+            stale_suggestion_days=None,
+            action_on_stale=Action.NOOP,
+            vote_blacklist=[],  # list of ids, may be member or role
+            vote_whitelist=[],  # list of ids, may be member or role
+            # blacklist always applies, whitelist applies if exists.
+            vote_formula="threshold",  # should be a string in Formulas.AVAILABLE
+        )
+        self.config.register_custom(
+            "QUEUE_MESSAGE",
+            source_queue=[],  # List[List[guild_id, queue_name]]
+            message_id=None,
+            channel_id=None,
+            status=State.PENDING,
+            # for if moved to another channel at vote
+            moved_message_id=None,
+            moved_channel_id=None,
+            votes=[],  # List[List[int, Action]],
+            # ordered by vote, removing duplicate votes.
+        )
         self.config.register_member(blocked=False)
         self.config.register_user(blocked=False)
         self.antispam = {}
