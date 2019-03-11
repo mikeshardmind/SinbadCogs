@@ -1,9 +1,17 @@
 from enum import IntEnum
-from typing import Callable, List, Tuple, Dict, TypeVar
+from typing import Callable, List, Tuple, Dict, Any, Set, TYPE_CHECKING
+
+import discord
+
+if TYPE_CHECKING:
+    from mypy_extensions import KwArg
+else:
+    KwArg = lambda: Any
+
 
 Vote = Tuple[int, "Action"]
 VoteList = List[Vote]
-FormulaType = Callable[[VoteList, int], "Action"]
+FormulaType = Callable[[VoteList, KwArg()], "Action"]
 
 
 class Action(IntEnum):
@@ -21,7 +29,7 @@ class State(IntEnum):
 
 class Formulas:
 
-    AVAILABLE = ("difference", "threshold")
+    AVAILABLE = ("difference", "threshold", "majority")
 
     @classmethod
     def fetch(cls, key: str) -> FormulaType:
@@ -29,7 +37,10 @@ class Formulas:
         return f
 
     @staticmethod
-    def threshold(votes: VoteList, threshold: int) -> Action:
+    def threshold(
+        votes: VoteList, *, threshold: int, eligible: List[int], **kwargs
+    ) -> Action:
+
         yays, nays = 0, 0
         for _who, vote in votes:
             if vote == Action.APPROVE:
@@ -43,10 +54,14 @@ class Formulas:
         return Action.NOOP
 
     @staticmethod
-    def difference(votes: VoteList, difference: int) -> Action:
-        approve_at = difference
-        reject_at = 0 - difference
+    def difference(
+        votes: VoteList, *, threshold: int, eligible: List[int], **kwargs
+    ) -> Action:
+
+        approve_at = threshold
+        reject_at = 0 - threshold
         diff = 0
+
         for _who, vote in votes:
             if vote == Action.APPROVE:
                 diff += 1
@@ -55,5 +70,25 @@ class Formulas:
             elif vote == Action.REJECT:
                 diff -= 1
                 if diff <= reject_at:
+                    return Action.REJECT
+        return Action.NOOP
+
+    @staticmethod
+    def majority(votes: VoteList, *, eligible: List[int], **kwargs) -> Action:
+
+        req = len(eligible) // 2 + 1
+        yays, nays = 0, 0
+
+        for who, vote in votes:
+            if who not in eligible:
+                continue
+
+            if vote == Action.APPROVE:
+                yays += 1
+                if yays >= req:
+                    return Action.APPROVE
+            elif vote == Action.REJECT:
+                nays += 1
+                if nays >= req:
                     return Action.REJECT
         return Action.NOOP
