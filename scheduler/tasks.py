@@ -1,7 +1,7 @@
 import discord
 from datetime import datetime, timedelta, timezone
-from dataclasses import dataclass, field
-from typing import Optional, Union, cast
+from dataclasses import dataclass
+from typing import Optional, Union
 
 from .message import SchedulerMessage
 from .time_utils import td_format
@@ -23,6 +23,9 @@ class Task:
         # I'll take the minor performance hit for the convienice of not forgetting this
         # interacts with config later.
         self.uid = str(self.uid)
+        # As well as not fucking up time comparisons
+        if self.initial.tzinfo is None:
+            self.initial = self.initial.replace(tzinfo=timezone.utc)
 
     def __hash__(self):
         return hash(self.uid)
