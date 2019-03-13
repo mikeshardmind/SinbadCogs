@@ -22,7 +22,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "2.0.1"
+    __version__ = "2.0.3"
 
     def __init__(self, bot: Red, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -37,8 +37,8 @@ class Relays(commands.Cog):
         self.loaded = False
 
     async def __before_invoke(self, _ctx):
-        while not self._load_task.done():
-            await asyncio.sleep(0.2)
+        while not self.loaded:
+            await asyncio.sleep(0.1)
 
     async def __local_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -71,7 +71,7 @@ class Relays(commands.Cog):
     def gather_destinations(
         self, message: discord.Message
     ) -> List[discord.TextChannel]:
-        chans: list = []
+        chans: List[discord.TextChannel] = []
         for r in self.relay_objs:
             chans.extend(r.get_destinations(message))
         return unique(chans)
@@ -255,7 +255,9 @@ class Relays(commands.Cog):
             return await self.validation_error(ctx, validation)
 
         self.oneways[name] = OnewayRelay(
-            bot=self.bot, source=validation.pop(source), destinations=list(validation.values())
+            bot=self.bot,
+            source=validation.pop(source),
+            destinations=list(validation.values()),
         )
         await self.write_data()
         await ctx.tick()

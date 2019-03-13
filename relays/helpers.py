@@ -1,5 +1,5 @@
 import re
-from typing import List
+from typing import List, TypeVar, Iterable
 
 import discord
 from redbot.core import commands
@@ -11,7 +11,8 @@ INVITE_URL_RE = re.compile(r"(discord.gg|discordapp.com/invite|discord.me)(\S+)"
 def role_mention_cleanup(message: discord.Message) -> str:
 
     if message.guild is None:
-        return message.content
+        ret: str = message.content
+        return ret
 
     transformations = {
         re.escape("<@&{0.id}>".format(role)): "@" + role.name
@@ -63,15 +64,18 @@ def embed_from_msg(
     return em
 
 
-def unique(a):
-    ret = []
+T = TypeVar("T")
+
+
+def unique(a: Iterable[T]) -> List[T]:
+    ret: List[T] = []
     for item in a:
         if item not in ret:
             ret.append(item)
     return ret
 
 
-def txt_channel_finder(bot: commands.bot, chaninfo: str) -> List[discord.TextChannel]:
+def txt_channel_finder(bot: commands.Bot, chaninfo: str) -> List[discord.TextChannel]:
     """
     custom text channel finder
     """

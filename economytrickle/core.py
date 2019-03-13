@@ -73,6 +73,7 @@ class EconomyTrickle(commands.Cog):
         after = now - timedelta(minutes=data["interval"])
 
         if data["mode"] == "blacklist":
+
             def mpred(m: discord.Message):
                 return m.channel.id not in data["blacklist"]
 
@@ -81,6 +82,7 @@ class EconomyTrickle(commands.Cog):
                     return mem.voice.channel.id not in data["blacklist"] and not mem.bot
 
         else:
+
             def mpred(m: discord.Message):
                 return m.channel.id in data["whitelist"]
 
