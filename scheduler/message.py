@@ -1,8 +1,6 @@
-from typing import List, Optional
+from typing import List
 from datetime import datetime
-import logging
 import discord
-from redbot.core import commands
 import asyncio
 import re
 

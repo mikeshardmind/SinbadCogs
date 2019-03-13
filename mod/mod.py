@@ -15,6 +15,7 @@ class Mod(mod.Mod):
         # kill saving member name changes, also popped during setup.
         pass
 
+    # noinspection PyMethodOverriding
     @property
     def names(self):  # kill now useless command
         return None

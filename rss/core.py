@@ -110,7 +110,7 @@ class RSS(commands.Cog):
             return tuple(x.get("published_parsed"))[:5]
         if "updated_parsed" in x:
             return tuple(x.get("updated_parsed"))[:5]
-        return (0,)
+        return 0,
 
     async def format_and_send(
         self,

@@ -15,7 +15,8 @@ class QuoteTools(commands.Cog):
     __version__ = "1.3.0"
     __flavor_text__ = "Message jump links are go"
 
-    def __init__(self, bot):
+    def __init__(self, bot, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.bot = bot
 
     @commands.command()
