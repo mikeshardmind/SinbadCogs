@@ -16,8 +16,9 @@ class ParserError(Exception):
 class MemberOrID(MemberConverter):
     async def convert(self, ctx: Context, argument: str) -> int:
 
+        # noinspection PyBroadException
         try:
-            m = await super().convert(ctx, arg)
+            m = await super().convert(ctx, argument)
         except Exception:
             pass
         else:

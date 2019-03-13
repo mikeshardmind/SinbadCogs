@@ -14,7 +14,8 @@ class DevTools(commands.Cog):
 
     __version__ = "2.0.0"
 
-    def __init__(self, bot):
+    def __init__(self, bot, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.bot = bot
 
     @commands.command(name="emojiinfo")

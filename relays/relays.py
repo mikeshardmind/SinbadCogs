@@ -22,9 +22,10 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "2.0.0"
+    __version__ = "2.0.1"
 
-    def __init__(self, bot: Red) -> None:
+    def __init__(self, bot: Red, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
@@ -166,9 +167,6 @@ class Relays(commands.Cog):
         msg: str
         if name in self.oneways:
             relay = self.oneways[name]
-            quanitity_conditional = (
-                "{template[2]}" if len(relay.destinations) == 1 else "{template[3]}\n"
-            )
             msg = _(
                 "Relay type: one way\n"
                 "Source (Channel | Server): {source.name} | {source.guild.name}\n"
@@ -229,7 +227,7 @@ class Relays(commands.Cog):
         if not all(validation.values()):
             return await self.validation_error(ctx, validation)
 
-        self.nways[name] = NwayRelay(channels=list(validation.values()))
+        self.nways[name] = NwayRelay(bot=self.bot, channels=list(validation.values()))
         await self.write_data()
         await ctx.tick()
 
@@ -257,7 +255,7 @@ class Relays(commands.Cog):
             return await self.validation_error(ctx, validation)
 
         self.oneways[name] = OnewayRelay(
-            source=validation.pop(source), destinations=list(validation.values())
+            bot=self.bot, source=validation.pop(source), destinations=list(validation.values())
         )
         await self.write_data()
         await ctx.tick()

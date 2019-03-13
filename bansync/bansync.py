@@ -28,7 +28,8 @@ class BanSync(commands.Cog):
 
     __version__ = "2.0.0"
 
-    def __init__(self, bot: "Red"):
+    def __init__(self, bot: "Red", *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.bot: "Red" = bot
         self.config = Config.get_conf(self, identifier=78631113035100160)
         self.config.register_global(excluded_from_automatic=[])

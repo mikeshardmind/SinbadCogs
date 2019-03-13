@@ -21,7 +21,8 @@ class EconomyTrickle(commands.Cog):
 
     __version__ = "2.0.0"
 
-    def __init__(self, bot):
+    def __init__(self, bot, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
@@ -72,14 +73,16 @@ class EconomyTrickle(commands.Cog):
         after = now - timedelta(minutes=data["interval"])
 
         if data["mode"] == "blacklist":
-            mpred = lambda m: m.channel.id not in data["blacklist"]
+            def mpred(m: discord.Message):
+                return m.channel.id not in data["blacklist"]
 
             def vpred(mem: discord.Member):
                 with contextlib.suppress(AttributeError):
                     return mem.voice.channel.id not in data["blacklist"] and not mem.bot
 
         else:
-            mpred = lambda m: m.channel.id in data["whitelist"]
+            def mpred(m: discord.Message):
+                return m.channel.id in data["whitelist"]
 
             def vpred(mem: discord.Member):
                 with contextlib.suppress(AttributeError):
