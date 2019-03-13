@@ -1,7 +1,7 @@
 import csv
 import io
 import logging
-from typing import Optional
+from typing import Optional, cast, no_type_check, Set
 
 import discord
 from redbot.core import checks, commands
@@ -40,26 +40,22 @@ class MassManagementMixin(MixinMeta):
         if query["everyone"]:
             return members
 
-        all_set: Optional[set] = None
+        all_set: Set[discord.Member] = set()
         if query["all"]:
             first, *rest = query["all"]
             all_set = set(first.members)
             for other_role in rest:
                 all_set &= set(other_role.members)
 
-        none_set: Optional[set] = None
+        none_set: Set[discord.Member] = set()
         if query["none"]:
-            first, *rest = query["none"]
-            none_set = set(first.members)
-            for other_role in rest:
-                none_set &= set(other_role.members)
+            for role in query["none"]:
+                none_set.update(role.members)
 
-        any_set: Optional[set] = None
+        any_set: Set[discord.Member] = set()
         if query["any"]:
-            first, *rest = query["any"]
-            any_set = set(first.members)
-            for other_role in rest:
-                any_set += set(other_role.members)
+            for role in query["any"]:
+                any_set.update(role.members)
 
         minimum_perms: Optional[discord.Permissions] = None
         if query["hasperm"]:
@@ -122,13 +118,14 @@ class MassManagementMixin(MixinMeta):
         return members
 
     @mrole.command(name="user")
+    @no_type_check
     async def mrole_user(
         self,
         ctx: commands.Context,
         users: commands.Greedy[discord.Member],
         *,
         roles: RoleSyntaxConverter,
-    ):
+    ):  # type: (commands.Context, List[discord.Member], *, dict) -> None
         """
         adds/removes roles to one or more users
 
@@ -158,6 +155,7 @@ class MassManagementMixin(MixinMeta):
         await ctx.tick()
 
     @mrole.command(name="search")
+    @no_type_check
     async def mrole_search(
         self, ctx: commands.Context, *, query: ComplexSearchConverter
     ):
@@ -190,6 +188,7 @@ class MassManagementMixin(MixinMeta):
         """
 
         members = set(ctx.guild.members)
+        query = cast(dict, query)
         members = self.search_filter(members, query)
 
         if len(members) < 50 and not query["csv"]:

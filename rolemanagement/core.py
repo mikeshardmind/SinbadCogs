@@ -1,4 +1,4 @@
-from typing import Any, AsyncIterator, Tuple
+from typing import AsyncIterator, Tuple
 import discord
 from redbot.core import checks, commands
 from redbot.core.config import Config
@@ -18,7 +18,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.12"
+    __version__ = "3.2.13"
     __flavor_text__ = "Even more feedback."
 
     def __init__(self, bot):
@@ -124,6 +124,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 "Can't do that. Discord role heirarchy applies here."
             )
 
+        # noinspection PyTypeChecker  # TODO: PR to red to change the type here to a protocol
         cfg = self.config.custom("REACTROLE", msgid)
         async with cfg() as cfg:
             cfg.pop(str(emoji), None)
@@ -381,21 +382,21 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             remove = await self.is_self_assign_eligible(ctx.author, role)
             eligible = await self.config.role(role).self_role()
         except RoleManagementException:
-            eligible = False
+            pass
         except PermissionOrHierarchyException:
             return await ctx.send(
                 "I cannot assign roles which I can not manage. (Discord Hierarchy)"
             )
-
-        if not eligible:
-            await ctx.send(
-                f"You aren't allowed to add `{role}` to yourself {ctx.author.mention}!"
-            )
         else:
-            await self.update_roles_atomically(
-                who=ctx.author, give=[role], remove=remove
-            )
-            await ctx.tick()
+            if eligible:
+                await self.update_roles_atomically(
+                    who=ctx.author, give=[role], remove=remove
+                )
+                return await ctx.tick()
+
+        await ctx.send(
+            f"You aren't allowed to add `{role}` to yourself {ctx.author.mention}!"
+        )
 
     @srole.command(name="remove")
     async def srem(self, ctx: commands.Context, *, role: discord.Role):
@@ -471,6 +472,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
 
                 cid = rdata.get("channelid", None)
                 if not cid:
+                    non_forbidden_encountered = False
                     for channel in role.guild.text_channels:
                         non_forbidden_encountered = False
                         if channel.permissions_for(role.guild.me) >= needed_perms:
