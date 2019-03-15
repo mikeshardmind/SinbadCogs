@@ -65,6 +65,6 @@ class Filter(_Filter):
         for pattern in additional_patterns:
             match = pattern.search(text)
             if match:
-                hits.update(match.group(0))
+                hits.add(match.group(0))
 
         return hits
