@@ -1,0 +1,11 @@
+{
+    "author": ["mikeshardmind(Sinbad)"],
+    "install_msg": "Core filter cog, plus extra goodies",
+    "name": "Filter",
+    "disabled": false,
+    "short": "",
+    "description": "The extras in this rely on re2, soooo GL, HF",
+    "tags": [],
+    "hidden": false,
+    "min_python_version": [3, 6, 0]
+}
