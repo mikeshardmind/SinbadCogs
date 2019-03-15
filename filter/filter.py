@@ -48,16 +48,13 @@ class Filter(_Filter):
             if channel:
                 word_list |= set(await self.settings.guild(channel).filter())
 
-            if not word_list:
-                return word_list
+            if word_list:
+                pattern = re.compile("|".join(rf"\b{re.escape(w)}\b" for w in word_list), flags=re.I)
+                self.pattern_cache[(guild, channel)] = pattern
+                hits = set(pattern.findall(text))
+            else:
+                hits = set()
 
-            pattern = re.compile("|".join(rf"\b{re.escape(w)}\b" for w in word_list), flags=re.I)
-
-            self.pattern_cache[(guild, channel)] = pattern
-
-        hits = set(pattern.findall(text))
-
-        # modifications below
         additional_patterns = self._additional_pattern_cache[(guild, channel)]
         if channel is not None:
             additional_patterns.extend(self._additional_pattern_cache[(guild, None)])
