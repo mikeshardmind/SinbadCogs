@@ -30,6 +30,14 @@ class Filter(_Filter):
             self._additional_pattern_cache[(guild, channel)].append(compiled)
             return True
 
+    def remove_pattern(
+        self, *, guild: discord.Guild, channel: discord.TextChannel = None, pattern: str
+    ):
+        self._additional_pattern_cache[(guild, channel)] = [
+            comp for comp in self._additional_pattern_cache[(guild, channel)]
+            if comp.pattern != pattern
+        ]
+
     async def filter_hits(
         self, text: str, server_or_channel: Union[discord.Guild, discord.TextChannel]
     ) -> Set[str]:
