@@ -37,6 +37,11 @@ class Filter(_Filter):
             comp for comp in self._additional_pattern_cache[(guild, channel)]
             if comp.pattern != pattern
         ]
+        if channel is not None:
+            self._additional_pattern_cache[(guild, channel)] = [
+                comp for comp in self._additional_pattern_cache[(guild, None)]
+                if comp.pattern != pattern
+            ]
 
     async def filter_hits(
         self, text: str, server_or_channel: Union[discord.Guild, discord.TextChannel]
