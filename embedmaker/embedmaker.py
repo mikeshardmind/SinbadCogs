@@ -11,7 +11,7 @@ from .serialize import deserialize_embed, serialize_embed
 from .utils import parse_time
 from .yaml_parse import embed_from_userstr
 
-log = logging.getLogger("redbot.sinbadcogs.embedmaker")
+log = logging.getLogger("red.sinbadcogs.embedmaker")
 
 # TODO: Remove this supression after handling `embed_from_userstr`
 # noinspection PyBroadException
@@ -117,8 +117,7 @@ class EmbedMaker(commands.Cog):
         try:
             with io.BytesIO() as fp:
                 await ctx.message.attachments[0].save(fp)
-                data = fp.read()
-                data = data.decode("utf-8")
+                data = fp.read().decode("utf-8")
         except IndexError:
             return await ctx.send("You need to upload a file")
 
@@ -147,8 +146,7 @@ class EmbedMaker(commands.Cog):
         try:
             with io.BytesIO() as fp:
                 await ctx.message.attachments[0].save(fp)
-                data = fp.read()
-                data = data.decode("utf-8")
+                data = fp.read().decode("utf-8")
         except IndexError:
             return await ctx.send("You need to upload a file")
 
