@@ -26,7 +26,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "2.0.0"
+    __version__ = "2.1.0"
 
     def __init__(self, bot: "Red", *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -386,13 +386,32 @@ class BanSync(commands.Cog):
                 if guild in sources:
                     banlist.update(g_bans)
 
+        tasks = []
         for guild in dests:
             to_ban = banlist - bans[guild.id]
-            for maybe_ban in to_ban:
-                if await self.ban_filter(guild, usr, maybe_ban):
-                    await self.ban_or_hackban(
-                        guild, maybe_ban.id, mod=usr, reason=_("Ban synchronization")
-                    )
+            tasks.append(self.do_bans_for_guild(guild=guild, mod=usr, targets=to_ban))
+
+        await asyncio.gather(*tasks)
+
+    async def do_bans_for_guild(
+        self,
+        *,
+        guild: discord.Guild,
+        mod: discord.User,
+        targets: Set[discord.User],
+    ):
+        """
+        This exists to speed up large syncs and consume ratelimits concurrently 
+        """
+        count = 0
+        for target in targets:
+            if await self.ban_filter(guild, mod, target):
+                await self.ban_or_hackban(
+                    guild, target.id, mod=mod, reason=_("Ban synchronization")
+                )
+                count += 1
+                if count % 10:
+                    await asyncio.sleep(0.1)
 
     @commands.command(name="bansync")
     async def ban_sync(self, ctx, auto=False):
