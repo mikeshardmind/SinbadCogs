@@ -12,7 +12,6 @@ import re
 
 
 class Filter(_Filter):
-
     def __init__(self, bot):
         super().__init__(bot)
         self._additional_pattern_cache = defaultdict(list)
@@ -34,12 +33,14 @@ class Filter(_Filter):
         self, *, guild: discord.Guild, channel: discord.TextChannel = None, pattern: str
     ):
         self._additional_pattern_cache[(guild, channel)] = [
-            comp for comp in self._additional_pattern_cache[(guild, channel)]
+            comp
+            for comp in self._additional_pattern_cache[(guild, channel)]
             if comp.pattern != pattern
         ]
         if channel is not None:
             self._additional_pattern_cache[(guild, channel)] = [
-                comp for comp in self._additional_pattern_cache[(guild, None)]
+                comp
+                for comp in self._additional_pattern_cache[(guild, None)]
                 if comp.pattern != pattern
             ]
 
@@ -62,7 +63,9 @@ class Filter(_Filter):
                 word_list |= set(await self.settings.guild(channel).filter())
 
             if word_list:
-                pattern = re.compile("|".join(rf"\b{re.escape(w)}\b" for w in word_list), flags=re.I)
+                pattern = re.compile(
+                    "|".join(rf"\b{re.escape(w)}\b" for w in word_list), flags=re.I
+                )
                 self.pattern_cache[(guild, channel)] = pattern
                 hits = set(pattern.findall(text))
             else:

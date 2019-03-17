@@ -394,11 +394,7 @@ class BanSync(commands.Cog):
         await asyncio.gather(*tasks)
 
     async def do_bans_for_guild(
-        self,
-        *,
-        guild: discord.Guild,
-        mod: discord.User,
-        targets: Set[discord.User],
+        self, *, guild: discord.Guild, mod: discord.User, targets: Set[discord.User]
     ):
         """
         This exists to speed up large syncs and consume ratelimits concurrently 
