@@ -98,6 +98,8 @@ class RSS(commands.Cog):
                 data = await response.read()
         except (aiohttp.ClientError, asyncio.TimeoutError):
             return None
+        except Exception as exc:
+            return None
 
         ret = feedparser.parse(data)
         if ret.bozo:
