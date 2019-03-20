@@ -4,6 +4,8 @@ from typing import Optional, List, cast, no_type_check
 from datetime import datetime
 
 import aiohttp
+import logging
+
 import feedparser
 import discord
 
@@ -16,13 +18,9 @@ from .cleanup import html_to_text
 from .converters import tristate  # typing: ignore
 
 
-T_ = Translator("RSS", __file__)
+_ = Translator("RSS", __file__)
 
-_ = lambda s: s
-# Strings in here are guarded
-
-#
-_ = T_
+log = logging.getLogger("red.sinbadcogs.rss")
 
 DONT_HTML_SCRUB = ["link", "source", "updated", "updated_parsed"]
 
@@ -86,10 +84,10 @@ class RSS(commands.Cog):
         return self.config.channel(channel).clear_raw("feeds", feedname)
 
     async def should_embed(self, guild: discord.Guild) -> bool:
-        guild_setting = await self.bot.db.guild(guild).embeds()
-        if guild_setting is not None:
-            return guild_setting
-        return await self.bot.db.embeds()
+        ret: bool = await self.bot.db.guild(guild).embeds()
+        if ret is None:
+            ret = await self.bot.db.embeds()
+        return ret
 
     async def fetch_feed(self, url: str) -> Optional[feedparser.FeedParserDict]:
         timeout = aiohttp.client.ClientTimeout(total=15)
@@ -99,10 +97,15 @@ class RSS(commands.Cog):
         except (aiohttp.ClientError, asyncio.TimeoutError):
             return None
         except Exception as exc:
+            log.exception(
+                f"Unexpected exception type {type(exc)} encountered for feed url: {url}",
+                exc_info=True,
+            )
             return None
 
         ret = feedparser.parse(data)
         if ret.bozo:
+            log.info(f"Feed url: {url} is invalid.")
             return None
         return ret
 
