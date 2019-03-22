@@ -1,0 +1,10 @@
+{
+    "author": ["mikeshardmind(Sinbad)"],
+    "install_msg": "Probably ready for use, needs some testing.",
+    "name": "BuyRole",
+    "disabled": false,
+    "short": "Make purchaseable roles",
+    "description": "Purchaseable roles",
+    "tags": [],
+    "hidden": true
+}
