@@ -1,7 +1,9 @@
+import math
 import asyncio
 import discord
 from redbot.core import Config, bank, commands, checks
-from redbot.core.utils.menus import start_adding_reactions
+from redbot.core.utils.menus import start_adding_reactions, menu, DEFAULT_CONTROLS
+from redbot.core.utils.chat_formatting import pagify, box
 
 
 REACTIONS = {"\N{WHITE HEAVY CHECK MARK}": True, "\N{CROSS MARK}": False}
@@ -12,7 +14,7 @@ class BuyRole(commands.Cog):
     A simple purchasable role cog
     """
 
-    __version__ = "1.0.0"
+    __version__ = "1.0.2"
 
     def __init__(self, bot):
         self.bot = bot
@@ -54,10 +56,42 @@ class BuyRole(commands.Cog):
         else:
             await ctx.send(f"Role is purchasable for {cost}")
 
+    @commands.guild_only()
+    @commands.command()
+    async def roleprices(self, ctx: commands.Context):
+        """
+        Shows prices of roles
+        """
+
+        rdata = await self.config.all_roles()
+        inf = []
+        mxwidth = 4  # "Cost"
+        for role in ctx.guild.roles:
+            if role.id in rdata:
+                cost = rdata[role.id]["cost"]
+                if cost:
+                    mxwidth = max(mxwidth, int(math.log10(cost)) + 1)
+                    inf.append((cost, role.name))
+
+        inf.sort()
+        inf.insert(0, ("Cost", "Role"))
+        output = "\n".join(f"{c: >{mxwidth}} {r}" for c, r in inf)
+
+        if len(output) <= 1992:
+            await ctx.send(box(output))
+        else:
+            pages = [box(p) for p in pagify(output)]
+            await menu(ctx, pages, DEFAULT_CONTROLS)
+
+    @commands.guild_only()
     @checks.bot_has_permissions(manage_roles=True, add_reactions=True)
     @commands.command()
     async def buyrole(self, ctx: commands.Context, *, role: discord.Role):
-        """ Buy a role. """
+        """
+        Buy a role. 
+        
+        you can view purchasable roles using `[p]roleprices`
+        """
         if role >= ctx.me.top_role and ctx.me != ctx.guild.owner:
             return  # Can't give this role
 
