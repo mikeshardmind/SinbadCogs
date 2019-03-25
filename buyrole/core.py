@@ -74,7 +74,7 @@ class BuyRole(commands.Cog):
                     inf.append((cost, role.name))
 
         inf.sort()
-        inf.insert(0, ("Cost", "Role"))
+        inf.insert(0, (f"{'Cost': <{mxwidth}}", "Role"))
         output = "\n".join(f"{c: >{mxwidth}} {r}" for c, r in inf)
 
         if len(output) <= 1992:
