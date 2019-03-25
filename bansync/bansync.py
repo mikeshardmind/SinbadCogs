@@ -26,13 +26,17 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "2.2.0"
+    __version__ = "2.2.1"
 
     def __init__(self, bot: "Red", *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bot: "Red" = bot
         self.config = Config.get_conf(self, identifier=78631113035100160)
-        self.config.register_global(excluded_from_automatic=[])
+        self.config.register_global(
+            excluded_from_automatic=[],
+            per_request_base_ratelimit=0.02,  # Approximately accurate.
+            fractional_usage=0.5,
+        )
 
     @commands.group()
     async def bansyncset(self, ctx: commands.Context):
@@ -354,7 +358,7 @@ class BanSync(commands.Cog):
         sources: GuildSet,
         dests: GuildSet,
         auto: bool = False,
-        shred_ratelimits: bool = None,
+        shred_ratelimits: bool = False,
     ) -> None:
         """
         Processes a synchronization of bans
@@ -395,12 +399,12 @@ class BanSync(commands.Cog):
                     banlist.update(g_bans)
 
         tasks = []
-        if shred_ratelimits:
+        if shred_ratelimits and await self.bot.is_owner(usr):
             artificial_delay = 0.0
         else:
-            artificial_delay = 0.04 * len(dests)
-            # base global ratelimit is .02 per request.
-            # This logic is designed to consume no more than half of that during a sync.
+            base_limt: float = await self.config.per_request_base_ratelimit()
+            fractional_usage: float = await self.config.fractional_usage()
+            artificial_delay = (base_limt / fractional_usage) * len(dests)
         for guild in dests:
             to_ban = banlist - bans[guild.id]
             tasks.append(
