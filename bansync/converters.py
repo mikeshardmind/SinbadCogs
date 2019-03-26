@@ -55,6 +55,12 @@ class SyndicatedConverter(Converter):
         parser.add_argument(
             "--auto-destinations", action="store_true", default=False, dest="auto"
         )
+        parser.add_argument(
+            "--shred-ratelimits",
+            action="store_true",
+            default=False,
+            dest="shred_ratelimits",
+        )
 
         vals = parser.parse_args(shlex.split(argument))
         ret: Dict[str, Any] = {}
