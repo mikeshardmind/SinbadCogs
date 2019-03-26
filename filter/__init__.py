@@ -2,4 +2,5 @@ from .filter import Filter
 
 
 def setup(bot):
-    bot.add_cog(Filter(bot))
+    filter_cog = Filter(bot)
+    bot.add_cog(filter_cog)
