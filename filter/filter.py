@@ -18,8 +18,8 @@ class Filter(_Filter):
         super().__init__(bot)
         # self._additional_pattern_cache = defaultdict(list)
         self._regex_atom_pattern_cache: dict = {}
-        self.config.register_guild(regex_atoms=[])
-        self.config.register_channel(regex_atoms=[])
+        self.settings.register_guild(regex_atoms=[])
+        self.settings.register_channel(regex_atoms=[])
 
     def invalidate_atom(
         self, guild: discord.Guild, channel: discord.TextChannel = None
