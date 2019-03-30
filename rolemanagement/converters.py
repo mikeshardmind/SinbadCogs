@@ -1,6 +1,12 @@
 import argparse
 import shlex
-from redbot.core.commands import RoleConverter, Context, BadArgument
+from redbot.core.commands import (
+    RoleConverter,
+    Context,
+    BadArgument,
+    PartialEmojiConverter,
+    EmojiConverter,
+)
 import discord
 from typing import Dict
 
@@ -9,7 +15,7 @@ class RoleEmojiMap(RoleConverter):
     def __init__(self):
         super().__init__()
 
-    async def convert(self, ctx: Context, argument: str) -> Dict[discord.Role, str]:
+    async def convert(self, ctx: Context, argument: str):
 
         arg_list = shlex.split(argument)
         mapping = {}
@@ -24,7 +30,14 @@ class RoleEmojiMap(RoleConverter):
             role = await super().convert(ctx, role_string)
             # can't validate emoji here without a twemoji dependency
             # and excluding some edge cases.
-            mapping[role] = emoji_string
+            try:
+                emoji = await EmojiConverter().convert(ctx, emoji_str)
+            except BadArgument:
+                try:
+                    emoji = await PartialEmojiConverter().convert(ctx, emoji_str)
+                except BadArgument:
+                    emoji = emoji_str
+            mapping[role] = emoji
 
         return mapping
 
