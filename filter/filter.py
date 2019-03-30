@@ -21,6 +21,92 @@ class Filter(_Filter):
         self.settings.register_guild(regex_atoms=[])
         self.settings.register_channel(regex_atoms=[])
 
+    @commands.guild_only(name="regexfilter")
+    @checks.mod_or_permissions(manage_messages=True)
+    @commands.group()
+    async def rfg(self, ctx):
+        """ Commands for managing the regex filter """
+        pass
+
+    @rfg.command(name="addatom")
+    async def rfg_guild_add(self, ctx: commands.Context, *, atom: str):
+        """ 
+        Attempts to add a regex atom. 
+        
+        All atoms must be joinable by `|` for this to be valid
+        """
+
+        async with self.settings.guild(ctx.guild).regex_atoms() as atoms:
+            if atom in atoms:
+                return await ctx.send("This atom is already contained")
+            atom_set = set(atoms)
+            atom_set.add(atom)
+            try:
+                valid_compile = re2.compile("|".join(atoms))
+            except re.error:
+                return await ctx.send("This results in an invalid pattern")
+            else:
+                self._regex_atom_pattern_cache[(ctx.guild, None)] = valid_compile
+                atoms.append(atom)
+
+        await ctx.tick()
+
+    @rfg.command(name="removeatom")
+    async def rfg_guild_add(self, ctx: commands.Context, *, atom: str):
+        """ 
+        removes a regex atom. 
+        """
+        async with self.settings.guild(ctx.guild).regex_atoms() as atoms:
+            if atom in atoms:
+                self.invalidate_atom(guild=ctx.guild)
+                atoms.remove(atom)
+            else:
+                return await ctx.send("This wasn't an atom")
+
+        await ctx.tick()
+
+    @rfg.group(name="channel")
+    async def rfg_channel(self, ctx: commands.Context):
+        """ Commands for managing regex per channel """
+        pass
+
+    @rfg_channel.command(name="addatom")
+    async def rfg_channel_add(self, ctx: commands.Context, *, atom: str):
+        """ 
+        Attempts to add a regex atom. 
+        
+        All atoms must be joinable by `|` for this to be valid
+        """
+
+        async with self.settings.channel(ctx.channel).regex_atoms() as atoms:
+            if atom in atoms:
+                return await ctx.send("This atom is already contained")
+            atom_set = set(atoms)
+            atom_set.add(atom)
+            try:
+                valid_compile = re2.compile("|".join(atoms))
+            except re.error:
+                return await ctx.send("This results in an invalid pattern")
+            else:
+                self._regex_atom_pattern_cache[(ctx.guild, ctx.channel)] = valid_compile
+                atoms.append(atom)
+
+        await ctx.tick()
+
+    @rfg_channel.command(name="removeatom")
+    async def rfg_channel_add(self, ctx: commands.Context, *, atom: str):
+        """ 
+        removes a regex atom. 
+        """
+        async with self.settings.channel(ctx.channel).regex_atoms() as atoms:
+            if atom in atoms:
+                self.invalidate_atom(guild=ctx.guild, channel=ctx.channel)
+                atoms.remove(atom)
+            else:
+                return await ctx.send("This wasn't an atom")
+
+        await ctx.tick()
+
     def invalidate_atom(
         self, guild: discord.Guild, channel: discord.TextChannel = None
     ):
