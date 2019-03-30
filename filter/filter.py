@@ -282,7 +282,9 @@ class Filter(commands.Cog):
         else:
             await ctx.send(_("Names and nicknames will now be filtered."))
 
-    def invalidate_cache(self, guild: discord.Guild, channel: discord.TextChannel = None):
+    def invalidate_cache(
+        self, guild: discord.Guild, channel: discord.TextChannel = None
+    ):
         """ Invalidate a cached pattern"""
         self.pattern_cache.pop((guild, channel), None)
 
@@ -353,7 +355,9 @@ class Filter(commands.Cog):
                 word_list |= set(await self.settings.channel(channel).filter())
 
             if word_list:
-                pattern = re.compile("|".join(rf"\b{re.escape(w)}\b" for w in word_list), flags=re.I)
+                pattern = re.compile(
+                    "|".join(rf"\b{re.escape(w)}\b" for w in word_list), flags=re.I
+                )
             else:
                 pattern = None
 
@@ -472,7 +476,9 @@ class Filter(commands.Cog):
         word_list = await self.settings.guild(member.guild).filter()
         for w in word_list:
             if w in member.display_name.lower():
-                name_to_use = await self.settings.guild(member.guild).filter_default_name()
+                name_to_use = await self.settings.guild(
+                    member.guild
+                ).filter_default_name()
                 reason = _("Filtered nickname") if member.nick else _("Filtered name")
                 try:
                     await member.edit(nick=name_to_use, reason=reason)
@@ -553,7 +559,3 @@ class Filter(commands.Cog):
                 return await ctx.send("This wasn't an atom")
 
         await ctx.tick()
-
-    
-
-    
