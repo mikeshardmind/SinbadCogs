@@ -9,7 +9,7 @@ class RoleEmojiMap(RoleConverter):
     def __init__(self):
         super().__init__()
 
-    async def convert(self, ctx: Context, argument: str) -> Dict[discord.Role, emoji]:
+    async def convert(self, ctx: Context, argument: str) -> Dict[discord.Role, str]:
 
         arg_list = shlex.split(argument)
         mapping = {}
