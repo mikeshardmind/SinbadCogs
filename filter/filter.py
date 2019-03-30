@@ -13,7 +13,7 @@ except ImportError:
 import re
 
 
-class Filter(_Filter):
+class Filter(_Filter, commands.Cog):
     def __init__(self, bot):
         super().__init__(bot)
         # self._additional_pattern_cache = defaultdict(list)
