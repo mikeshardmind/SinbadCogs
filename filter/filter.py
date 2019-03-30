@@ -21,9 +21,9 @@ class Filter(_Filter):
         self.settings.register_guild(regex_atoms=[])
         self.settings.register_channel(regex_atoms=[])
 
-    @commands.guild_only(name="regexfilter")
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
-    @commands.group()
+    @commands.group(name="regexfilter")
     async def rfg(self, ctx):
         """ Commands for managing the regex filter """
         pass
