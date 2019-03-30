@@ -486,7 +486,7 @@ class Filter(commands.Cog):
                     pass
                 return
 
-    @_filter.command(name="addregexatom")
+    @_filter.command(name="addatom")
     async def rfg_guild_add(self, ctx: commands.Context, *, atom: str):
         """ 
         Attempts to add a regex atom. 
