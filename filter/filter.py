@@ -486,6 +486,7 @@ class Filter(commands.Cog):
                     pass
                 return
 
+    @commands.check(lambda ctx: bool(re2))
     @_filter.command(name="addatom")
     async def rfg_guild_add(self, ctx: commands.Context, *, atom: str):
         """ 
@@ -509,6 +510,7 @@ class Filter(commands.Cog):
 
         await ctx.tick()
 
+    @commands.check(lambda ctx: bool(re2))
     @_filter.command(name="removeatom")
     async def rfg_guild_rem(self, ctx: commands.Context, *, atom: str):
         """ 
@@ -523,6 +525,7 @@ class Filter(commands.Cog):
 
         await ctx.tick()
 
+    @commands.check(lambda ctx: bool(re2))
     @_filter_channel.command(name="addatom")
     async def rfg_channel_add(self, ctx: commands.Context, *, atom: str):
         """ 
@@ -546,6 +549,7 @@ class Filter(commands.Cog):
 
         await ctx.tick()
 
+    @commands.check(lambda ctx: bool(re2))
     @_filter_channel.command(name="removeatom")
     async def rfg_channel_rem(self, ctx: commands.Context, *, atom: str):
         """ 
