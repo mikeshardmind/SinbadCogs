@@ -8,7 +8,6 @@ from redbot.core.commands import (
     EmojiConverter,
 )
 import discord
-from typing import Dict
 
 
 class RoleEmojiMap(RoleConverter):
