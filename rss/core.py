@@ -72,7 +72,7 @@ class RSS(commands.Cog):
 
     def __unload(self):
         self.bg_loop_task.cancel()
-        self.bot.loop.create_task(self.session.close())
+        self.session.detach()
 
     __del__ = __unload
     # This really shouldn't be neccessary, but I'll verify this later.
@@ -243,7 +243,7 @@ class RSS(commands.Cog):
                                 await self.config.channel(channel).feeds.set_raw(
                                     feed_name, "last", value=last
                                 )
-            await asyncio.sleep(600)  # TODO: configureable
+            await asyncio.sleep(300)  # TODO: configureable
 
     # commands go here
 
