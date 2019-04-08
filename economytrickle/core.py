@@ -133,8 +133,10 @@ class EconomyTrickle(commands.Cog):
                 bonus = min(data["maximum_bonus"], bonus)
 
             to_give += bonus
-
-            await bank.deposit_credits(member, to_give)
+            try:
+                await bank.deposit_credits(member, to_give)
+            except bank.errors.BalanceTooHigh:
+                pass
 
         # cleanup old message objects
         self.recordhandler.clear_before(guild=guild, before=after)
