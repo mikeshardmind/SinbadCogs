@@ -27,6 +27,8 @@ class EmbedMaker(commands.Cog):
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
+        if hasattr(self.config, "init_custom"):  # compatability
+            self.config.init_custom("EMBED", 2)
         self.config.register_custom("EMBED", embed={}, owner=None)
         self.config.register_guild(active=True)
 

@@ -36,6 +36,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             protected=False,
         )
         self.config.register_member(roles=[], forbidden=[])
+        if hasattr(self.config, "init_custom"):  # compatability
+            self.config.init_custom("REACTROLE", 2)
         self.config.register_custom(
             "REACTROLE", roleid=None, channelid=None, guildid=None
         )  # ID : Message.id, str(React)

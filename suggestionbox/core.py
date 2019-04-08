@@ -43,40 +43,43 @@ class SuggestionBox(commands.Cog):
             approval_queues={},
         )
         # raw access w/ customforms not implemented here !! # TODO
+        if hasattr(self.config, "init_custom"):  # compatability
+            self.config.init_custom("SUGGESTION", 1)
         self.config.register_custom("SUGGESTION", data={})
 
-        # Intended access method:
+
+        # Intended access method:  # TODO
         # self.config.custom("APPROVAL_QUEUE", guild_id, queue_name)
         # queue_name is admind defined.
-        self.config.register_custom(
-            "APPROVAL_QUEUE",
-            initial_channel=None,  # id
-            approved_channel=None,  # id
-            rejection_channel=None,  # optional, id
-            approval_emoji=None,  # should be the result of `str(emoji_object)`
-            rejection_emoji=None,  # see ^
-            minimum_days_to_vote=0,  # minimum days in server
-            minimum_days_to_suggest=0,  # minimum days in server
-            stale_suggestion_days=None,
-            action_on_stale=Action.NOOP,
-            vote_blacklist=[],  # list of ids, may be member or role
-            vote_whitelist=[],  # list of ids, may be member or role
-            # blacklist always applies, whitelist applies if exists.
-            vote_formula="threshold",  # should be a string in Formulas.AVAILABLE
-            formula_int=10,  # obviously, configureable.
-        )
-        self.config.register_custom(
-            "QUEUE_MESSAGE",
-            source_queue=[],  # List[List[guild_id, queue_name]]
-            message_id=None,
-            channel_id=None,
-            status=State.PENDING,
-            # for if moved to another channel at vote
-            moved_message_id=None,
-            moved_channel_id=None,
-            votes=[],  # List[List[int, Action]],
-            # ordered by vote, removing duplicate votes, only storing valid votes
-        )
+        # self.config.register_custom(
+        #     "APPROVAL_QUEUE",
+        #     initial_channel=None,  # id
+        #     approved_channel=None,  # id
+        #     rejection_channel=None,  # optional, id
+        #     approval_emoji=None,  # should be the result of `str(emoji_object)`
+        #     rejection_emoji=None,  # see ^
+        #     minimum_days_to_vote=0,  # minimum days in server
+        #     minimum_days_to_suggest=0,  # minimum days in server
+        #     stale_suggestion_days=None,
+        #     action_on_stale=Action.NOOP,
+        #     vote_blacklist=[],  # list of ids, may be member or role
+        #     vote_whitelist=[],  # list of ids, may be member or role
+        #     # blacklist always applies, whitelist applies if exists.
+        #     vote_formula="threshold",  # should be a string in Formulas.AVAILABLE
+        #     formula_int=10,  # obviously, configureable.
+        # )
+        # self.config.register_custom(
+        #     "QUEUE_MESSAGE",
+        #     source_queue=[],  # List[List[guild_id, queue_name]]
+        #     message_id=None,
+        #     channel_id=None,
+        #     status=State.PENDING,
+        #     # for if moved to another channel at vote
+        #     moved_message_id=None,
+        #     moved_channel_id=None,
+        #     votes=[],  # List[List[int, Action]],
+        #     # ordered by vote, removing duplicate votes, only storing valid votes
+        # )
         self.config.register_member(blocked=False)
         self.config.register_user(blocked=False)
         self.antispam = {}
