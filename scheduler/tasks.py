@@ -116,3 +116,14 @@ class Task:
         embed.set_footer(text=footer)
         embed.description = description
         return embed
+
+    def update_objects(self, bot):
+        """ Updates objects or throws an AttributeError """
+        guild_id = self.author.guild.id
+        author_id = self.author.id
+        channel_id = self.channel.id
+
+        self.guild = bot.get_guild(guild_id)
+        self.author = guild.get_member(author_id)
+        self.channel = guild.get_channel(channel_id)
+        self.channel.id  # Do not Remove.

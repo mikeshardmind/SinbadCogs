@@ -91,6 +91,7 @@ class Scheduler(commands.Cog):
 
     async def delayed_wrap_and_invoke(self, task: Task, delay: int):
         await asyncio.sleep(delay)
+        task.update_objects(self.bot)
         chan = task.channel
         if not chan.permissions_for(chan.guild.me).read_messages:
             return
