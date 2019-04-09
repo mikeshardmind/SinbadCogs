@@ -47,7 +47,6 @@ class SuggestionBox(commands.Cog):
             self.config.init_custom("SUGGESTION", 1)
         self.config.register_custom("SUGGESTION", data={})
 
-
         # Intended access method:  # TODO
         # self.config.custom("APPROVAL_QUEUE", guild_id, queue_name)
         # queue_name is admind defined.
