@@ -123,7 +123,7 @@ class Task:
         author_id = self.author.id
         channel_id = self.channel.id
 
-        self.guild = bot.get_guild(guild_id)
+        guild = bot.get_guild(guild_id)
         self.author = guild.get_member(author_id)
         self.channel = guild.get_channel(channel_id)
         self.channel.id  # Do not Remove.

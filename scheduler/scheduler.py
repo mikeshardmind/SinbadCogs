@@ -22,7 +22,7 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.23"
+    __version__ = "1.0.24"
     __author__ = "mikeshardmind(Sinbad)"
     __flavor_text__ = "Unhidden remindme."
 
