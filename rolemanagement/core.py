@@ -126,7 +126,6 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 "Can't do that. Discord role heirarchy applies here."
             )
 
-        # noinspection PyTypeChecker  # TODO: PR to red to change the type here to a protocol
         cfg = self.config.custom("REACTROLE", msgid)
         async with cfg() as cfg:
             cfg.pop(str(emoji), None)
@@ -266,7 +265,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
 
         _roles = set(roles)
 
-        if len(roles) < 1:
+        if not _roles:
             return await ctx.send("You need to provide at least a role to do this to")
 
         for role in _roles:
