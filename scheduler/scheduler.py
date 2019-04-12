@@ -1,4 +1,5 @@
 import asyncio
+import  contextlib
 import discord
 from datetime import datetime, timedelta, timezone
 from typing import Tuple, Optional, List, no_type_check
@@ -22,7 +23,7 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.24"
+    __version__ = "1.0.25"
     __author__ = "mikeshardmind(Sinbad)"
     __flavor_text__ = "Unhidden remindme."
 
@@ -45,7 +46,8 @@ class Scheduler(commands.Cog):
 
     def __unload(self):
         self.bg_loop_task.cancel()
-        [task.cancel() for task in self.scheduled.values()]
+        for task in self.scheduled.values():
+            task.cancel()
         self.log.handlers = []
         if self._original_cleanup_check:
             cog = self.bot.get_cog("Cleanup")
@@ -285,7 +287,7 @@ class Scheduler(commands.Cog):
         )
 
         if not tasks:
-            return await ctx.send(
+            await ctx.send(
                 f"Hmm, I couldn't find that task. (try `{ctx.clean_prefix}showscheduled`)"
             )
 
@@ -397,10 +399,8 @@ class Scheduler(commands.Cog):
 
     @helpers.command(name="selfwhisper")
     async def swhisp(self, ctx, *, content):
-        try:
+        with contextlib.suppress(discord.HTTPException):
             await ctx.author.send(content)
-        except Exception:
-            pass
 
     @commands.admin_or_permissions(manage_guild=True)
     @commands.guild_only()
@@ -435,7 +435,7 @@ class Scheduler(commands.Cog):
         tasks = await self.fetch_task_by_attrs_exact(uid=task_id)
 
         if not tasks:
-            return await ctx.send(
+            await ctx.send(
                 f"Hmm, I couldn't find that task. (try `{ctx.clean_prefix}showscheduled`)"
             )
 
@@ -614,8 +614,8 @@ class Scheduler(commands.Cog):
             async def injected_on_check_100_plus(ctx, number):
                 if ctx.message.__class__.__name__ == "SchedulerMessage":
                     return True
-                else:
-                    return await func(ctx, number)
+
+                return await func(ctx, number)
 
             return injected_on_check_100_plus
 
