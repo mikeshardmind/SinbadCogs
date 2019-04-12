@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import io
 import json
 from typing import List, Set, TYPE_CHECKING, Union, AsyncIterator, Dict, Optional, cast
@@ -316,7 +317,6 @@ class BanSync(commands.Cog):
             if g not in excluded and await self.can_sync(g, ctx.author):
                 yield g
 
-    # TODO : restructure how this func works and interacts. (Exception based control flow)
     async def interactive(self, ctx: commands.Context, excluded: GuildSet):
         output = ""
         guilds = [g async for g in self.guild_discovery(ctx, excluded)]
@@ -504,13 +504,10 @@ class BanSync(commands.Cog):
 
         if isinstance(error, ParserError):
             if error.args:
-                return await ctx.send(error.args[0])
-
-        # TODO: Remove this try/except at 3.1
-        try:
-            await ctx.bot.on_command_error(ctx, error, unhandled_by_cog=True)
-        except TypeError:
-            await ctx.bot.on_command_error(ctx, error)
+                await ctx.send(error.args[0])
+        else:
+            with contextlib.suppress(TypeError):  # 3.0 support
+                await ctx.bot.on_command_error(ctx, error, unhandled_by_cog=True)
 
     @commands.command(name="mjolnir", aliases=["globalban"])
     async def mjolnir(
