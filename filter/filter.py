@@ -1,21 +1,12 @@
-from redbot.cogs.filter import Filter as _Filter
-import discord
-from typing import Union, Set
-import asyncio
-from redbot.core import commands, checks
-
-
 try:
     import re2
 except ImportError:
     re2 = None
 
 import re
-
-import discord
-import re
 from typing import Union, Set
 
+import discord
 from redbot.core import checks, Config, modlog, commands
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator, cog_i18n
@@ -93,7 +84,6 @@ class Filter(commands.Cog):
                     "or both need to be greater than 0!"
                 )
             )
-            return
         elif count == 0 and timeframe == 0:
             await self.settings.guild(ctx.guild).filterban_count.set(0)
             await self.settings.guild(ctx.guild).filterban_time.set(0)
