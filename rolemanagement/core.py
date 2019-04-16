@@ -72,8 +72,9 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 "Can't do that. Discord role heirarchy applies here."
             )
 
-        message = await channel.get_message(msgid)
-        if not message:
+        try:
+            message = await channel.get_message(msgid)
+        except discord.DiscordException:
             return await ctx.maybe_send_embed("No such message")
 
         _emoji = discord.utils.find(lambda e: str(e) == emoji, self.bot.emojis)
