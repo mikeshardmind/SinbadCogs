@@ -36,11 +36,11 @@ class Relays(commands.Cog):
         self.scrub_invites: Optional[bool] = None
         self.loaded = False
 
-    async def __before_invoke(self, _ctx):
+    async def cog_before_invoke(self, _ctx):
         while not self.loaded:
             await asyncio.sleep(0.1)
 
-    async def __local_check(self, ctx):
+    async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
 
     async def initialize(self) -> None:

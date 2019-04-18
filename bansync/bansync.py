@@ -27,7 +27,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "2.2.1"
+    __version__ = "3.0.0"
 
     def __init__(self, bot: "Red", *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -504,10 +504,9 @@ class BanSync(commands.Cog):
 
         if isinstance(error, ParserError):
             if error.args:
-                await ctx.send(error.args[0])
-        else:
-            with contextlib.suppress(TypeError):  # 3.0 support
-                await ctx.bot.on_command_error(ctx, error, unhandled_by_cog=True)
+                return await ctx.send(error.args[0])
+
+        await ctx.bot.on_command_error(ctx, error, unhandled_by_cog=True)
 
     @commands.command(name="mjolnir", aliases=["globalban"])
     async def mjolnir(

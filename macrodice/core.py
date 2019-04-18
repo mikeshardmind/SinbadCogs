@@ -43,7 +43,7 @@ class MacroDice(commands.Cog):
     def modifier(stat: int) -> int:
         return (stat - 10) // 2
 
-    def __unload(self):
+    def cog_unload(self):
         global _old_roll
         if _old_roll:
             self.bot.remove_command("roll")

@@ -47,6 +47,7 @@ class AutoRooms(MixedMeta):
                     else:
                         await conf.clear()
 
+    @commands.Cog.listener("on_voice_state_update")
     async def on_voice_state_update_ar(
         self,
         member: discord.Member,

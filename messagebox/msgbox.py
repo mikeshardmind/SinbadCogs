@@ -33,7 +33,7 @@ class MessageBox(commands.Cog):
         )
         self.config.register_global(output=None)
 
-    def __unload(self):
+    def cog_unload(self):
         global _old_contact
         if _old_contact:
             self.bot.remove_command("contact")

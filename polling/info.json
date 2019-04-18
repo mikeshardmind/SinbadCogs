@@ -2,7 +2,7 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
+    "install_msg": "Hidden for quality issues currently, dont use.",
     "name": "Polling",
     "disabled": false,
     "short": "polling via emoji utils",
@@ -12,7 +12,7 @@
         "vote",
         "voting"
     ],
-    "hidden": false,
+    "hidden": true,
     "min_python_version": [
         3,
         6,

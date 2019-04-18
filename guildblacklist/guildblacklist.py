@@ -24,7 +24,7 @@ class GuildBlacklist(commands.Cog):
     the server's ID, or the serverowner's ID
     """
 
-    __version__ = "2.0.0"
+    __version__ = "3.0.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -33,6 +33,7 @@ class GuildBlacklist(commands.Cog):
         )
         self.config.register_global(blacklist=[])
 
+    @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
         async with self.config.blacklist() as blacklist:
             if any(x in blacklist for x in (guild.id, guild.owner.id)):

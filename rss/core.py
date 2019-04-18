@@ -58,8 +58,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.0.22"
-    __flavor_text__ = "Slow responses wont kill the loop now."
+    __version__ = "2.0.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -70,7 +69,7 @@ class RSS(commands.Cog):
         self.session = aiohttp.ClientSession()
         self.bg_loop_task = self.bot.loop.create_task(self.bg_loop())
 
-    def __unload(self):
+    def cog_unload(self):
         self.bg_loop_task.cancel()
         self.session.detach()
 

@@ -20,15 +20,14 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "4.0.0"
+    __version__ = "5.0.0"
 
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        if hasattr(self.config, "init_custom"):  # compatability
-            self.config.init_custom("EMBED", 2)
+        self.config.init_custom("EMBED", 2)
         self.config.register_custom("EMBED", embed={}, owner=None)
         self.config.register_guild(active=True)
 
@@ -250,34 +249,6 @@ class EmbedMaker(commands.Cog):
         else:
             await group.owner.set(ctx.author.id)
             await group.embed.set(serialize_embed(e))
-
-    @_embed.command(name="list")
-    async def _list(self, ctx: commands.Context):
-        """
-        lists the embeds here
-        """
-        # noinspection PyProtectedMember
-        embed_dict = await self.config._get_base_group("EMBED")()
-        if ctx.guild:
-            local_embeds = list(sorted(embed_dict.get(str(ctx.guild.id), {}).keys()))
-        else:
-            local_embeds = []
-
-        global_embeds = list(sorted(embed_dict.get("GLOBAL", {}).keys()))
-
-        if not local_embeds and not global_embeds:
-            return await ctx.maybe_send_embed("No embeds available here.")
-
-        if local_embeds:
-            local_embeds.insert(0, "Local Embeds:")
-            if global_embeds:
-                local_embeds.append("\n")
-        if global_embeds:
-            global_embeds.insert(0, "Global Embeds:")
-        output = "\n".join(local_embeds + global_embeds)
-
-        for page in pagify(output):
-            await ctx.maybe_send_embed(page)
 
     @commands.guild_only()
     @_embed.command(name="remove")

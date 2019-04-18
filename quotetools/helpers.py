@@ -89,7 +89,7 @@ async def find_msg_fallback(channels, idx: int) -> discord.Message:
 
     for channel in channels:
         try:
-            m = await channel.get_message(idx)
+            m = await channel.fetch_message(idx)
         except discord.HTTPException:
             continue
         else:

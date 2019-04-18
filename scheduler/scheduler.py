@@ -44,7 +44,7 @@ class Scheduler(commands.Cog):
         if cleanup:
             self.try_patch_cleanup(cleanup)
 
-    def __unload(self):
+    def cog_unload(self):
         self.bg_loop_task.cancel()
         for task in self.scheduled.values():
             task.cancel()

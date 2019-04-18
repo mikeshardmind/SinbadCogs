@@ -15,7 +15,7 @@ __all__ = ["AntiMentionSpam"]
 class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
-    __version__ = "2.0.0"
+    __version__ = "3.0.0"
 
     def __init__(self, bot: "Red", *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -221,6 +221,7 @@ class AntiMentionSpam(commands.Cog):
                     except discord.HTTPException:
                         pass
 
+    @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         if message.author.bot or message.guild is None:
             return

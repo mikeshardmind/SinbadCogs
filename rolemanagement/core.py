@@ -1,4 +1,6 @@
 from typing import AsyncIterator, Tuple
+from abc import ABC
+
 import discord
 from redbot.core import checks, commands, bank
 from redbot.core.config import Config
@@ -12,14 +14,22 @@ from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
 
 
-class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
+class Meta(type(commands.Cog), type(ABC)):
+    """ Fricking mypy + discord.py use of classes and a base metaclass """
+
+    pass
+
+
+class RoleManagement(
+    UtilMixin, MassManagementMixin, EventMixin, commands.Cog, metaclass=Meta
+):
     """
     Cog for role management
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.3.0"
-    __flavor_text__ = "Purchasable roles"
+    __version__ = "4.0.0"
+    __flavor_text__ = "Major Breakage: Red 3.1 Support"
 
     def __init__(self, bot):
         self.bot = bot
@@ -37,15 +47,14 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             cost=0,
         )
         self.config.register_member(roles=[], forbidden=[])
-        if hasattr(self.config, "init_custom"):  # compatability
-            self.config.init_custom("REACTROLE", 2)
+        self.config.init_custom("REACTROLE", 2)
         self.config.register_custom(
             "REACTROLE", roleid=None, channelid=None, guildid=None
         )  # ID : Message.id, str(React)
         self.config.register_guild(notify_channel=None)
         super().__init__()
 
-    async def __before_invoke(self, ctx):
+    async def cog_before_invoke(self, ctx):
         if ctx.guild:
             await self.maybe_update_guilds(ctx.guild)
 
@@ -74,7 +83,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             )
 
         try:
-            message = await channel.get_message(msgid)
+            message = await channel.fetch_message(msgid)
         except discord.DiscordException:
             return await ctx.maybe_send_embed("No such message")
 
@@ -128,9 +137,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 "Can't do that. Discord role heirarchy applies here."
             )
 
-        cfg = self.config.custom("REACTROLE", msgid)
-        async with cfg() as cfg:
-            cfg.pop(str(emoji), None)
+        await self.config.custom("REACTROLE", msgid, emoji).clear()
         await ctx.tick()
 
     @commands.guild_only()
@@ -142,43 +149,6 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         Settings for role requirements
         """
         pass
-
-    @rgroup.command(name="viewreactions")
-    async def rg_view_reactions(self, ctx: commands.Context):
-        """
-        View the reactions enabled for the server
-        """
-        # This design is intentional for later extention to view this per role
-
-        use_embeds = await ctx.embed_requested()
-        # pylint: disable=E1133
-        react_roles = "\n".join(
-            [
-                msg
-                async for msg in self.build_messages_for_react_roles(
-                    *ctx.guild.roles, use_embeds=use_embeds
-                )
-            ]
-        )
-
-        if not react_roles:
-            return await ctx.send("No react roles bound here.")
-
-        # ctx.send is already going to escape said mentions if any somehow get generated
-        # should also not be possible to do so without willfully being done by an admin.
-
-        color = None
-
-        for page in pagify(
-            react_roles, escape_mass_mentions=False, page_length=1800, shorten_by=0
-        ):
-            # unrolling iterative calling of ctx.maybe_send_embed
-            # here to reduce function and coroutine overhead.
-            if use_embeds:
-                color = color or await ctx.embed_colour()
-                await ctx.send(embed=discord.Embed(description=page, color=color))
-            else:
-                await ctx.send(page)
 
     @rgroup.command(name="viewrole")
     async def rg_view_role(self, ctx: commands.Context, *, role: discord.Role):
@@ -487,153 +457,3 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             await ctx.send(
                 f"You aren't allowed to remove `{role}` from yourself {ctx.author.mention}!`"
             )
-
-    # migration / update tools
-
-    @rgroup.command(name="fixup", hidden=True)
-    async def fixup(self, ctx: commands.Context):
-        """
-        Removes bad settings, finds extra info as required.
-        """
-        async with ctx.typing():
-            await self.handle_fixup(ctx.guild)
-        await ctx.tick()
-
-    @checks.is_owner()
-    @rgroup.command("fixupall", hidden=True)
-    async def fixupall(self, ctx: commands.Context):
-        """
-        Removes bad settings, finds extra info as required.
-        """
-        async with ctx.typing():
-            await self.handle_fixup(*self.bot.guilds, checking_all=True)
-        await ctx.tick()
-
-    async def handle_fixup(self, *guilds: discord.Guild, checking_all=False) -> None:
-
-        needed_perms = discord.Permissions()
-        needed_perms.update(read_messages=True, read_message_history=True)
-        roles = {}
-        channels = {}
-        data = await self.config._get_base_group("REACTROLE").all()
-        # str(messageid) -> str(emoji or emojiid) -> actual data
-
-        for guild in guilds:
-            roles.update({r.id: r for r in guild.roles})
-            channels.update({c.id: c for c in guild.text_channels})
-
-        for mid, _outer in data.items():
-            if not isinstance(_outer, dict):
-                continue
-            if not _outer:
-                # can have an empty dict here
-                await self.config.custom("REACTROLE", mid).clear()
-                continue
-
-            for em, rdata in _outer.items():
-                if not rdata:
-                    # can have an empty dict here
-                    await self.config.custom("REACTROLE", mid, em).clear()
-                    continue
-                role = roles.get(rdata["roleid"], None)
-                if not role:
-                    if checking_all:
-                        await self.config.custom("REACTROLE", mid, em).clear()
-                    continue
-
-                gid = rdata.get("guildid", None)
-                if not gid:
-                    await self.config.custom("REACTROLE", mid, em).guildid.set(
-                        role.guild.id
-                    )
-
-                cid = rdata.get("channelid", None)
-                if not cid:
-                    non_forbidden_encountered = False
-                    for channel in role.guild.text_channels:
-                        non_forbidden_encountered = False
-                        if channel.permissions_for(role.guild.me) >= needed_perms:
-                            try:
-                                _msg = await channel.get_message(mid)
-                            except discord.Forbidden:
-                                continue
-                            except discord.HTTPException:
-                                non_forbidden_encountered = True
-                            else:
-                                if _msg:
-                                    await self.config.custom(
-                                        "REACTROLE", mid, em
-                                    ).channelid.set(channel.id)
-                                    break
-                    else:
-                        if not non_forbidden_encountered:
-                            await self.config.custom("REACTROLE", mid).clear()
-
-    # Stuff for clean interaction with react role entries
-
-    async def build_messages_for_react_roles(
-        self, *roles: discord.Role, use_embeds=True
-    ) -> AsyncIterator[str]:
-        """
-        Builds info.
-
-        Info is suitable for passing to embeds if use_embeds is True 
-        """
-
-        linkfmt = (
-            "[message](https://discordapp.com/channels/{guild_id}/{channel_id}/{message_id})"
-            if use_embeds
-            else "<https://discordapp.com/channels/{guild_id}/{channel_id}/{message_id}>"
-        )
-
-        for role in roles:
-            # pylint: disable=E1133
-            async for message_id, emoji_info, data in self.get_react_role_entries(role):
-
-                channel_id = data.get("channelid", None)
-                if channel_id:
-                    link = linkfmt.format(
-                        guild_id=role.guild.id,
-                        channel_id=channel_id,
-                        message_id=message_id,
-                    )
-                else:
-                    link = (
-                        f"unknown message with id {message_id}"
-                        f" (use `roleset fixup` to find missing data for this)"
-                    )
-
-                if emoji_info.isdigit():
-                    emoji = discord.utils.get(self.bot.emojis, id=int(emoji_info))
-                    emoji = emoji or f"A custom enoji with id {emoji_info}"
-                else:
-                    emoji = emoji_info
-
-                react_m = f"{role.name} is bound to {emoji} on {link}"
-                yield react_m
-
-    async def get_react_role_entries(
-        self, role: discord.Role
-    ) -> AsyncIterator[Tuple[str, str, dict]]:
-        """
-        yields:
-            str, str, dict
-            
-            first str: message id
-            second str: emoji id or unicode codepoint
-            dict: data from the corresponding:
-                config.custom("REACTROLE", messageid, emojiid)
-        """
-
-        # self.config.register_custom(
-        #    "REACTROLE", roleid=None, channelid=None, guildid=None
-        # )  # ID : Message.id, str(React)
-
-        data = await self.config._get_base_group("REACTROLE").all()
-
-        for mid, _outer in data.items():
-            if not _outer or not isinstance(_outer, dict):
-                continue
-            for em, rdata in _outer.items():
-                if rdata and rdata["roleid"] == role.id:
-                    yield (mid, em, rdata)

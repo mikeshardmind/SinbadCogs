@@ -28,7 +28,7 @@ class GuildWhitelist(commands.Cog):
     or whose owner is not whitelisted or the owner of the bot
     """
 
-    __version__ = "2.0.0"
+    __version__ = "3.0.0"
 
     def __init__(self, bot):
         self.bot = bot
@@ -37,6 +37,7 @@ class GuildWhitelist(commands.Cog):
         )
         self.config.register_global(whitelist=[])
 
+    @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
         async with self.config.whitelist() as whitelist:
             if not any(

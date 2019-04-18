@@ -19,6 +19,7 @@ class TempChannels(MixedMeta):
     Temporary Voice Channels
     """
 
+    @commands.Cog.listener("on_voice_state_update")
     async def on_voice_state_update_tmpc(
         self,
         _member: discord.Member,

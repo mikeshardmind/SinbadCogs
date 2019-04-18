@@ -42,9 +42,6 @@ class SuggestionBox(commands.Cog):
             forms={},  # TODO: Interactive forms.
             approval_queues={},
         )
-        # raw access w/ customforms not implemented here !! # TODO
-        if hasattr(self.config, "init_custom"):  # compatability
-            self.config.init_custom("SUGGESTION", 1)
         self.config.register_custom("SUGGESTION", data={})
 
         # Intended access method:  # TODO
