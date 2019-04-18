@@ -1,6 +1,6 @@
 from typing import AsyncIterator, Tuple
 import discord
-from redbot.core import checks, commands
+from redbot.core import checks, commands, bank
 from redbot.core.config import Config
 from redbot.core.utils.chat_formatting import pagify
 
@@ -18,8 +18,8 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.2.13"
-    __flavor_text__ = "Even more feedback."
+    __version__ = "3.3.0"
+    __flavor_text__ = "Purchasable roles"
 
     def __init__(self, bot):
         self.bot = bot
@@ -34,6 +34,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             self_removable=False,
             self_role=False,
             protected=False,
+            cost=0,
         )
         self.config.register_member(roles=[], forbidden=[])
         if hasattr(self.config, "init_custom"):  # compatability
@@ -212,6 +213,33 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         for page in pagify(output):
             await ctx.send(page)
 
+    @rgroup.command(name="cost")
+    async def make_purchasable(self, ctx, cost: int, *, role: discord.Role):
+        """
+        Makes a role purchasable for a specified cost. 
+        Cost must be a number greater than 0.
+        A cost of exactly 0 can be used to remove purchasability.
+        
+        Purchase eligibility still follows other rules including self assignable.
+        
+        Warning: If these roles are bound to a reaction, 
+        it will be possible to gain these without paying. 
+        """
+
+        if not await self.all_are_valid_roles(ctx, role):
+            return await ctx.maybe_send_embed(
+                "Can't do that. Discord role heirarchy applies here."
+            )
+
+        if cost < 0:
+            return await ctx.send_help()
+
+        await self.config.role(role).cost.set(cost)
+        if cost == 0:
+            await ctx.send(f"{role.name} is no longer purchasable.")
+        else:
+            await ctx.send(f"{role.name} is purchasable for {cost}")
+
     @rgroup.command(name="forbid")
     async def forbid_role(
         self, ctx: commands.Context, role: discord.Role, *, user: discord.Member
@@ -375,6 +403,46 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         """
         pass
 
+    @srole.command(name="buy")
+    async def srole_buy(self, ctx: commands.Context, *, role: discord.Role):
+        """
+        Purchase a role
+        """
+        try:
+            remove = await self.is_self_assign_eligible(ctx.author, role)
+            eligible = await self.config.role(role).self_role()
+            cost = await self.config.role(role).cost()
+        except RoleManagementException:
+            eligible = False
+        except PermissionOrHierarchyException:
+            await ctx.send(
+                "I cannot assign roles which I can not manage. (Discord Hierarchy)"
+            )
+        else:
+            if not eligible:
+                return await ctx.send(
+                    f"You aren't allowed to add `{role}` to yourself {ctx.author.mention}!"
+                )
+
+            if not cost:
+                return await ctx.send(
+                    "This role doesn't have a cost. Please try again using `[p]srole add`."
+                )
+
+            currency_name = await bank.get_currency_name(ctx.guild)
+
+            try:
+                await bank.withdraw_credits(ctx.author, cost)
+            except ValueError:
+                return await ctx.send(
+                    f"You don't have enough {currency_name} (Cost: {cost})"
+                )
+            else:
+                await self.update_roles_atomically(
+                    who=ctx.author, give=[role], remove=remove
+                )
+                await ctx.tick()
+
     @srole.command(name="add")
     async def sadd(self, ctx: commands.Context, *, role: discord.Role):
         """
@@ -383,22 +451,29 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         try:
             remove = await self.is_self_assign_eligible(ctx.author, role)
             eligible = await self.config.role(role).self_role()
+            cost = await self.config.role(role).cost()
         except RoleManagementException:
-            pass
+            eligible = False
         except PermissionOrHierarchyException:
-            return await ctx.send(
+            await ctx.send(
                 "I cannot assign roles which I can not manage. (Discord Hierarchy)"
             )
         else:
-            if eligible:
+            if not eligible:
+                await ctx.send(
+                    f"You aren't allowed to add `{role}` to yourself {ctx.author.mention}!"
+                )
+
+            elif cost:
+                await ctx.send(
+                    "This role is not free. "
+                    "Please use `[p]srole buy` if you would like to purchase it."
+                )
+            else:
                 await self.update_roles_atomically(
                     who=ctx.author, give=[role], remove=remove
                 )
-                return await ctx.tick()
-
-        await ctx.send(
-            f"You aren't allowed to add `{role}` to yourself {ctx.author.mention}!"
-        )
+                await ctx.tick()
 
     @srole.command(name="remove")
     async def srem(self, ctx: commands.Context, *, role: discord.Role):
