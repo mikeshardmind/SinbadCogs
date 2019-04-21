@@ -56,7 +56,7 @@ class Scheduler(commands.Cog):
 
     # This never should be needed,
     # but it doesn't hurt to add and could cover a weird edge case.
-    __del__ = __unload
+    __del__ = cog_unload
 
     async def _load_tasks(self):
         chan_dict = await self.config.all_channels()
