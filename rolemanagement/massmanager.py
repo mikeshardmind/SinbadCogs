@@ -77,7 +77,7 @@ class MassManagementMixin(MixinMeta):
             if query["none"] and m in none_set:
                 return False
 
-            if query["hasperm"] and m.guild_permissions < minimum_perms:
+            if query["hasperm"] and not m.guild_permissions.is_superset(minimum_perms):
                 return False
 
             if query["anyperm"] and not any(
