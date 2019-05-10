@@ -277,12 +277,20 @@ class Filter(commands.Cog):
     ):
         """ Invalidate a cached pattern"""
         self.pattern_cache.pop((guild, channel), None)
+        if channel is None:
+            for k in self.pattern_cache.keys():
+                if guild in k:
+                    self.pattern_cache.pop(k, None)
 
     def invalidate_atom(
         self, guild: discord.Guild, channel: discord.TextChannel = None
     ):
         """ Invalidate a cached pattern built from atoms"""
         self._regex_atom_pattern_cache.pop((guild, channel), None)
+        if channel is None:
+            for k in self._regex_atom_pattern_cache.keys():
+                if guild in k:
+                    self._regex_atom_pattern_cache.pop(k, None)
 
     async def add_to_filter(
         self, server_or_channel: Union[discord.Guild, discord.TextChannel], words: list
