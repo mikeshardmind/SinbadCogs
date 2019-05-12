@@ -12,7 +12,7 @@ SPOILER_RE = re.compile(r"(?s)\|{2}(?P<CONTENT>.*?)\|{2}")
 class DevTools(commands.Cog):
     """ Some tools """
 
-    __version__ = "2.0.0"
+    __version__ = "2.0.2"
 
     def __init__(self, bot, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -70,7 +70,10 @@ class DevTools(commands.Cog):
         )
         if message is None:
             try:
-                message = await ctx.channel.get_message(message_id)
+                try:
+                    message = await ctx.channel.fetch_message(message_id)
+                except AttributeError:
+                    message = await ctx.channel.get_message(message_id)
             except discord.NotFound:
                 return await ctx.send("No such message")
             except discord.Forbidden:

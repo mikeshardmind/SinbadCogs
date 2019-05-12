@@ -7,6 +7,6 @@
     "description": "Some dev tools",
     "tags": [],
     "hidden": true,
-    "min_python_version": [3, 6, 0],
+    "min_python_version": [3, 7, 0],
     "requirements": []
 }

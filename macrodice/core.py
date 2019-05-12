@@ -15,7 +15,7 @@ class MacroDice(commands.Cog):
     Dice Macros
     """
 
-    __version__ = "1.0.0"
+    __version__ = "1.0.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -43,7 +43,9 @@ class MacroDice(commands.Cog):
     def modifier(stat: int) -> int:
         return (stat - 10) // 2
 
-    def __unload(self):
+    __unload = cog_unload
+
+    def cog_unload(self):
         global _old_roll
         if _old_roll:
             self.bot.remove_command("roll")

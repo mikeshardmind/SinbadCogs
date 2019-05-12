@@ -1,3 +1,5 @@
+from abc import ABC
+import contextlib
 from typing import AsyncIterator, Tuple
 import discord
 from redbot.core import checks, commands, bank
@@ -7,18 +9,31 @@ from redbot.core.utils.chat_formatting import pagify
 from .utils import UtilMixin
 from .massmanager import MassManagementMixin
 from .events import EventMixin
-
-# from .notifications import NotificationMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
 
 
-class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
+class CompositeMetaClass(type(commands.Cog), type(ABC)):
+    """
+    This allows the metaclass used for proper type detection to
+    coexist with discord.py's metaclass
+    """
+
+    pass
+
+
+class RoleManagement(
+    UtilMixin,
+    MassManagementMixin,
+    EventMixin,
+    commands.Cog,
+    metaclass=CompositeMetaClass,
+):
     """
     Cog for role management
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.3.0"
+    __version__ = "3.3.1"
     __flavor_text__ = "Purchasable roles"
 
     def __init__(self, bot):
@@ -37,7 +52,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             cost=0,
         )
         self.config.register_member(roles=[], forbidden=[])
-        if hasattr(self.config, "init_custom"):  # compatability
+        with contextlib.supress(AttributeError):
             self.config.init_custom("REACTROLE", 2)
         self.config.register_custom(
             "REACTROLE", roleid=None, channelid=None, guildid=None
@@ -45,9 +60,11 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         self.config.register_guild(notify_channel=None)
         super().__init__()
 
-    async def __before_invoke(self, ctx):
+    async def cog_before_invoke(self, ctx):
         if ctx.guild:
             await self.maybe_update_guilds(ctx.guild)
+
+    __before_invoke = cog_before_invoke
 
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
@@ -74,7 +91,10 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
             )
 
         try:
-            message = await channel.get_message(msgid)
+            if discord.__version__ == "1.0.0a":
+                message = await channel.get_message(msgid)
+            else:
+                message = await channel.fetch_message(msgid)
         except discord.DiscordException:
             return await ctx.maybe_send_embed("No such message")
 
@@ -128,9 +148,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 "Can't do that. Discord role heirarchy applies here."
             )
 
-        cfg = self.config.custom("REACTROLE", msgid)
-        async with cfg() as cfg:
-            cfg.pop(str(emoji), None)
+        await self.config.custom("REACTROLE", msgid, emoji).clear()
         await ctx.tick()
 
     @commands.guild_only()
@@ -488,87 +506,6 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
                 f"You aren't allowed to remove `{role}` from yourself {ctx.author.mention}!`"
             )
 
-    # migration / update tools
-
-    @rgroup.command(name="fixup", hidden=True)
-    async def fixup(self, ctx: commands.Context):
-        """
-        Removes bad settings, finds extra info as required.
-        """
-        async with ctx.typing():
-            await self.handle_fixup(ctx.guild)
-        await ctx.tick()
-
-    @checks.is_owner()
-    @rgroup.command("fixupall", hidden=True)
-    async def fixupall(self, ctx: commands.Context):
-        """
-        Removes bad settings, finds extra info as required.
-        """
-        async with ctx.typing():
-            await self.handle_fixup(*self.bot.guilds, checking_all=True)
-        await ctx.tick()
-
-    async def handle_fixup(self, *guilds: discord.Guild, checking_all=False) -> None:
-
-        needed_perms = discord.Permissions()
-        needed_perms.update(read_messages=True, read_message_history=True)
-        roles = {}
-        channels = {}
-        data = await self.config._get_base_group("REACTROLE").all()
-        # str(messageid) -> str(emoji or emojiid) -> actual data
-
-        for guild in guilds:
-            roles.update({r.id: r for r in guild.roles})
-            channels.update({c.id: c for c in guild.text_channels})
-
-        for mid, _outer in data.items():
-            if not isinstance(_outer, dict):
-                continue
-            if not _outer:
-                # can have an empty dict here
-                await self.config.custom("REACTROLE", mid).clear()
-                continue
-
-            for em, rdata in _outer.items():
-                if not rdata:
-                    # can have an empty dict here
-                    await self.config.custom("REACTROLE", mid, em).clear()
-                    continue
-                role = roles.get(rdata["roleid"], None)
-                if not role:
-                    if checking_all:
-                        await self.config.custom("REACTROLE", mid, em).clear()
-                    continue
-
-                gid = rdata.get("guildid", None)
-                if not gid:
-                    await self.config.custom("REACTROLE", mid, em).guildid.set(
-                        role.guild.id
-                    )
-
-                cid = rdata.get("channelid", None)
-                if not cid:
-                    non_forbidden_encountered = False
-                    for channel in role.guild.text_channels:
-                        non_forbidden_encountered = False
-                        if channel.permissions_for(role.guild.me) >= needed_perms:
-                            try:
-                                _msg = await channel.get_message(mid)
-                            except discord.Forbidden:
-                                continue
-                            except discord.HTTPException:
-                                non_forbidden_encountered = True
-                            else:
-                                if _msg:
-                                    await self.config.custom(
-                                        "REACTROLE", mid, em
-                                    ).channelid.set(channel.id)
-                                    break
-                    else:
-                        if not non_forbidden_encountered:
-                            await self.config.custom("REACTROLE", mid).clear()
-
     # Stuff for clean interaction with react role entries
 
     async def build_messages_for_react_roles(
@@ -629,7 +566,7 @@ class RoleManagement(UtilMixin, MassManagementMixin, EventMixin, commands.Cog):
         #    "REACTROLE", roleid=None, channelid=None, guildid=None
         # )  # ID : Message.id, str(React)
 
-        data = await self.config._get_base_group("REACTROLE").all()
+        data = await self.config.custom("REACTROLE").all()
 
         for mid, _outer in data.items():
             if not _outer or not isinstance(_outer, dict):

@@ -27,7 +27,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "2.2.1"
+    __version__ = "2.2.2"
 
     def __init__(self, bot: "Red", *args, **kwargs):
         super().__init__(*args, **kwargs)

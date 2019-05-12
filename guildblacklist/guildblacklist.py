@@ -16,6 +16,13 @@ FILE_NOT_FOUND = _("That doesn't appear to be a valid path for that")
 
 _ = T_
 
+# red 3.0 backwards compatibility support
+listener = getattr(commands.Cog, "listener", None)
+if listener is None:
+
+    def listener(name=None):
+        return lambda x: x
+
 
 @cog_i18n(_)
 class GuildBlacklist(commands.Cog):
@@ -24,7 +31,7 @@ class GuildBlacklist(commands.Cog):
     the server's ID, or the serverowner's ID
     """
 
-    __version__ = "2.0.0"
+    __version__ = "2.0.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -33,6 +40,7 @@ class GuildBlacklist(commands.Cog):
         )
         self.config.register_global(blacklist=[])
 
+    @listener()
     async def on_guild_join(self, guild: discord.Guild):
         async with self.config.blacklist() as blacklist:
             if any(x in blacklist for x in (guild.id, guild.owner.id)):

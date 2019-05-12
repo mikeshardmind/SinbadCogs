@@ -13,13 +13,20 @@ from redbot.core import bank
 from .activity import RecordHandler
 from .converters import configable_guild_defaults, settings_converter
 
+# red 3.0 backwards compatibility support
+listener = getattr(commands.Cog, "listener", None)
+if listener is None:
+
+    def listener(name=None):
+        return lambda x: x
+
 
 class EconomyTrickle(commands.Cog):
     """
     Automatic Economy gains for active users
     """
 
-    __version__ = "2.0.0"
+    __version__ = "2.0.2"
 
     def __init__(self, bot, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -41,10 +48,14 @@ class EconomyTrickle(commands.Cog):
         self.main_loop_task = bot.loop.create_task(self.main_loop())
         self.extra_tasks = []
 
-    def __unload(self):
+    def cog_unload(self):
         self.main_loop_task.cancel()
-        [t.cancel() for t in self.extra_tasks]
+        for t in self.extra_tasks:
+            t.cancel()
 
+    __unload = cog_unload
+
+    @listener()
     async def on_message(self, message):
         if message.guild and await self.config.guild(message.guild).active():
             self.recordhandler.proccess_message(message)

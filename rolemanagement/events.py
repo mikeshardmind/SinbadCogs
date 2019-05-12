@@ -1,10 +1,21 @@
 import discord
 
+from redbot.core import commands
+
 from .abc import MixinMeta
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
 
+# red 3.0 backwards compatibility support
+listener = getattr(commands.Cog, "listener", None)
+
+if listener is None:
+
+    def listener(name=None):
+        return lambda x: x
+
 
 class EventMixin(MixinMeta):
+    @listener()
     async def on_member_update(self, before, after):
 
         if before.roles == after.roles:
@@ -28,6 +39,7 @@ class EventMixin(MixinMeta):
                 if r.id not in rids:
                     rids.append(r.id)
 
+    @listener()
     async def on_member_join(self, member):
         guild = member.guild
         if not guild.me.guild_permissions.manage_roles:
@@ -43,6 +55,7 @@ class EventMixin(MixinMeta):
                 to_add = [r for r in to_add if r < guild.me.top_role]
                 await member.add_roles(*to_add)
 
+    @listener()
     async def on_raw_reaction_add(
         self, payload: discord.raw_models.RawReactionActionEvent
     ):
@@ -75,6 +88,7 @@ class EventMixin(MixinMeta):
         else:
             await self.update_roles_atomically(who=member, give=[role], remove=remove)
 
+    @listener()
     async def on_raw_reaction_remove(
         self, payload: discord.raw_models.RawReactionActionEvent
     ):

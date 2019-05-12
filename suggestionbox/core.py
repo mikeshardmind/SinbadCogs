@@ -1,3 +1,4 @@
+import contextlib
 from typing import Optional
 from enum import IntEnum
 
@@ -19,7 +20,7 @@ class SuggestionBox(commands.Cog):
     A configureable suggestion box cog
     """
 
-    __version__ = "1.0.4"
+    __version__ = "1.0.5"
 
     def __init__(self, bot):
         self.bot = bot
@@ -43,7 +44,7 @@ class SuggestionBox(commands.Cog):
             approval_queues={},
         )
         # raw access w/ customforms not implemented here !! # TODO
-        if hasattr(self.config, "init_custom"):  # compatability
+        with contextlib.suppress(AttributeError):
             self.config.init_custom("SUGGESTION", 1)
         self.config.register_custom("SUGGESTION", data={})
 

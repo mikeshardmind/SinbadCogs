@@ -14,7 +14,7 @@ class BuyRole(commands.Cog):
     A simple purchasable role cog
     """
 
-    __version__ = "1.0.2"
+    __version__ = "1.0.3"
 
     def __init__(self, bot):
         self.bot = bot
