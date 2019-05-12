@@ -43,13 +43,13 @@ class MacroDice(commands.Cog):
     def modifier(stat: int) -> int:
         return (stat - 10) // 2
 
-    __unload = cog_unload
-
     def cog_unload(self):
         global _old_roll
         if _old_roll:
             self.bot.remove_command("roll")
             self.bot.add_command(_old_roll)
+
+    __unload = cog_unload
 
     @commands.guild_only()
     @commands.command(name="roll")
