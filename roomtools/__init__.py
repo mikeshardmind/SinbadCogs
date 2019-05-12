@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import Any
 from datetime import timedelta
 
@@ -6,14 +7,30 @@ from redbot.core import Config, commands
 from .autorooms import AutoRooms
 from .tempchannels import TempChannels
 
+# red 3.0 backwards compatibility support
+listener = getattr(commands.Cog, "listener", None)
+if listener is None:
 
-class RoomTools(AutoRooms, TempChannels, commands.Cog):
+    def listener(name=None):
+        return lambda x: x
+
+
+class CompositeMetaClass(type(commands.Cog), type(ABC)):
+    """
+    This allows the metaclass used for proper type detection to
+    coexist with discord.py's metaclass
+    """
+
+    pass
+
+
+class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaClass):
     """
     Automagical user generated rooms with configuration.
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "7.1.3"
+    __version__ = "7.1.4"
     __flavor_text__ = "Weird Edge case fix."
 
     antispam_intervals = [
@@ -45,6 +62,12 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog):
         )
         self.bot.loop.create_task(self.on_resumed())
 
+    @listener()
+    async def on_voice_state_update(self, member, before, after):
+        await self.on_voice_state_update_ar(member, before, after)
+        await self.on_voice_state_update_tmpc(member, before, after)
+
+    @listener()
     async def on_resumed(self):
         await self.tmpc_cleanup(load=True)
         await self.ar_cleanup(load=True)
@@ -53,5 +76,3 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog):
 def setup(bot):
     cog = RoomTools(bot)
     bot.add_cog(cog)
-    bot.add_listener(cog.on_voice_state_update_tmpc, "on_voice_state_update")
-    bot.add_listener(cog.on_voice_state_update_ar, "on_voice_state_update")

@@ -2,8 +2,31 @@ from typing import Any
 from redbot.core import commands
 import discord
 from .helpers import find_messages, embed_from_msg
+import re
 
 Base: Any = getattr(commands, "Cog", object)
+
+CHANNEL_RE = re.compile(r"^<#(\d{15,21})>$|^(\d{15,21})$")
+
+
+class GlobalChannel(commands.Converter):
+    async def convert(self, ctx, argument):
+
+        bot = ctx.bot
+
+        match = CHANNEL_RE.match(argument)
+        channel = None
+        if match:
+            idx = next(filter(None, match.groups()), None)
+
+            if idx:
+                channel_id = int(idx)
+                channel = bot.get_channel(channel_id)
+
+        if not channel or not isinstance(result, discord.abc.Messageable):
+            raise commands.BadArgument('Channel "{}" not found.'.format(argument))
+
+        return channel
 
 
 class QuoteTools(commands.Cog):
@@ -12,7 +35,7 @@ class QuoteTools(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.3.0"
+    __version__ = "1.3.1"
     __flavor_text__ = "Message jump links are go"
 
     def __init__(self, bot, *args, **kwargs):
@@ -21,18 +44,18 @@ class QuoteTools(commands.Cog):
 
     @commands.command()
     async def quote(
-        self,
-        ctx,
-        channels: commands.Greedy[discord.TextChannel] = None,
-        *messageids: int
+        self, ctx, channels: commands.Greedy[GlobalChannel] = None, *messageids: int
     ):
         """
         gets (a) message(s) by ID(s)
 
         User must be able to see the message(s)
 
-        You can optionally limit search to specific channels to speed things up
+        You need to specify specific channels to search (by ID or mention only!)
         """
+
+        if not channels and not await ctx.bot.is_owner(ctx.author):
+            return await ctx.send_help()
 
         msgs = await find_messages(ctx, messageids, channels)
         if not msgs:

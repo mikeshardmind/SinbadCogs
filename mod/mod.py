@@ -100,6 +100,7 @@ class Mod(mod.Mod):
         # dummy func so userinfo doesnt break
         return [], []
 
+    # leaving this undecorated intentionally
     async def on_member_update(self, *args, **kwargs):
         # kill saving member name changes, also popped during setup.
         pass

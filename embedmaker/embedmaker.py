@@ -1,5 +1,6 @@
 import io
 import logging
+import contextlib
 
 import discord
 from redbot.core import Config
@@ -20,15 +21,16 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "4.0.0"
+    __version__ = "5.0.0"
 
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        if hasattr(self.config, "init_custom"):  # compatability
-            self.config.init_custom("EMBED", 2)
+        with contextlib.suppress(AttributeError):  # god blees force_registration
+            self.config.init_custom("EMBED", 2)  # 3.0 compatability
+
         self.config.register_custom("EMBED", embed={}, owner=None)
         self.config.register_guild(active=True)
 
@@ -256,8 +258,8 @@ class EmbedMaker(commands.Cog):
         """
         lists the embeds here
         """
-        # noinspection PyProtectedMember
-        embed_dict = await self.config._get_base_group("EMBED")()
+        embed_dict = await self.config.custom("EMBED").all()
+
         if ctx.guild:
             local_embeds = list(sorted(embed_dict.get(str(ctx.guild.id), {}).keys()))
         else:
@@ -413,7 +415,10 @@ class EmbedMaker(commands.Cog):
         """
         name = name.lower()
         try:
-            e = (await ctx.channel.get_message(_id)).embeds[0]
+            if discord.__version__ == "1.0.0a":
+                e = (await ctx.channel.get_message(_id)).embeds[0]
+            else:
+                e = (await ctx.channel.fetch_message(_id)).embeds[0]
         except Exception:
             return
 
@@ -431,7 +436,10 @@ class EmbedMaker(commands.Cog):
         """
         name = name.lower()
         try:
-            e = (await ctx.channel.get_message(_id)).embeds[0]
+            if discord.__version__ == "1.0.0a":
+                e = (await ctx.channel.get_message(_id)).embeds[0]
+            else:
+                e = (await ctx.channel.fetch_message(_id)).embeds[0]
         except Exception:
             return
 

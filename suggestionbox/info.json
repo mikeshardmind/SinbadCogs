@@ -8,5 +8,5 @@
     "short": "configureable suggestion boxes",
     "description": "configureable suggestion boxes",
     "tags": [],
-    "hidden": false
+    "hidden": true
 }

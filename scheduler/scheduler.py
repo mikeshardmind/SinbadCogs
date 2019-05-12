@@ -23,7 +23,7 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.25"
+    __version__ = "1.0.26"
     __author__ = "mikeshardmind(Sinbad)"
     __flavor_text__ = "Unhidden remindme."
 
@@ -44,7 +44,7 @@ class Scheduler(commands.Cog):
         if cleanup:
             self.try_patch_cleanup(cleanup)
 
-    def __unload(self):
+    def cog_unload(self):
         self.bg_loop_task.cancel()
         for task in self.scheduled.values():
             task.cancel()
@@ -54,9 +54,11 @@ class Scheduler(commands.Cog):
             if cog:
                 cog.check_100_plus = self._original_cleanup_check
 
+    __unload = cog_unload
+
     # This never should be needed,
     # but it doesn't hurt to add and could cover a weird edge case.
-    __del__ = __unload
+    __del__ = cog_unload
 
     async def _load_tasks(self):
         chan_dict = await self.config.all_channels()

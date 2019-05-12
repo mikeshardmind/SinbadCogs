@@ -24,7 +24,7 @@ class MessageBox(commands.Cog):
     replace contact with something less obnoxious
     """
 
-    __version__ = "2.0.0"
+    __version__ = "2.0.1"
 
     def __init__(self, bot):
         self.bot = bot
@@ -33,11 +33,13 @@ class MessageBox(commands.Cog):
         )
         self.config.register_global(output=None)
 
-    def __unload(self):
+    def cog_unload(self):
         global _old_contact
         if _old_contact:
             self.bot.remove_command("contact")
             self.bot.add_command(_old_contact)
+
+    __unload = cog_unload
 
     @checks.is_owner()
     @commands.command(name="msgboxset")

@@ -14,6 +14,13 @@ from .helpers import unique, embed_from_msg, txt_channel_finder
 
 _ = Translator("Relays", __file__)
 
+# red 3.0 backwards compatibility support
+listener = getattr(commands.Cog, "listener", None)
+if listener is None:
+
+    def listener(name=None):
+        return lambda x: x
+
 
 @cog_i18n(_)
 class Relays(commands.Cog):
@@ -22,7 +29,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "2.0.3"
+    __version__ = "2.0.4"
 
     def __init__(self, bot: Red, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -36,12 +43,16 @@ class Relays(commands.Cog):
         self.scrub_invites: Optional[bool] = None
         self.loaded = False
 
-    async def __before_invoke(self, _ctx):
+    async def cog_before_invoke(self, _ctx):
         while not self.loaded:
             await asyncio.sleep(0.1)
 
-    async def __local_check(self, ctx):
+    __before_invoke = cog_before_invoke
+
+    async def cog_local_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
+
+    __local_check = cog_local_check
 
     async def initialize(self) -> None:
         await self.bot.wait_until_ready()
@@ -76,6 +87,7 @@ class Relays(commands.Cog):
             chans.extend(r.get_destinations(message))
         return unique(chans)
 
+    @listener()
     async def on_message(self, message: discord.Message):
         if not self.loaded:
             await self.initialize()
