@@ -52,7 +52,7 @@ class RoleManagement(
             cost=0,
         )
         self.config.register_member(roles=[], forbidden=[])
-        with contextlib.supress(AttributeError):
+        with contextlib.suppress(AttributeError):
             self.config.init_custom("REACTROLE", 2)
         self.config.register_custom(
             "REACTROLE", roleid=None, channelid=None, guildid=None
