@@ -91,6 +91,12 @@ class Filter(_Red_Filter):
         pass
 
     @commands.check(lambda ctx: bool(re2))
+    @regex_filter.group(name="channel")
+    async def regex_filter_channel(self, ctx):
+        """ Channel specific regex """
+        pass
+
+    @commands.check(lambda ctx: bool(re2))
     @regex_filter.command(name="addatom")
     async def rfg_guild_add(self, ctx: commands.Context, *, atom: str):
         """ 
