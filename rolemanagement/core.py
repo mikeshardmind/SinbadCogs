@@ -12,18 +12,24 @@ from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
 
 if hasattr(commands, "CogMeta"):
-    t = type(commands.Cog)
+
+    class CompositeMetaClass(t, type(ABC)):
+        """
+        This allows the metaclass used for proper type detection to
+        coexist with discord.py's metaclass
+        """
+
+        pass
+
+
 else:
-    t = object
 
+    class CompositeMetaClass(type(ABC)):
+        """
+        And this exists because 3.0 compatability (why do I do this to myself?)
+        """
 
-class CompositeMetaClass(t, type(ABC)):
-    """
-    This allows the metaclass used for proper type detection to
-    coexist with discord.py's metaclass
-    """
-
-    pass
+        pass
 
 
 class RoleManagement(
