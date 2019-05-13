@@ -15,25 +15,28 @@ if listener is None:
         return lambda x: x
 
 
-if hasattr(commands, "CogMeta"):
-
-    class CompositeMetaClass(t, type(ABC)):
-        """
-        This allows the metaclass used for proper type detection to
-        coexist with discord.py's metaclass
-        """
-
-        pass
+def base_maker(*bases):
+    """ This is by no means great """
+    for base in bases:
+        t = type(base)
+        if t == type:
+            continue
+        yield t
 
 
-else:
+class CompositeMetaClass(*(cls for cls in base_maker(commands.Cog, ABC))):
+    """
+    Fucking compatability layer for Red 3.0
 
-    class CompositeMetaClass(type(ABC)):
-        """
-        And this exists because 3.0 compatability (why do I do this to myself?)
-        """
+    3.1 would just use 
+        type(commands.Cog), type(ABC)
+    and be done with it
+    """
 
-        pass
+    pass
+
+
+# No more major compatability Bullshit.
 
 
 class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaClass):

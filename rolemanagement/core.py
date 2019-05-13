@@ -11,25 +11,34 @@ from .massmanager import MassManagementMixin
 from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
 
-if hasattr(commands, "CogMeta"):
 
-    class CompositeMetaClass(t, type(ABC)):
-        """
-        This allows the metaclass used for proper type detection to
-        coexist with discord.py's metaclass
-        """
-
-        pass
+# 3.0 compatability is ugly
 
 
-else:
+def base_maker(*bases):
+    """
+    This is by no means great
+    """
+    for base in bases:
+        t = type(base)
+        if t == type:
+            continue
+        yield t
 
-    class CompositeMetaClass(type(ABC)):
-        """
-        And this exists because 3.0 compatability (why do I do this to myself?)
-        """
 
-        pass
+class CompositeMetaClass(*(cls for cls in base_maker(commands.Cog, ABC))):
+    """
+    Fucking compatability layer for Red 3.0
+
+    3.1 would just use 
+        type(commands.Cog), type(ABC)
+    and be done with it
+    """
+
+    pass
+
+
+# No more major compatability Bullshit.
 
 
 class RoleManagement(
