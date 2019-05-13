@@ -14,8 +14,12 @@ if listener is None:
     def listener(name=None):
         return lambda x: x
 
+    t = object
+else:
+    t = type(commands.Cog)
 
-class CompositeMetaClass(type(commands.Cog), type(ABC)):
+
+class CompositeMetaClass(t, type(ABC)):
     """
     This allows the metaclass used for proper type detection to
     coexist with discord.py's metaclass

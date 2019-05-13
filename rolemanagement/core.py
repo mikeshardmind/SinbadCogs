@@ -11,8 +11,13 @@ from .massmanager import MassManagementMixin
 from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
 
+if hasattr(commads, "CogMeta"):
+    t = type(commands.Cog)
+else:
+    t = object
 
-class CompositeMetaClass(type(commands.Cog), type(ABC)):
+
+class CompositeMetaClass(t, type(ABC)):
     """
     This allows the metaclass used for proper type detection to
     coexist with discord.py's metaclass
