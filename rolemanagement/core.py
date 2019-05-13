@@ -11,7 +11,7 @@ from .massmanager import MassManagementMixin
 from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
 
-if hasattr(commads, "CogMeta"):
+if hasattr(commands, "CogMeta"):
     t = type(commands.Cog)
 else:
     t = object
