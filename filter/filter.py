@@ -17,7 +17,7 @@ class Filter(_Red_Filter):
 
     def __init__(self, bot: Red):
         self._regex_atom_pattern_cache: dict = {}
-        super().__init__()
+        super().__init__(bot)
         self.settings = Config.get_conf(self, 4766951341)
         default_guild_settings = {
             "filter": [],
