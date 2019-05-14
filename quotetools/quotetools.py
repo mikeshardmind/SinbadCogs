@@ -23,7 +23,7 @@ class GlobalChannel(commands.Converter):
                 channel_id = int(idx)
                 channel = bot.get_channel(channel_id)
 
-        if not channel or not isinstance(result, discord.abc.Messageable):
+        if not channel or not isinstance(channel, discord.abc.Messageable):
             raise commands.BadArgument('Channel "{}" not found.'.format(argument))
 
         return channel
@@ -35,7 +35,7 @@ class QuoteTools(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.3.1"
+    __version__ = "1.3.2"
     __flavor_text__ = "Message jump links are go"
 
     def __init__(self, bot, *args, **kwargs):
@@ -52,9 +52,10 @@ class QuoteTools(commands.Cog):
         User must be able to see the message(s)
 
         You need to specify specific channels to search (by ID or mention only!)
+        (Owner is exempt from this, but it may be slow and API heavy)
         """
 
-        if not channels and not await ctx.bot.is_owner(ctx.author):
+        if not messageids or (not channels and not await ctx.bot.is_owner(ctx.author)):
             return await ctx.send_help()
 
         msgs = await find_messages(ctx, messageids, channels)
