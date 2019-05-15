@@ -76,11 +76,11 @@ class Filter(_Red_Filter):
                     pattern = None
 
                 self._regex_atom_pattern_cache[(guild, channel)] = pattern
-
-        if pattern:
-            match = pattern.search(text)
-            if match:
-                hits.add(match.string)
+        finally:
+            if pattern:
+                match = pattern.search(text)
+                if match:
+                    hits.add(match.string)
 
         return hits
 
