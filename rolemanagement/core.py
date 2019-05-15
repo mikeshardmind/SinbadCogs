@@ -94,7 +94,7 @@ class RoleManagement(
     @commands.command(name="rrcleanup")
     async def rolemanagementcleanup(self, ctx):
         """ :eyes: """
-        data = await config.custom("REACTROLE").all()
+        data = await self.config.custom("REACTROLE").all()
 
         key_data = {}
 
@@ -120,7 +120,9 @@ class RoleManagement(
 
         for mid, keys in key_data.items():
             for k in keys:
-                await config.custom("REACTROLE", mid, k).clear()
+                await self.config.custom("REACTROLE", mid, k).clear()
+
+        await ctx.tick()
 
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
