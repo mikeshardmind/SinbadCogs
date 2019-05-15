@@ -91,9 +91,7 @@ class AutoRooms(MixedMeta):
         category = source.category
 
         editargs = {"bitrate": source.bitrate, "user_limit": source.user_limit}
-        overwrites = {}
-        for perm in source.overwrites:
-            overwrites.update({perm[0]: perm[1]})
+        overwrites = dict(source.overwrites)
         if ownership:
             if who in overwrites:
                 overwrites[who].update(manage_channels=True, manage_roles=True)

@@ -1,5 +1,5 @@
 from redbot.cogs.mod import mod
-from typing import Union, Dict
+from typing import Union, Dict, cast
 from datetime import timedelta
 
 import discord
@@ -38,7 +38,7 @@ class Mod(mod.Mod):
             return
         try:
             _id = user.id  # type: ignore
-            user_obj: discord.User = user
+            user_obj: Union[discord.User, None] = cast(discord.User, user)
         except AttributeError:
             _id = user
             if _id in {m.id for m in self.bot.get_all_members()}:
