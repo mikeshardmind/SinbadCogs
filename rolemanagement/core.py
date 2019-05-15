@@ -109,7 +109,7 @@ class RoleManagement(
                 continue
 
             message = None
-            channel_id = maybe_data[ex_keys[0]]["channel_id"]
+            channel_id = maybe_data[ex_keys[0]]["channelid"]
             channel = ctx.bot.get_channel(channel_id)
             if channel:
                 with contextlib.suppress(discord.HTTPException):
