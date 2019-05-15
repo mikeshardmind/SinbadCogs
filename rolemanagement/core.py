@@ -86,6 +86,42 @@ class RoleManagement(
 
     __before_invoke = cog_before_invoke
 
+    # Alpha testing
+    @commands.check(
+        lambda ctx: ctx.author.id in (240961564503441410, 78631113035100160)
+    )
+    @checks.is_owner()
+    @commands.command(name="rrcleanup")
+    async def rolemanagementcleanup(self, ctx):
+        """ :eyes: """
+        data = await config.custom("REACTROLE").all()
+
+        key_data = {}
+
+        for maybe_message_id, maybe_data in data.items():
+            try:
+                message_id = int(maybe_message_id)
+            except ValueError:
+                continue
+
+            ex_keys = list(maybe_data.keys())
+            if not ex_keys:
+                continue
+
+            message = None
+            channel_id = maybe_data[ex_keys[0]]["channel_id"]
+            channel = ctx.bot.get_channel(channel_id)
+            if channel:
+                with contextlib.suppress(discord.HTTPException):
+                    message = await channel.fetch_message(message_id)
+
+            if not message:
+                key_data.update({maybe_message_id: ex_keys})
+
+        for mid, keys in key_data.items():
+            for k in keys:
+                await config.custom("REACTROLE", mid, k).clear()
+
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
     @checks.admin_or_permissions(manage_guild=True)
