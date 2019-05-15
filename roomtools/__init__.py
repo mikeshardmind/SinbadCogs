@@ -1,7 +1,6 @@
 from abc import ABC
 from typing import Any
 from datetime import timedelta
-import logging
 
 from redbot.core import Config, commands
 
@@ -46,7 +45,7 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "7.1.4"
+    __version__ = "7.1.5"
     __flavor_text__ = "Weird Edge case fix."
 
     antispam_intervals = [
@@ -80,11 +79,9 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
 
     @listener()
     async def on_voice_state_update(self, member, before, after):
-        try:
-            await self.on_voice_state_update_ar(member, before, after)
-            await self.on_voice_state_update_tmpc(member, before, after)
-        except Exception as exc:
-            logging.exception("info, ", exec_info=True)
+        await self.on_voice_state_update_ar(member, before, after)
+        await self.on_voice_state_update_tmpc(member, before, after)
+
 
     @listener()
     async def on_resumed(self):
