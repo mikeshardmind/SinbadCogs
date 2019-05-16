@@ -57,6 +57,7 @@ class Mod(mod.Mod):
                     _("I couldn't locate that user in shared servers")
                 )
 
+        guilds: List[discord.Guild] = []
         if user_obj is None and is_owner:
             try:
                 try:
@@ -72,7 +73,7 @@ class Mod(mod.Mod):
         else:
             found_guilds = [g for g in self.bot.guilds if g.get_member(_id)]
             shared_guilds = [g for g in found_guilds if ctx.author in g.members]
-            guilds: List[discord.Guild] = found_guilds if is_owner else shared_guilds
+            guilds = found_guilds if is_owner else shared_guilds
             if not guilds and not (is_owner and user_obj):  # RHS can happen on user ban
                 return await ctx.send(
                     _("I couldn't locate that user in shared servers")
