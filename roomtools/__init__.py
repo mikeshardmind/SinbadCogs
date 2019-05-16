@@ -82,7 +82,6 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
         await self.on_voice_state_update_ar(member, before, after)
         await self.on_voice_state_update_tmpc(member, before, after)
 
-
     @listener()
     async def on_resumed(self):
         await self.tmpc_cleanup(load=True)
