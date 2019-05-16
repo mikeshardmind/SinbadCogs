@@ -1,5 +1,5 @@
 from redbot.cogs.mod import mod
-from typing import Union, Dict, cast
+from typing import Union, Dict, List, cast
 from datetime import timedelta
 
 import discord
@@ -59,22 +59,26 @@ class Mod(mod.Mod):
 
         if user_obj is None and is_owner:
             try:
-                user_obj = await self.bot.get_user_info(_id)
+                try:
+                    user_obj = await self.bot.fetch_user(_id)
+                except AttributeError:  # 3.0 compat
+                    user_obj = await self.bot.get_user_info(_id)
             except discord.NotFound:
                 return await ctx.send(_("No such user."))
             except discord.HTTPException:
                 return await ctx.send(
                     _("Something unexpected prevented this user from being found.")
                 )
-            guilds: list = []
         else:
             found_guilds = [g for g in self.bot.guilds if g.get_member(_id)]
             shared_guilds = [g for g in found_guilds if ctx.author in g.members]
-            guilds = found_guilds if is_owner else shared_guilds
+            guilds: List[discord.Guild] = found_guilds if is_owner else shared_guilds
             if not guilds and not (is_owner and user_obj):  # RHS can happen on user ban
                 return await ctx.send(
                     _("I couldn't locate that user in shared servers")
                 )
+
+        user_obj = cast(discord.User, user_obj)  # other cases handled above
 
         since_created = (ctx.message.created_at - user_obj.created_at).days
         user_created = user_obj.created_at.strftime("%d %b %Y %H:%M")
