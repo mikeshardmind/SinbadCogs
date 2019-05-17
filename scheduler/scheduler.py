@@ -599,6 +599,7 @@ class Scheduler(commands.Cog):
                 tsks.update(unmute_task.to_config())
             self.tasks.append(unmute_task)
 
+    @commands.Cog.listener("on_cog_add")
     async def on_cog_add(self, cog):
 
         if cog.__class__.__name__ != "Cleanup":
