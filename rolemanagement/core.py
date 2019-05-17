@@ -1,6 +1,6 @@
 from abc import ABC
 import contextlib
-from typing import AsyncIterator, Tuple
+from typing import AsyncIterator, Tuple, NamedTuple
 import discord
 from redbot.core import checks, commands, bank
 from redbot.core.config import Config
@@ -10,6 +10,15 @@ from .utils import UtilMixin
 from .massmanager import MassManagementMixin
 from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
+
+
+class MockedMember(NamedTuple):
+    guild: discord.Guild
+    id: int
+
+    @property
+    def created_at(self):
+        return discord.utils.snowflake_time(self.id)
 
 
 # 3.0 compatability is ugly
@@ -86,12 +95,45 @@ class RoleManagement(
 
     __before_invoke = cog_before_invoke
 
-    # Alpha testing
-    @commands.check(
-        lambda ctx: ctx.author.id in (240961564503441410, 78631113035100160)
-    )
+    @commands.guild_only()
+    @commands.bot_has_permissions(manage_roles=True)
+    @checks.admin_or_permissions(manage_roles=True)
+    @commands.command(name="hackrole")
+    async def hackrole(
+        self, ctx: commands.Context, user_id: int, *, role: discord.Role
+    ):
+        """
+        Puts a stickyrole on someone not in the server.
+        """
+
+        if not await self.all_are_valid_roles(ctx, role):
+            return await ctx.maybe_send_embed(
+                "Can't do that. Discord role heirarchy applies here."
+            )
+
+        member = ctx.guild.get_member(user_id)
+        if member:
+
+            try:
+                await self.update_roles_atomically(who=member, give=[role])
+            except PermissionOrHierarchyException:
+                await ctx.send("Can't, somehow")
+            else:
+                await ctx.maybe_send_embed("They are in the guild...assigned anyway.")
+        else:
+
+            member = MockedMember(ctx.guild, user_id)
+
+            async with self.config.member(member).roles() as sticky:
+                if role.id not in sticky:
+                    sticky.append(role)
+
+            await ctx.tick()
+
+        await ctx.tick()
+
     @checks.is_owner()
-    @commands.command(name="rrcleanup")
+    @commands.command(name="rrcleanup", hidden=True)
     async def rolemanagementcleanup(self, ctx):
         """ :eyes: """
         data = await self.config.custom("REACTROLE").all()
