@@ -34,14 +34,16 @@ class DevTools(commands.Cog):
                 if await com.can_run(a_context, check_all_parents=True):
                     return True
 
-        coms = [
-            c.qualified_name
-            for c in ctx.bot.walk_commands()
-            if await can_run_filter(fctx, c)
-        ]
+        coms = list(
+            {
+                c.qualified_name
+                for c in ctx.bot.walk_commands()
+                if await can_run_filter(fctx, c)
+            }
+        )
         coms.sort()
         out = ", ".join(coms)
-        pages = [box(p) for p in pagify(out)]
+        pages = [box(p) for p in pagify(out, delims=",")]
         if not pages:
             await ctx.send("They can't run anything here")
         elif len(pages) == 1:
