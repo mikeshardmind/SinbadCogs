@@ -38,7 +38,7 @@ class DevTools(commands.Cog):
         coms = [
             c.qualified_name
             for c in ctx.bot.walk_commands()
-            if await can_run_filter(fctx, *ctx.bot.commands)
+            if await can_run_filter(fctx, c)
         ]
         coms.sort()
         out = ", ".join(coms)
