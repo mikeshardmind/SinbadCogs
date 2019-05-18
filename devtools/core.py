@@ -29,13 +29,17 @@ class DevTools(commands.Cog):
         fmsg.author = member
         fctx = await ctx.bot.get_context(fmsg)
 
-        async def can_run_filter(a_context, *coms):
+        async def can_run_filter(a_context, coms):
             for com in coms:
                 with contextlib.suppress(Exception):
                     if await com.can_run(a_context, check_all_parents=True):
-                        yield com
+                        return True
 
-        coms = [c.qualified_name async for c in can_run_filter(fctx, *ctx.bot.commands)]
+        coms = [
+            c.qualified_name
+            for c in ctx.bot.walk_commands()
+            if await can_run_filter(fctx, *ctx.bot.commands)
+        ]
         coms.sort()
         out = ", ".join(coms)
         pages = [box(p) for p in pagify(out)]
