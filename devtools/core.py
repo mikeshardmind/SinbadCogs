@@ -42,7 +42,7 @@ class DevTools(commands.Cog):
         if not pages:
             await ctx.send("They can't run anything here")
         elif len(pages) == 1:
-            await ctx.send(page)
+            await ctx.send(pages)
         else:
             await menus.menu(ctx, pages, menus.DEFAULT_CONTROLS)
 
