@@ -29,11 +29,10 @@ class DevTools(commands.Cog):
         fmsg.author = member
         fctx = await ctx.bot.get_context(fmsg)
 
-        async def can_run_filter(a_context, coms):
-            for com in coms:
-                with contextlib.suppress(Exception):
-                    if await com.can_run(a_context, check_all_parents=True):
-                        return True
+        async def can_run_filter(a_context, com):
+            with contextlib.suppress(Exception):
+                if await com.can_run(a_context, check_all_parents=True):
+                    return True
 
         coms = [
             c.qualified_name
