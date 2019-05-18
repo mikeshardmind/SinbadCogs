@@ -49,10 +49,10 @@ class Relays(commands.Cog):
 
     __before_invoke = cog_before_invoke
 
-    async def cog_local_check(self, ctx):
+    async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
 
-    __local_check = cog_local_check
+    __local_check = cog_check
 
     async def initialize(self) -> None:
         await self.bot.wait_until_ready()

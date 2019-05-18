@@ -21,9 +21,9 @@ class DevTools(commands.Cog):
         self.bot = bot
 
     @commands.guild_only()
-    @commands.command(name="usercontextallowedcoms")
+    @commands.command(name="userallowedcoms")
     async def usercontextallowedcoms(self, ctx, *, member: discord.Member):
-        """ :eyes: """
+        """ checks user allowed commands in context """
 
         fmsg = copy(ctx.message)
         fmsg.author = member
@@ -32,13 +32,13 @@ class DevTools(commands.Cog):
         async def can_run_filter(a_context, *coms):
             for com in coms:
                 with contextlib.suppress(Exception):
-                    if await com.can_run(a_context):
+                    if await com.can_run(a_context, check_all_parents=True):
                         yield com
 
-        coms = ", ".join(
-            [c.qualified_name async for c in can_run_filter(fctx, *ctx.bot.commands)]
-        )
-        pages = [box(p) for p in pagify(coms)]
+        coms = [c.qualified_name async for c in can_run_filter(fctx, *ctx.bot.commands)]
+        coms.sort()
+        out = ", ".join(coms)
+        pages = [box(p) for p in pagify(out)]
         if not pages:
             await ctx.send("They can't run anything here")
         elif len(pages) == 1:
