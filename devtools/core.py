@@ -27,7 +27,7 @@ class DevTools(commands.Cog):
 
         fmsg = copy(ctx.message)
         fmsg.author = member
-        fctx = await bot.get_context(fmsg)
+        fctx = await ctx.bot.get_context(fmsg)
 
         async def can_run_filter(a_context, *coms):
             for com in coms:
