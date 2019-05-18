@@ -4,7 +4,7 @@ except ImportError:
     re2 = None
 
 import re
-from typing import Union, Set
+from typing import Union, Set, cast
 
 import discord
 from redbot.core import checks, Config, commands
@@ -49,18 +49,19 @@ class Filter(_Red_Filter):
     async def filter_hits(
         self, text: str, server_or_channel: Union[discord.Guild, discord.TextChannel]
     ) -> Set[str]:
-
+        channel: Union[discord.TextChannel, None]
+        guild: discord.Guild
         try:
-            guild = server_or_channel.guild
-            channel = server_or_channel
+            channel = cast(discord.TextChannel, server_or_channel)
+            guild = channel.guild
         except AttributeError:
-            guild = server_or_channel
+            guild = cast(discord.Guild, server_or_channel)
             channel = None
 
         hits: Set[str] = set()
 
         hits |= await super().filter_hits(text, server_or_channel)
-
+        pattern = None
         try:
             pattern = self._regex_atom_pattern_cache[(guild, channel)]
         except KeyError:
