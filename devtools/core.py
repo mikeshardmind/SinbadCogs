@@ -26,7 +26,7 @@ class DevTools(commands.Cog):
         """ :eyes: """
 
         fmsg = copy(ctx.message)
-        fmsg.author = guild.get_member(user_id)
+        fmsg.author = member
         fctx = await bot.get_context(fmsg)
 
         async def can_run_filter(a_context, *coms):
