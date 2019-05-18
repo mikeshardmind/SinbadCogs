@@ -85,6 +85,7 @@ class Filter(_Red_Filter):
 
         return hits
 
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.check(lambda ctx: bool(re2))
     @commands.group(name="re2filter")
     async def regex_filter(self, ctx):
