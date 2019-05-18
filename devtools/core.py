@@ -1,8 +1,10 @@
 import asyncio
+import contextlib
 import re
+from copy import copy
 import unicodedata as ud
-
-
+from redbot.core.utils import menus
+from redbot.core.utils.chat_formatting import box, pagify
 import discord
 from redbot.core import commands, checks
 
@@ -17,6 +19,32 @@ class DevTools(commands.Cog):
     def __init__(self, bot, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bot = bot
+
+    @commands.guild_only()
+    @commands.command(name="usercontextallowedcoms")
+    async def usercontextallowedcoms(self, ctx, *, member: discord.Member):
+        """ :eyes: """
+
+        fmsg = copy(ctx.message)
+        fmsg.author = guild.get_member(user_id)
+        fctx = await bot.get_context(fmsg)
+
+        async def can_run_filter(a_context, *coms):
+            for com in coms:
+                with contextlib.suppress(Exception):
+                    if await com.can_run(a_context):
+                        yield com
+
+        coms = ", ".join(
+            [c.qualified_name async for c in can_run_filter(fctx, *ctx.bot.commands)]
+        )
+        pages = [box(p) for p in pagify(coms)]
+        if not pages:
+            await ctx.send("They can't run anything here")
+        elif len(pages) == 1:
+            await ctx.send(page)
+        else:
+            await menus.menu(ctx, pages, menus.DEFAULT_CONTROLS)
 
     @commands.command(name="emojiinfo")
     async def emoji(self, ctx):
