@@ -360,7 +360,7 @@ class Scheduler(commands.Cog):
         page_mapping = {i: t for i, t in enumerate(tasks)}
         actual_task_killer = functools.partial(task_killer, self, page_mapping)
         controls.update({"\N{NO ENTRY SIGN}": actual_task_killer})
-        await menu(ctx, embeds, controls)
+        await menu(ctx, embeds, controls, message=message)
 
     @commands.command(name="remindme", usage="<what to be reminded of> <args>")
     async def reminder(self, ctx, *, reminder: Schedule):
