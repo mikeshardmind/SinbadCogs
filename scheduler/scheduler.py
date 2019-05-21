@@ -7,7 +7,9 @@ from typing import Tuple, Optional, List, no_type_check
 from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
-from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
+
+# you can change this when breaking later --Liz
+from .menus import menu, DEFAULT_CONTROLS
 
 from .message import SchedulerMessage
 from .logs import get_logger
