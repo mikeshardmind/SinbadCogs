@@ -1,12 +1,15 @@
 import asyncio
 import contextlib
+import functools
 import discord
 from datetime import datetime, timedelta, timezone
 from typing import Tuple, Optional, List, no_type_check
 from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
-from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
+
+# you can change this when breaking later --Liz
+from .menus import menu, DEFAULT_CONTROLS
 
 from .message import SchedulerMessage
 from .logs import get_logger
@@ -23,8 +26,8 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.26"
-    __author__ = "mikeshardmind(Sinbad)"
+    __version__ = "1.0.27"
+    __author__ = "mikeshardmind(Sinbad), DiscordLiz"
     __flavor_text__ = "Unhidden remindme."
 
     def __init__(self, bot):
@@ -321,7 +324,31 @@ class Scheduler(commands.Cog):
         if not tasks:
             return await ctx.send("No scheduled tasks")
 
+        await self.task_menu(ctx, tasks)
+
+    async def task_menu(self, ctx, tasks, message: Optional[discord.Message] = None):
+
         color = await ctx.embed_color()
+
+        async def task_killer(
+            cog: "Scheduler",
+            page_mapping: dict,
+            ctx: commands.Context,
+            pages: list,
+            controls: dict,
+            message: discord.Message,
+            page: int,
+            timeout: float,
+            emoji: str,
+        ):
+            to_cancel = page_mapping.pop(page)
+            await cog._remove_tasks(to_cancel)
+            if page_mapping:
+                tasks = list(page_mapping.values())
+                await cog.task_menu(ctx, tasks, message)
+            else:
+                with contextlib.suppress(discord.NotFound):
+                    await message.delete()
 
         count = len(tasks)
         embeds = [
@@ -329,7 +356,11 @@ class Scheduler(commands.Cog):
             for i, t in enumerate(tasks, 1)
         ]
 
-        await menu(ctx, embeds, DEFAULT_CONTROLS)
+        controls = DEFAULT_CONTROLS.copy()
+        page_mapping = {i: t for i, t in enumerate(tasks)}
+        actual_task_killer = functools.partial(task_killer, self, page_mapping)
+        controls.update({"\N{NO ENTRY SIGN}": actual_task_killer})
+        await menu(ctx, embeds, controls, message=message)
 
     @commands.command(name="remindme", usage="<what to be reminded of> <args>")
     async def reminder(self, ctx, *, reminder: Schedule):
@@ -420,15 +451,7 @@ class Scheduler(commands.Cog):
         if not tasks:
             return await ctx.send("No scheduled tasks")
 
-        color = await ctx.embed_color()
-
-        count = len(tasks)
-        embeds = [
-            t.to_embed(index=i, page_count=count, color=color)
-            for i, t in enumerate(tasks, 1)
-        ]
-
-        await menu(ctx, embeds, DEFAULT_CONTROLS)
+        await self.task_menu(ctx, tasks)
 
     @scheduleradmin.command()
     async def kill(self, ctx, *, task_id):
