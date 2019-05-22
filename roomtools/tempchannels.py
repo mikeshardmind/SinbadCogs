@@ -106,6 +106,8 @@ class TempChannels(MixedMeta):
     async def create_temp(self, ctx: commands.Context, *, channeldata: ChannelData):
         """
         Creates a temporary channel
+
+        You can add `-u N` for some number `N` to add a user limit
         """
         if ctx.author.id not in self._antispam:
             self._antispam[ctx.author.id] = AntiSpam(self.antispam_intervals)
@@ -124,12 +126,12 @@ class TempChannels(MixedMeta):
         for target in (ctx.guild.me, ctx.author):
             p = overwrites.get(target, None) or discord.PermissionOverwrite()
             # Connect is NOT optional.
-            p.update(manage_channel=True, manage_roles=True, connect=True)
+            p.update(manage_channels=True, manage_roles=True, connect=True)
             overwrites[target] = p
 
         opts = {"overwrites": overwrites}
         if cat:
-            opts.update(catgory=cat)
+            opts.update(category=cat)
 
         if user_limit:
             opts.update(user_limit=user_limit)

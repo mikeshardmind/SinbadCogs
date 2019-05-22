@@ -3,7 +3,7 @@ from typing import NamedTuple, Optional
 from redbot.core.commands import Context, BadArgument
 
 
-pattern = re.compile(r"\b--user-limit\b|\b-u\b")
+pattern = re.compile(r"--user-limit|-u")
 
 
 class TempChannelConverter(NamedTuple):
