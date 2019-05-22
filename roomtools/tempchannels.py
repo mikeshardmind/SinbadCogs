@@ -12,6 +12,7 @@ from redbot.core import checks
 
 from .checks import tmpc_active
 from .abcs import MixedMeta
+from .converters import TempChannelConverter as ChannelData
 
 
 class TempChannels(MixedMeta):
@@ -102,14 +103,18 @@ class TempChannels(MixedMeta):
     @tmpc_active()
     @commands.bot_has_permissions(manage_channels=True)
     @commands.command(name="tmpc")
-    async def create_temp(self, ctx: commands.Context, *, channelname: str):
+    async def create_temp(self, ctx: commands.Context, *, channeldata: ChannelData):
         """
         Creates a temporary channel
+
+        You can add `-u N` for some number `N` to add a user limit
         """
         if ctx.author.id not in self._antispam:
             self._antispam[ctx.author.id] = AntiSpam(self.antispam_intervals)
         if self._antispam[ctx.author.id].spammy:
             return
+
+        channelname, user_limit = channeldata
 
         if not channelname:
             return await ctx.send_help()
@@ -121,13 +126,18 @@ class TempChannels(MixedMeta):
         for target in (ctx.guild.me, ctx.author):
             p = overwrites.get(target, None) or discord.PermissionOverwrite()
             # Connect is NOT optional.
-            p.update(manage_channel=True, manage_roles=True, connect=True)
+            p.update(manage_channels=True, manage_roles=True, connect=True)
             overwrites[target] = p
 
+        opts = {"overwrites": overwrites}
+        if cat:
+            opts.update(category=cat)
+
+        if user_limit:
+            opts.update(user_limit=user_limit)
+
         try:
-            created = await ctx.guild.create_voice_channel(
-                channelname, category=cat, overwrites=overwrites
-            )
+            created = await ctx.guild.create_voice_channel(channelname, **opts)
         except discord.Forbidden:
             # how?
             await self.tmpc_config.guild(ctx.guild).active.set(False)
