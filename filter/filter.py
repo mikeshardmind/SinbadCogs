@@ -42,7 +42,7 @@ class Filter(_Red_Filter):
         """ Invalidate a cached pattern built from atoms"""
         self._regex_atom_pattern_cache.pop((guild, channel), None)
         if channel is None:
-            for k in self.pattern_cache.keys():
+            for k in list(self.pattern_cache.keys()):
                 if guild in k:
                     self.pattern_cache.pop(k, None)
 
