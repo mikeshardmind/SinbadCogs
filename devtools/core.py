@@ -103,10 +103,7 @@ class DevTools(commands.Cog):
         )
         if message is None:
             try:
-                try:
-                    message = await ctx.channel.fetch_message(message_id)
-                except AttributeError:
-                    message = await ctx.channel.get_message(message_id)
+                message = await ctx.channel.fetch_message(message_id)
             except discord.NotFound:
                 return await ctx.send("No such message")
             except discord.Forbidden:

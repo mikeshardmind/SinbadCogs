@@ -19,12 +19,6 @@ from .checks import can_run_command
 
 _ = Translator("And I think it's gonna be a long long time...", __file__)
 
-listener = getattr(commands.Cog, "listener", None)
-if listener is None:
-
-    def listener(name=None):
-        return lambda x: x
-
 
 @cog_i18n(_)
 class Scheduler(commands.Cog):
@@ -62,8 +56,6 @@ class Scheduler(commands.Cog):
             cog = self.bot.get_cog("Cleanup")
             if cog:
                 cog.check_100_plus = self._original_cleanup_check
-
-    __unload = cog_unload
 
     # This never should be needed,
     # but it doesn't hurt to add and could cover a weird edge case.
@@ -628,7 +620,7 @@ class Scheduler(commands.Cog):
                 tsks.update(unmute_task.to_config())
             self.tasks.append(unmute_task)
 
-    @listener("on_cog_add")
+    @commands.Cog.listener()
     async def on_cog_add(self, cog):
 
         if cog.__class__.__name__ != "Cleanup":

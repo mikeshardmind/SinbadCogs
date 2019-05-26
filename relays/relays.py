@@ -47,12 +47,8 @@ class Relays(commands.Cog):
         while not self.loaded:
             await asyncio.sleep(0.1)
 
-    __before_invoke = cog_before_invoke
-
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
-
-    __local_check = cog_check
 
     async def initialize(self) -> None:
         await self.bot.wait_until_ready()
@@ -87,7 +83,7 @@ class Relays(commands.Cog):
             chans.extend(r.get_destinations(message))
         return unique(chans)
 
-    @listener()
+    @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if not self.loaded:
             await self.initialize()

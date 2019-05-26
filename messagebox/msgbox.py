@@ -39,8 +39,6 @@ class MessageBox(commands.Cog):
             self.bot.remove_command("contact")
             self.bot.add_command(_old_contact)
 
-    __unload = cog_unload
-
     @checks.is_owner()
     @commands.command(name="msgboxset")
     async def msgboxset(self, ctx, channel: discord.TextChannel):

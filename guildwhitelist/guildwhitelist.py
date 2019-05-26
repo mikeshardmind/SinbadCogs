@@ -20,13 +20,6 @@ DC_UNAVAILABLE = _("Data conversion is not available in your install.")
 
 _ = T_
 
-# red 3.0 backwards compatibility support
-listener = getattr(commands.Cog, "listener", None)
-if listener is None:
-
-    def listener(name=None):
-        return lambda x: x
-
 
 @cog_i18n(_)
 class GuildWhitelist(commands.Cog):
@@ -44,7 +37,7 @@ class GuildWhitelist(commands.Cog):
         )
         self.config.register_global(whitelist=[])
 
-    @listener()
+    @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
         async with self.config.whitelist() as whitelist:
             if not any(

@@ -11,13 +11,6 @@ if TYPE_CHECKING:
 
 __all__ = ["AntiMentionSpam"]
 
-# red 3.0 backwards compatibility support
-listener = getattr(commands.Cog, "listener", None)
-if listener is None:
-
-    def listener(name=None):
-        return lambda x: x
-
 
 class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
@@ -228,7 +221,7 @@ class AntiMentionSpam(commands.Cog):
                     except discord.HTTPException:
                         pass
 
-    @listener()
+    @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         if message.author.bot or message.guild is None:
             return

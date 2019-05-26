@@ -4,8 +4,6 @@ import discord
 from .helpers import find_messages, embed_from_msg
 import re
 
-Base: Any = getattr(commands, "Cog", object)
-
 CHANNEL_RE = re.compile(r"^<#(\d{15,21})>$|^(\d{15,21})$")
 
 

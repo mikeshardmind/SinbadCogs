@@ -1,5 +1,8 @@
 {
-    "author": ["mikeshardmind(Sinbad)", "DiscordLiz"],
+    "author": [
+        "mikeshardmind(Sinbad)",
+        "DiscordLiz"
+    ],
     "install_msg": "Hidden dev tools",
     "name": "DevTools",
     "disabled": false,
@@ -7,6 +10,10 @@
     "description": "Some dev tools",
     "tags": [],
     "hidden": true,
-    "min_python_version": [3, 7, 0],
-    "requirements": []
+    "min_python_version": [
+        3,
+        7,
+        0
+    ],
+    "min_bot_version": "3.1.1"
 }

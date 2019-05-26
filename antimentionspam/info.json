@@ -1,5 +1,8 @@
 {
-    "author": ["mikeshardmind(Sinbad)", "DiscordLiz"],
+    "author": [
+        "mikeshardmind(Sinbad)",
+        "DiscordLiz"
+    ],
     "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "AntiMentionSpam",
     "disabled": false,
@@ -7,5 +10,5 @@
     "description": "mass mention filter",
     "tags": [],
     "hidden": false,
-    "min_python_version": [3, 6, 0]
+    "min_bot_version": "3.1.1"
 }

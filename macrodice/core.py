@@ -49,8 +49,6 @@ class MacroDice(commands.Cog):
             self.bot.remove_command("roll")
             self.bot.add_command(_old_roll)
 
-    __unload = cog_unload
-
     @commands.guild_only()
     @commands.command(name="roll")
     @no_type_check

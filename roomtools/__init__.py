@@ -7,36 +7,19 @@ from redbot.core import Config, commands
 from .autorooms import AutoRooms
 from .tempchannels import TempChannels
 
-# red 3.0 backwards compatibility support
-listener = getattr(commands.Cog, "listener", None)
-if listener is None:
 
-    def listener(name=None):
-        return lambda x: x
-
-
-def base_maker(*bases):
-    """ This is by no means great """
-    for base in bases:
-        t = type(base)
-        if t == type:
-            continue
-        yield t
-
-
-class CompositeMetaClass(*(cls for cls in base_maker(commands.Cog, ABC))):
+class CompositeMetaClass(type(commands.Cog), type(ABC)):
     """
-    Fucking compatability layer for Red 3.0
+    Discord.py transforms instance methods into classes as class variables which contain
+    the previous instance method, with no proper ability to reference the intended instance.
+    
+    Then uses a metaclass to inject the instance into copies
+    of those class variables which exist inside an instance descriptor
 
-    3.1 would just use 
-        type(commands.Cog), type(ABC)
-    and be done with it
+    I wish I was kidding. I wish I had the time to do something better.
     """
 
     pass
-
-
-# No more major compatability Bullshit.
 
 
 class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaClass):
@@ -75,17 +58,8 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
         self.ar_config.register_channel(
             ownership=None, gameroom=False, autoroom=False, clone=False
         )
-        self.bot.loop.create_task(self.on_resumed())
-
-    @listener()
-    async def on_voice_state_update(self, member, before, after):
-        await self.on_voice_state_update_ar(member, before, after)
-        await self.on_voice_state_update_tmpc(member, before, after)
-
-    @listener()
-    async def on_resumed(self):
-        await self.tmpc_cleanup(load=True)
-        await self.ar_cleanup(load=True)
+        self.bot.loop.create_task(self.tmpc_cleanup(load=True))
+        self.bot.loop.create_task(self.ar_cleanup(load=True))
 
 
 def setup(bot):

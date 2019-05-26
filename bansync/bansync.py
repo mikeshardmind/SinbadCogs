@@ -138,9 +138,9 @@ class BanSync(commands.Cog):
         await a.save(fp)
         try:
             data = json.load(fp)
-            assert isinstance(data, list)
-            assert all(isinstance(x, int) for x in data)
-        except (json.JSONDecodeError, AssertionError):
+            if not isinstance(data, list) or not all(isinstance(x, int) for x in data):
+                raise TypeError() from None
+        except (json.JSONDecodeError, TypeError):
             return await ctx.send(_("That wasn't an exported ban list"))
 
         current_bans = await ctx.guild.bans()

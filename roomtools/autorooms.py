@@ -20,6 +20,7 @@ class AutoRooms(MixedMeta):
     Automagical Discord Voice Channels
     """
 
+    @commands.Cog.listener("on_resumed")
     async def ar_cleanup(self, *guilds: discord.Guild, load: bool = False):
         if load:
             await self.bot.wait_until_ready()
@@ -47,6 +48,7 @@ class AutoRooms(MixedMeta):
                     else:
                         await conf.clear()
 
+    @commands.Cog.listener("on_voice_state_update")
     async def on_voice_state_update_ar(
         self,
         member: discord.Member,

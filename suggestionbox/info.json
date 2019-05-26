@@ -8,5 +8,6 @@
     "short": "configureable suggestion boxes",
     "description": "configureable suggestion boxes",
     "tags": [],
-    "hidden": true
+    "hidden": true,
+    "min_bot_version": "3.1.1"
 }

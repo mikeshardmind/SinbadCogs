@@ -99,8 +99,9 @@ class RecordHandler:
         try:
             member = message.author
             guild = member.guild
-            assert guild and member and not member.bot
-        except (AttributeError, AssertionError):
+            if not guild and member and not member.bot:
+                return
+        except AttributeError:
             return
 
         if guild not in self.records:

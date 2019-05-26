@@ -6,13 +6,6 @@ AFK = 1
 KICK = 2
 MUTE = 3
 
-# red 3.0 backwards compatibility support, with a twist
-listener = getattr(commands.Cog, "listener", None)
-if listener is None:
-
-    def listener(name=None):
-        return lambda x: x
-
 
 class ScreenshareAutoMod(commands.Cog):
     """
@@ -31,32 +24,7 @@ class ScreenshareAutoMod(commands.Cog):
         self.config.register_guild(active=False, action=0)
         self.config.register_channel(exclude=False)
 
-    # don't decorate this intentionally
-    async def on_socket_response(self, payload: dict):
-
-        if payload.get("t", "") != "VOICE_STATE_UPDATE":
-            return
-        data = payload.get("d", {})
-        if not data.get("self_video", False):
-            return
-        gid = int(data.get("guild_id", 0))
-        mid = int(data.get("user_id", 0))
-        cid = int(data.get("channel_id", 0))
-
-        guild = self.bot.get_guild(gid)
-        if not guild:
-            return
-        member = guild.get_member(mid)
-        channel = guild.get_channel(cid)
-        if not member and channel:
-            return
-
-        # at this point, we have a guild, channel, and member
-        # and have confirmed screenshare.
-
-        await self.maybe_punish_screenshare(guild, channel, member)
-
-    @listener(name="on_voice_state_update")  # prevent pre 3.1 from event use
+    @commands.Cog.listener()
     async def vc_update(self, member, before, after):
         channel = after.channel
         guild = member.guild

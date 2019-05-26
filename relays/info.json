@@ -8,8 +8,9 @@
     "short": "Forwards messages",
     "description": "Relays messages across channels",
     "tags": [
-        "relay", "relays"
+        "relay",
+        "relays"
     ],
     "hidden": false,
-    "min_python_version": [3, 6, 0]
+    "min_bot_version": "3.1.1"
 }

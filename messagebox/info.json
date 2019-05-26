@@ -1,13 +1,21 @@
 {
-    "author": ["mikeshardmind(Sinbad)", "DiscordLiz"],
+    "author": [
+        "mikeshardmind(Sinbad)",
+        "DiscordLiz"
+    ],
     "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "MessageBox",
     "disabled": false,
     "short": "replaces contact with a command dumping stuff in a channel",
     "description": "replaces contact with a command dumping stuff in a channel",
     "tags": [
-        "contact", "modmail", "feedback", "mail", "messagebox", "msgbox"
+        "contact",
+        "modmail",
+        "feedback",
+        "mail",
+        "messagebox",
+        "msgbox"
     ],
     "hidden": false,
-    "min_python_version": [3, 6, 0]
+    "min_bot_version": "3.1.1"
 }

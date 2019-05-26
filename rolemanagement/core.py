@@ -21,33 +21,18 @@ class MockedMember(NamedTuple):
         return discord.utils.snowflake_time(self.id)
 
 
-# 3.0 compatability is ugly
-
-
-def base_maker(*bases):
+class CompositeMetaClass(type(commands.Cog), type(ABC)):
     """
-    This is by no means great
-    """
-    for base in bases:
-        t = type(base)
-        if t == type:
-            continue
-        yield t
+    Discord.py transforms instance methods into classes as class variables which contain
+    the previous instance method, with no proper ability to reference the intended instance.
+    
+    Then uses a metaclass to inject the instance into copies
+    of those class variables which exist inside an instance descriptor
 
-
-class CompositeMetaClass(*(cls for cls in base_maker(commands.Cog, ABC))):
-    """
-    Fucking compatability layer for Red 3.0
-
-    3.1 would just use 
-        type(commands.Cog), type(ABC)
-    and be done with it
+    I wish I was kidding. I wish I had the time to do something better.
     """
 
     pass
-
-
-# No more major compatability Bullshit.
 
 
 class RoleManagement(
@@ -81,8 +66,7 @@ class RoleManagement(
             cost=0,
         )
         self.config.register_member(roles=[], forbidden=[])
-        with contextlib.suppress(AttributeError):
-            self.config.init_custom("REACTROLE", 2)
+        self.config.init_custom("REACTROLE", 2)
         self.config.register_custom(
             "REACTROLE", roleid=None, channelid=None, guildid=None
         )  # ID : Message.id, str(React)
@@ -92,8 +76,6 @@ class RoleManagement(
     async def cog_before_invoke(self, ctx):
         if ctx.guild:
             await self.maybe_update_guilds(ctx.guild)
-
-    __before_invoke = cog_before_invoke
 
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
@@ -191,18 +173,15 @@ class RoleManagement(
             )
 
         try:
-            if discord.__version__ == "1.0.0a":
-                message = await channel.get_message(msgid)
-            else:
-                message = await channel.fetch_message(msgid)
-        except discord.DiscordException:
+            message = await channel.fetch_message(msgid)
+        except discord.HTTPException:
             return await ctx.maybe_send_embed("No such message")
 
         _emoji = discord.utils.find(lambda e: str(e) == emoji, self.bot.emojis)
         if _emoji is None:
             try:
                 await ctx.message.add_reaction(emoji)
-            except discord.DiscordException:
+            except discord.HTTPException:
                 return await ctx.maybe_send_embed("No such emoji")
             else:
                 _emoji = emoji
@@ -213,7 +192,7 @@ class RoleManagement(
         if not any(str(r) == emoji for r in message.reactions):
             try:
                 await message.add_reaction(_emoji)
-            except discord.DiscordException:
+            except discord.HTTPException:
                 return await ctx.maybe_send_embed(
                     "Hmm, that message couldn't be reacted to"
                 )

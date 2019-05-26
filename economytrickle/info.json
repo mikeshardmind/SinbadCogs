@@ -1,10 +1,13 @@
 {
-    "author": ["mikeshardmind(Sinbad)", "DiscordLiz"],
+    "author": [
+        "mikeshardmind(Sinbad)",
+        "DiscordLiz"
+    ],
     "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "EconomyTrickle",
     "disabled": false,
     "short": "Gives active users credits",
     "description": "Gives active users credits. With configureable settings for activity, amount, and more.",
     "hidden": false,
-    "min_python_version": [3, 6, 4]
+    "min_bot_version": "3.1.1"
 }

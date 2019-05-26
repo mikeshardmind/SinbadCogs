@@ -1,5 +1,7 @@
 {
-    "author": ["mikeshardmind(Sinbad)"],
+    "author": [
+        "mikeshardmind(Sinbad)"
+    ],
     "install_msg": "Core mod cog, minus the nickname tracking",
     "name": "Mod",
     "disabled": false,
@@ -7,5 +9,5 @@
     "description": "This stays up to date with core mod automatically, but without name/nick tracking.",
     "tags": [],
     "hidden": false,
-    "min_python_version": [3, 6, 0]
+    "min_bot_version": "3.1.1"
 }

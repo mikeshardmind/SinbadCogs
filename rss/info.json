@@ -1,5 +1,7 @@
 {
-    "author": ["mikeshardmind(Sinbad)"],
+    "author": [
+        "mikeshardmind(Sinbad)"
+    ],
     "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "RSS",
     "disabled": false,
@@ -11,5 +13,6 @@
     "hidden": false,
     "requirements": [
         "feedparser"
-    ]
+    ],
+    "min_bot_version": "3.1.1"
 }

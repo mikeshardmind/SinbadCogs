@@ -44,8 +44,7 @@ class SuggestionBox(commands.Cog):
             approval_queues={},
         )
         # raw access w/ customforms not implemented here !! # TODO
-        with contextlib.suppress(AttributeError):
-            self.config.init_custom("SUGGESTION", 1)
+        self.config.init_custom("SUGGESTION", 1)
         self.config.register_custom("SUGGESTION", data={})
 
         # Intended access method:  # TODO

@@ -1,10 +1,13 @@
 {
-    "author": ["mikeshardmind(Sinbad)"],
+    "author": [
+        "mikeshardmind(Sinbad)"
+    ],
     "install_msg": "Use rolemanagement instead, this one's not supported anymore.",
     "name": "BuyRole",
     "disabled": false,
     "short": "Make purchaseable roles",
     "description": "Purchaseable roles",
     "tags": [],
-    "hidden": true
+    "hidden": true,
+    "min_bot_version": "3.1.1"
 }

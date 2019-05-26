@@ -20,6 +20,7 @@ class TempChannels(MixedMeta):
     Temporary Voice Channels
     """
 
+    @commands.Cog.listener("on_voice_state_update")
     async def on_voice_state_update_tmpc(
         self,
         _member: discord.Member,
@@ -31,6 +32,7 @@ class TempChannels(MixedMeta):
         if before.channel:
             await self.tmpc_cleanup(before.channel.guild)
 
+    @commands.Cog.listener("on_resumed")
     async def tmpc_cleanup(self, *guilds: discord.Guild, load: bool = False):
         if load:
             await self.bot.wait_until_ready()

@@ -8,5 +8,6 @@
     "short": "Handle screenshare (ab)use",
     "description": "Handle screenshare (ab)use",
     "tags": [],
-    "hidden": false
+    "hidden": false,
+    "min_bot_version": "3.1.1"
 }

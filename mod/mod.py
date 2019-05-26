@@ -60,10 +60,7 @@ class Mod(mod.Mod):
         guilds: List[discord.Guild] = []
         if user_obj is None and is_owner:
             try:
-                try:
-                    user_obj = await self.bot.fetch_user(_id)
-                except AttributeError:  # 3.0 compat
-                    user_obj = await self.bot.get_user_info(_id)
+                user_obj = await self.bot.fetch_user(_id)
             except discord.NotFound:
                 return await ctx.send(_("No such user."))
             except discord.HTTPException:

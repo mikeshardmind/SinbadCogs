@@ -1,11 +1,16 @@
 {
-    "author": ["mikeshardmind(Sinbad)", "DiscordLiz"],
+    "author": [
+        "mikeshardmind(Sinbad)",
+        "DiscordLiz"
+    ],
     "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "GuildBlacklist",
     "disabled": false,
     "short": "server join blacklist",
     "description": "blacklist guilds by guild or owner ID",
-    "tags": ["blacklist"],
+    "tags": [
+        "blacklist"
+    ],
     "hidden": false,
-    "min_python_version": [3, 6, 0]
+    "min_bot_version": "3.1.1"
 }

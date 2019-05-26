@@ -28,9 +28,7 @@ class EmbedMaker(commands.Cog):
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        with contextlib.suppress(AttributeError):  # god blees force_registration
-            self.config.init_custom("EMBED", 2)  # 3.0 compatability
-
+        self.config.init_custom("EMBED", 2)
         self.config.register_custom("EMBED", embed={}, owner=None)
         self.config.register_guild(active=True)
 
@@ -415,10 +413,7 @@ class EmbedMaker(commands.Cog):
         """
         name = name.lower()
         try:
-            if discord.__version__ == "1.0.0a":
-                e = (await ctx.channel.get_message(_id)).embeds[0]
-            else:
-                e = (await ctx.channel.fetch_message(_id)).embeds[0]
+            e = (await ctx.channel.fetch_message(_id)).embeds[0]
         except Exception:
             return
 
@@ -436,10 +431,7 @@ class EmbedMaker(commands.Cog):
         """
         name = name.lower()
         try:
-            if discord.__version__ == "1.0.0a":
-                e = (await ctx.channel.get_message(_id)).embeds[0]
-            else:
-                e = (await ctx.channel.fetch_message(_id)).embeds[0]
+            e = (await ctx.channel.fetch_message(_id)).embeds[0]
         except Exception:
             return
 

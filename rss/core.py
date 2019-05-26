@@ -74,7 +74,6 @@ class RSS(commands.Cog):
         self.bg_loop_task.cancel()
         self.session.detach()
 
-    __unload = cog_unload
     __del__ = cog_unload
 
     def clear_feed(self, channel, feedname):
