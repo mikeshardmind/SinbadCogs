@@ -3,6 +3,7 @@ import sys
 from copy import copy
 
 import discord
+from redbot import VersionInfo, version_info
 from redbot.core import checks
 from redbot.core import commands
 from redbot.core.config import Config
@@ -106,7 +107,14 @@ class MessageBox(commands.Cog):
                 del attach
 
 
-def setup(bot):
+async def setup(bot):
+    if version_info >= VersionInfo.from_str("3.1.2"):
+        await bot.send_to_owners(
+            "Hey, the messagebox cog is no longer needed."
+            "\nSee the help entry for `set ownernotifications` for more info."
+            "\nThis will still load (for now), "
+            "but you should unload this and use those settings instead."
+        )
     n = MessageBox(bot)
     global _old_contact
     _old_contact = bot.get_command("contact")

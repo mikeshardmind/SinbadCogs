@@ -3,10 +3,10 @@
         "mikeshardmind(Sinbad)",
         "DiscordLiz"
     ],
-    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
+    "install_msg": "Don't use this, see `[p]help set ownernotifications` from Red 3.1.2 forward.",
     "name": "MessageBox",
     "disabled": false,
-    "short": "replaces contact with a command dumping stuff in a channel",
+    "short": "Deprecated, don't use.",
     "description": "replaces contact with a command dumping stuff in a channel",
     "tags": [
         "contact",
@@ -16,6 +16,6 @@
         "messagebox",
         "msgbox"
     ],
-    "hidden": false,
+    "hidden": true,
     "min_bot_version": "3.1.1"
 }
