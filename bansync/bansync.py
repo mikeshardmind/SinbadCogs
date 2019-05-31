@@ -27,7 +27,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "2.2.2"
+    __version__ = "2.2.3"
 
     def __init__(self, bot: "Red", *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -522,6 +522,34 @@ class BanSync(commands.Cog):
             await ctx.message.add_reaction("\N{HAMMER}")
         else:
             await ctx.send(_("You are not worthy"))
+
+    @commands.command()
+    async def unglobalban(
+        self, ctx, users: commands.Greedy[MemberOrID], *, reason: str = None
+    ):
+        """
+        To issue forgiveness.
+
+        Or to fix a fuckup.
+        """
+
+        async def unban(guild, *user_ids, reason=None):
+            for user_id in user_ids:
+                with contextlib.suppress(discord.HTTPException):
+                    await guild.unban(discord.Object(id=user_id), reason=reason)
+
+        excluded: GuildSet = {
+            g
+            for g in self.bot.guilds
+            if g.id in await self.config.excluded_from_automatic()
+        }
+
+        guilds = [g async for g in self.guild_discovery(ctx, excluded)]
+
+        tasks = [unban(guild, *users, reason=reason) for guild in guilds]
+
+        async with ctx.typing():
+            await asyncio.gather(*tasks)
 
     async def targeted_global_ban(
         self, ctx: commands.Context, user: Union[discord.Member, int], rsn: str = None
