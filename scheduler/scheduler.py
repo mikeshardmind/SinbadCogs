@@ -7,9 +7,7 @@ from typing import Tuple, Optional, List, no_type_check
 from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
-
-# you can change this when breaking later --Liz
-from .menus import menu, DEFAULT_CONTROLS
+from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 from .message import SchedulerMessage
 from .logs import get_logger
@@ -42,10 +40,6 @@ class Scheduler(commands.Cog):
         self.tasks = []
         self._iter_lock = asyncio.Lock()
         self._original_cleanup_check = None
-
-        cleanup = bot.get_cog("Cleanup")
-        if cleanup:
-            self.try_patch_cleanup(cleanup)
 
     def cog_unload(self):
         self.bg_loop_task.cancel()
@@ -102,6 +96,7 @@ class Scheduler(commands.Cog):
             return
         message = await task.get_message(self.bot)
         context = await self.bot.get_context(message)
+        context.assume_yes = True
         await self.bot.invoke(context)
         for cog_name in ("CustomCommands", "Alias"):
             cog = self.bot.get_cog(cog_name)
@@ -619,30 +614,3 @@ class Scheduler(commands.Cog):
             async with self.config.channel(ctx.channel).tasks() as tsks:
                 tsks.update(unmute_task.to_config())
             self.tasks.append(unmute_task)
-
-    @commands.Cog.listener()
-    async def on_cog_add(self, cog):
-
-        if cog.__class__.__name__ != "Cleanup":
-            return
-
-        self.try_patch_cleanup(cog)
-
-    def try_patch_cleanup(self, cog: commands.Cog):
-        to_alter = getattr(cog, "check_100_plus", None)
-
-        if to_alter is None:
-            return
-
-        def wrapper(func):
-            async def injected_on_check_100_plus(ctx, number):
-                if ctx.message.__class__.__name__ == "SchedulerMessage":
-                    return True
-
-                return await func(ctx, number)
-
-            return injected_on_check_100_plus
-
-        self._original_cleanup_check = to_alter
-        cog.check_100_plus = wrapper(to_alter)
-        self.log.info("Patched redbot's cleanup cog's check_100_plus`")
