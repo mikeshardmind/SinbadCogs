@@ -502,12 +502,13 @@ class BanSync(commands.Cog):
         error: Exception
         """
 
+        error = error.original
+
         if isinstance(error, ParserError):
             if error.args:
                 await ctx.send(error.args[0])
         else:
-            with contextlib.suppress(TypeError):  # 3.0 support
-                await ctx.bot.on_command_error(ctx, error, unhandled_by_cog=True)
+            await ctx.bot.on_command_error(ctx, error, unhandled_by_cog=True)
 
     @commands.command(name="mjolnir", aliases=["globalban"])
     async def mjolnir(
