@@ -27,7 +27,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "2.2.3"
+    __version__ = "2.2.4"
 
     def __init__(self, bot: "Red", *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -494,7 +494,7 @@ class BanSync(commands.Cog):
         await ctx.tick()
 
     @syndicated_bansync.error
-    async def syndicated_converter_handler(self, ctx, error):
+    async def syndicated_converter_handler(self, ctx, wrapped_error):
         """
         Parameters
         ----------
@@ -502,13 +502,13 @@ class BanSync(commands.Cog):
         error: Exception
         """
 
-        error = error.original
+        error = wrapped_error.original
 
         if isinstance(error, ParserError):
             if error.args:
                 await ctx.send(error.args[0])
         else:
-            await ctx.bot.on_command_error(ctx, error, unhandled_by_cog=True)
+            await ctx.bot.on_command_error(ctx, wrapped_error, unhandled_by_cog=True)
 
     @commands.command(name="mjolnir", aliases=["globalban"])
     async def mjolnir(
