@@ -108,7 +108,7 @@ class RoleManagement(
 
             async with self.config.member(member).roles() as sticky:
                 if role.id not in sticky:
-                    sticky.append(role)
+                    sticky.append(role.id)
 
             await ctx.tick()
 
