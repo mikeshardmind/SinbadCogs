@@ -47,7 +47,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.3.2"
+    __version__ = "3.3.3"
     __flavor_text__ = "Purchasable roles"
 
     def __init__(self, bot):
@@ -93,6 +93,9 @@ class RoleManagement(
                 "Can't do that. Discord role heirarchy applies here."
             )
 
+        if not await self.config.role(role).sticky():
+            return await ctx.send("This only works on sticky roles.")
+
         member = ctx.guild.get_member(user_id)
         if member:
 
@@ -111,8 +114,6 @@ class RoleManagement(
                     sticky.append(role.id)
 
             await ctx.tick()
-
-        await ctx.tick()
 
     @checks.is_owner()
     @commands.command(name="rrcleanup", hidden=True)
