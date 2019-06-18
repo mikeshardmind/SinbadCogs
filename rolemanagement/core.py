@@ -5,11 +5,16 @@ import discord
 from redbot.core import checks, commands, bank
 from redbot.core.config import Config
 from redbot.core.utils.chat_formatting import pagify
+from redbot.core.commands.converter import get_dict_converter
+
+from discord.ext.commands.core import _convert_to_bool as bool_converter
 
 from .utils import UtilMixin
 from .massmanager import MassManagementMixin
 from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
+
+MassSetArgs: dict = get_dict_converter(("self_removable", "self_role"))
 
 
 class MockedMember(NamedTuple):
@@ -240,6 +245,39 @@ class RoleManagement(
         Settings for role requirements
         """
         pass
+
+    # Limited test code
+    @commands.check(
+        lambda ctx: ctx.author.id in (78631113035100160, 240961564503441410)
+    )
+    @rgroup.command(name="massset")
+    async def rmass_set(
+        self, ctx, roles: commands.Greedy[discord.Role], *, extras: MassSetArgs
+    ):
+        """
+        Expiramental
+        """
+        if not roles:
+            return await ctx.send_help()
+
+        if not extras:
+            return await ctx.send_help()
+
+        to_set = {}
+
+        for k, v in extras.items():
+            to_set[k] = bool_converter(v)
+
+        for role in roles:
+            if not await self.all_are_valid_roles(ctx, role):
+                return await ctx.maybe_send_embed(
+                    "Can't do that. Discord role heirarchy applies here."
+                )
+
+        for role in roles:
+            for k, v in to_set.items():
+                await self.config.role(role).get_attr(k).set(v)
+        await ctx.tick()
 
     @rgroup.command(name="viewreactions")
     async def rg_view_reactions(self, ctx: commands.Context):
