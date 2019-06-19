@@ -14,7 +14,7 @@ from .massmanager import MassManagementMixin
 from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
 
-MassSetArgs: dict = get_dict_converter(("self_removable", "self_role"))
+MassSetArgs: dict = get_dict_converter("self_removable", "self_role")
 
 
 class MockedMember(NamedTuple):
