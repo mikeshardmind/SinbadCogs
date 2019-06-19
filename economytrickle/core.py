@@ -182,12 +182,8 @@ class EconomyTrickle(commands.Cog):
         xp_per_interval: 10
         ```
         """
-
-        # noinspection PyProtectedMember
-        group = self.config._get_base_group(self.config.GUILD, ctx.guild.id)
-
-        async with group() as gsettings:  # type: dict
-            gsettings.update(data)
+        for k, v in data.items():
+            await self.config.guild(ctx.guild).get_attr(k).set(v)
         await ctx.tick()
 
     @ect.command(name="mode")
