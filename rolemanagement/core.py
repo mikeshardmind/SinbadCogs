@@ -52,8 +52,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.3.3"
-    __flavor_text__ = "Purchasable roles"
+    __version__ = "3.3.4"
 
     def __init__(self, bot):
         self.bot = bot

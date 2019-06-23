@@ -82,14 +82,19 @@ class UtilMixin(MixinMeta):
         Raises an error on missing reqs
         """
 
-        async with self.config.role(role).requires_any() as req_any:
-            if req_any and not any(r.id in req_any for r in who.roles):
-                req_any_fail = req_any
-            else:
-                req_any_fail = []
+        req_any = await self.config.role(role).requires_any()
+        req_any_fail = req_any[:]
+        if req_any:
+            for idx in req_any:
+                if who._roles.has(idx):
+                    req_any_fail = []
+                    break
 
-        async with self.config.role(role).requires_all() as req_all:
-            req_all_fail = list(set(req_all) - set(who.roles))
+        req_all_fail = [
+            idx
+            for idx in await self.config.role(role).requires_all()
+            if not who._roles.has(idx)
+        ]
 
         if req_any_fail or req_all_fail:
             raise MissingRequirementsException(
