@@ -39,17 +39,12 @@ class Scheduler(commands.Cog):
         self.scheduled = {}  # Might change this to a list later.
         self.tasks = []
         self._iter_lock = asyncio.Lock()
-        self._original_cleanup_check = None
 
     def cog_unload(self):
         self.bg_loop_task.cancel()
         for task in self.scheduled.values():
             task.cancel()
         self.log.handlers = []
-        if self._original_cleanup_check:
-            cog = self.bot.get_cog("Cleanup")
-            if cog:
-                cog.check_100_plus = self._original_cleanup_check
 
     # This never should be needed,
     # but it doesn't hurt to add and could cover a weird edge case.
