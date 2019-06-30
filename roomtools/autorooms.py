@@ -273,8 +273,8 @@ class AutoRooms(MixedMeta):
         requires the "Manage Channels" permission
         Defaults to false"""
         if val is None:
-            val = not await self.ar_config.guild(ctx.guild).active()
-        await self.ar_config.guild(ctx.guild).active.set(val)
+            val = not await self.ar_config.guild(ctx.guild).ownership()
+        await self.ar_config.guild(ctx.guild).ownership.set(val)
         await ctx.send(
             (
                 "Autorooms are "
