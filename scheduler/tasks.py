@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 from .message import SchedulerMessage
-from .time_utils import td_format
+from cog_shared.sinbad_utils.time_utils import td_format
 from .dataclass_tools import add_slots
 
 
