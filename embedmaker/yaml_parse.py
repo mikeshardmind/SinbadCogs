@@ -6,7 +6,7 @@ import discord
 
 from redbot.core import commands
 from .serialize import template, deserialize_embed
-from cog_shared.sinbad_libs.utils import parse_time
+from cog_shared.sinbad_libs.time_utils import parse_time
 
 yaml.reader.Reader.NON_PRINTABLE = re.compile(
     "[^\x09\x0A\x0D\x20-\x7E\x85\xA0-\uD7FF\uE000-\uFFFD\U00010000-\U0010FFFF]"
