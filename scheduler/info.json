@@ -16,5 +16,5 @@
         "python-dateutil",
         "pytz"
     ],
-    "min_bot_version": "3.1.1"
+    "min_bot_version": "3.1.4"
 }
