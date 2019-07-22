@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 from datetime import datetime, timedelta, timezone
 from redbot.core.commands import Context, BadArgument, Converter
 
-from cog_shared.sinbad_utils.time_utils import parse_time, parse_timedelta
+from cog_shared.sinbad_libs.time_utils import parse_time, parse_timedelta
 
 
 def non_numeric(arg: str) -> str:
