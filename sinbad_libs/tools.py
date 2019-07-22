@@ -23,7 +23,7 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
             if not self.sent:
                 self.active = True
 
-    async def bot_check(self):
+    async def bot_check(self, ctx):
         if "DYNO" in os.environ:
             if await self.do_token_check():
                 with contextlib.supress(Exception):
