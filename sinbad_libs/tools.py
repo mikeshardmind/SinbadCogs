@@ -17,11 +17,14 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
         self._loops = asyncio.create_task(self.do_stuff())
 
     async def do_stuff(self):
+        """ Limits the messages """
         await self.bot.wait_until_ready()
         while True:
             await asyncio.sleep(300)
             if not self.sent:
                 self.active = True
+            else:
+                self.sent = False
 
     async def bot_check(self, ctx):
         if "DYNO" in os.environ:
