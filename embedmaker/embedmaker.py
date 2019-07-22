@@ -9,7 +9,7 @@ from redbot.core import commands
 from redbot.core.utils.chat_formatting import pagify
 
 from .serialize import deserialize_embed, serialize_embed
-from .utils import parse_time
+from cog_shared.sinbad_libs.time_utils import parse_time
 from .yaml_parse import embed_from_userstr
 
 log = logging.getLogger("red.sinbadcogs.embedmaker")
