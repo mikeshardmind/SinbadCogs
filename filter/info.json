@@ -10,5 +10,5 @@
     "description": "The extras in this rely on re2, soooo GL, HF. (Still supporting the cog, just not re2)",
     "tags": [],
     "hidden": true,
-    "min_bot_version": "3.1.1"
+    "min_bot_version": "3.1.4"
 }

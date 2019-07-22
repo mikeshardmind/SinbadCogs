@@ -9,6 +9,8 @@ from redbot.core import commands
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import pagify
+from cog_shared.sinbad_libs import extra_setup
+
 
 _ = Translator("MessageBox", __file__)
 
@@ -107,6 +109,7 @@ class MessageBox(commands.Cog):
                 del attach
 
 
+@extra_setup
 async def setup(bot):
     if version_info >= VersionInfo.from_str("3.1.2"):
         await bot.send_to_owners(

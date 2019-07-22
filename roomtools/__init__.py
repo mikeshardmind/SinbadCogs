@@ -3,6 +3,7 @@ from typing import Any
 from datetime import timedelta
 
 from redbot.core import Config, commands
+from cog_shared.sinbad_libs import extra_setup
 
 from .autorooms import AutoRooms
 from .tempchannels import TempChannels
@@ -62,6 +63,7 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
         self.bot.loop.create_task(self.ar_cleanup(load=True))
 
 
+@extra_setup
 def setup(bot):
     cog = RoomTools(bot)
     bot.add_cog(cog)
