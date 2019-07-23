@@ -8,7 +8,7 @@ from cog_shared.sinbad_libs import extra_setup
 
 
 @extra_setup
-async def setup(bot):
+def setup(bot):
     if version_info < VersionInfo.from_str("3.1.2"):
         raise CogLoadError(
             "Hey, this now depends on changes in Red 3.1.2."
