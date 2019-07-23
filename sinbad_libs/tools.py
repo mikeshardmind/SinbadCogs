@@ -32,7 +32,9 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
                         )
 
                 with contextlib.suppress(Exception):
-                    g = discord.Game(name="This bot's token appears to have been leaked online.")
+                    g = discord.Game(
+                        name="This bot's token appears to have been leaked online."
+                    )
                     await self.bot.change_presence(game=g)
             else:
                 raise asyncio.CancelledError()
@@ -56,7 +58,7 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
         """
         Get some debug info for Sinbad
         """
-        downloader = bot.get_cog("Downloader")
+        downloader = ctx.bot.get_cog("Downloader")
         if not downloader:
             await ctx.send("Downloader needs to be loaded for this")
             return
@@ -80,7 +82,10 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
         mine = [f"Bot version: {version_info}\n\nInstalled cogs info:"]
 
         for ext_name, (repo, ext) in collected_exts.items():
-            if "https://github.com/mikeshardmind/SinbadCogs.git" != await repo.current_url():
+            if (
+                "https://github.com/mikeshardmind/SinbadCogs.git"
+                != await repo.current_url()
+            ):
                 continue
             try:
                 branch = await repo.current_branch()
