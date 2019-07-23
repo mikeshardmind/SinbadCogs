@@ -73,7 +73,10 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
 
             loc = ext._location
             if loc not in collected_repos:
-                collected_repos[loc] = await Repo.from_folder(loc)
+                try:
+                    collected_repos[loc] = await Repo.from_folder(loc.stem)
+                except Exception:
+                    continue
 
             r = collected_repos[loc]
 
