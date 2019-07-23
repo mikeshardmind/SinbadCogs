@@ -92,7 +92,7 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
                 continue
             try:
                 branch = await repo.current_branch()
-                commmit_hash = await repo.commmit_hash()
+                commmit_hash = await repo.current_commit()
             except Exception:
                 mine.append(f"{ext_name}: git error on detiled info")
             else:
