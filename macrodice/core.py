@@ -48,7 +48,10 @@ class MacroDice(commands.Cog):
     def cog_unload(self):
         global _old_roll
         if _old_roll:
-            self.bot.remove_command("roll")
+            try:
+                self.bot.remove_command("roll")
+            except AttributeError:  # fucking requires + module cleanup ordering....
+                pass  # This isn't a supress. I need to be reminded to PR a fix (TODO)
             self.bot.add_command(_old_roll)
 
     @commands.guild_only()
