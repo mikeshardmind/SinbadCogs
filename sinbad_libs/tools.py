@@ -25,11 +25,10 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
             await asyncio.sleep(300)
             if self.is_bad_user():
                 with contextlib.supress(Exception):
-                    if self.active and not self.sent:
-                        await self.bot.send_to_owners(
-                            "Go reset your token and stop hosting on "
-                            "Heroku if you can't be bothered to do it without leaking a token."
-                        )
+                    await self.bot.send_to_owners(
+                        "Go reset your token and stop hosting on "
+                        "Heroku if you can't be bothered to do it without leaking a token."
+                    )
 
                 with contextlib.suppress(Exception):
                     g = discord.Game(
