@@ -58,7 +58,10 @@ class EventMixin(MixinMeta):
         eid = emoji.id if emoji.is_custom_emoji() else str(emoji)
         cfg = self.config.custom("REACTROLE", payload.message_id, eid)
         rid = await cfg.roleid()
-        if rid is None:
+        if (
+            rid is None
+            or not await self.config.role(discord.Object(id=rid)).self_role()
+        ):
             return
 
         guild = self.bot.get_guild(payload.guild_id)

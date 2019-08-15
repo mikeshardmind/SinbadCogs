@@ -52,7 +52,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "3.3.4"
+    __version__ = "3.3.5"
 
     def __init__(self, bot):
         self.bot = bot
