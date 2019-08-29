@@ -87,7 +87,7 @@ class EmbedMaker(commands.Cog):
 
         try:
             e = await embed_from_userstr(ctx, data)
-            await ctx.send("Here's how that's gonna look", embed=e)
+            await ctx.send(embed=e)
         except discord.HTTPException:
             await ctx.maybe_send_embed("Discord didn't like that embed")
         except Exception:
@@ -156,7 +156,7 @@ class EmbedMaker(commands.Cog):
 
         try:
             e = await embed_from_userstr(ctx, data)
-            await ctx.send("Here's how that's gonna look", embed=e)
+            await ctx.send(embed=e)
         except discord.HTTPException:
             await ctx.maybe_send_embed("Discord didn't like that embed")
         except Exception:
@@ -186,7 +186,7 @@ class EmbedMaker(commands.Cog):
         try:
             name = name.lower()
             e = await embed_from_userstr(ctx, data)
-            await ctx.send("Here's how that's gonna look", embed=e)
+            await ctx.send(embed=e)
         except discord.HTTPException:
             await ctx.maybe_send_embed("Discord didn't like that embed")
         except Exception:
@@ -232,7 +232,7 @@ class EmbedMaker(commands.Cog):
         try:
             name = name.lower()
             e = await embed_from_userstr(ctx, data)
-            await ctx.send("Here's how that's gonna look", embed=e)
+            await ctx.send(embed=e)
         except discord.HTTPException:
             await ctx.maybe_send_embed("Discord didn't like that embed")
         except Exception:
@@ -256,7 +256,7 @@ class EmbedMaker(commands.Cog):
 
         e = discord.Embed(description=content)
         try:
-            await ctx.send("Here's how that's gonna look", embed=e)
+            await ctx.send(embed=e)
         except (discord.Forbidden, discord.HTTPException):
             await ctx.maybe_send_embed("Discord didn't like that embed")
         else:
@@ -273,7 +273,7 @@ class EmbedMaker(commands.Cog):
         group = self.config.custom("EMBED", "GLOBAL", name)
         try:
             e = discord.Embed(description=content)
-            await ctx.send("Here's how that's gonna look", embed=e)
+            await ctx.send(embed=e)
         except ValueError:
             await ctx.maybe_send_embed("There was something wrong with that input")
         except (discord.Forbidden, discord.HTTPException):
