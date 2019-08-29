@@ -18,7 +18,7 @@ log = logging.getLogger("red.sinbadcogs.embedmaker")
 
 async def can_edit_check(ctx):
     if ctx.guild:
-        if await ctx.bot.is_owner(ctx.author):
+        if ctx.author == ctx.guild.owner or await ctx.bot.is_owner(ctx.author):
             return True
         ids = await ctx.bot.get_cog("EmbedMaker").config.guild(ctx.guild).allowed_edit()
         if ctx.author.id in ids:
@@ -103,7 +103,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.check(can_edit_check)
     @commands.guild_only()
-    @_embed.command(name="editmessage")
+    @_embed.command(name="editmsg")
     async def editmessage_embed(
         self, ctx: commands.Context, message: discord.Message, embedname: str
     ):
