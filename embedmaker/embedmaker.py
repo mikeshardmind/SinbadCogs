@@ -1,6 +1,7 @@
 import io
 import logging
 import contextlib
+from typing import Union
 
 import discord
 from redbot.core import Config
@@ -13,6 +14,19 @@ from cog_shared.sinbad_libs.time_utils import parse_time
 from .yaml_parse import embed_from_userstr
 
 log = logging.getLogger("red.sinbadcogs.embedmaker")
+
+
+async def can_edit_check(ctx):
+    if ctx.guild:
+        if await ctx.bot.is_owner(ctx.author):
+            return True
+        ids = await ctx.bot.get_cog("EmbedMaker").config.guild(ctx.guild).allowed_edit()
+        if ctx.author.id in ids:
+            return True
+        for idx in ids:
+            if ctx.author._roles.has(idx):  # DEP-WARN
+                return True
+
 
 # TODO: Remove this supression after handling `embed_from_userstr`
 # noinspection PyBroadException
@@ -30,7 +44,7 @@ class EmbedMaker(commands.Cog):
         )
         self.config.init_custom("EMBED", 2)
         self.config.register_custom("EMBED", embed={}, owner=None)
-        self.config.register_guild(active=True)
+        self.config.register_guild(active=True, allowed_edit=[])
 
     @commands.group(name="embed", autohelp=True)
     async def _embed(self, ctx: commands.Context):
@@ -38,6 +52,82 @@ class EmbedMaker(commands.Cog):
         Embed commands
         """
         pass
+
+    @checks.admin()
+    @commands.guild_only()
+    @_embed.command(name="allowedit")
+    async def embed_allow_edit(
+        self,
+        ctx: commands.Context,
+        *users_or_roles: Union[discord.Member, discord.Role],
+    ):
+        """
+        allows specified users or roles to edit embeds
+        """
+        if not users_or_roles:
+            return await ctx.send_help()
+
+        async with self.config.guild(ctx.guild).allowed_edit() as allowed_id_list:
+            for ur in users_or_roles:
+                if ur.id not in allowed_id_list:
+                    allowed_id_list.append(ur.id)
+
+        await ctx.tick()
+
+    @checks.admin()
+    @commands.guild_only()
+    @_embed.command(name="disallowedit")
+    async def embed_disallow_edit(
+        self,
+        ctx: commands.Context,
+        *users_or_roles: Union[discord.Member, discord.Role],
+    ):
+        """
+        disallows specified users or roles to edit embeds
+        """
+        if not users_or_roles:
+            return await ctx.send_help()
+
+        async with self.config.guild(ctx.guild).allowed_edit() as allowed_id_list:
+            for ur in users_or_roles:
+                if ur.id in allowed_id_list:
+                    allowed_id_list.remove(ur.id)
+
+        await ctx.tick()
+
+    @commands.guild_only()
+    @_embed.command(name="setnoedit")
+    async def embed_clear_allow_edit(self, ctx: commands.Context):
+        """ removes all users and roles from being able to edit """
+        await self.config.guild(ctx.guild).allowed_edit.clear()
+
+    @commands.check(can_edit_check)
+    @commands.guild_only()
+    @_embed.command(name="editmessage")
+    async def editmessage_embed(
+        self, ctx: commands.Context, message: discord.Message, embedname: str
+    ):
+        """
+        Edits an existing message by channelID-messageID to have an embed (must be saved)
+        """
+
+        if message.guild != ctx.guild:
+            return
+
+        if message.author != ctx.guild.me:
+            return await ctx.send("Not my message, can't edit")
+
+        if await self.config.custom("EMBED", ctx.guild.id, embedname).owner():
+            data = await self.config.custom("EMBED", ctx.guild.id, embedname).embed()
+            embed = deserialize_embed(data)
+        else:
+            return await ctx.send("No embed by that name here")
+
+        try:
+            await message.edit(embed=embed)
+        except discord.HTTPException:
+            pass  # TODO
+        await ctx.tick()
 
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
