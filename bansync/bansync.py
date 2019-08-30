@@ -208,14 +208,14 @@ class BanSync(commands.Cog):
         bool
             Whether the user is considered to be allowed to sync bans to the specified guild
         """
+        # x |= y used in place of x = x or y
+        # except in places where this adds significant overhead losing the short-circuiting.
         user_allowed = False
-        user_allowed |= await self.bot.is_owner(mod)
+        user_allowed = user_allowed or await self.bot.is_owner(mod)
         mod_member = guild.get_member(mod.id)
         if mod_member:
             user_allowed |= mod_member.guild_permissions.ban_members
-            settings = self.bot.db.guild(guild)
-            _arid = await settings.admin_role()
-            user_allowed |= any(r.id == _arid for r in mod_member.roles)
+            user_allowed = user_allowed or await self.bot.is_admin(mod_member)
 
         bot_allowed = guild.me.guild_permissions.ban_members
         return user_allowed and bot_allowed
