@@ -324,10 +324,8 @@ class EmbedMaker(commands.Cog):
             (
                 await group.owner() == ctx.author.id,
                 await ctx.bot.is_owner(ctx.author),
-                await ctx.bot.db.guild(ctx.guild).admin_role()
-                in [r.id for r in ctx.author.roles],
-                await ctx.bot.db.guild(ctx.guild).mod_role()
-                in [r.id for r in ctx.author.roles],
+                await ctx.bot.is_admin(ctx.author),
+                await ctx.bot.is_mod(ctx.author),
             )
         ):
             await group.clear()
