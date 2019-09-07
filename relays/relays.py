@@ -29,7 +29,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "2.0.4"
+    __version__ = "2.0.5"
 
     def __init__(self, bot: Red, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -235,7 +235,7 @@ class Relays(commands.Cog):
         if not all(validation.values()):
             return await self.validation_error(ctx, validation)
 
-        self.nways[name] = NwayRelay(bot=self.bot, channels=list(validation.values()))
+        self.nways[name] = NwayRelay(bot=self.bot, channels=[c.id for c in validation.values()])
         await self.write_data()
         await ctx.tick()
 
@@ -264,8 +264,8 @@ class Relays(commands.Cog):
 
         self.oneways[name] = OnewayRelay(
             bot=self.bot,
-            source=validation.pop(source),
-            destinations=list(validation.values()),
+            source=validation.pop(source).id,
+            destinations=[c.id for c in validation.values()],
         )
         await self.write_data()
         await ctx.tick()

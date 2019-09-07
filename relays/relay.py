@@ -30,7 +30,7 @@ class NwayRelay:
         return ret
 
     def to_data(self):
-        return {"channels": [c.id for c in self.channels]}
+        return self.channel_ids
 
 
 class OnewayRelay:
@@ -65,4 +65,4 @@ class OnewayRelay:
         return ret
 
     def to_data(self):
-        return {"source": self.source.id, "destinations": self.destination_ids}
+        return {"source": self.source_id, "destinations": self.destination_ids}
