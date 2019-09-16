@@ -30,7 +30,7 @@ class NwayRelay:
         return ret
 
     def to_data(self):
-        return self.channel_ids
+        return {"channels": self.channel_ids}
 
 
 class OnewayRelay:
