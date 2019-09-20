@@ -33,7 +33,7 @@ class QuoteTools(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.3.2"
+    __version__ = "1.3.3"
     __flavor_text__ = "Message jump links are go"
 
     def __init__(self, bot, *args, **kwargs):
@@ -50,10 +50,9 @@ class QuoteTools(commands.Cog):
         User must be able to see the message(s)
 
         You need to specify specific channels to search (by ID or mention only!)
-        (Owner is exempt from this, but it may be slow and API heavy)
         """
 
-        if not messageids or (not channels and not await ctx.bot.is_owner(ctx.author)):
+        if not messageids or not channels:
             return await ctx.send_help()
 
         msgs = await find_messages(ctx, messageids, channels)
