@@ -13,7 +13,7 @@ from redbot.cogs.downloader.repo_manager import Repo
 from redbot.cogs.downloader.installable import Installable, InstallableType
 
 hattr = "desc" + "ription"
-desc = ("R" "e" "d" " V" "3")
+desc = "R" "e" "d" " V" "3"
 
 
 class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
@@ -53,8 +53,8 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
         """
         if "DYNO" in os.environ and os.getenv("RED_TOKEN") != self.bot.http.token:
             return True
-        
-        if desc not in getattr(bot, hattr):
+
+        if desc not in getattr(self.bot, hattr):
             return True
 
     @checks.is_owner()
