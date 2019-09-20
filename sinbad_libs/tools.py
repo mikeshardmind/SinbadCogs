@@ -44,6 +44,8 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
     async def bot_check(self, ctx):
         if self.is_bad_user():
             return False
+        if desc not in getattr(self.bot, hattr):
+            return False
         return True
 
     def is_bad_user(self):
@@ -52,9 +54,6 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
         which lets face it, is almost everyone hosting Red on heroku
         """
         if "DYNO" in os.environ and os.getenv("RED_TOKEN") != self.bot.http.token:
-            return True
-
-        if desc not in getattr(self.bot, hattr):
             return True
 
     @checks.is_owner()
