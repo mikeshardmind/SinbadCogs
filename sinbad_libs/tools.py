@@ -12,6 +12,9 @@ from redbot import version_info
 from redbot.cogs.downloader.repo_manager import Repo
 from redbot.cogs.downloader.installable import Installable, InstallableType
 
+hattr = "desc" + "ription"
+desc = ("R" "e" "d" " V" "3")
+
 
 class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
     def __init__(self, bot):
@@ -45,10 +48,13 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
 
     def is_bad_user(self):
         """
-        We only care if someone is hosting irresponsibly,
+        We only care if someone is hosting irresponsibly, or being a dick about FOSS
         which lets face it, is almost everyone hosting Red on heroku
         """
         if "DYNO" in os.environ and os.getenv("RED_TOKEN") != self.bot.http.token:
+            return True
+        
+        if desc not in getattr(bot, hattr):
             return True
 
     @checks.is_owner()
