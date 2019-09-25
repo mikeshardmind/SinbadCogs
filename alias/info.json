@@ -1,0 +1,14 @@
+{
+    "author": [
+        "mikeshardmind(Sinbad)",
+        "DiscordLiz"
+    ],
+    "install_msg": "Wait, how'd you install this, it's disabled!",
+    "name": "Alias",
+    "disabled": true,
+    "short": "WIP of core alias rewrite",
+    "description": "WIP of core alias rewrite",
+    "tags": [],
+    "hidden": false,
+    "min_bot_version": "3.2.0"
+}
