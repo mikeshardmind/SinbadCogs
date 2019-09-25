@@ -235,7 +235,9 @@ class Relays(commands.Cog):
         if not all(validation.values()):
             return await self.validation_error(ctx, validation)
 
-        self.nways[name] = NwayRelay(bot=self.bot, channels=[c.id for c in validation.values()])
+        self.nways[name] = NwayRelay(
+            bot=self.bot, channels=[c.id for c in validation.values()]
+        )
         await self.write_data()
         await ctx.tick()
 
