@@ -16,7 +16,6 @@ from .yaml_parse import embed_from_userstr
 log = logging.getLogger("red.sinbadcogs.embedmaker")
 
 
-
 # TODO: Remove this supression after handling `embed_from_userstr`
 # noinspection PyBroadException
 class EmbedMaker(commands.Cog):
