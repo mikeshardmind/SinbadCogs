@@ -186,7 +186,6 @@ class RSS(commands.Cog):
 
         content = template.safe_substitute(**escaped_usable_fields)
 
-        # pylint: disable=no-else-return
         if embed:
             if len(content) > 1980:
                 content = content[:1980] + _("... (Feed data too long)")
