@@ -14,6 +14,6 @@ def extra_setup(func):
             bot.remove_cog("Sinbad's Toolbox")
             bot.add_cog(cog)
         finally:  # Yes, I am intentionally returning in a finally statement.
-            return func(bot)
+            return func(bot)  # pylint: disable=lost-exception
 
     return _new_setup

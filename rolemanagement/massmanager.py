@@ -65,7 +65,8 @@ class MassManagementMixin(MixinMeta):
         def mfilter(m: discord.Member) -> bool:
             if query["bots"] and not m.bot:
                 return False
-            elif query["humans"] and m.bot:
+
+            if query["humans"] and m.bot:
                 return False
 
             if query["any"] and m not in any_set:

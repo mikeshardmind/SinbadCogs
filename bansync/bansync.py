@@ -320,7 +320,7 @@ class BanSync(commands.Cog):
     async def interactive(self, ctx: commands.Context, excluded: GuildSet):
         output = ""
         guilds = [g async for g in self.guild_discovery(ctx, excluded)]
-        if len(guilds) == 0:
+        if not guilds:
             return -1
         for i, guild in enumerate(guilds, 1):
             output += "{}: {}\n".format(i, guild.name)
@@ -343,13 +343,11 @@ class BanSync(commands.Cog):
                 message = int(message.content.strip())
                 if message == -1:
                     return -1
-                else:
-                    guild = guilds[message - 1]
+
+                return guilds[message - 1]
             except (ValueError, IndexError):
                 await ctx.send(_("That wasn't a valid choice"))
                 return None
-            else:
-                return guild
 
     async def process_sync(
         self,
@@ -457,10 +455,9 @@ class BanSync(commands.Cog):
                     break
                 if s == -2:
                     return await ctx.send(_("You took too long, try again later"))
-                elif s is None:
-                    continue
-                else:
+                if s is not None:
                     guilds.add(s)
+
         elif auto is True:
             exclusions = await self.config.excluded_from_automatic()
             guilds: GuildSet = {

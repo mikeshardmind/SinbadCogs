@@ -100,10 +100,10 @@ class Relays(commands.Cog):
         ret = {}
         for info in chaninfo:
             x = txt_channel_finder(self.bot, info)
-            if len(x) == 1:
-                val = x[0]
-            elif len(x) == 0:
+            if not x:
                 val = None
+            elif len(x) == 1:
+                val = x[0]
             else:
                 val = False
             ret[info] = val
@@ -131,7 +131,7 @@ class Relays(commands.Cog):
     async def interactive_selection(self, ctx: commands.Context):
         output = ""
         names = self.relay_names
-        if len(names) == 0:
+        if not names:
             return -1
         for i, name in enumerate(names, 1):
             output += "{}: {}\n".format(i, name)
@@ -155,8 +155,7 @@ class Relays(commands.Cog):
                     if message == -1:
                         return
                     raise IndexError("We only want positive indexes")
-                else:
-                    name = names[message - 1]
+                name = names[message - 1]
             except (ValueError, IndexError):
                 await ctx.send(_("That wasn't a valid choice"))
                 ret = None
@@ -252,7 +251,7 @@ class Relays(commands.Cog):
         if name in self.relay_names:
             return await ctx.send(_("A relay of that name already exists."))
 
-        if len(destinations) < 1:
+        if not destinations:
             return await ctx.send(_("You didn't give me enough channels."))
 
         if source in destinations or len(unique(destinations)) != len(destinations):

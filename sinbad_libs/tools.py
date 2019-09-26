@@ -79,7 +79,7 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
             if loc not in collected_repos:
                 try:
                     collected_repos[loc] = await Repo.from_folder(loc.parent)
-                except Exception:
+                except Exception:  # nosec
                     continue
 
             r = collected_repos[loc]

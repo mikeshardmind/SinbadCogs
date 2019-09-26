@@ -46,10 +46,9 @@ class TempChannels(MixedMeta):
                 conf = self.tmpc_config.channel(channel)
                 if not await conf.is_temp():
                     continue
-                if (
-                    len(channel.members) == 0
-                    and (channel.created_at + timedelta(seconds=20)) < datetime.utcnow()
-                ):
+                if (not channel.members) and (
+                    channel.created_at + timedelta(seconds=20)
+                ) < datetime.utcnow():
                     try:
                         await channel.delete(reason="temp channel cleaning")
                     except discord.Forbidden:

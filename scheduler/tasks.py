@@ -82,8 +82,8 @@ class Task:
         if self.recur and now >= self.initial:
             raw_interval = self.recur.total_seconds()
             return raw_interval - ((now - self.initial).total_seconds() % raw_interval)
-        else:
-            return (self.initial - now).total_seconds()
+
+        return (self.initial - now).total_seconds()
 
     def to_embed(self, index: int, page_count: int, color: discord.Color):
 
@@ -126,4 +126,7 @@ class Task:
         guild = bot.get_guild(guild_id)
         self.author = guild.get_member(author_id)
         self.channel = guild.get_channel(channel_id)
-        self.channel.id  # Do not Remove.
+        if not hasattr(self.channel, "id"):
+            raise AttributeError()
+        # Yes, this is slower than an inline `self.channel.id`
+        # It's also not slow anywhere important, and I prefer the clear intent

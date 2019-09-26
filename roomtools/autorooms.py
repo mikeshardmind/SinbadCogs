@@ -34,11 +34,9 @@ class AutoRooms(MixedMeta):
                 conf = self.ar_config.channel(channel)
                 if not await conf.clone():
                     continue
-                if (
-                    len(channel.members) == 0
-                    and (channel.created_at + timedelta(seconds=0.5))
-                    < datetime.utcnow()
-                ):
+                if (not channel.members) and (
+                    channel.created_at + timedelta(seconds=0.5)
+                ) < datetime.utcnow():
                     try:
                         await channel.delete(reason="autoroom cleaning")
                     except discord.Forbidden:

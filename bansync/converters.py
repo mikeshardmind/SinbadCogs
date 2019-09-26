@@ -1,7 +1,8 @@
 import argparse
+import contextlib
 import shlex
 import re
-from typing import Dict, Any
+from typing import Dict, Any, cast
 
 from redbot.core.commands import Converter, Context, BadArgument, MemberConverter
 from redbot.core.i18n import Translator
@@ -17,12 +18,9 @@ class MemberOrID(MemberConverter):
     async def convert(self, ctx: Context, argument: str) -> int:
 
         # noinspection PyBroadException
-        try:
+        with contextlib.suppress(Exception):
             m = await super().convert(ctx, argument)
-        except Exception:
-            pass
-        else:
-            return m.id
+            return cast(int, m.id)
 
         match = self._get_id_match(argument) or re.match(r"<@!?([0-9]+)>$", argument)
         if match:

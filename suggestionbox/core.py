@@ -129,23 +129,22 @@ class SuggestionBox(commands.Cog):
         if option is None:
             current = await self.config.guild(ctx.guild).add_reactions()
             if current:
-                return await ctx.send(
-                    _(
-                        "I am adding reactions to suggestions."
-                        "\nUse {command} for more information"
-                    ).format(
-                        command=f"`{ctx.clean_prefix}help suggestionset addreactions`"
-                    )
+                base = _(
+                    "I am adding reactions to suggestions."
+                    "\nUse {command} for more information"
                 )
             else:
-                return await ctx.send(
-                    _(
-                        "I am not adding reactions to suggestions."
-                        "\nUse {command} for more information"
-                    ).format(
-                        command=f"`{ctx.clean_prefix}help suggestionset addreactions`"
-                    )
+                base = _(
+                    "I am not adding reactions to suggestions."
+                    "\nUse {command} for more information"
                 )
+
+            await ctx.send(
+                base.format(
+                    command=f"`{ctx.clean_prefix}help suggestionset addreactions`"
+                )
+            )
+            return
 
         await self.config.guild(ctx.guild).add_reactions.set(option)
         await ctx.tick()
