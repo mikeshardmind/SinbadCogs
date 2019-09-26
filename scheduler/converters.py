@@ -63,16 +63,16 @@ class Schedule(Converter):
                 parsed = parse_timedelta(" ".join(vals[delta]))
                 if not parsed:
                     raise BadArgument("I couldn't understand that time interval")
+
+                if delta == "in":
+                    start = datetime.now(timezone.utc) + parsed
                 else:
-                    if delta == "in":
-                        start = datetime.now(timezone.utc) + parsed
-                    else:
-                        recur = parsed
-                        if recur.total_seconds() < 60:
-                            raise BadArgument(
-                                "You can't schedule something to happen that frequently, "
-                                "I'll get ratelimited."
-                            )
+                    recur = parsed
+                    if recur.total_seconds() < 60:
+                        raise BadArgument(
+                            "You can't schedule something to happen that frequently, "
+                            "I'll get ratelimited."
+                        )
 
         if vals["at"]:
             try:

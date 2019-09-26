@@ -62,7 +62,7 @@ class GuildWhitelist(commands.Cog):
         If the ID of a user, any guild owned by this user will be
         treated as if it were whitelisted.
         """
-        if len(ids) == 0:
+        if not ids:
             return await ctx.send_help()
 
         async with self.config.whitelist() as whitelist:
@@ -90,7 +90,7 @@ class GuildWhitelist(commands.Cog):
         """
         remove one or more ids from the whitelist
         """
-        if len(ids) == 0:
+        if not ids:
             return await ctx.send_help()
 
         async with self.config.whitelist() as whitelist:

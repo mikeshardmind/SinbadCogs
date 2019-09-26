@@ -56,7 +56,7 @@ class GuildBlacklist(commands.Cog):
         If the ID of a user, any guild owned by this user will be
         treated as if it were blacklisted.
         """
-        if len(ids) == 0:
+        if not ids:
             return await ctx.send_help()
 
         async with self.config.blacklist() as blacklist:
@@ -83,7 +83,7 @@ class GuildBlacklist(commands.Cog):
         """
         remove one or more ids from the blacklist
         """
-        if len(ids) == 0:
+        if not ids:
             return await ctx.send_help()
 
         async with self.config.blacklist() as blacklist:

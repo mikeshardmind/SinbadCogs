@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import string
 from typing import Optional, List, cast, no_type_check
 from datetime import datetime
@@ -228,16 +229,13 @@ class RSS(commands.Cog):
                         feeds_fetched[url] = response
 
                     if response:
-                        try:
+                        with contextlib.supress(Exception):
                             last = await self.format_and_send(
                                 destination=channel,
                                 response=response,
                                 feed_settings=feed,
                                 embed_default=should_embed,
                             )
-                        except Exception:
-                            pass
-                        else:
                             if last:
                                 await self.config.channel(channel).feeds.set_raw(
                                     feed_name, "last", value=last
@@ -314,17 +312,16 @@ class RSS(commands.Cog):
                     )
                 )
 
-            else:
-                feeds.update(
-                    {
-                        name: {
-                            "url": url,
-                            "template": None,
-                            "embed_override": None,
-                            "last": list(ctx.message.created_at.timetuple()[:6]),
-                        }
+            feeds.update(
+                {
+                    name: {
+                        "url": url,
+                        "template": None,
+                        "embed_override": None,
+                        "last": list(ctx.message.created_at.timetuple()[:6]),
                     }
-                )
+                }
+            )
 
         await ctx.tick()
 
