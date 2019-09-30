@@ -12,9 +12,6 @@ from redbot import version_info
 from redbot.cogs.downloader.repo_manager import Repo
 from redbot.cogs.downloader.installable import Installable, InstallableType
 
-hattr = "desc" + "ription"
-desc = "R" "e" "d" " V" "3"
-
 
 class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
     def __init__(self, bot):
@@ -41,17 +38,9 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
             else:
                 raise asyncio.CancelledError()
 
-    async def bot_check(self, ctx):
-        if self.is_bad_user():
-            return False
-        # if desc not in getattr(self.bot, hattr):  # Hold this till 3.2 with a better ver.
-        #     return False
-        return True
-
     def is_bad_user(self):
         """
-        We only care if someone is hosting irresponsibly, or being a dick about FOSS
-        which lets face it, is almost everyone hosting Red on heroku
+        We only care if someone is hosting irresponsibly
         """
         if "DYNO" in os.environ and os.getenv("RED_TOKEN") != self.bot.http.token:
             return True
