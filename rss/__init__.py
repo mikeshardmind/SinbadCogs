@@ -8,7 +8,7 @@ def setup(bot):
     try:
         from . import core
 
-        core = importlib.reload()
+        core = importlib.reload(core)
     except ImportError:
         raise CogLoadError(
             "You need `feedparser` for this. Downloader *should* have handled this for you."
