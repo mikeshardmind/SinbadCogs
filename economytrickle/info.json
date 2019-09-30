@@ -8,6 +8,6 @@
     "disabled": false,
     "short": "Gives active users credits",
     "description": "Gives active users credits. With configureable settings for activity, amount, and more.",
-    "hidden": false,
+    "hidden": true,
     "min_bot_version": "3.1.4"
 }
