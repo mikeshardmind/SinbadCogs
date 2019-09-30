@@ -44,8 +44,8 @@ class ToolBox(commands.Cog, name="Sinbad's Toolbox"):
     async def bot_check(self, ctx):
         if self.is_bad_user():
             return False
-        if desc not in getattr(self.bot, hattr):
-            return False
+        # if desc not in getattr(self.bot, hattr):  # Hold this till 3.2 with a better ver.
+        #     return False
         return True
 
     def is_bad_user(self):
