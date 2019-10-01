@@ -1,4 +1,3 @@
-from typing import Any
 from redbot.core import commands
 import discord
 from .helpers import find_messages, embed_from_msg
@@ -33,7 +32,7 @@ class QuoteTools(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "1.3.3"
+    __version__ = "1.3.4"
     __flavor_text__ = "Message jump links are go"
 
     def __init__(self, bot, *args, **kwargs):

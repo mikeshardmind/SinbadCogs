@@ -3,7 +3,7 @@ from typing import Union, Dict, List, cast
 from datetime import timedelta
 
 import discord
-from redbot.core import commands, checks
+from redbot.core import commands
 from redbot.core.utils.antispam import AntiSpam
 from redbot.core.i18n import Translator, cog_i18n
 

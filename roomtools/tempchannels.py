@@ -5,9 +5,7 @@ import contextlib
 import discord
 
 from redbot.core import commands
-from redbot.core.bot import Red
 from redbot.core.utils.antispam import AntiSpam
-from redbot.core.config import Config
 from redbot.core import checks
 
 from .checks import tmpc_active

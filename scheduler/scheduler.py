@@ -9,7 +9,6 @@ from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
-from .message import SchedulerMessage
 from .logs import get_logger
 from .tasks import Task
 from .converters import Schedule, non_numeric, TempMute

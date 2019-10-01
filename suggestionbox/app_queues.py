@@ -1,7 +1,5 @@
 from enum import IntEnum
-from typing import Callable, List, Tuple, Dict, Any, Set, TYPE_CHECKING
-
-import discord
+from typing import Callable, List, Tuple, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from mypy_extensions import KwArg
