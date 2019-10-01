@@ -101,6 +101,10 @@ class TempChannels(MixedMeta):
         await self.tmpc_config.guild(ctx.guild).category.set(cat.id)
         await ctx.tick()
 
+    async def _delayed_check(self, guild: discord.Guild):
+        await asyncio.sleep(20)
+        await self.tmpc_cleanup(guild)
+
     @tmpc_active()
     @commands.bot_has_permissions(manage_channels=True)
     @commands.command(name="tmpc")
@@ -155,3 +159,5 @@ class TempChannels(MixedMeta):
             current_voice = ctx.author.voice.channel
             if current_voice and ctx.guild.me.guild_permissions.move_members:
                 await ctx.author.move(created)
+
+            asyncio.create_task(self._delayed_check(ctx.guild))
