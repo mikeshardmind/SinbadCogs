@@ -24,9 +24,10 @@ class GuildBlacklist(commands.Cog):
     the server's ID, or the serverowner's ID
     """
 
-    __version__ = "2.0.1"
+    __version__ = "2.0.2"
 
     def __init__(self, bot):
+        super().__init__()
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True

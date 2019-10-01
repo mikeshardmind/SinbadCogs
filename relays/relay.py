@@ -5,7 +5,7 @@ from redbot.core.bot import Red
 
 class NwayRelay:
     def __init__(self, *, bot: Red, channels: List[int]) -> None:
-        self.channel_ids: List[discord.TextChannel] = channels
+        self.channel_ids: List[int] = channels
         self.bot = bot
 
     @property

@@ -1,6 +1,4 @@
-import contextlib
 from typing import Optional
-from enum import IntEnum
 
 import discord
 from redbot.core.config import Config
@@ -9,7 +7,6 @@ from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.antispam import AntiSpam
 
 from .checks import has_active_box
-from .app_queues import Action, State, Formulas
 
 _ = Translator("??", __file__)
 
@@ -20,9 +17,10 @@ class SuggestionBox(commands.Cog):
     A configureable suggestion box cog
     """
 
-    __version__ = "1.0.5"
+    __version__ = "1.0.6"
 
     def __init__(self, bot):
+        super().__init__()
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True

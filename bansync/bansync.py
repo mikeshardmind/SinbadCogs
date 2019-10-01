@@ -27,7 +27,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "2.2.4"
+    __version__ = "2.2.5"
 
     def __init__(self, bot: "Red", *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -491,15 +491,15 @@ class BanSync(commands.Cog):
         await ctx.tick()
 
     @syndicated_bansync.error
-    async def syndicated_converter_handler(self, ctx, wrapped_error):
+    async def syndicated_converter_handler(self, ctx, wrapped_error: commands.CommandError):
         """
         Parameters
         ----------
         ctx: commands.Context
-        error: Exception
+        wrapped_error: commmands.CommandError
         """
 
-        error = wrapped_error.original
+        error = getattr(wrapped_error, "original", wrapped_error)
 
         if isinstance(error, ParserError):
             if error.args:
@@ -531,10 +531,10 @@ class BanSync(commands.Cog):
         Or to fix a fuckup.
         """
 
-        async def unban(guild, *user_ids, reason=None):
+        async def unban(guild, *user_ids, rsn=None):
             for user_id in user_ids:
                 with contextlib.suppress(discord.HTTPException):
-                    await guild.unban(discord.Object(id=user_id), reason=reason)
+                    await guild.unban(discord.Object(id=user_id), reason=rsn)
 
         excluded: GuildSet = {
             g
@@ -544,7 +544,7 @@ class BanSync(commands.Cog):
 
         guilds = [g async for g in self.guild_discovery(ctx, excluded)]
 
-        tasks = [unban(guild, *users, reason=reason) for guild in guilds]
+        tasks = [unban(guild, *users, rsn=reason) for guild in guilds]
 
         async with ctx.typing():
             await asyncio.gather(*tasks)

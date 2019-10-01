@@ -1,4 +1,3 @@
-import discord
 from .mod import Mod
 from cog_shared.sinbad_libs import extra_setup
 

@@ -5,9 +5,7 @@ import contextlib
 import discord
 
 from redbot.core import commands
-from redbot.core.bot import Red
 from redbot.core.utils.antispam import AntiSpam
-from redbot.core.config import Config
 from redbot.core import checks
 from redbot.core.utils.chat_formatting import pagify
 
@@ -121,7 +119,6 @@ class AutoRooms(MixedMeta):
                 }
             )
 
-        cname = None
         if await self.ar_config.channel(source).gameroom():
             with contextlib.suppress(Exception):
                 cname = who.activity.name

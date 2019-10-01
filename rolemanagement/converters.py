@@ -4,8 +4,6 @@ from redbot.core.commands import (
     RoleConverter,
     Context,
     BadArgument,
-    PartialEmojiConverter,
-    EmojiConverter,
 )
 import discord
 

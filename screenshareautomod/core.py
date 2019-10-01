@@ -13,10 +13,11 @@ class ScreenshareAutoMod(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.0"
-    __flavor_text__ = "UGH, discord rolls this out without perms version."
+    __version__ = "1.0.1"
+    __flavor_text__ = "UGH, discord doesn't remove this or make it respect the new system."
 
     def __init__(self, bot):
+        super().__init__()
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
@@ -29,7 +30,7 @@ class ScreenshareAutoMod(commands.Cog):
         channel = after.channel
         guild = member.guild
         if channel and after.self_video:
-            await maybe_punish_screenshare(guild, channel, member)
+            await self.maybe_punish_screenshare(guild, channel, member)
 
     async def maybe_punish_screenshare(self, guild, channel, member):
         if not await self.config.guild(guild).active():

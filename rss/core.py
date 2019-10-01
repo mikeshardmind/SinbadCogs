@@ -1,6 +1,6 @@
 import asyncio
 import string
-from typing import Optional, List, cast, no_type_check
+from typing import Optional, List, no_type_check
 from datetime import datetime
 
 import aiohttp
@@ -114,7 +114,7 @@ class RSS(commands.Cog):
             return tuple(x.get("published_parsed"))[:5]
         if "updated_parsed" in x:
             return tuple(x.get("updated_parsed"))[:5]
-        return (0,)
+        return 0,
 
     async def format_and_send(
         self,

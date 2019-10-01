@@ -1,7 +1,5 @@
 import io
 import logging
-import contextlib
-from typing import Union
 
 import discord
 from redbot.core import Config
@@ -23,9 +21,10 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "5.0.0"
+    __version__ = "5.0.1"
 
     def __init__(self, bot):
+        super().__init__()
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True

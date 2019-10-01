@@ -14,13 +14,6 @@ from .helpers import unique, embed_from_msg, txt_channel_finder
 
 _ = Translator("Relays", __file__)
 
-# red 3.0 backwards compatibility support
-listener = getattr(commands.Cog, "listener", None)
-if listener is None:
-
-    def listener(name=None):
-        return lambda x: x
-
 
 @cog_i18n(_)
 class Relays(commands.Cog):
@@ -29,7 +22,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "2.0.5"
+    __version__ = "2.0.6"
 
     def __init__(self, bot: Red, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -180,13 +173,13 @@ class Relays(commands.Cog):
                 "Destinations (Channel | Server):\n"
             ).format(source=relay.source)
             msg += "\n".join(f"{x.name} | {x.guild.name}" for x in relay.destinations)
+            return msg
 
         if name in self.nways:
             nrelay = self.nways[name]
             msg = _("Relay type: multiway\nChannels Channel | Guild):\n")
             msg += "\n".join(f"{x.name} | {x.guild.name}" for x in nrelay.channels)
-
-        return msg
+            return msg
 
     @commands.group()
     async def relayset(self, ctx: commands.Context):
