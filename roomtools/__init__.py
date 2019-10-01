@@ -3,6 +3,7 @@ from typing import Any
 from datetime import timedelta
 
 from redbot.core import Config, commands
+
 from cog_shared.sinbad_libs import extra_setup
 
 from .autorooms import AutoRooms

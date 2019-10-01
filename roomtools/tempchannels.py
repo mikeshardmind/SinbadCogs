@@ -102,7 +102,7 @@ class TempChannels(MixedMeta):
         await ctx.tick()
 
     async def _delayed_check(self, guild: discord.Guild):
-        await asyncio.sleep(20)
+        await asyncio.sleep(30)
         await self.tmpc_cleanup(guild)
 
     @tmpc_active()
@@ -153,11 +153,9 @@ class TempChannels(MixedMeta):
 
         await self.tmpc_config.channel(created).is_temp.set(True)
         self._antispam[ctx.author.id].stamp()
-
+        asyncio.create_task(self._delayed_check(ctx.guild))
         with contextlib.suppress(Exception):
             current_voice = None
             current_voice = ctx.author.voice.channel
             if current_voice and ctx.guild.me.guild_permissions.move_members:
                 await ctx.author.move(created)
-
-            asyncio.create_task(self._delayed_check(ctx.guild))
