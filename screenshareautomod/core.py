@@ -14,7 +14,9 @@ class ScreenshareAutoMod(commands.Cog):
 
     __author__ = "mikeshardmind"
     __version__ = "1.0.1"
-    __flavor_text__ = "UGH, discord doesn't remove this or make it respect the new system."
+    __flavor_text__ = (
+        "UGH, discord doesn't remove this or make it respect the new system."
+    )
 
     def __init__(self, bot):
         super().__init__()

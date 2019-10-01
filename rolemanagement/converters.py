@@ -1,10 +1,6 @@
 import argparse
 import shlex
-from redbot.core.commands import (
-    RoleConverter,
-    Context,
-    BadArgument,
-)
+from redbot.core.commands import RoleConverter, Context, BadArgument
 import discord
 
 

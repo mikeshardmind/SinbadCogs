@@ -491,7 +491,9 @@ class BanSync(commands.Cog):
         await ctx.tick()
 
     @syndicated_bansync.error
-    async def syndicated_converter_handler(self, ctx, wrapped_error: commands.CommandError):
+    async def syndicated_converter_handler(
+        self, ctx, wrapped_error: commands.CommandError
+    ):
         """
         Parameters
         ----------
