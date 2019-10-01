@@ -1,6 +1,6 @@
 from abc import ABC
 import contextlib
-from typing import AsyncIterator, Tuple, NamedTuple
+from typing import AsyncIterator, Tuple, NamedTuple, cast, no_type_check
 import discord
 from redbot.core import checks, commands, bank
 from redbot.core.config import Config
@@ -14,7 +14,7 @@ from .massmanager import MassManagementMixin
 from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
 
-MassSetArgs: dict = get_dict_converter("self_removable", "self_role")
+MassSetArgs = get_dict_converter("self_removable", "self_role")  # type: ignore
 
 
 class MockedMember(NamedTuple):
@@ -26,7 +26,7 @@ class MockedMember(NamedTuple):
         return discord.utils.snowflake_time(self.id)
 
 
-class CompositeMetaClass(type(commands.Cog), type(ABC)):
+class CompositeMetaClass(commands.Cog, ABC):
     """
     Discord.py transforms instance methods into classes as class variables which contain
     the previous instance method, with no proper ability to reference the intended instance.
@@ -250,12 +250,15 @@ class RoleManagement(
         lambda ctx: ctx.author.id in (78631113035100160, 240961564503441410)
     )
     @rgroup.command(name="massset")
+    @no_type_check
     async def rmass_set(
         self, ctx, roles: commands.Greedy[discord.Role], *, extras: MassSetArgs
     ):
         """
         Expiramental
         """
+        extras = cast(dict, MassSetArgs)
+
         if not roles:
             return await ctx.send_help()
 
@@ -548,7 +551,7 @@ class RoleManagement(
             eligible = await self.config.role(role).self_role()
             cost = await self.config.role(role).cost()
         except RoleManagementException:
-            eligible = False
+            return
         except PermissionOrHierarchyException:
             await ctx.send(
                 "I cannot assign roles which I can not manage. (Discord Hierarchy)"
@@ -588,7 +591,7 @@ class RoleManagement(
             eligible = await self.config.role(role).self_role()
             cost = await self.config.role(role).cost()
         except RoleManagementException:
-            eligible = False
+            return
         except PermissionOrHierarchyException:
             await ctx.send(
                 "I cannot assign roles which I can not manage. (Discord Hierarchy)"

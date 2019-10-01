@@ -1,5 +1,4 @@
 from abc import ABC
-from typing import Any
 from datetime import timedelta
 
 from redbot.core import Config, commands

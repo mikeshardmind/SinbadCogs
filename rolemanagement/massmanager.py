@@ -126,7 +126,7 @@ class MassManagementMixin(MixinMeta):
         users: commands.Greedy[discord.Member],
         *,
         roles: RoleSyntaxConverter,
-    ):  # type: (commands.Context, List[discord.Member], *, dict) -> None
+    ) -> None:
         """
         adds/removes roles to one or more users
 
@@ -142,6 +142,7 @@ class MassManagementMixin(MixinMeta):
         For role operations based on role membership, permissions had, or whether someone is a bot
         (or even just add to/remove from all) see `[p]massrole search` and `[p]massrole modify` 
         """
+        roles = cast(dict, roles)
         give, remove = roles["add"], roles["remove"]
         apply = give + remove
         if not await self.all_are_valid_roles(ctx, *apply):
@@ -214,7 +215,8 @@ class MassManagementMixin(MixinMeta):
         else:
             await self.send_maybe_chunked_csv(ctx, list(members))
 
-    async def send_maybe_chunked_csv(self, ctx: commands.Context, members):
+    @staticmethod
+    async def send_maybe_chunked_csv(ctx: commands.Context, members):
         chunk_size = 75000
         chunks = [
             members[i : (i + chunk_size)] for i in range(0, len(members), chunk_size)
@@ -293,7 +295,7 @@ class MassManagementMixin(MixinMeta):
         --add roles
         --remove roles
         """
-
+        query = cast(dict, query)
         apply = query["add"] + query["remove"]
         if not await self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(

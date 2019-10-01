@@ -1,5 +1,4 @@
 import argparse
-import shlex
 from typing import Optional, Tuple
 from datetime import datetime, timedelta, timezone
 from redbot.core.commands import Context, BadArgument, Converter
