@@ -99,6 +99,10 @@ class TempChannels(MixedMeta):
         await self.tmpc_config.guild(ctx.guild).category.set(cat.id)
         await ctx.tick()
 
+    async def _delayed_check(self, guild: discord.Guild):
+        await asyncio.sleep(30)
+        await self.tmpc_cleanup(guild)
+
     @tmpc_active()
     @commands.bot_has_permissions(manage_channels=True)
     @commands.command(name="tmpc")
@@ -147,7 +151,7 @@ class TempChannels(MixedMeta):
 
         await self.tmpc_config.channel(created).is_temp.set(True)
         self._antispam[ctx.author.id].stamp()
-
+        asyncio.create_task(self._delayed_check(ctx.guild))
         with contextlib.suppress(Exception):
             current_voice = None
             current_voice = ctx.author.voice.channel
