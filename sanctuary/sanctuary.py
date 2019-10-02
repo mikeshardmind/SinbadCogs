@@ -21,6 +21,7 @@ class Sanctuary(commands.Cog):
     @checks.bot_has_permissions(manage_messages=True, read_message_history=True)
     @commands.guild_only()
     @checks.mod()
+    @commands.command()
     async def removegone(self, ctx: commands.Context):
         """
         Removes posts from users no longer in the channel
