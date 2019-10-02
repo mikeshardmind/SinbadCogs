@@ -13,7 +13,7 @@ class Inactivity(commands.Cog):
     """
 
     async def handle_channel(
-        chan: discord.TextChannel
+        self, chan: discord.TextChannel
     ) -> Tuple[Dict[int, int], Dict[int, datetime]]:
 
         counts: Dict[int, int] = defaultdict(int)
@@ -27,7 +27,7 @@ class Inactivity(commands.Cog):
         return counts, recents
 
     async def getinfo(
-        guild: discord.Guild
+        self, guild: discord.Guild
     ) -> Tuple[Dict[int, int], Dict[int, datetime]]:
 
         full_counts: Dict[int, int] = defaultdict(int)
@@ -35,7 +35,9 @@ class Inactivity(commands.Cog):
             lambda: datetime.utcfromtimestamp(0)
         )
 
-        vals = await asyncio.gather(*[handle_channel(c) for c in guild.text_channels])
+        vals = await asyncio.gather(
+            *[self.handle_channel(c) for c in guild.text_channels]
+        )
 
         for counts, most_recents in vals:
             for idx, count in counts.items():

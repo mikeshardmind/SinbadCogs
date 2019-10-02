@@ -1,0 +1,15 @@
+{
+    "author": [
+        "mikeshardmind(Sinbad)"
+    ],
+    "install_msg": "",
+    "name": "Sanctuary",
+    "disabled": false,
+    "short": "",
+    "description": "",
+    "hidden": true,
+    "requirements": [
+        "feedparser"
+    ],
+    "min_bot_version": "3.1.4"
+}
