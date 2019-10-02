@@ -26,7 +26,7 @@ class MockedMember(NamedTuple):
         return discord.utils.snowflake_time(self.id)
 
 
-class CompositeMetaClass(commands.Cog, ABC):
+class CompositeMetaClass(type(commands.Cog), type(ABC)):
     """
     Discord.py transforms instance methods into classes as class variables which contain
     the previous instance method, with no proper ability to reference the intended instance.
