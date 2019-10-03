@@ -1,3 +1,5 @@
+# This isn't set up to reload with importlib.
+# This is intentional, I need to dig into an issue I noticed with this cog specifically.
 import discord
 from redbot import version_info, VersionInfo
 from redbot.core.errors import CogLoadError

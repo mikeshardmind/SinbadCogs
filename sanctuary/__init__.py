@@ -1,5 +1,8 @@
+import importlib
+
 from . import sanctuary
 
 
 def setup(bot):
-    bot.add_cog(sanctuary.Sanctuary(bot))
+    module = importlib.reload(sanctuary)
+    bot.add_cog(module.Sanctuary(bot))
