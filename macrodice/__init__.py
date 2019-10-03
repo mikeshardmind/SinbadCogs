@@ -183,4 +183,3 @@ def setup(bot):
     if _old_roll:
         bot.remove_command(_old_roll.name)
     bot.add_cog(n)
-
