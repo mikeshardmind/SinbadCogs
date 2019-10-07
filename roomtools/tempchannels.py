@@ -99,6 +99,18 @@ class TempChannels(MixedMeta):
         await self.tmpc_config.guild(ctx.guild).category.set(cat.id)
         await ctx.tick()
 
+    @checks.admin_or_permissions(manage_channels=True)
+    @tmpcset.command(name="usecurrentcategory")
+    async def _category(self, ctx: commands.Context, yes_or_no: bool):
+        """
+        Sets temporary channels to be made in the same category as the command used.
+
+        This will only be used if a categoy is not specified with `[p]tmpcset category`
+
+        """
+        await self.tmpc_config.guild(ctx.guild).current.set(yes_or_no)
+        await ctx.tick()
+
     async def _delayed_check(self, guild: discord.Guild):
         await asyncio.sleep(30)
         await self.tmpc_cleanup(guild)
@@ -122,8 +134,14 @@ class TempChannels(MixedMeta):
         if not channelname:
             return await ctx.send_help()
 
-        cat_id = await self.tmpc_config.guild(ctx.guild).category()
-        cat = discord.utils.get(ctx.guild.categories, id=cat_id)
+        cat_id = await self.tmpc_config.guild(ctx.guild).categoy()
+        if cat_id:
+            cat = discord.utils.get(ctx.guild.categories, id=cat_id)
+        elif await self.tmpc_config.guild(ctx.guild).current():
+            cat = ctx.channel.category
+        else:
+            cat = None
+
         overwrites = dict(cat.overwrites) if cat else {}
 
         for target in (ctx.guild.me, ctx.author):
