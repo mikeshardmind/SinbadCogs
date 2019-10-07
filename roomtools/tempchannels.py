@@ -101,7 +101,7 @@ class TempChannels(MixedMeta):
 
     @checks.admin_or_permissions(manage_channels=True)
     @tmpcset.command(name="usecurrentcategory")
-    async def _category(self, ctx: commands.Context, yes_or_no: bool):
+    async def _current_category(self, ctx: commands.Context, yes_or_no: bool):
         """
         Sets temporary channels to be made in the same category as the command used.
 
