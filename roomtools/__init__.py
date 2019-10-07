@@ -47,7 +47,7 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
             force_registration=True,
             cog_name="TempChannels",
         )
-        self.tmpc_config.register_guild(active=False, category=None)
+        self.tmpc_config.register_guild(active=False, category=None, current=False)
         self.tmpc_config.register_channel(is_temp=False)
         self.ar_config = Config.get_conf(
             None,
