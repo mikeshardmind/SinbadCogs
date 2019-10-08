@@ -134,7 +134,7 @@ class TempChannels(MixedMeta):
         if not channelname:
             return await ctx.send_help()
 
-        cat_id = await self.tmpc_config.guild(ctx.guild).categoy()
+        cat_id = await self.tmpc_config.guild(ctx.guild).category()
         if cat_id:
             cat = discord.utils.get(ctx.guild.categories, id=cat_id)
         elif await self.tmpc_config.guild(ctx.guild).current():
