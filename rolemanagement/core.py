@@ -329,6 +329,7 @@ class RoleManagement(
         output = (
             f"This role:\n{'is' if rsets['self_role'] else 'is not'} self assignable"
             f"\n{'is' if rsets['self_removable'] else 'is not'} self removable"
+            f"\n{'is' if rsets['sticky'] else 'is not'} sticky."
         )
         if rsets["requires_any"]:
             rstring = ", ".join(
@@ -347,6 +348,12 @@ class RoleManagement(
             output += (
                 f"\nThis role is mutually exclusive to the following roles: {rstring}"
             )
+        if rsets["cost"]:
+            curr = await bank.get_currency_name(ctx.guild)
+            cost = rsets["cost"]
+            output += f"\nThis role costs {cost} {curr}"
+        else:
+            output += "\nThis role does not have an associated cost."
 
         for page in pagify(output):
             await ctx.send(page)
