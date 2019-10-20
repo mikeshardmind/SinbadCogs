@@ -34,11 +34,14 @@ class Relays(commands.Cog):
         self.nways: Dict[str, NwayRelay] = {}
         self.oneways: Dict[str, OnewayRelay] = {}
         self.scrub_invites: Optional[bool] = None
-        self.loaded = False
+        self._load_event = asyncio.Event()
+        self._load_task = bot.loop.create_task(self.initialize())
+
+    def cog_unload(self):
+        self._load_task.cancel()
 
     async def cog_before_invoke(self, _ctx):
-        while not self.loaded:
-            await asyncio.sleep(0.1)
+        await self._load_event.wait()
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -52,7 +55,7 @@ class Relays(commands.Cog):
             k: OnewayRelay(bot=self.bot, **v) for k, v in onewaydict.items()
         }
         self.scrub_invites = await self.config.scrub_invites()
-        self.loaded = True
+        self._load_event.set()
 
     async def write_data(self):
         nway_data = {k: v.to_data() for k, v in self.nways.items()}
