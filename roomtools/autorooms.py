@@ -120,10 +120,9 @@ class AutoRooms(MixedMeta):
             )
 
         if await self.ar_config.channel(source).gameroom():
+            cname = "???"
             with contextlib.suppress(Exception):
                 cname = who.activity.name
-            if cname is None:
-                cname = "???"
         else:
             cname = source.name
 
