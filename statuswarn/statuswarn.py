@@ -14,8 +14,9 @@ class StatusWarn(Cog):
     def __init__(self, bot):
         self.bot: Red = bot
         self.config = Config.get_conf(self, identifier=78631113035100160)
-        self.config.register_guild(channel=None)
-        self.custom_message = None
+        self.config.register_guild(
+            channel=None, warn_message="Warning: detected invite url in status:"
+        )
 
     @Cog.listener(name="on_member_update")
     async def catcher(self, before, after):
@@ -27,18 +28,23 @@ class StatusWarn(Cog):
         if not maybe_custom:
             return
 
-        if INVITE_URL_RE.search(maybe_custom.state):
+        # Ugh, fuck discord for not letting `<>` supress invite links`
+        neutered, count = INVITE_URL_RE.subn(
+            r"[DISARMED LINK]: [\1  \2]", maybe_custom.state
+        )
+
+        if count:
             self.bot.dispatch("sinbadcogs_detected_urlstatus", after)
             warn_channel_id = await self.config.guild(after.guild).channel()
+            warn_message = await self.config.guild(after.guild).warn_base()
             warn_channel = after.guild.get_channel(warn_channel_id)
             if warn_channel:
-                msg = self.custom_message or "Warning: detected invite url in status:"
                 await self.bot.send_filtered(
                     warn_channel,
                     filter_mass_mentions=True,
                     filter_all_links=False,
                     filter_invite_links=False,
-                    content=f"{msg}\n\n{after.mention} {maybe_custom.state}",
+                    content=f"{warn_message}\n\n{after.mention} {neutered}",
                 )
 
     @checks.admin_or_permissions(manage_guild=True)
