@@ -27,7 +27,7 @@ class StatusWarn(Cog):
         if not maybe_custom:
             return
 
-        if INVITE_URL_RE.match(maybe_custom.state):
+        if INVITE_URL_RE.search(maybe_custom.state):
             self.bot.dispatch("sinbadcogs_detected_urlstatus", after)
             warn_channel_id = await self.config.guild(after.guild).channel()
             warn_channel = after.guild.get_channel(warn_channel_id)
