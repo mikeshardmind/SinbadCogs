@@ -47,7 +47,7 @@ class StatusWarn(Cog):
     @checks.admin_or_permissions(manage_guild=True)
     @guild_only()
     @group(name="statuswarn")
-    async def setter(self, ctx, channel: discord.TextChannel = None):
+    async def setter(self, ctx):
         """
         configuration for statuswarn
         """
