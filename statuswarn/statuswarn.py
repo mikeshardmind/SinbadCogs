@@ -6,7 +6,7 @@ from redbot.core.bot import Red
 from redbot.core.utils.common_filters import INVITE_URL_RE
 
 
-class StatusWarn:
+class StatusWarn(Cog):
     """
     Warns if a user is using a custom status with an invite in it
     """
