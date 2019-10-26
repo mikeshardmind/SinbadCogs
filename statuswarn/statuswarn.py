@@ -68,4 +68,4 @@ class StatusWarn(Cog):
     async def clear_channel(self, ctx):
         """ remove the logging channel """
         await self.config.guild(ctx.guild).channel.clear()
-        await ctx.send("Not logging (use with a channel to set)")
+        await ctx.send("Not logging now.")
