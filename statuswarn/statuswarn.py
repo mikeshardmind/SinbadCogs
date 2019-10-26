@@ -36,7 +36,7 @@ class StatusWarn(Cog):
         if count:
             self.bot.dispatch("sinbadcogs_detected_urlstatus", after)
             warn_channel_id = await self.config.guild(after.guild).channel()
-            warn_message = await self.config.guild(after.guild).warn_base()
+            warn_message = await self.config.guild(after.guild).warn_message()
             warn_channel = after.guild.get_channel(warn_channel_id)
             if warn_channel:
                 await self.bot.send_filtered(
