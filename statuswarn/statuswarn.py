@@ -13,7 +13,7 @@ class StatusWarn:
 
     def __init__(self, bot):
         self.bot: Red = bot
-        self.config = config.Config.get_conf(self, identifier=78631113035100160)
+        self.config = Config.get_conf(self, identifier=78631113035100160)
         self.config.register_guild(channel=None)
 
     @Cog.listener(name="on_member_update")
