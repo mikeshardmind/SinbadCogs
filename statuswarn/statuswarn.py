@@ -36,7 +36,10 @@ class StatusWarn(Cog):
                     filter_mass_mentions=True,
                     filter_all_links=False,
                     filter_invite_links=False,
-                    content=maybe_custom.state,
+                    content=(
+                        f"Warning: {after.mention} has an invite url in status:"
+                        f"\n\n{maybe_custom.state}"
+                    ),
                 )
 
     @checks.admin_or_permissions(manage_guild=True)
