@@ -23,9 +23,6 @@ class StatusWarn(Cog):
         Hmm?
         """
 
-        if before.activities == after.activities:
-            return
-
         maybe_custom = next(filter(lambda a: a.type == 4, after.activities), None)
         if not maybe_custom:
             return
