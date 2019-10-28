@@ -42,8 +42,8 @@ class StatusWarn(Cog):
                 await self.bot.send_filtered(
                     warn_channel,
                     filter_mass_mentions=True,
-                    filter_all_links=False,
-                    filter_invite_links=False,
+                    filter_all_links=True,
+                    filter_invite_links=True,
                     content=f"{warn_message}\n\n{after.mention} {neutered}",
                 )
 
