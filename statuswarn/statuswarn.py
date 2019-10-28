@@ -30,7 +30,7 @@ class StatusWarn(Cog):
 
         # Ugh, fuck discord for not letting `<>` supress invite links`
         neutered, count = INVITE_URL_RE.subn(
-            r"[DISARMED LINK]: [\1  \2]", maybe_custom.state
+            r"[DISARMED LINK]: [\1  \2]", maybe_custom.state or ""
         )
 
         if count:
