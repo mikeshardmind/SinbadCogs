@@ -645,7 +645,7 @@ class RoleManagement(
         """
 
         linkfmt = (
-            "[message](https://discordapp.com/channels/{guild_id}/{channel_id}/{message_id})"
+            "[message #{message_id}](https://discordapp.com/channels/{guild_id}/{channel_id}/{message_id})"
             if use_embeds
             else "<https://discordapp.com/channels/{guild_id}/{channel_id}/{message_id}>"
         )
