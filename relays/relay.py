@@ -18,7 +18,7 @@ class NwayRelay:
         return ret
 
     def get_destinations(self, message: discord.Message) -> List[discord.TextChannel]:
-        if message.channel.id not in self.channels:
+        if message.channel.id not in self.channel_ids:
             return []
         ret: List[discord.TextChannel] = []
         for idx in self.channel_ids:
