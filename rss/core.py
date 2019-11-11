@@ -247,6 +247,7 @@ class RSS(commands.Cog):
     # commands go here
 
     @checks.mod_or_permissions(manage_channels=True)
+    @commands.guild_only()
     @commands.group()
     async def rss(self, ctx: commands.Context):
         """
