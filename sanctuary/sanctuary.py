@@ -112,6 +112,8 @@ class Sanctuary(commands.Cog):
                 "Username#Discrim",
                 "Joined Server",
                 "Joined Discord",
+                "Last Message",
+                "Total Messages",
             ]
             fmt = "%Y-%m-%d"
             writer = csv.DictWriter(csvf, fieldnames=fieldnames)
