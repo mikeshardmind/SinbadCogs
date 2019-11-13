@@ -74,6 +74,8 @@ class Sanctuary(commands.Cog):
                     counts[m] = full_counts[m.id]
                     members.append(m)
 
+        await self.send_maybe_chunked_csv(ctx, members, recents, counts)
+
     @staticmethod
     async def count_channel(
         chan: discord.TextChannel
