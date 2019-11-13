@@ -144,7 +144,7 @@ class Sanctuary(commands.Cog):
                 filename += f"-part{part}"
             filename += ".csv"
             await ctx.send(
-                content=f"Data for {ctx.author.mention}",
+                content=f"Inactive user data for {ctx.author.mention}",
                 files=[discord.File(data, filename=filename)],
             )
             csvf.close()
