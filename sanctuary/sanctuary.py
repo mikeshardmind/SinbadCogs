@@ -36,7 +36,9 @@ class Sanctuary(commands.Cog):
         self.bot = bot
 
     @checks.mod()
-    @commands.check(lambda ctx: ctx.channel.id in (446295621918261268, 614454882618834954))
+    @commands.check(
+        lambda ctx: ctx.channel.id in (446295621918261268, 614454882618834954)
+    )
     @checks.bot_has_permissions(read_message_history=True)
     @commands.command()
     async def getinactives(self, ctx: commands.Context, *, amountoftime: TimeParser):
