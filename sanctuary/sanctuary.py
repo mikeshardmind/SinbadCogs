@@ -37,7 +37,8 @@ class Sanctuary(commands.Cog):
 
     @checks.mod()
     @checks.bot_has_permissions(read_message_history=True)
-    async def inactives(self, ctx, *, amountoftime: TimeParser):
+    @commands.command()
+    async def getinactives(self, ctx, *, amountoftime: TimeParser):
         """
         Get the inactive users.
 
