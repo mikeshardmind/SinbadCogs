@@ -145,7 +145,7 @@ class Sanctuary(commands.Cog):
             del csvf
             del data
 
-    @checks.check(lambda ctx: ctx.channel.id == 558046096790913055)
+    @commands.check(lambda ctx: ctx.channel.id == 558046096790913055)
     @checks.bot_has_permissions(manage_messages=True, read_message_history=True)
     @commands.guild_only()
     @checks.mod()
