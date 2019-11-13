@@ -126,8 +126,8 @@ class Sanctuary(commands.Cog):
                         if member.joined_at
                         else None,
                         "Joined Discord": member.created_at.strftime(fmt),
-                        "Last Message": recents[member.id],
-                        "Total Messages": counts[member.id],
+                        "Last Message": recents[member],
+                        "Total Messages": counts[member],
                     }
                 )
 
