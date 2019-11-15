@@ -1,0 +1,44 @@
+version: "2"         # required to adjust maintainability checks
+checks:
+  argument-count:
+    config:
+      threshold: 6
+  complex-logic:
+    enabled: false  # Disabled in favor of using Radon for this
+    config:
+      threshold: 4
+  file-lines:
+    config:
+      threshold: 1000
+  method-complexity:
+    enabled: false  # Disabled in favor of using Radon for this
+    config:
+      threshold: 5
+  method-count:
+    enabled: false  # I'd probably enable this if not for discord.py's classes as command containers pattern.
+    config:
+      threshold: 20
+  method-lines:
+    enabled: false
+    config:
+      threshold: 25
+  nested-control-flow:
+    config:
+      threshold: 4
+  return-statements:
+    config:
+      threshold: 8  # May set this lower later on.
+  similar-code:
+    enabled: false
+    config:
+      threshold: # language-specific defaults. an override will affect all languages.
+  identical-code:
+    config:
+      threshold: # language-specific defaults. an override will affect all languages.
+plugins:
+  bandit:
+    enabled: true
+  radon: 
+    enabled: true
+    config: 
+      threshold: "D"
