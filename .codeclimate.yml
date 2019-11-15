@@ -27,7 +27,7 @@ checks:
       threshold: 4
   return-statements:
     config:
-      threshold: 8  # May set this lower later on.
+      threshold: 6
   similar-code:
     enabled: false
     config:
@@ -41,4 +41,4 @@ plugins:
   radon: 
     enabled: true
     config: 
-      threshold: "D"
+      threshold: "C"
