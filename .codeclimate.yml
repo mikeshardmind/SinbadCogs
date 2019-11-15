@@ -41,4 +41,4 @@ plugins:
   radon: 
     enabled: true
     config: 
-      threshold: "C"
+      threshold: "D"
