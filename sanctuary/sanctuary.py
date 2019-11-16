@@ -51,7 +51,7 @@ class Sanctuary(commands.Cog):
             await ctx.send("This may take a while...")
 
         delta = amountoftime.td
-        post = ctx.message.created_at - delta
+        cutoff = ctx.message.created_at - delta
 
         full_counts: Dict[int, int] = defaultdict(int)
         full_recents: Dict[int, datetime] = defaultdict(
@@ -70,14 +70,12 @@ class Sanctuary(commands.Cog):
 
         recents, counts, members = {}, {}, []
         default_time = datetime.utcfromtimestamp(0)
-        for user_id, most_recent in full_recents.items():
-            if most_recent < post:
-                m = ctx.guild.get_member(user_id)
-                if not m:
-                    continue
-                recents[m] = most_recent if most_recent != default_time else None
-                counts[m] = full_counts[m.id]
-                members.append(m)
+        for member in ctx.guild.members:
+            most_recent = full_recents[member.id]
+            if most_recent < cutoff:
+                recents[member] = most_recent if most_recent != default_time else None
+                counts[member] = full_counts[member.id]
+                members.append(member)
 
         await self.send_maybe_chunked_csv(ctx, members, recents, counts)
 
