@@ -73,12 +73,11 @@ class Sanctuary(commands.Cog):
         for user_id, most_recent in full_recents.items():
             if most_recent < post:
                 m = ctx.guild.get_member(user_id)
+                if not m:
+                    continue
                 recents[m] = most_recent if most_recent != default_time else None
                 counts[m] = full_counts[m.id]
                 members.append(m)
-
-        recents.pop(None, None)
-        counts.pop(None, None)
 
         await self.send_maybe_chunked_csv(ctx, members, recents, counts)
 
