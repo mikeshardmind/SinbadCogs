@@ -99,7 +99,7 @@ class RecordHandler:
         try:
             member = message.author
             guild = member.guild
-            if not guild and member and not member.bot:
+            if not (guild and member and not member.bot):
                 return
         except AttributeError:
             return
