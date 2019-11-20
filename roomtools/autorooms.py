@@ -124,7 +124,8 @@ class AutoRooms(MixedMeta):
             with contextlib.suppress(Exception):
                 cname = who.activity.name
         else:
-            cname = source.name
+            creatorname = await self.ar_config.channel(source).creatorname()
+            cname = source.name if not creatorname else source.name + f" {who.name}"
 
         try:
             chan = await source.guild.create_voice_channel(
@@ -226,7 +227,7 @@ class AutoRooms(MixedMeta):
         if val is None:
             val = not await self.ar_config.guild(ctx.guild).active()
         await self.ar_config.guild(ctx.guild).active.set(val)
-        await ctx.send(("Autorooms are now " + "activated" if val else "deactivated"))
+        await ctx.send(("Autorooms are now " + ("activated" if val else "deactivated")))
 
     @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
@@ -274,5 +275,24 @@ class AutoRooms(MixedMeta):
                 "Autorooms are "
                 + ("now owned " if val else "no longer owned ")
                 + "by their creator"
+            )
+        )
+
+    @aa_active()
+    @checks.admin_or_permissions(manage_channels=True)
+    @autoroomset.command(name="creatorname")
+    async def creatorname(
+        self, ctx: commands.Context, channel: discord.VoiceChannel, val: bool = None
+    ):
+        """Toggles if an autoroom will get the owner name after the channel name."""
+        if val is None:
+            val = not await self.ar_config.channel(channel).creatorname()
+        await self.ar_config.channel(channel).creatorname.set(val)
+        await ctx.send(
+            f"Channel `{channel.name}` "
+            + (
+                "will now have creator name after their name."
+                if val
+                else "will no longer have creator name after their name."
             )
         )
