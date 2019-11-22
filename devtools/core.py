@@ -11,6 +11,18 @@ from redbot.core import commands, checks
 SPOILER_RE = re.compile(r"(?s)\|{2}(?P<CONTENT>.*?)\|{2}")
 
 
+def get_name(c: str) -> str:
+    """
+    Gets the name of a single character,
+    or the raw unicode escape is name isn't available
+    """
+    open_b, close_b = "{", "}"
+    try:
+        return f"\\N{open_b}{ud.name(c)}{close_b}"
+    except ValueError:
+        return c.encode("raw_unicode_escape").decode("utf-8")
+
+
 class DevTools(commands.Cog):
     """ Some tools """
 
@@ -70,8 +82,7 @@ class DevTools(commands.Cog):
             emoji = react.emoji
 
         if isinstance(emoji, str):
-            open_b, close_b = "{", "}"
-            to_send = "".join(f"\\N{open_b}{ud.name(c)}{close_b}" for c in emoji)
+            to_send = "".join(get_name(c) for c in emoji)
             await ctx.send(
                 f"To send or react with this unicode emoji, send or react with:"
                 f'\n```\n"{to_send}"\n```'
