@@ -96,15 +96,14 @@ class RSS(commands.Cog):
         except (aiohttp.ClientError, asyncio.TimeoutError):
             return None
         except Exception as exc:
-            log.exception(
+            log.debug(
                 f"Unexpected exception type {type(exc)} encountered for feed url: {url}",
-                exc_info=True,
             )
             return None
 
         ret = feedparser.parse(data)
         if ret.bozo:
-            log.info(f"Feed url: {url} is invalid.")
+            log.debug(f"Feed url: {url} is invalid.")
             return None
         return ret
 
