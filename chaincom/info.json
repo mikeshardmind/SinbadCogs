@@ -2,12 +2,12 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "Unsupported thingamjig, use at your own risk.",
+    "install_msg": "",
     "name": "ChainCom",
     "disabled": false,
     "short": "",
     "description": "",
     "tags": [],
     "hidden": true,
-    "min_bot_version": "3.1.5"
+    "min_bot_version": "3.1.8"
 }

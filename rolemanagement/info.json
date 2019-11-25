@@ -3,7 +3,7 @@
         "mikeshardmind(Sinbad)",
         "DiscordLiz"
     ],
-    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
+    "install_msg": "",
     "name": "RoleManagement",
     "disabled": false,
     "short": "Role searches, reactroles, requirements for roles, etc.",

@@ -2,7 +2,7 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
+    "install_msg": "",
     "name": "RoomTools",
     "disabled": false,
     "short": "Tools for temporary rooms",

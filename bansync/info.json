@@ -3,7 +3,7 @@
         "mikeshardmind(Sinbad)",
         "DiscordLiz"
     ],
-    "install_msg": "Read the help first, this has some dangerous commands when misused",
+    "install_msg": "",
     "name": "BanSync",
     "disabled": false,
     "short": "Synchronize bans",
@@ -13,5 +13,5 @@
         "sync"
     ],
     "hidden": false,
-    "min_bot_version": "3.1.4"
+    "min_bot_version": "3.1.8"
 }

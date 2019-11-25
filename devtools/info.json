@@ -3,7 +3,7 @@
         "mikeshardmind(Sinbad)",
         "DiscordLiz"
     ],
-    "install_msg": "Hidden dev tools",
+    "install_msg": "",
     "name": "DevTools",
     "disabled": false,
     "short": "Some dev tools",
@@ -15,5 +15,5 @@
         7,
         0
     ],
-    "min_bot_version": "3.1.4"
+    "min_bot_version": "3.1.8"
 }

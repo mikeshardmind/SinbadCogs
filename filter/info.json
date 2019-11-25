@@ -3,12 +3,12 @@
         "mikeshardmind(Sinbad)",
         "Cog Creators"
     ],
-    "install_msg": "Core filter cog, plus extra goodies",
+    "install_msg": "",
     "name": "Filter",
     "disabled": false,
     "short": "",
-    "description": "The extras in this rely on re2, soooo GL, HF. (Still supporting the cog, just not re2)",
+    "description": "",
     "tags": [],
     "hidden": true,
-    "min_bot_version": "3.1.4"
+    "min_bot_version": "3.1.8"
 }

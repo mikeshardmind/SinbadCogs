@@ -2,12 +2,12 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "Toy cog for fancy stuff. Will probably be suported later, for now use at own risk. This installs a botwide preinvoke hook. This may not be safe with other cogs that want to do this right now.",
+    "install_msg": "",
     "name": "ChannelRedirect",
     "disabled": false,
     "short": "",
     "description": "",
     "tags": [],
     "hidden": true,
-    "min_bot_version": "3.1.5"
+    "min_bot_version": "3.1.8"
 }
