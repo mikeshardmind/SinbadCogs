@@ -2,7 +2,7 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "",
+    "install_msg": "Cog development currently on hold. What works works. If something here doesn't, open an issue.",
     "name": "ChannelRedirect",
     "disabled": false,
     "short": "",

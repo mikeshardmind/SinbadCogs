@@ -2,12 +2,12 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "",
+    "install_msg": "Cog development currently on hold. What works works. If something here doesn't, open an issue.",
     "name": "ScreenshareAutomod",
     "disabled": false,
     "short": "Handle screenshare (ab)use",
     "description": "Handle screenshare (ab)use",
     "tags": [],
     "hidden": false,
-    "min_bot_version": "3.1.4"
+    "min_bot_version": "3.1.8"
 }
