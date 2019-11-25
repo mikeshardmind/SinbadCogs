@@ -3,7 +3,7 @@
         "mikeshardmind(Sinbad)",
         "DiscordLiz"
     ],
-    "install_msg": "This is a basic implementation. More features soon. Locked to mods and higher by default, use permissions to allow others. If you need help, I have a channel in https://discord.gg/mb85deu This modifies the behavior of discord.TextChannel.delete_messages, as well as the core cleanup cog partially to not break normal use, but work with commands like cleanup.",
+    "install_msg": "",
     "name": "Scheduler",
     "disabled": false,
     "short": "A timezone aware scheduler cog",

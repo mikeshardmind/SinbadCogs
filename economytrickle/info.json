@@ -3,11 +3,11 @@
         "mikeshardmind(Sinbad)",
         "DiscordLiz"
     ],
-    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
+    "install_msg": "",
     "name": "EconomyTrickle",
     "disabled": false,
-    "short": "Gives active users credits",
-    "description": "Gives active users credits. With configureable settings for activity, amount, and more.",
+    "short": "",
+    "description": "",
     "hidden": false,
-    "min_bot_version": "3.1.4"
+    "min_bot_version": "3.1.8"
 }
