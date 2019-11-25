@@ -3,14 +3,14 @@
         "mikeshardmind(Sinbad)",
         "DiscordLiz"
     ],
-    "install_msg": "",
+    "install_msg": "Cog development currently on hold. What works works. If something here doesn't, open an issue.",
     "name": "MacroDice",
     "disabled": false,
     "short": "",
     "description": "",
     "tags": [],
     "hidden": true,
-    "min_bot_version": "3.1.4",
+    "min_bot_version": "3.1.8"
     "requirements": [
         "dice"
     ]

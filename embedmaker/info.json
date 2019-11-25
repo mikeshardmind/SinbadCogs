@@ -3,7 +3,7 @@
         "mikeshardmind(Sinbad)",
         "DiscordLiz"
     ],
-    "install_msg": "",
+    "install_msg": "Cog development currently on hold. What works works. If something here doesn't, open an issue.",
     "name": "EmbedMaker",
     "disabled": false,
     "short": "Embeds",
@@ -13,7 +13,7 @@
         "embedmaker"
     ],
     "hidden": false,
-    "min_bot_version": "3.1.8",
+    "min_bot_version": "3.1.8"
     "requirements": [
         "python-dateutil",
         "pytz"

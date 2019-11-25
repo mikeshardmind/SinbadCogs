@@ -3,7 +3,7 @@
         "mikeshardmind(Sinbad)",
         "DiscordLiz"
     ],
-    "install_msg": "",
+    "install_msg": "Cog development currently on hold. What works works. If something here doesn't, open an issue.",
     "name": "Scheduler",
     "disabled": false,
     "short": "A timezone aware scheduler cog",
@@ -16,5 +16,5 @@
         "python-dateutil",
         "pytz"
     ],
-    "min_bot_version": "3.1.4"
+    "min_bot_version": "3.1.8"
 }
