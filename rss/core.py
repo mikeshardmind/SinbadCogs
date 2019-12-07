@@ -97,7 +97,7 @@ class RSS(commands.Cog):
             return None
         except Exception as exc:
             log.debug(
-                f"Unexpected exception type {type(exc)} encountered for feed url: {url}",
+                f"Unexpected exception type {type(exc)} encountered for feed url: {url}"
             )
             return None
 

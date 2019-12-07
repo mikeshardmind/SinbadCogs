@@ -57,7 +57,11 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
         )
         self.ar_config.register_guild(active=False, ownership=False)
         self.ar_config.register_channel(
-            ownership=None, gameroom=False, autoroom=False, clone=False, creatorname=False
+            ownership=None,
+            gameroom=False,
+            autoroom=False,
+            clone=False,
+            creatorname=False,
         )
         self.bot.loop.create_task(self.tmpc_cleanup(load=True))
         self.bot.loop.create_task(self.ar_cleanup(load=True))
