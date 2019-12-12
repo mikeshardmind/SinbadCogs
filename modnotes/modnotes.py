@@ -59,10 +59,16 @@ class ModNotes(commands.Cog):
         await self.bot.wait_until_ready()
         try:
             cur = self._connection.cursor()
-            cur.execute("PRAGMA journal_mode=wal")
+            cur.execute("""PRAGMA journal_mode=wal""")
+
+            # rename if exists NOTES -> member_notes
+            cur.execute("""PRAGMA table_info("NOTES")""")
+            if cur.fetchone():
+                cur.execute("""ALTER TABLE NOTES RENAME TO member_notes""")
+
             cur.execute(
                 """
-                CREATE TABLE IF NOT EXISTS NOTES (
+                CREATE TABLE IF NOT EXISTS member_notes (
                     uid INTEGER PRIMARY KEY AUTOINCREMENT,
                     author_id INTEGER NOT NULL,
                     subject_id INTEGER NOT NULL,
@@ -72,6 +78,8 @@ class ModNotes(commands.Cog):
                 )
                 """
             )
+            # If lookups feel slow,
+            # Consider an index later on member_notes(subject_id, guild_id)
         finally:
             cur.close()
         self._ready_event.set()
@@ -88,7 +96,7 @@ class ModNotes(commands.Cog):
             now = int(datetime.utcnow().timestamp())
             cur.execute(
                 """
-                INSERT INTO NOTES(author_id, subject_id, guild_id, note, created)
+                INSERT INTO member_notes(author_id, subject_id, guild_id, note, created)
                 VALUES(?,?,?,?,?)
                 """,
                 (author_id, subject_id, guild_id, note, now),
@@ -102,7 +110,7 @@ class ModNotes(commands.Cog):
             for items in cur.execute(
                 """
                 SELECT uid, author_id, subject_id, guild_id, note, created
-                FROM NOTES
+                FROM member_notes
                 WHERE author_id=?
                 ORDER BY created
                 """,
@@ -120,7 +128,7 @@ class ModNotes(commands.Cog):
             for items in cur.execute(
                 """
                 SELECT uid, author_id, subject_id, guild_id, note, created
-                FROM NOTES
+                FROM member_notes
                 WHERE author_id=? AND guild_id=?
                 ORDER BY created
                 """,
@@ -136,7 +144,7 @@ class ModNotes(commands.Cog):
             for items in cur.execute(
                 """
                 SELECT uid, author_id, subject_id, guild_id, note, created
-                FROM NOTES
+                FROM member_notes
                 WHERE subject_id=? AND guild_id=?
                 ORDER BY created
                 """,
@@ -152,7 +160,7 @@ class ModNotes(commands.Cog):
             for items in cur.execute(
                 """
                 SELECT uid, author_id, subject_id, guild_id, note, created
-                FROM NOTES
+                FROM member_notes
                 WHERE guild_id=?
                 ORDER BY created
                 """,
