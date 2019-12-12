@@ -53,7 +53,7 @@ class ModNotes(commands.Cog):
         fp = str(cog_data_path(self) / "notes.db")
         self._connection = apsw.Connection(fp)
         self._ready_event = asyncio.Event()
-        self._init_task = asyncio.create_task(self.initalize())
+        self._init_task = asyncio.create_task(self.initialize())
 
     async def initialize(self):
         await self.bot.wait_until_ready()
