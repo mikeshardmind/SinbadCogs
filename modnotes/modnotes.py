@@ -101,7 +101,7 @@ class ModNotes(commands.Cog):
             cur = self._connection.cursor()
             for items in cur.execute(
                 """
-                SELECT (uid, author_id, subject_id, guild_id, note, created)
+                SELECT uid, author_id, subject_id, guild_id, note, created
                 FROM NOTES
                 WHERE author_id=?
                 ORDER BY created
@@ -119,7 +119,7 @@ class ModNotes(commands.Cog):
             cur = self._connection.cursor()
             for items in cur.execute(
                 """
-                SELECT (uid, author_id, subject_id, guild_id, note, created)
+                SELECT uid, author_id, subject_id, guild_id, note, created
                 FROM NOTES
                 WHERE author_id=? AND guild_id=?
                 ORDER BY created
@@ -135,7 +135,7 @@ class ModNotes(commands.Cog):
             cur = self._connection.cursor()
             for items in cur.execute(
                 """
-                SELECT (uid, author_id, subject_id, guild_id, note, created)
+                SELECT uid, author_id, subject_id, guild_id, note, created
                 FROM NOTES
                 WHERE subject_id=? AND guild_id=?
                 ORDER BY created
@@ -151,7 +151,7 @@ class ModNotes(commands.Cog):
             cur = self._connection.cursor()
             for items in cur.execute(
                 """
-                SELECT (uid, author_id, subject_id, guild_id, note, created)
+                SELECT uid, author_id, subject_id, guild_id, note, created
                 FROM NOTES
                 WHERE guild_id=?
                 ORDER BY created
