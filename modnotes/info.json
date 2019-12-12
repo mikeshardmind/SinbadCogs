@@ -1,0 +1,13 @@
+{
+    "author": [
+        "mikeshardmind(Sinbad)"
+    ],
+    "install_msg": "Cog development currently on hold. What works works. If something here doesn't, open an issue.",
+    "name": "ModNotes",
+    "disabled": false,
+    "short": "Notes",
+    "description": " Notes",
+    "tags": [],
+    "hidden": true,
+    "min_bot_version": "3.1.8"
+}
