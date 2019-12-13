@@ -10,7 +10,7 @@ class EventMixin(MixinMeta):
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
 
-        if before.roles == after.roles:
+        if before._roles == after._roles:
             return
 
         sym_diff = set(before.roles).symmetric_difference(set(after.roles))
