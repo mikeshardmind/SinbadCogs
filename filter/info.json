@@ -5,10 +5,13 @@
     ],
     "install_msg": "Cog development currently on hold. What works works. If something here doesn't, open an issue.",
     "name": "Filter",
+    "requirements": [
+        "fb-re2-wheels"
+    ],
     "disabled": false,
     "short": "",
     "description": "",
     "tags": [],
-    "hidden": true,
+    "hidden": false,
     "min_bot_version": "3.1.8"
 }
