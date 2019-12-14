@@ -4,7 +4,6 @@ import asyncio
 from typing import Iterator, NamedTuple
 from datetime import datetime
 
-import apsw
 import discord
 
 from redbot.core import commands, checks
@@ -12,6 +11,7 @@ from redbot.core.bot import Red
 from redbot.core.data_manager import cog_data_path
 from redbot.core.utils import menus
 from .converters import MemberOrID
+from .aspw_wrapper import Connection
 
 
 class Note(NamedTuple):
@@ -51,22 +51,21 @@ class ModNotes(commands.Cog):
     def __init__(self, bot: Red):
         self.bot: Red = bot
         fp = str(cog_data_path(self) / "notes.db")
-        self._connection = apsw.Connection(fp)
+        self._connection = Connection(fp)
         self._ready_event = asyncio.Event()
         self._init_task = asyncio.create_task(self.initialize())
 
     async def initialize(self):
         await self.bot.wait_until_ready()
-        try:
-            cur = self._connection.cursor()
-            cur.execute("""PRAGMA journal_mode=wal""")
+        with self._connection.with_cursor() as cursor:
+            cursor.execute("""PRAGMA journal_mode=wal""")
 
             # rename if exists NOTES -> member_notes
-            cur.execute("""PRAGMA table_info("NOTES")""")
-            if cur.fetchone():
-                cur.execute("""ALTER TABLE NOTES RENAME TO member_notes""")
+            cursor.execute("""PRAGMA table_info("NOTES")""")
+            if cursor.fetchone():
+                cursor.execute("""ALTER TABLE NOTES RENAME TO member_notes""")
 
-            cur.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS member_notes (
                     uid INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -80,8 +79,6 @@ class ModNotes(commands.Cog):
             )
             # If lookups feel slow,
             # Consider an index later on member_notes(subject_id, guild_id)
-        finally:
-            cur.close()
         self._ready_event.set()
 
     async def cog_before_invoke(self, ctx):
@@ -91,23 +88,19 @@ class ModNotes(commands.Cog):
         self._connection.close()
 
     def insert(self, *, author_id: int, subject_id: int, guild_id: int, note: str):
-        try:
-            cur = self._connection.cursor()
+        with self._connection.with_cursor() as cursor:
             now = int(datetime.utcnow().timestamp())
-            cur.execute(
+            cursor.execute(
                 """
                 INSERT INTO member_notes(author_id, subject_id, guild_id, note, created)
                 VALUES(?,?,?,?,?)
                 """,
                 (author_id, subject_id, guild_id, note, now),
             )
-        finally:
-            cur.close()
 
     def find_by_author(self, author_id: int) -> Iterator[Note]:
-        try:
-            cur = self._connection.cursor()
-            for items in cur.execute(
+        with self._connection.with_cursor() as cursor:
+            for items in cursor.execute(
                 """
                 SELECT uid, author_id, subject_id, guild_id, note, created
                 FROM member_notes
@@ -117,15 +110,12 @@ class ModNotes(commands.Cog):
                 (author_id,),
             ):
                 yield Note(*items)
-        finally:
-            cur.close()
 
     def find_by_author_in_guild(
         self, *, author_id: int, guild_id: int
     ) -> Iterator[Note]:
-        try:
-            cur = self._connection.cursor()
-            for items in cur.execute(
+        with self._connection.with_cursor() as cursor:
+            for items in cursor.execute(
                 """
                 SELECT uid, author_id, subject_id, guild_id, note, created
                 FROM member_notes
@@ -135,13 +125,10 @@ class ModNotes(commands.Cog):
                 (author_id, guild_id),
             ):
                 yield Note(*items)
-        finally:
-            cur.close()
 
     def find_by_member(self, *, member_id: int, guild_id: int) -> Iterator[Note]:
-        try:
-            cur = self._connection.cursor()
-            for items in cur.execute(
+        with self._connection.with_cursor() as cursor:
+            for items in cursor.execute(
                 """
                 SELECT uid, author_id, subject_id, guild_id, note, created
                 FROM member_notes
@@ -151,13 +138,10 @@ class ModNotes(commands.Cog):
                 (member_id, guild_id),
             ):
                 yield Note(*items)
-        finally:
-            cur.close()
 
     def find_by_guild(self, guild_id: int) -> Iterator[Note]:
-        try:
-            cur = self._connection.cursor()
-            for items in cur.execute(
+        with self._connection.with_cursor() as cursor:
+            for items in cursor.execute(
                 """
                 SELECT uid, author_id, subject_id, guild_id, note, created
                 FROM member_notes
@@ -167,15 +151,10 @@ class ModNotes(commands.Cog):
                 (guild_id,),
             ):
                 yield Note(*items)
-        finally:
-            cur.close()
 
     def delete_by_uid(self, uid: int):
-        try:
-            cur = self._connection.cursor()
-            cur.execute("DELETE FROM NOTES WHERE uid=?", (uid,))
-        finally:
-            cur.close()
+        with self._connection.with_cursor() as cursor:
+            cursor.execute("DELETE FROM NOTES WHERE uid=?", (uid,))
 
     @checks.mod()
     @commands.guild_only()
@@ -211,4 +190,3 @@ class ModNotes(commands.Cog):
             n.title = f"Showing #{i} of {mx} found notes"
 
         await menus.menu(ctx, notes, menus.DEFAULT_CONTROLS)
-
