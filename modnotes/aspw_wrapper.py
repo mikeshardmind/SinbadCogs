@@ -4,12 +4,9 @@ from __future__ import annotations
 This should be moved into a pip installable lib at some point, but I'm being
 lazy in the short term here.
 """
-import asyncio
-import queue
 
 from contextlib import contextmanager
 from os import PathLike
-from threading import Thread
 from typing import Generator, Union, TYPE_CHECKING
 
 import apsw
