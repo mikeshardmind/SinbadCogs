@@ -5,6 +5,7 @@ import re
 from math import log10
 from typing import Callable, List, Optional
 
+import apsw
 import discord
 from redbot.core import commands, checks
 from redbot.core.bot import Red
@@ -90,7 +91,7 @@ class WordStats(commands.Cog):
         return output
 
     @staticmethod
-    async def send_boxed(ctx: commands.Context, data: Optional[str]):
+    async def send_boxed(ctx: commands.Context, data: Optional[str] = None):
         if data:
             for page in pagify(data):
                 await ctx.send(box(page))
@@ -206,3 +207,16 @@ class WordStats(commands.Cog):
             ),
         )
         await self.send_boxed(ctx, data)
+
+    @checks.is_owner()
+    @wordstats.command()
+    async def debug(self, ctx: commands.Context, *, query: str):
+        """ query on data manually """
+
+        try:
+            with self._connection.with_cursor() as cursor:
+                r = "\n".join(cursor.execute(query).fetchall())
+        except apsw.Error as exc:
+            r = f"{type(exc)}{exc}"
+
+        await ctx.send_interactive(pagify(r), box_lang="py")
