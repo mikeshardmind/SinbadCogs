@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import re
 from math import log10
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 import discord
 from redbot.core import commands, checks
@@ -73,7 +73,9 @@ class WordStats(commands.Cog):
                     (gid, aid, word),
                 )
 
-    def query_results(self, query: str, *args, **kwargs) -> Optional[str]:
+    def query_results(
+        self, query: str, *args, transformer: Optional[Callable] = None, **kwargs
+    ) -> Optional[str]:
 
         with self._connection.with_cursor() as cursor:
             results = cursor.execute(query, args or kwargs).fetchall()
@@ -81,8 +83,10 @@ class WordStats(commands.Cog):
         if not results:
             return None
 
-        mx_width = int(log10(results[0][0])) + 3
-        output = "\n".join(f"{count:<{mx_width}} {word}" for count, word in results)
+        num_col_width = int(log10(results[0][0])) + 4
+        if transformer:
+            results = map(transformer, results)
+        output = "\n".join(f"{count:<{num_col_width}}{word}" for count, word in results)
         return output
 
     @staticmethod
@@ -159,5 +163,46 @@ class WordStats(commands.Cog):
             """,
             ctx.guild.id,
             limit,
+        )
+        await self.send_boxed(ctx, data)
+
+    @wordstats.command()
+    async def wordtopserver(self, ctx: commands.Context, word: str, limit: int = 10):
+        """ people who use a word the most """
+        data = self.query_results(
+            """
+            SELECT quant, author_id FROM member_words
+            WHERE guild_id = ? AND word = ?
+            ORDER BY quant DESC
+            LIMIT ?
+            """,
+            ctx.guild.id,
+            word.lower(),
+            limit,
+            transformer=lambda q, aid: (
+                q,
+                ctx.guild.get_member(aid) or "Unknown Member#0000",
+            ),
+        )
+        await self.send_boxed(ctx, data)
+
+    @checks.is_owner()
+    @wordstats.command()
+    async def wordtopglobal(self, ctx: commands.Context, word: str, limit: int = 10):
+        """ people who use a word the most """
+        data = self.query_results(
+            """
+            SELECT SUM(quant) as wc, author_id FROM member_words
+            WHERE word = ?
+            GROUP BY author_id
+            ORDER BY wc DESC
+            LIMIT ?
+            """,
+            word.lower(),
+            limit,
+            transformer=lambda q, aid: (
+                q,
+                ctx.bot.get_user(aid) or "Unknown User#0000",
+            ),
         )
         await self.send_boxed(ctx, data)
