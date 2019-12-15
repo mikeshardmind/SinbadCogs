@@ -137,8 +137,7 @@ class WordStats(commands.Cog):
                 GROUP BY word
                 ORDER BY wc DESC
                 LIMIT 50
-                """,
-                (ctx.guild.id,),
+                """
             ).fetchall()
 
         if not results:
