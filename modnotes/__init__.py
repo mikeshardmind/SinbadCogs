@@ -10,9 +10,7 @@ else:
 
 def setup(bot):
     if not HAS_APSW:
-        raise CogLoadError(
-            "This cog requires `apsw`. No support is provided for aquiring `apsw`."
-        )
+        raise CogLoadError("This cog requires `apsw-wheels`.")
     else:
         from .modnotes import ModNotes
 
