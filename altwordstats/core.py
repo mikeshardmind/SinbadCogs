@@ -90,7 +90,7 @@ class WordStats(commands.Cog):
                 SELECT quant, word FROM member_words
                 WHERE guild_id = ? AND author_id = ?
                 ORDER BY quant DESC
-                LIMIT 20
+                LIMIT 50
                 """,
                 (ctx.guild.id, ctx.author.id),
             ).fetchall()
@@ -98,13 +98,8 @@ class WordStats(commands.Cog):
         if not results:
             return
 
-        mx_width = int(log10(results[0][0])) + 1
-
-        output = "\n".join(
-            f"{i:>3}.   {count:>{mx_width}}   {word}"
-            for i, (count, word) in enumerate(results, 1)
-        )
-
+        mx_width = int(log10(results[0][0])) + 3
+        output = "\n".join(f"{count:<{mx_width}} {word}" for count, word in results)
         await ctx.send(box(output))
 
     @wordstats.command()
@@ -118,7 +113,7 @@ class WordStats(commands.Cog):
                 FROM member_words WHERE author_id = ?
                 GROUP BY word
                 ORDER BY wc DESC
-                LIMIT 20
+                LIMIT 50
                 """,
                 (ctx.author.id,),
             ).fetchall()
@@ -126,13 +121,31 @@ class WordStats(commands.Cog):
         if not results:
             return
 
-        mx_width = int(log10(results[0][0])) + 1
+        mx_width = int(log10(results[0][0])) + 3
+        output = "\n".join(f"{count:<{mx_width}} {word}" for count, word in results)
+        await ctx.send(box(output))
 
-        output = "\n".join(
-            f"{i:>3}.   {count:>{mx_width}}   {word}"
-            for i, (count, word) in enumerate(results, 1)
-        )
+    @checks.is_owner()
+    @wordstats.command()
+    async def topglobal(self, ctx: commands.Context):
+        """ Anywhere """
+        with self._connection.with_cursor() as cursor:
+            results = cursor.execute(
+                """
+                SELECT SUM(quant) as wc, word
+                FROM member_words
+                GROUP BY word
+                ORDER BY wc DESC
+                LIMIT 50
+                """,
+                (ctx.guild.id,),
+            ).fetchall()
 
+        if not results:
+            return
+
+        mx_width = int(log10(results[0][0])) + 3
+        output = "\n".join(f"{count:<{mx_width}} {word}" for count, word in results)
         await ctx.send(box(output))
 
     @wordstats.command()
@@ -146,7 +159,7 @@ class WordStats(commands.Cog):
                 FROM member_words WHERE guild_id = ?
                 GROUP BY word
                 ORDER BY wc DESC
-                LIMIT 20
+                LIMIT 50
                 """,
                 (ctx.guild.id,),
             ).fetchall()
@@ -154,11 +167,6 @@ class WordStats(commands.Cog):
         if not results:
             return
 
-        mx_width = int(log10(results[0][0])) + 1
-
-        output = "\n".join(
-            f"{i:>3}.   {count:>{mx_width}}   {word}"
-            for i, (count, word) in enumerate(results, 1)
-        )
-
+        mx_width = int(log10(results[0][0])) + 3
+        output = "\n".join(f"{count:<{mx_width}} {word}" for count, word in results)
         await ctx.send(box(output))
