@@ -220,3 +220,47 @@ class WordStats(commands.Cog):
             r = f"{type(exc)}{exc}"
 
         await ctx.send_interactive(pagify(r), box_lang="py")
+
+    @wordstats.command()
+    async def serveroverview(self, ctx: commands.Context):
+        """ overviews """
+
+        with self._connection.with_cursor() as cursor:
+            results = cursor.execute(
+                """
+                SELECT
+                  COUNT(DISTINCT word), SUM(quant), MAX(quant), AVG(quant)
+                FROM member_words WHERE guild_id = ?
+                """,
+                (ctx.guild.id,),
+            ).fetchone()
+
+        if results:
+            unique, total, most, avg = results
+            await ctx.send(
+                f"I have observed  a total of {total} words in this server. "
+                f"Of those, there were {unique} unique words."
+                f"\nAdditional info Max: {most} AVG: {avg}"
+            )
+
+    @checks.is_owner()
+    @wordstats.command()
+    async def globaloverview(self, ctx: commands.Context):
+        """ overviews """
+
+        with self._connection.with_cursor() as cursor:
+            results = cursor.execute(
+                """
+                SELECT
+                  COUNT(DISTINCT word), SUM(quant), MAX(quant), AVG(quant)
+                FROM member_words
+                """
+            ).fetchone()
+
+        if results:
+            unique, total, most, avg = results
+            await ctx.send(
+                f"I have observed  a total of {total} words in this server. "
+                f"Of those, there were {unique} unique words."
+                f"\nAdditional info Max: {most} AVG: {avg}"
+            )
