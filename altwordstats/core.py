@@ -99,7 +99,7 @@ class WordStats(commands.Cog):
         if not results:
             return
 
-        mx_width = log10(results[0][0]) // 1 + 1
+        mx_width = int(log10(results[0][0])) + 1
 
         output = "\n".join(
             f"{i:>3}.   {count:>{mx_width}}   {word}"
@@ -127,7 +127,7 @@ class WordStats(commands.Cog):
         if not results:
             return
 
-        mx_width = log10(results[0][0]) // 1 + 1
+        mx_width = int(log10(results[0][0])) + 1
 
         output = "\n".join(
             f"{i:>3}.   {count:>{mx_width}}   {word}"
@@ -155,7 +155,7 @@ class WordStats(commands.Cog):
         if not results:
             return
 
-        mx_width = log10(results[0][0]) // 1 + 1
+        mx_width = int(log10(results[0][0])) + 1
 
         output = "\n".join(
             f"{i:>3}.   {count:>{mx_width}}   {word}"
