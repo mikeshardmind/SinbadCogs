@@ -3,13 +3,13 @@ from __future__ import annotations
 import asyncio
 import re
 from math import log10
-from typing import List
+from typing import List, Optional
 
 import discord
 from redbot.core import commands, checks
 from redbot.core.bot import Red
 from redbot.core.data_manager import cog_data_path
-from redbot.core.utils.chat_formatting import box
+from redbot.core.utils.chat_formatting import box, pagify
 
 from .apsw_wrapper import Connection
 
@@ -38,7 +38,6 @@ class WordStats(commands.Cog):
     async def initialize(self):
         with self._connection.with_cursor() as cursor:
             cursor.execute("""PRAGMA journal_mode=wal""")
-
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS member_words(
@@ -74,6 +73,24 @@ class WordStats(commands.Cog):
                     (gid, aid, word),
                 )
 
+    def query_results(self, query: str, *args, **kwargs) -> Optional[str]:
+
+        with self._connection.with_cursor() as cursor:
+            results = cursor.execute(query, args or kwargs).fetchall()
+
+        if not results:
+            return None
+
+        mx_width = int(log10(results[0][0])) + 3
+        output = "\n".join(f"{count:<{mx_width}} {word}" for count, word in results)
+        return output
+
+    @staticmethod
+    async def send_boxed(ctx: commands.Context, data: Optional[str]):
+        if data:
+            for page in pagify(data):
+                await ctx.send(box(page))
+
     @commands.guild_only()
     @commands.group()
     async def wordstats(self, ctx: commands.Context):
@@ -81,91 +98,66 @@ class WordStats(commands.Cog):
         ...
 
     @wordstats.command()
-    async def mytophere(self, ctx: commands.Context):
+    async def mytophere(self, ctx: commands.Context, limit: int = 10):
         """ Get your most used words in this guild """
-
-        with self._connection.with_cursor() as cursor:
-            results = cursor.execute(
-                """
-                SELECT quant, word FROM member_words
-                WHERE guild_id = ? AND author_id = ?
-                ORDER BY quant DESC
-                LIMIT 50
-                """,
-                (ctx.guild.id, ctx.author.id),
-            ).fetchall()
-
-        if not results:
-            return
-
-        mx_width = int(log10(results[0][0])) + 3
-        output = "\n".join(f"{count:<{mx_width}} {word}" for count, word in results)
-        await ctx.send(box(output))
+        data = self.query_results(
+            """
+            SELECT quant, word FROM member_words
+            WHERE guild_id = ? AND author_id = ?
+            ORDER BY quant DESC
+            LIMIT ?
+            """,
+            ctx.guild.id,
+            ctx.author.id,
+            limit,
+        )
+        await self.send_boxed(ctx, data)
 
     @wordstats.command()
-    async def mytop(self, ctx: commands.Context):
+    async def mytop(self, ctx: commands.Context, limit: int = 10):
         """ Get your most used words (seen in any guild by this bot) """
 
-        with self._connection.with_cursor() as cursor:
-            results = cursor.execute(
-                """
-                SELECT SUM(quant) as wc, word
-                FROM member_words WHERE author_id = ?
-                GROUP BY word
-                ORDER BY wc DESC
-                LIMIT 50
-                """,
-                (ctx.author.id,),
-            ).fetchall()
-
-        if not results:
-            return
-
-        mx_width = int(log10(results[0][0])) + 3
-        output = "\n".join(f"{count:<{mx_width}} {word}" for count, word in results)
-        await ctx.send(box(output))
+        data = self.query_results(
+            """
+            SELECT SUM(quant) as wc, word
+            FROM member_words WHERE author_id = ?
+            GROUP BY word
+            ORDER BY wc DESC
+            LIMIT ?
+            """,
+            ctx.author.id,
+            limit,
+        )
+        await self.send_boxed(ctx, data)
 
     @checks.is_owner()
     @wordstats.command()
-    async def topglobal(self, ctx: commands.Context):
+    async def topglobal(self, ctx: commands.Context, limit: int = 10):
         """ Anywhere """
-        with self._connection.with_cursor() as cursor:
-            results = cursor.execute(
-                """
-                SELECT SUM(quant) as wc, word
-                FROM member_words
-                GROUP BY word
-                ORDER BY wc DESC
-                LIMIT 50
-                """
-            ).fetchall()
-
-        if not results:
-            return
-
-        mx_width = int(log10(results[0][0])) + 3
-        output = "\n".join(f"{count:<{mx_width}} {word}" for count, word in results)
-        await ctx.send(box(output))
+        data = self.query_results(
+            """
+            SELECT SUM(quant) as wc, word
+            FROM member_words
+            GROUP BY word
+            ORDER BY wc DESC
+            LIMIT ?
+            """,
+            limit,
+        )
+        await self.send_boxed(ctx, data)
 
     @wordstats.command()
-    async def servertop(self, ctx: commands.Context):
+    async def servertop(self, ctx: commands.Context, limit: int = 10):
         """ Get the server's most used words """
-
-        with self._connection.with_cursor() as cursor:
-            results = cursor.execute(
-                """
-                SELECT SUM(quant) as wc, word
-                FROM member_words WHERE guild_id = ?
-                GROUP BY word
-                ORDER BY wc DESC
-                LIMIT 50
-                """,
-                (ctx.guild.id,),
-            ).fetchall()
-
-        if not results:
-            return
-
-        mx_width = int(log10(results[0][0])) + 3
-        output = "\n".join(f"{count:<{mx_width}} {word}" for count, word in results)
-        await ctx.send(box(output))
+        data = self.query_results(
+            """
+            SELECT SUM(quant) as wc, word
+            FROM member_words WHERE guild_id = ?
+            GROUP BY word
+            ORDER BY wc DESC
+            LIMIT ?
+            """,
+            ctx.guild.id,
+            limit,
+        )
+        await self.send_boxed(ctx, data)
