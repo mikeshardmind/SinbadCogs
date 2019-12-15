@@ -11,7 +11,7 @@ from redbot.core.bot import Red
 from redbot.core.data_manager import cog_data_path
 from redbot.core.utils import menus
 from .converters import MemberOrID
-from .aspw_wrapper import Connection
+from .apsw_wrapper import Connection
 
 
 class Note(NamedTuple):
