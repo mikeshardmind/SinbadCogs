@@ -47,7 +47,7 @@ class WordStats(commands.Cog):
                     word TEXT NOT NULL,
                     quant INTEGER DEFAULT 1,
                     PRIMARY KEY(guild_id, author_id, word)
-                );
+                )
                 """
             )
 
@@ -69,7 +69,7 @@ class WordStats(commands.Cog):
                 cursor.execute(
                     """
                     INSERT INTO member_words(guild_id, author_id, word) VALUES (?,?,?)
-                      ON CONFLICT DO UPDATE SET quant=quant+1;
+                      ON CONFLICT(guild_id, author_id, word) DO UPDATE SET quant=quant+1
                     """,
                     (gid, aid, word),
                 )
@@ -90,7 +90,7 @@ class WordStats(commands.Cog):
                 SELECT quant, word FROM member_words
                 WHERE guild_id = ? AND author_id = ?
                 ORDER BY quant DESC
-                LIMIT 20;
+                LIMIT 20
                 """,
                 (ctx.guild.id, ctx.author.id),
             ).fetchall()
@@ -118,7 +118,7 @@ class WordStats(commands.Cog):
                 FROM member_words WHERE author_id = ?
                 GROUP BY word
                 ORDER BY wc DESC
-                LIMIT 20;
+                LIMIT 20
                 """,
                 (ctx.author.id,),
             ).fetchall()
@@ -146,7 +146,7 @@ class WordStats(commands.Cog):
                 FROM member_words WHERE guild_id = ?
                 GROUP BY word
                 ORDER BY wc DESC
-                LIMIT 20;
+                LIMIT 20
                 """,
                 (ctx.guild.id,),
             ).fetchall()
