@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import re
+import string
 from math import log10
 from typing import Callable, List, Optional
 
@@ -13,8 +14,6 @@ from redbot.core.data_manager import cog_data_path
 from redbot.core.utils.chat_formatting import box, pagify
 
 from .apsw_wrapper import Connection
-
-sub_pattern = re.compile(r"[^a-z\s]")
 
 
 class WordStats(commands.Cog):
@@ -53,7 +52,13 @@ class WordStats(commands.Cog):
 
     @staticmethod
     def sanitized_words_from_message(msg: discord.Message) -> List[str]:
-        return sub_pattern.sub("", msg.content or "").split()
+        pattern = re.compile(r"^[a-z]+$")
+        words = [
+            word.strip(string.punctuation)
+            for word in (msg.content or "").lower().split()
+        ]
+        words = [w for w in words if pattern.match(w)]
+        return words
 
     @commands.Cog.listener("on_message_without_command")
     async def words_handler(self, message: discord.Message):
@@ -69,7 +74,8 @@ class WordStats(commands.Cog):
                 cursor.execute(
                     """
                     INSERT INTO member_words(guild_id, author_id, word) VALUES (?,?,?)
-                      ON CONFLICT(guild_id, author_id, word) DO UPDATE SET quant=quant+1
+                        ON CONFLICT(guild_id, author_id, word)
+                            DO UPDATE SET quant=quant+1
                     """,
                     (gid, aid, word),
                 )
@@ -107,7 +113,8 @@ class WordStats(commands.Cog):
         """ Get your most used words in this guild """
         data = self.query_results(
             """
-            SELECT quant, word FROM member_words
+            SELECT quant, word
+            FROM member_words
             WHERE guild_id = ? AND author_id = ?
             ORDER BY quant DESC
             LIMIT ?
@@ -157,7 +164,8 @@ class WordStats(commands.Cog):
         data = self.query_results(
             """
             SELECT SUM(quant) as wc, word
-            FROM member_words WHERE guild_id = ?
+            FROM member_words
+            WHERE guild_id = ?
             GROUP BY word
             ORDER BY wc DESC
             LIMIT ?
@@ -172,7 +180,8 @@ class WordStats(commands.Cog):
         """ people who use a word the most """
         data = self.query_results(
             """
-            SELECT quant, author_id FROM member_words
+            SELECT quant, author_id
+            FROM member_words
             WHERE guild_id = ? AND word = ?
             ORDER BY quant DESC
             LIMIT ?
@@ -228,19 +237,18 @@ class WordStats(commands.Cog):
         with self._connection.with_cursor() as cursor:
             results = cursor.execute(
                 """
-                SELECT
-                  COUNT(DISTINCT word), SUM(quant), MAX(quant), AVG(quant)
-                FROM member_words WHERE guild_id = ?
+                SELECT COUNT(DISTINCT word), SUM(quant)
+                FROM member_words
+                WHERE guild_id = ?
                 """,
                 (ctx.guild.id,),
             ).fetchone()
 
         if results:
-            unique, total, most, avg = results
+            unique, total = results
             await ctx.send(
                 f"I have observed a total of {total} words in this server. "
                 f"Of those, there were {unique} unique words."
-                f"\nAdditional info Max: {most} AVG: {avg:.2f}"
             )
 
     @checks.is_owner()
@@ -251,16 +259,14 @@ class WordStats(commands.Cog):
         with self._connection.with_cursor() as cursor:
             results = cursor.execute(
                 """
-                SELECT
-                  COUNT(DISTINCT word), SUM(quant), MAX(quant), AVG(quant)
+                SELECT COUNT(DISTINCT word), SUM(quant)
                 FROM member_words
                 """
             ).fetchone()
 
         if results:
-            unique, total, most, avg = results
+            unique, total = results
             await ctx.send(
                 f"I have observed a total of {total} words. "
                 f"Of those, there were {unique} unique words."
-                f"\nAdditional info Max: {most} AVG: {avg:.2f}"
             )
