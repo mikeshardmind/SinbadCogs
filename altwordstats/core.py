@@ -26,7 +26,8 @@ class WordStats(commands.Cog):
 
     def __init__(self, bot: Red):
         self.bot = bot
-        self._connection = Connection(cog_data_path(self))
+        pth = cog_data_path(self) / "words.db"
+        self._connection = Connection(pth)
         self._ready_event = asyncio.Event()
         self._init_task = asyncio.create_task(self.initialize())
 
@@ -153,4 +154,3 @@ class WordStats(commands.Cog):
         )
 
         await ctx.send(box(output))
-
