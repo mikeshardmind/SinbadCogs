@@ -179,9 +179,9 @@ class WordStats(commands.Cog):
             ctx.guild.id,
             word.lower(),
             limit,
-            transformer=lambda q, aid: (
-                q,
-                ctx.guild.get_member(aid) or "Unknown Member#0000",
+            transformer=lambda args: (
+                args[0],
+                ctx.guild.get_member(args[1]) or "Unknown Member#0000",
             ),
         )
         await self.send_boxed(ctx, data)
