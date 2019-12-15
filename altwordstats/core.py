@@ -58,7 +58,7 @@ class WordStats(commands.Cog):
     @commands.Cog.listener("on_message_without_command")
     async def words_handler(self, message: discord.Message):
 
-        if message.guild is None or message.bot:
+        if message.guild is None or message.author.bot:
             return
 
         gid = message.guild.id
@@ -96,6 +96,9 @@ class WordStats(commands.Cog):
                 (ctx.guild.id, ctx.author.id),
             ).fetchall()
 
+        if not results:
+            return
+
         mx_width = log10(results[0][0]) // 1 + 1
 
         output = "\n".join(
@@ -121,6 +124,9 @@ class WordStats(commands.Cog):
                 (ctx.author.id,),
             ).fetchall()
 
+        if not results:
+            return
+
         mx_width = log10(results[0][0]) // 1 + 1
 
         output = "\n".join(
@@ -145,6 +151,9 @@ class WordStats(commands.Cog):
                 """,
                 (ctx.guild.id,),
             ).fetchall()
+
+        if not results:
+            return
 
         mx_width = log10(results[0][0]) // 1 + 1
 
