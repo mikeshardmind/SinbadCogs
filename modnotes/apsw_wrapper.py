@@ -39,6 +39,7 @@ class ContextManagerMixin(ProvidesCursor):
             yield c
         except Exception:
             c.execute("ROLLBACK TRANSACTION")
+            raise
         else:
             c.execute("COMMIT TRANSACTION")
         finally:
