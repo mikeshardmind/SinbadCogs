@@ -260,7 +260,7 @@ class WordStats(commands.Cog):
         if results:
             unique, total, most, avg = results
             await ctx.send(
-                f"I have observed  a total of {total} words in this server. "
+                f"I have observed a total of {total} words. "
                 f"Of those, there were {unique} unique words."
                 f"\nAdditional info Max: {most} AVG: {avg}"
             )
