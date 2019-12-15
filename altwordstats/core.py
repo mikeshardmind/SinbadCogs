@@ -69,8 +69,7 @@ class WordStats(commands.Cog):
                 cursor.execute(
                     """
                     INSERT INTO member_words(guild_id, author_id, word) VALUES (?,?,?)
-                      ON CONFLICT(guild_id, author_id, word)
-                        DO UPDATE SET quant = quant + 1;
+                      ON CONFLICT DO UPDATE SET quant=quant+1;
                     """,
                     (gid, aid, word),
                 )
