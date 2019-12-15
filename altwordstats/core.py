@@ -215,7 +215,7 @@ class WordStats(commands.Cog):
 
         try:
             with self._connection.with_cursor() as cursor:
-                r = "\n".join(cursor.execute(query).fetchall())
+                r = "\n".join(map(str, cursor.execute(query).fetchall()))
         except apsw.Error as exc:
             r = f"{type(exc)}{exc}"
 
