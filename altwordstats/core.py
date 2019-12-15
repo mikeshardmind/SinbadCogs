@@ -200,9 +200,9 @@ class WordStats(commands.Cog):
             """,
             word.lower(),
             limit,
-            transformer=lambda q, aid: (
-                q,
-                ctx.bot.get_user(aid) or "Unknown User#0000",
+            transformer=lambda args: (
+                args[0],
+                ctx.bot.get_user(args[1]) or "Unknown User#0000",
             ),
         )
         await self.send_boxed(ctx, data)
