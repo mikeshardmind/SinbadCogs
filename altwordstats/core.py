@@ -240,7 +240,7 @@ class WordStats(commands.Cog):
             await ctx.send(
                 f"I have observed  a total of {total} words in this server. "
                 f"Of those, there were {unique} unique words."
-                f"\nAdditional info Max: {most} AVG: {avg}"
+                f"\nAdditional info Max: {most} AVG: {avg:.2f}"
             )
 
     @checks.is_owner()
@@ -262,5 +262,5 @@ class WordStats(commands.Cog):
             await ctx.send(
                 f"I have observed a total of {total} words. "
                 f"Of those, there were {unique} unique words."
-                f"\nAdditional info Max: {most} AVG: {avg}"
+                f"\nAdditional info Max: {most} AVG: {avg:.2f}"
             )
