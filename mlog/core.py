@@ -62,10 +62,10 @@ class MLog(commands.Cog):
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS edits(
+                    uid INTEGER PRIMARY KEY AUTOINCREMENT,
                     message_id INTEGER NOT NULL,
                     edited_at INTEGER NOT NULL,
-                    new_content TEXT,
-                    uid INTEGER AUTOINCREMENT
+                    new_content TEXT
                 )
                 """
             )
