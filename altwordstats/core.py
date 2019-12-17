@@ -235,7 +235,7 @@ class WordStats(commands.Cog):
         except apsw.Error as exc:
             r = f"{type(exc)}{exc}"
 
-        await ctx.send_interactive(pagify(r), box_lang="py")
+        await ctx.send_interactive(pagify(r, page_length=1950), box_lang="py")
 
     @wordstats.command()
     async def serveroverview(self, ctx: commands.Context):
