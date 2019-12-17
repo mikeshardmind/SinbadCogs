@@ -55,7 +55,7 @@ class MLog(commands.Cog):
                     channel_id INTEGER,
                     author_id INTEGER,
                     content TEXT,
-                    created_at INT,
+                    created_at INT
                 )
                 """
             )
@@ -64,8 +64,8 @@ class MLog(commands.Cog):
                 CREATE TABLE IF NOT EXISTS edits(
                     message_id INTEGER NOT NULL,
                     edited_at INTEGER NOT NULL,
-                    new_content TEXT
-                    uid INTEGER AUTOINCREMENT,
+                    new_content TEXT,
+                    uid INTEGER AUTOINCREMENT
                 )
                 """
             )
