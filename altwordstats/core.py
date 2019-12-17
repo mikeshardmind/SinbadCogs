@@ -34,8 +34,13 @@ class WordStats(commands.Cog):
     def cog_unload(self):
         self._ready_event.clear()
         self._init_task.cancel()
+        self._connection.close()
+
+    async def cog_before_invoke(self, ctx):
+        await self._ready_event.wait()
 
     async def initialize(self):
+        await self.bot.wait_until_ready()
         with self._connection.with_cursor() as cursor:
             cursor.execute("""PRAGMA journal_mode=wal""")
             cursor.execute(
@@ -49,6 +54,7 @@ class WordStats(commands.Cog):
                 )
                 """
             )
+        self._ready_event.set()
 
     @staticmethod
     def sanitized_words_from_message(msg: discord.Message) -> List[str]:
@@ -62,6 +68,7 @@ class WordStats(commands.Cog):
 
     @commands.Cog.listener("on_message_without_command")
     async def words_handler(self, message: discord.Message):
+        await self._ready_event.wait()
 
         if message.guild is None or message.author.bot:
             return
