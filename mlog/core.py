@@ -27,7 +27,7 @@ class MLog(commands.Cog):
 
     def cog_unload(self):
         self._init_task.cancel()
-        self._ready_event.unset()
+        self._ready_event.clear()
         self._connection.close()
 
     async def cog_before_invoke(self, ctx):
