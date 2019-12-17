@@ -80,6 +80,8 @@ class MLog(commands.Cog):
                 """
             )
 
+        self._ready_event.set()
+
     @commands.Cog.listener()
     async def on_raw_message_edit(self, payload: discord.RawMessageUpdateEvent):
         await self._ready_event.wait()
