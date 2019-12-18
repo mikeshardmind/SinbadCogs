@@ -238,7 +238,8 @@ class MLog(commands.Cog):
                 SELECT COALESCE(
                     (SELECT last_build FROM guild_settings WHERE guild_id = ?), 0
                 )
-                """
+                """,
+                (guild_id,),
             ).fetchone()
 
         async with ctx.typing():
