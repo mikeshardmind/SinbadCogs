@@ -193,8 +193,8 @@ class MLog(commands.Cog):
                 last_content, last_date = original_con, original_dat
 
             e = discord.Embed(color=color, timestamp=datetime.fromtimestamp(edit_dat))
-            e.add_field(name="Edited from", value=last_content)
-            e.add_field(name="Edited to", value=edit_con)
+            e.add_field(name="Edited from", value=last_content, inline=False)
+            e.add_field(name="Edited to", value=edit_con, inline=False)
             embeds.append(e)
             last_content, last_date = edit_con, edit_dat
 
