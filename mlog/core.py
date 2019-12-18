@@ -169,7 +169,8 @@ class MLog(commands.Cog):
                 INNER JOIN messages ON messages.message_id=edits.message_id
                 WHERE messages.message_id = ?
                 ORDER BY edits.edited_at
-                """
+                """,
+                (message_id,)
             ).fetchall()
 
         if not results:
