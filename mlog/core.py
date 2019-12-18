@@ -233,7 +233,7 @@ class MLog(commands.Cog):
         ]
 
         with self._connection.with_cursor() as cursor:
-            last_build = cursor.execute(
+            last_build, = cursor.execute(
                 """
                 SELECT COALESCE(
                     (SELECT last_build FROM guild_settings WHERE guild_id = ?), 0
