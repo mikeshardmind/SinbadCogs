@@ -79,7 +79,8 @@ class MLog(commands.Cog):
                     guild_id INTEGER PRIMARY KEY,
                     active BOOLEAN DEFAULT false,
                     attachments BOOLEAN DEFAULT false,
-                    bots BOOLEAN DEFAULT false
+                    bots BOOLEAN DEFAULT true,
+                    last_build INTEGER DEFAULT 0
                 )
                 """
             )
@@ -131,7 +132,7 @@ class MLog(commands.Cog):
 
             cursor.execute(
                 """
-                INSERT INTO messages(
+                INSERT OR IGNORE INTO messages(
                     message_id,
                     guild_id,
                     channel_id,
@@ -170,7 +171,7 @@ class MLog(commands.Cog):
                 WHERE messages.message_id = ?
                 ORDER BY edits.edited_at
                 """,
-                (message_id,)
+                (message_id,),
             ).fetchall()
 
         if not results:
@@ -212,3 +213,45 @@ class MLog(commands.Cog):
             r = f"{type(exc)}{exc}"
 
         await ctx.send_interactive(pagify(r), box_lang="py")
+
+    @checks.is_owner()
+    async def mlbuild(self, ctx: commands.Context, guild_id: int):
+        """ go build message history """
+
+        now = int(ctx.message.created_at.timestamp())
+
+        guild = ctx.bot.get_guild(guild_id)
+        if not guild:
+            return await ctx.send("No such guild.")
+
+        channels = [
+            c
+            for c in guild.text_channels
+            if c.permissions_for(guild.me).read_message_history
+        ]
+
+        with self._connection.with_cursor() as cursor:
+            last_build, active = cursor.execute(
+                """
+                SELECT COALESCE(
+                    (SELECT last_build FROM guild_settings WHERE guild_id = ?), 0
+                )
+                """
+            ).fetchone()
+
+        async with ctx.typing():
+            for channel in channels:
+                async for message in channel.history(
+                    limit=None, after=datetime.fromtimestamp(last_build)
+                ):
+                    await self.on_message(message)
+                    await asyncio.sleep(0.02)
+
+        with self._connection.with_cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO guild_Settings(guild_id, last_build) VALUES (?, ?)
+                    ON CONFLICT(guild_id) DO UPDATE SET last_build=excluded.last_build
+                """,
+                (guild_id, now),
+            )
