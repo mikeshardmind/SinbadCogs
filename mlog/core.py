@@ -216,6 +216,7 @@ class MLog(commands.Cog):
         await ctx.send_interactive(pagify(r), box_lang="py")
 
     @checks.is_owner()
+    @commands.command()
     async def mlbuild(self, ctx: commands.Context, guild_id: int):
         """ go build message history """
 
