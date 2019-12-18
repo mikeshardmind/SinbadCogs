@@ -241,12 +241,13 @@ class MLog(commands.Cog):
                 """,
                 (guild_id,),
             ).fetchone()
+            after = max(
+                datetime.fromtimestamp(last_build), discord.utils.snowflake_time(0)
+            )
 
         async with ctx.typing():
             for channel in channels:
-                async for message in channel.history(
-                    limit=None, after=datetime.fromtimestamp(last_build)
-                ):
+                async for message in channel.history(limit=None, after=after):
                     await self.on_message(message)
                     await asyncio.sleep(0.02)
 
