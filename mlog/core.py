@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import suppress
 from datetime import datetime
-from typing import Set
+from typing import List, Set
 
 import apsw
 import discord
@@ -10,6 +11,7 @@ from redbot.core import commands, checks
 from redbot.core.bot import Red
 from redbot.core.data_manager import cog_data_path
 from redbot.core.utils.chat_formatting import pagify
+from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 from .apsw_wrapper import Connection
 
@@ -47,6 +49,7 @@ class MLog(commands.Cog):
             )
         with self._connection.with_cursor() as cursor:
             cursor.execute("""PRAGMA journal_mode=wal""")
+            cursor.execute("""PRAGMA foreign_keys = ON""")
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS messages(
@@ -55,7 +58,7 @@ class MLog(commands.Cog):
                     channel_id INTEGER,
                     author_id INTEGER,
                     content TEXT,
-                    created_at INT
+                    created_at INTEGER
                 )
                 """
             )
@@ -63,7 +66,8 @@ class MLog(commands.Cog):
                 """
                 CREATE TABLE IF NOT EXISTS edits(
                     uid INTEGER PRIMARY KEY AUTOINCREMENT,
-                    message_id INTEGER NOT NULL,
+                    message_id INTEGER REFERENCES messages(message_id)
+                        ON UPDATE CASCADE ON DELETE CASCADE,
                     edited_at INTEGER NOT NULL,
                     new_content TEXT
                 )
@@ -90,24 +94,14 @@ class MLog(commands.Cog):
 
         try:
             new_content = data["content"]
-            guild_id = int(data["guild_id"])
         except KeyError:
             return
 
-        with self._connection.with_cursor() as cursor:
-            if not cursor.execute(
-                """
-                SELECT 1
-                FROM guild_settings
-                WHERE guild_id = ? AND active
-                """,
-                (guild_id,),
-            ).fetchone():
-                return
+        with suppress(apsw.ConstraintError), self._connection.with_cursor() as cursor:
 
             cursor.execute(
                 """
-                INSERT INTO edits(message_id, edited_at, new_content)
+                INSERT INTO edits(message, edited_at, new_content)
                 VALUES(:mid, :now, :new_content)
                 """,
                 {
@@ -156,6 +150,54 @@ class MLog(commands.Cog):
                     "created_at": int(message.created_at.timestamp()),
                 },
             )
+
+    @checks.is_owner()
+    @commands.command()
+    async def mhistory(self, ctx: commands.Context, message_id: int):
+        """
+        Get the history of a message.
+        """
+        with self._connection.with_cursor() as cursor:
+            results = cursor.execute(
+                """
+                SELECT
+                    messages.content,
+                    messages.created_at,
+                    edits.new_content,
+                    edits.edited_at
+                FROM edits
+                INNER JOIN messages ON messages.message_id=edits.message_id
+                WHERE message_id = ?
+                ORDER BY edits.edited_at
+                """
+            ).fetchall()
+
+        if not results:
+            return await ctx.send("No edits recorded for this message")
+
+        last_content, last_date = None, None
+        embeds: List[discord.Embed] = []
+
+        color = await ctx.embed_color()
+
+        for original_con, original_dat, edit_con, edit_dat in results:
+            if last_content is None:
+
+                e = discord.Embed(
+                    color=color, timestamp=datetime.fromtimestamp(original_dat)
+                )
+                e.add_field(name="Original Content", value=original_con)
+                embeds.append(e)
+
+                last_content, last_date = original_con, original_dat
+
+            e = discord.Embed(color=color, timestamp=datetime.fromtimestamp(edit_dat))
+            e.add_field(name="Edited from", value=last_content)
+            e.add_field(name="Edited to", value=edit_con)
+            embeds.append(e)
+            last_content, last_date = edit_con, edit_dat
+
+        await menu(ctx, embeds, DEFAULT_CONTROLS)
 
     @checks.is_owner()
     @commands.command()
