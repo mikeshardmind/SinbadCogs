@@ -212,6 +212,7 @@ class MLog(commands.Cog):
         except apsw.Error as exc:
             r = f"{type(exc)}{exc}"
 
+        await ctx.tick()
         await ctx.send_interactive(pagify(r), box_lang="py")
 
     @checks.is_owner()
@@ -231,7 +232,7 @@ class MLog(commands.Cog):
         ]
 
         with self._connection.with_cursor() as cursor:
-            last_build, active = cursor.execute(
+            last_build = cursor.execute(
                 """
                 SELECT COALESCE(
                     (SELECT last_build FROM guild_settings WHERE guild_id = ?), 0
@@ -255,3 +256,4 @@ class MLog(commands.Cog):
                 """,
                 (guild_id, now),
             )
+        await ctx.tick()
