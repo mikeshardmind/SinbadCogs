@@ -101,7 +101,7 @@ class MLog(commands.Cog):
 
             cursor.execute(
                 """
-                INSERT INTO edits(message, edited_at, new_content)
+                INSERT INTO edits(message_id, edited_at, new_content)
                 VALUES(:mid, :now, :new_content)
                 """,
                 {
