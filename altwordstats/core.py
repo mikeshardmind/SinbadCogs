@@ -15,6 +15,23 @@ from redbot.core.utils.chat_formatting import box, pagify
 
 from .apsw_wrapper import Connection
 
+# fmt: off
+stopwords = (
+    'a', 'able', 'about', 'across', 'after', 'all', 'almost', 'also', 'am', 'among',
+    'an', 'and', 'any', 'are', 'as', 'at', 'be', 'because', 'been', 'but', 'by', 'can',
+    'cannot', 'could', 'dear', 'did', 'do', 'does', 'either', 'else', 'ever', 'every',
+    'for', 'from', 'get', 'got', 'had', 'has', 'have', 'he', 'her', 'hers', 'him',
+    'his', 'how', 'however', 'i', 'if', 'in', 'into', 'is', 'it', 'its', 'just',
+    'least', 'let', 'like', 'likely', 'may', 'me', 'might', 'most', 'must', 'my',
+    'neither', 'no', 'nor', 'not', 'of', 'off', 'often', 'on', 'only', 'or', 'other',
+    'our', 'own', 'rather', 'said', 'say', 'says', 'she', 'should', 'since', 'so',
+    'some', 'than', 'that', 'the', 'their', 'them', 'then', 'there', 'these', 'they',
+    'this', 'tis', 'to', 'too', 'twas', 'us', 'wants', 'was', 'we', 'were', 'what',
+    'when', 'where', 'which', 'while', 'who', 'whom', 'why', 'will', 'with', 'would',
+    'yet', 'you', 'your'
+)
+# fmt: on
+
 
 class WordStats(commands.Cog):
     """
@@ -54,6 +71,22 @@ class WordStats(commands.Cog):
                 )
                 """
             )
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS excluded_words(
+                    word TEXT NOT NULL
+                )
+                """
+            )
+        with self._connection.transaction() as cursor:
+            for w in stopwords:
+                cursor.execute(
+                    """
+                    INSERT OR IGNORE INTO excluded_words(word) values(?)
+                    """,
+                    (w,),
+                )
+
         self._ready_event.set()
 
     @staticmethod
@@ -122,7 +155,9 @@ class WordStats(commands.Cog):
             """
             SELECT quant, word
             FROM member_words
-            WHERE guild_id = ? AND author_id = ?
+            WHERE guild_id = ?
+                AND author_id = ?
+                AND word not in (SELECT word FROM excluded_words)
             ORDER BY quant DESC
             LIMIT ?
             """,
@@ -139,7 +174,9 @@ class WordStats(commands.Cog):
         data = self.query_results(
             """
             SELECT SUM(quant) as wc, word
-            FROM member_words WHERE author_id = ?
+            FROM member_words
+            WHERE author_id = ?
+                AND word not in (SELECT word FROM excluded_words)
             GROUP BY word
             ORDER BY wc DESC
             LIMIT ?
@@ -157,6 +194,7 @@ class WordStats(commands.Cog):
             """
             SELECT SUM(quant) as wc, word
             FROM member_words
+            WHERE word not in (SELECT word FROM excluded_words)
             GROUP BY word
             ORDER BY wc DESC
             LIMIT ?
@@ -173,6 +211,7 @@ class WordStats(commands.Cog):
             SELECT SUM(quant) as wc, word
             FROM member_words
             WHERE guild_id = ?
+                AND word not in (SELECT word FROM excluded_words)
             GROUP BY word
             ORDER BY wc DESC
             LIMIT ?
@@ -189,7 +228,8 @@ class WordStats(commands.Cog):
             """
             SELECT quant, author_id
             FROM member_words
-            WHERE guild_id = ? AND word = ?
+            WHERE guild_id = ?
+                AND word = ?
             ORDER BY quant DESC
             LIMIT ?
             """,
@@ -209,7 +249,8 @@ class WordStats(commands.Cog):
         """ people who use a word the most """
         data = self.query_results(
             """
-            SELECT SUM(quant) as wc, author_id FROM member_words
+            SELECT SUM(quant) as wc, author_id
+            FROM member_words
             WHERE word = ?
             GROUP BY author_id
             ORDER BY wc DESC
