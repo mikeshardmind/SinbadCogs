@@ -12,7 +12,8 @@
     ],
     "hidden": false,
     "requirements": [
-        "feedparser"
+        "feedparser",
+        "discord-text-sanitizer"
     ],
     "min_bot_version": "3.1.8"
 }
