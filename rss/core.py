@@ -184,7 +184,7 @@ class RSS(commands.Cog):
         escaped_usable_fields = {k: maybe_clean(k, v) for k, v in data.items() if v}
 
         content = template.safe_substitute(**escaped_usable_fields)
-        content = dts.sanitize_mass_mentions(content)
+        content = dts.preprocess_text(content, strip_html=True)
 
         if embed:
             if len(content) > 1980:
