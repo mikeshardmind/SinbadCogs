@@ -9,6 +9,7 @@ import logging
 import feedparser
 import discord
 
+import discordtextsanitizer as dts
 from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
@@ -53,7 +54,7 @@ USABLE_FIELDS = [
 class RSS(commands.Cog):
     """
     An RSS cog.
-    
+
     Sponsored by aikaterna, the most helpful of cats.
     """
 
@@ -125,7 +126,7 @@ class RSS(commands.Cog):
         force: bool = False,
     ) -> Optional[List[int]]:
         """
-        Formats and sends, 
+        Formats and sends,
         returns the integer timestamp of latest entry in the feed which was sent
         """
 
@@ -183,6 +184,7 @@ class RSS(commands.Cog):
         escaped_usable_fields = {k: maybe_clean(k, v) for k, v in data.items() if v}
 
         content = template.safe_substitute(**escaped_usable_fields)
+        content = dts.sanitize_mass_mentions(content)
 
         if embed:
             if len(content) > 1980:
@@ -387,9 +389,9 @@ class RSS(commands.Cog):
         channel: Optional[discord.TextChannel] = None,
     ):
         """
-        Sets if a specific feed should 
-            use an embed, 
-            not use an embed, 
+        Sets if a specific feed should
+            use an embed,
+            not use an embed,
             or (default) use the bot setting to determine embed usage.
 
         Valid Settings for this are:
