@@ -9,4 +9,4 @@ def setup(bot):
             "No. This one has security implications and "
             "should not be loaded prior to me signing off on it being ready."
         )
-    bot.add_cog(Templater(bot))
+    bot.add_cog(Templater())
