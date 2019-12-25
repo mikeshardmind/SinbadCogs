@@ -45,7 +45,7 @@ class Templater(commands.Cog):
         self.pool = concurrent.futures.ProcessPoolExecutor()
 
     def cog_unload(self):
-        self.pool.close()
+        self.pool.shutdown()
 
     @checks.is_owner()
     @commands.command()
