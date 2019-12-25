@@ -20,7 +20,8 @@ class SkipPickler(pickle.Pickler):
 def safe_ctx(ctx):
     s = BytesIO()
     SkipPickler(s).dump(ctx)
-    return pickle.loads(s.getvalue())  # nosec: B301
+    s.seek(0)
+    return pickle.load(s)  # nosec: B301
 
 
 def handle_template(template, ctx) -> str:
