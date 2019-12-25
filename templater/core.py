@@ -17,7 +17,7 @@ class Templater(commands.Cog):
         try:
             result = t.render()
         except Exception as exc:
-            result = str(type(exc))
+            result = f"{type(exc)}:\n{exc}"
 
         for page in pagify(result):
             await ctx.send(page)
