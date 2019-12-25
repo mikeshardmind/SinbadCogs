@@ -13,8 +13,8 @@ class Templater(commands.Cog):
         e = RestrictedEnv(trim_blocks=True, lstrip_blocks=True)
         e.globals = e.make_globals({"ctx": ctx})
 
-        t = e.from_string(template)
         try:
+            t = e.from_string(template)
             result = t.render()
         except Exception as exc:
             result = f"{type(exc)}:\n{exc}"
