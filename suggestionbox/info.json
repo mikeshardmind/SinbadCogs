@@ -2,7 +2,7 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "Cog development currently on hold. What works works. If something here doesn't, open an issue.",
+    "install_msg": "If you need help, I have a channel in `mb85deu` (discord invite code)",
     "name": "SuggestionBox",
     "disabled": false,
     "short": "configureable suggestion boxes",
