@@ -4,7 +4,6 @@ from typing import Union, no_type_check
 import dice
 from redbot.core import commands
 from redbot.core.config import Config
-from cog_shared.sinbad_libs import extra_setup
 
 
 DIE_EMOJI = "\N{GAME DIE}"
@@ -175,7 +174,6 @@ class MacroDice(commands.Cog):
         await ctx.tick()
 
 
-@extra_setup
 def setup(bot):
     n = MacroDice(bot)
     global _old_roll
