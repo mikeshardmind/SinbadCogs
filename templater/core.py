@@ -29,4 +29,5 @@ class Templater(commands.Cog):
         result = dts.preprocess_text(result)
         result = escape_mentions(result)
         pages = list(pagify(result))
-        await menus.menu(ctx, pages, menus.DEFAULT_CONTROLS)
+        if pages:
+            await menus.menu(ctx, pages, menus.DEFAULT_CONTROLS)
