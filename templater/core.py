@@ -1,5 +1,5 @@
 import discordtextsanitizer as dts
-
+from discord.utils import escape_mentions
 from redbot.core import commands, checks
 from redbot.core.utils.chat_formatting import pagify
 from redbot.core.utils import menus
@@ -26,7 +26,7 @@ class Templater(commands.Cog):
         except Exception as exc:
             result = f"{type(exc)}:\n{exc}"
 
-        result = dts.sanitize_mass_mentions(result, run_preprocess=True)
-
+        result = dts.preprocess_text(result)
+        result = escape_mentions(result)
         pages = list(pagify(result))
         await menus.menu(ctx, pages, menus.DEFAULT_CONTROLS)
