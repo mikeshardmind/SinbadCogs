@@ -168,6 +168,9 @@ class RestrictedEnv(ImmutableSandboxedEnvironment):
         if isinstance(obj, BLACKLISTED_TYPES):
             return False
 
+        if attr in ("delete", "edit"):
+            return False  # we're just gonna assume this one's unsafe.
+
         return super().is_safe_attribute(obj, attr, value)
 
     def call_binop(self, context, operator, left, right):
