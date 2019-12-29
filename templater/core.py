@@ -10,6 +10,7 @@ from .restrictedenvironment import RestrictedEnv
 class Templater(commands.Cog):
     """ meh """
 
+    @checks.is_owner()
     @commands.command()
     async def template(self, ctx: commands.Context, *, template: str):
         """
