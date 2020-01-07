@@ -1,30 +1,40 @@
-import discord  # type: ignore
-from redbot.core import checks
-from redbot.core.commands import command, group, Cog, guild_only
-from redbot.core.config import Config
+from __future__ import annotations
+
+from typing import cast
+
+import discord
+from redbot.core import checks, commands
 from redbot.core.bot import Red
+from redbot.core.config import Config
 from redbot.core.utils.common_filters import INVITE_URL_RE
 
 
-class StatusWarn(Cog):
+class StatusWarn(commands.Cog):
     """
     Warns if a user is using a custom status with an invite in it
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.bot: Red = bot
         self.config = Config.get_conf(self, identifier=78631113035100160)
         self.config.register_guild(
             channel=None, warn_message="Warning: detected invite url in status:"
         )
 
-    @Cog.listener(name="on_member_update")
-    async def catcher(self, before, after):
+    @commands.Cog.listener(name="on_member_update")
+    async def catcher(self, before: discord.Member, after: discord.Member):
         """
         Hmm?
         """
 
-        maybe_custom = next(filter(lambda a: a.type == 4, after.activities), None)
+        if before.activities == after.activities:
+            return
+
+        maybe_custom = cast(
+            discord.Activity,
+            next(filter(lambda a: a.type == 4, after.activities), None),
+        )
         if not maybe_custom:
             return
 
@@ -48,8 +58,8 @@ class StatusWarn(Cog):
                 )
 
     @checks.admin_or_permissions(manage_guild=True)
-    @guild_only()
-    @group(name="statuswarn")
+    @commands.guild_only()
+    @commands.group(name="statuswarn")
     async def setter(self, ctx):
         """
         configuration for statuswarn

@@ -2,11 +2,11 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "If you need help, I have a channel in `mb85deu` (discord invite code)",
+    "install_msg": "",
     "name": "Sanctuary",
     "disabled": false,
     "short": "",
     "description": "",
     "hidden": true,
-    "min_bot_version": "3.1.8"
+    "min_bot_version": "3.2.0a0.dev1"
 }

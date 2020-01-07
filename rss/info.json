@@ -2,7 +2,7 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "If you need help, I have a channel in `mb85deu` (discord invite code)",
+    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "RSS",
     "disabled": false,
     "short": "rss cog",
@@ -15,5 +15,5 @@
         "feedparser",
         "discord-text-sanitizer"
     ],
-    "min_bot_version": "3.1.8"
+    "min_bot_version": "3.2.0a0.dev1"
 }

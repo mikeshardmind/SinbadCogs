@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 import discord
@@ -6,18 +8,8 @@ from redbot.core import commands, checks
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
 
-T_ = Translator("GuildWhitelist", __file__)
-_ = lambda s: s
-
+_ = Translator("GuildWhitelist", __file__)
 log = logging.getLogger("red.guildwhitelist")
-
-GWL_LIST_HEADER = _("IDs in whitelist:\n")
-FILE_NOT_FOUND = _("That doesn't appear to be a valid path for that")
-FMT_ERROR = _("That file didn't appear to be a valid settings file")
-
-DC_UNAVAILABLE = _("Data conversion is not available in your install.")
-
-_ = T_
 
 
 @cog_i18n(_)
@@ -76,10 +68,8 @@ class GuildWhitelist(commands.Cog):
         """
         list whitelisted IDs
         """
-        output = GWL_LIST_HEADER
         whitelist = await self.config.whitelist()
-
-        output += "\n".join(str(x) for x in whitelist)
+        output = "\n".join((_("IDs in whitelist:\n"), *map(str, whitelist)))
 
         for page in pagify(output):
             await ctx.send(box(page))

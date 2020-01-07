@@ -1,13 +1,17 @@
-from datetime import timedelta
-from typing import Dict, TYPE_CHECKING
+from __future__ import annotations
+
+import logging
+from datetime import timedelta, datetime
+from typing import Dict
 
 import discord
 from redbot.core import commands, checks
+from redbot.core.bot import Red
 from redbot.core.config import Config
+from redbot.core.modlog import create_case
 from redbot.core.utils.antispam import AntiSpam
 
-if TYPE_CHECKING:
-    from redbot.core.bot import Red
+log = logging.getLogger("red.sinbadcogs.antimentionspam")
 
 __all__ = ["AntiMentionSpam"]
 
@@ -17,9 +21,9 @@ class AntiMentionSpam(commands.Cog):
 
     __version__ = "3.0.1"
 
-    def __init__(self, bot: "Red", *args, **kwargs):
+    def __init__(self, bot: Red, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.bot: "Red" = bot
+        self.bot: Red = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
@@ -143,6 +147,7 @@ class AntiMentionSpam(commands.Cog):
             If action was taken on against the author of the message.
         """
         guild = message.guild
+        assert guild is not None, "mypy"  # nosec
         author = message.author
 
         data = await self.config.guild(guild).all()
@@ -160,16 +165,34 @@ class AntiMentionSpam(commands.Cog):
                 [(timedelta(seconds=secs), thresh)]
             )
 
-        # noinspection PyUnusedLocal
-        for _m in message.mentions:
+        for _ in message.mentions:
             self.antispam[guild.id][author.id].stamp()
 
-        if self.antispam[guild.id][author.id].spammy:
-            if not await self.is_immune(message):
-                await self.maybe_punish(message)
-                return True
+        if self.antispam[guild.id][author.id].spammy and not await self.is_immune(
+            message
+        ):
+            await self.maybe_punish(message)
+            return True
 
         return False
+
+    async def _do_ban(self, guild: discord.Guild, target: discord.Member):
+        try:
+            await guild.ban(
+                discord.Object(id=target.id), reason="Mention Spam (Automated ban)"
+            )
+        except discord.HTTPException:
+            pass
+        else:
+            await create_case(
+                self.bot,
+                guild,
+                datetime.utcnow(),
+                "ban",
+                target,
+                guild.me,
+                "Mention Spam (Automated ban)",
+            )
 
     async def maybe_punish(
         self, message: discord.Message, single_message: bool = False
@@ -184,6 +207,11 @@ class AntiMentionSpam(commands.Cog):
         """
         guild = message.guild
         target = message.author
+        channel = message.channel
+
+        assert guild is not None, "mypy"  # nosec
+        assert isinstance(target, discord.Member), "mypy"  # nosec
+        assert isinstance(channel, discord.TextChannel), "mypy"  # nosec
 
         data = await self.config.guild(guild).all()
 
@@ -192,53 +220,65 @@ class AntiMentionSpam(commands.Cog):
         mute = data["mute"] and not ban
 
         if ban and guild.me.guild_permissions.ban_members:
-            try:
-                return await guild.ban(
-                    discord.Object(id=target.id), reason="Mention Spam (Automated ban)"
-                )
-            except discord.HTTPException:
-                pass
+            await self._do_ban(guild, target)
 
-        if warnmsg and message.channel.permissions_for(guild.me).send_messages:
+        if warnmsg and channel.permissions_for(guild.me).send_messages:
             try:
                 await message.channel.send(f"{target.mention}: {warnmsg}")
             except discord.HTTPException:
                 pass
 
         if mute:
-            for channel in guild.text_channels:
-                if channel.permissions_for(guild.me).manage_roles:
-                    overwrites = channel.overwrites_for(target)
-                    overwrites.update(
-                        send_messages=False, add_reactions=False, administrator=False
+            for channel in (
+                c
+                for c in guild.text_channels
+                if c.permissions_for(guild.me).manage_roles
+            ):
+                overwrites = channel.overwrites_for(target)
+                overwrites.update(
+                    send_messages=False, add_reactions=False, administrator=False
+                )
+                try:
+                    await channel.set_permissions(
+                        target,
+                        overwrite=overwrites,
+                        reason="Mention Spam (Automated mute)",
                     )
-                    try:
-                        await channel.set_permissions(
-                            target,
-                            overwrite=overwrites,
-                            reason="Mention Spam (Automated mute)",
-                        )
-                    except discord.HTTPException:
-                        pass
+                except discord.HTTPException as exc:
+                    log.exception(
+                        "Failed to mute user %s for spam in channel %s",
+                        target.id,
+                        channel.id,
+                        exc_info=exc,
+                    )
+
+            await create_case(
+                self.bot,
+                guild,
+                message.created_at,
+                "smute",
+                message.author,
+                guild.me,
+                "Mention Spam (Automated Mute)",
+            )
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
-        if message.author.bot or message.guild is None:
+        if not message.mentions:
+            return
+        if message.author.bot or message.guild is None or await self.is_immune(message):
             return
 
         guild = message.guild
         author = message.author
         channel = message.channel
-        if not message.mentions:
-            return
-
-        if await self.is_immune(message):
-            return
+        assert isinstance(channel, discord.TextChannel), "mypy"  # nosec
 
         limit = await self.config.guild(guild).max_mentions()
 
         if await self.process_intervals(message):
             return  # already punished
+            # TODO: Handle this sequencing better.
 
         if len(message.mentions) < limit or limit <= 0:
             return
@@ -285,10 +325,12 @@ class AntiMentionSpam(commands.Cog):
         bool
             Whether the user is or is not immune from the cog
         """
-        author = message.author
         guild = message.guild
-        if guild and (author == guild.owner or author.top_role >= guild.me.top_role):
-            return True
+        if guild:
+            author = message.author
+            assert isinstance(author, discord.Member), "mypy"  # nosec
+            if author == guild.owner or author.top_role >= guild.me.top_role:
+                return True
 
         if await self.bot.is_owner(message.author):
             return True

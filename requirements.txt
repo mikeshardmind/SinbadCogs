@@ -1,7 +1,7 @@
+attrs==19.1.0
 pytz
 python-dateutil
-asteval
-black
+black==19.3b0
 red-discordbot
-dice
-numpy
+dice==2.4.1
+feedparser
