@@ -79,7 +79,7 @@ class RSS(commands.Cog):
 
     def cog_unload(self):
         self.bg_loop_task.cancel()
-        asyncio.create_tast(self.session.close())
+        asyncio.create_task(self.session.close())
 
     __del__ = cog_unload
 
