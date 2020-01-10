@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python_version: [3.7, 3.8]
+        python_version: [3.8]
     steps:
       - uses: actions/checkout@v1
       - name: Set up Python ${{ matrix.python-version }}
@@ -26,5 +26,5 @@ jobs:
       - name: Quick Compile Check
         run: python -m compileall .
       - name: Type Checking 
-        # (Still need stubs for discord.py, Red-Discordbot, feedparser)
+        # (Still need stubs for discord.py, Red-Discordbot, feedparser, apsw)
         run: mypy . --python-version ${{ matrix.python-version }}
