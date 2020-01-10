@@ -1,7 +1,6 @@
 attrs
 pytz
 python-dateutil
-black
 red-discordbot
 dice
 feedparser
