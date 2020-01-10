@@ -235,7 +235,7 @@ class SuggestionBox(commands.Cog):
                 return None
 
             if len(channels) == 1:
-                channel, = channels
+                (channel,) = channels
             else:
                 base_error = _(
                     "Multiple suggestion boxes available, "

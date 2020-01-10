@@ -81,7 +81,7 @@ class Sanctuary(commands.Cog):
 
     @staticmethod
     async def count_channel(
-        chan: discord.TextChannel
+        chan: discord.TextChannel,
     ) -> Tuple[Dict[int, int], Dict[int, datetime]]:
 
         counts: Dict[int, int] = defaultdict(int)
