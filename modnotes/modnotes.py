@@ -185,6 +185,8 @@ class ModNotes(commands.Cog):
             n.embed(ctx, color)
             for n in self.find_by_member(member_id=user.id, guild_id=ctx.guild.id)
         ]
+        if not notes:
+            return await ctx.send("No mod notes about this user")
         mx = len(notes)
         for i, n in enumerate(notes, 1):
             n.title = f"Showing #{i} of {mx} found notes"
