@@ -163,9 +163,8 @@ class Relays(commands.Cog):
             and ctx.channel.permissions_for(ctx.guild.me).manage_messages
         ):
             await mass_purge(msgs_to_del, ctx.channel)
-            return ret
-
-        await slow_deletion(msgs_to_del)
+        else:
+            await slow_deletion(msgs_to_del)
         return ret
 
     def get_relay_info(self, name: str):
