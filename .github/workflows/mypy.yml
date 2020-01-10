@@ -5,25 +5,17 @@ on:
     branches:
       - v3
 
-jobs:
-  build:
 
+jobs:
+  mypy:
+    name: Type Check with mypy
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      matrix:
-        python_version: [3.8]
     steps:
       - uses: actions/checkout@v1
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+      - uses: actions/setup-python@v1
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: | 
-          pip install mypy
-      - name: Quick Compile Check
-        run: python -m compileall .
-      - name: Type Checking 
-        # (Still need stubs for discord.py, Red-Discordbot, feedparser, apsw)
-        run: mypy . --python-version ${{ matrix.python-version }}
+          python_version: "3.8"
+      - run: "python -m pip install mypy"
+        name: Install mypy
+      - run: "python -m mypy ."
+        name: Type Checking with mypy
