@@ -122,10 +122,11 @@ class AutoRooms(MixedMeta):
 
         if await self.ar_config.channel(source).gameroom():
             cname = "???"
-            with contextlib.suppress(Exception):
-                cname = discord.utils.get(
-                    who.activities, type=discord.ActivityType.try_value(0)
-                ).name
+            if activity := discord.utils.get(
+                who.activities, type=discord.ActivityType.playing
+            ):
+                assert activity is not None, "mypy"  # nosec  # future remove
+                cname = activity.name
         else:
             creatorname = await self.ar_config.channel(source).creatorname()
             cname = source.name if not creatorname else source.name + f" {who.name}"
