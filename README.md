@@ -1,9 +1,8 @@
 # SinbadCogs
-[![Build Status](https://travis-ci.org/mikeshardmind/SinbadCogs.svg?branch=v3)](https://travis-ci.org/mikeshardmind/SinbadCogs) 
 [![Code style: black](https://github.com/mikeshardmind/SinbadCogs/workflows/black/badge.svg)](https://github.com/ambv/black) 
-[![Red](https://img.shields.io/badge/Red-DiscordBot-red.svg)](https://github.com/Cog-Creators/Red-DiscordBot/tree/V3/develop) 
 [![Maintainability](https://api.codeclimate.com/v1/badges/9807ad79df31d77bc5b5/maintainability)](https://codeclimate.com/github/mikeshardmind/SinbadCogs/maintainability) 
-[![Type Checked with mypy](https://github.com/mikeshardmind/SinbadCogs/workflows/mypy/badge.svg)](https://github.com/python/mypy)
+[![Type Checked with mypy](https://github.com/mikeshardmind/SinbadCogs/workflows/mypy/badge.svg)](https://github.com/python/mypy) 
+[![Red](https://img.shields.io/badge/Red-DiscordBot-red.svg)](https://github.com/Cog-Creators/Red-DiscordBot/tree/V3/develop) 
 
 
 ## Whats here?
