@@ -43,7 +43,7 @@ def parse_time(datetimestring: str):
 def parse_timedelta(argument: str) -> Optional[timedelta]:
     matches = TIME_RE.match(argument)
     if matches:
-        params = {k: int(v) for k, v in matches.groupdict().items()}
+        params = {k: int(v) for k, v in matches.groupdict().items() if v}
         if params:
             return timedelta(**params)
     return None
