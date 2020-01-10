@@ -21,7 +21,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: | 
-          pip install -r requirements.txt
+          pip install mypy
       - name: Quick Compile Check
         run: python -m compileall .
       - name: Type Checking 
