@@ -5,3 +5,5 @@ black==19.10b0
 red-discordbot
 dice==2.4.1
 feedparser
+mypy
+discord-text-sanitizer
