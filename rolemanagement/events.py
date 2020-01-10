@@ -25,7 +25,7 @@ class EventMixin(MixinMeta):
         """
         guild: discord.Guild = member.guild
         now = datetime.utcnow()
-        level: int = cast(int, guild.verification_level)
+        level: int = guild.verification_level.value
 
         if level >= 3 and member.created_at + timedelta(minutes=5) > now:  # medium
             return True
