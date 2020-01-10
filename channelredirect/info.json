@@ -2,12 +2,12 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "If you need help, I have a channel in `mb85deu` (discord invite code)",
+    "install_msg": "Toy cog for fancy stuff. Will probably be suported later, for now use at own risk. This installs a botwide preinvoke hook. This may not be safe with other cogs that want to do this right now.",
     "name": "ChannelRedirect",
     "disabled": false,
     "short": "",
     "description": "",
     "tags": [],
     "hidden": true,
-    "min_bot_version": "3.1.8"
+    "min_bot_version": "3.2.0a0.dev1"
 }

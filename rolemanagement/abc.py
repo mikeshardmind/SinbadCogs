@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 import discord
 from redbot.core import Config
@@ -28,8 +30,8 @@ class MixinMeta(ABC):
         self,
         *,
         who: discord.Member,
-        give: List[discord.Role] = None,
-        remove: List[discord.Role] = None,
+        give: Optional[List[discord.Role]] = None,
+        remove: Optional[List[discord.Role]] = None,
     ):
         raise NotImplementedError()
 

@@ -1,43 +1,35 @@
-from abc import ABC
+from __future__ import annotations
+
 import contextlib
-from typing import AsyncIterator, Tuple, NamedTuple, cast, no_type_check
+from abc import ABCMeta
+from typing import AsyncIterator, Tuple, Optional, Union
+
 import discord
+from discord.ext.commands import CogMeta as DPYCogMeta
 from redbot.core import checks, commands, bank
 from redbot.core.config import Config
 from redbot.core.utils.chat_formatting import pagify
-from redbot.core.commands.converter import get_dict_converter
 
-from discord.ext.commands.core import _convert_to_bool as bool_converter
-
-from .utils import UtilMixin
-from .massmanager import MassManagementMixin
 from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
-
-MassSetArgs = get_dict_converter("self_removable", "self_role")  # type: ignore
-
-
-class MockedMember(NamedTuple):
-    guild: discord.Guild
-    id: int
-
-    @property
-    def created_at(self):
-        return discord.utils.snowflake_time(self.id)
+from .massmanager import MassManagementMixin
+from .utils import UtilMixin
 
 
-class CompositeMetaClass(type(commands.Cog), type(ABC)):
+# This previously used ``(type(commands.Cog), type(ABC))``
+# This was changed to be explicit so that mypy
+# would be slightly happier about it.
+# This does introduce a potential place this
+# can break in the future, but this would be an
+# Upstream breaking change announced in advance
+class CompositeMetaClass(DPYCogMeta, ABCMeta):
     """
-    Discord.py transforms instance methods into classes as class variables which contain
-    the previous instance method, with no proper ability to reference the intended instance.
-    
-    Then uses a metaclass to inject the instance into copies
-    of those class variables which exist inside an instance descriptor
-
-    I wish I was kidding. I wish I had the time to do something better.
+    This really only exists because of mypy
+    wanting mixins to be individually valid classes.
     """
 
-    pass
+    pass  # MRO is fine on __new__ with super() use
+    # no need to manually ensure both get handled here.
 
 
 class RoleManagement(
@@ -111,9 +103,9 @@ class RoleManagement(
                 await ctx.maybe_send_embed("They are in the guild...assigned anyway.")
         else:
 
-            member = MockedMember(ctx.guild, user_id)
-
-            async with self.config.member(member).roles() as sticky:
+            async with self.config.member_from_ids(
+                ctx.guild.id, user_id
+            ).roles() as sticky:
                 if role.id not in sticky:
                     sticky.append(role.id)
 
@@ -182,6 +174,8 @@ class RoleManagement(
         except discord.HTTPException:
             return await ctx.maybe_send_embed("No such message")
 
+        _emoji: Optional[Union[discord.Emoji, str]]
+
         _emoji = discord.utils.find(lambda e: str(e) == emoji, self.bot.emojis)
         if _emoji is None:
             try:
@@ -192,7 +186,7 @@ class RoleManagement(
                 _emoji = emoji
                 eid = emoji
         else:
-            eid = _emoji.id
+            eid = str(_emoji.id)
 
         if not any(str(r) == emoji for r in message.reactions):
             try:
@@ -232,7 +226,7 @@ class RoleManagement(
                 "Can't do that. Discord role heirarchy applies here."
             )
 
-        await self.config.custom("REACTROLE", msgid, emoji).clear()
+        await self.config.custom("REACTROLE", f"{msgid}", emoji).clear()
         await ctx.tick()
 
     @commands.guild_only()
@@ -245,42 +239,6 @@ class RoleManagement(
         """
         pass
 
-    # Limited test code
-    @commands.check(
-        lambda ctx: ctx.author.id in (78631113035100160, 240961564503441410)
-    )
-    @rgroup.command(name="massset")
-    @no_type_check
-    async def rmass_set(
-        self, ctx, roles: commands.Greedy[discord.Role], *, extras: MassSetArgs
-    ):
-        """
-        Expiramental
-        """
-        extras = cast(dict, MassSetArgs)
-
-        if not roles:
-            return await ctx.send_help()
-
-        if not extras:
-            return await ctx.send_help()
-
-        to_set = {}
-
-        for k, v in extras.items():
-            to_set[k] = bool_converter(v)
-
-        for role in roles:
-            if not await self.all_are_valid_roles(ctx, role):
-                return await ctx.maybe_send_embed(
-                    "Can't do that. Discord role heirarchy applies here."
-                )
-
-        for role in roles:
-            for k, v in to_set.items():
-                await self.config.role(role).get_attr(k).set(v)
-        await ctx.tick()
-
     @rgroup.command(name="viewreactions")
     async def rg_view_reactions(self, ctx: commands.Context):
         """
@@ -289,7 +247,6 @@ class RoleManagement(
         # This design is intentional for later extention to view this per role
 
         use_embeds = await ctx.embed_requested()
-        # pylint: disable=E1133
         react_roles = "\n".join(
             [
                 msg
@@ -305,7 +262,7 @@ class RoleManagement(
         # ctx.send is already going to escape said mentions if any somehow get generated
         # should also not be possible to do so without willfully being done by an admin.
 
-        color = None
+        color = await ctx.embed_colour() if use_embeds else None
 
         for page in pagify(
             react_roles, escape_mass_mentions=False, page_length=1800, shorten_by=0
@@ -313,7 +270,6 @@ class RoleManagement(
             # unrolling iterative calling of ctx.maybe_send_embed
             # here to reduce function and coroutine overhead.
             if use_embeds:
-                color = color or await ctx.embed_colour()
                 await ctx.send(embed=discord.Embed(description=page, color=color))
             else:
                 await ctx.send(page)

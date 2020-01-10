@@ -1,18 +1,21 @@
+from __future__ import annotations
+
 import asyncio
 import contextlib
 import functools
+from datetime import datetime, timezone
+from typing import Optional, List, no_type_check
+
 import discord
-from datetime import datetime, timedelta, timezone
-from typing import Tuple, Optional, List, no_type_check
 from redbot.core import commands, checks
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
+from .checks import can_run_command
+from .converters import Schedule, non_numeric, TempMute
 from .logs import get_logger
 from .tasks import Task
-from .converters import Schedule, non_numeric, TempMute
-from .checks import can_run_command
 
 _ = Translator("And I think it's gonna be a long long time...", __file__)
 
@@ -27,7 +30,8 @@ class Scheduler(commands.Cog):
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
     __flavor_text__ = "Unhidden remindme."
 
-    def __init__(self, bot):
+    def __init__(self, bot, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
@@ -100,8 +104,7 @@ class Scheduler(commands.Cog):
 
     async def schedule_upcoming(self) -> int:
         """
-        Schedules some upcoming things as tasks. 
-        
+        Schedules some upcoming things as tasks.
         """
 
         # TODO: improve handlng of next time return
@@ -159,9 +162,8 @@ class Scheduler(commands.Cog):
     ) -> List[Task]:
         def pred(item):
             try:
-                if strict:
-                    if not all(getattr(item, k) == v for k, v in strict.items()):
-                        return False
+                if strict and not all(getattr(item, k) == v for k, v in strict.items()):
+                    return False
             except AttributeError:
                 return False
             if lax:
@@ -195,7 +197,7 @@ class Scheduler(commands.Cog):
 
                 --start-in interval
                 --start-at time
-        
+
             you may also provide:
 
                 --every interval
@@ -226,9 +228,8 @@ class Scheduler(commands.Cog):
 
         This can also execute aliases.
         """
-        schedule: Tuple[str, datetime, Optional[timedelta]]
 
-        command, start, recur = schedule
+        command, start, recur = schedule.to_tuple()
 
         t = Task(
             uid=ctx.message.id,
@@ -363,7 +364,7 @@ class Scheduler(commands.Cog):
 
                 --start-in interval
                 --start-at time
-        
+
             you may also provide:
 
                 --every interval
@@ -388,7 +389,7 @@ class Scheduler(commands.Cog):
             `[p]remindme get some fresh air --start-in 4 hours`
         """
 
-        command, start, recur = reminder
+        command, start, recur = reminder.to_tuple()
 
         t = Task(
             uid=ctx.message.id,
@@ -479,7 +480,7 @@ class Scheduler(commands.Cog):
     @commands.group()
     async def tempmute(self, ctx):
         """
-        binding for mute + scheduled unmute 
+        binding for mute + scheduled unmute
         This exists only until it is added to core red
 
         relies on core commands for mute/unmute
@@ -493,10 +494,10 @@ class Scheduler(commands.Cog):
     @tempmute.command(usage="<user> [reason] [args]")
     async def channel(self, ctx, user: discord.Member, *, mute: TempMute):
         """
-        binding for mute + scheduled unmute 
+        binding for mute + scheduled unmute
         This exists only until it is added to core red
 
-        args can be 
+        args can be
             --until time
         or
             --for interval
@@ -553,10 +554,10 @@ class Scheduler(commands.Cog):
     @tempmute.command(usage="<user> [reason] [args]", aliases=["guild"])
     async def server(self, ctx, user: discord.Member, *, mute: TempMute):
         """
-        binding for mute + scheduled unmute 
+        binding for mute + scheduled unmute
         This exists only until it is added to core red
 
-        args can be 
+        args can be
             --until time
         or
             --for interval

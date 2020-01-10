@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import argparse
-from typing import Optional, Tuple
+import dataclasses
 from datetime import datetime, timedelta, timezone
+from typing import Optional, Tuple, NamedTuple
+
 from redbot.core.commands import Context, BadArgument, Converter
 
 from .time_utils import parse_time, parse_timedelta
@@ -17,14 +21,21 @@ class NoExitParser(argparse.ArgumentParser):
         raise BadArgument()
 
 
-class Schedule(Converter):
-    async def convert(
-        self, ctx: Context, argument: str
-    ) -> Tuple[str, datetime, Optional[timedelta]]:
+@dataclasses.dataclass()
+class Schedule:
+    start: datetime
+    command: str
+    recur: Optional[timedelta] = None
+
+    def to_tuple(self) -> Tuple[str, datetime, Optional[timedelta]]:
+        return self.command, self.start, self.recur
+
+    @classmethod
+    async def convert(cls, ctx: Context, argument: str):
 
         start: datetime
-        recur: Optional[timedelta] = None
         command: Optional[str] = None
+        recur: Optional[timedelta] = None
 
         # Blame iOS smart punctuation,
         # and end users who use it for this (minor) perf loss
@@ -79,11 +90,15 @@ class Schedule(Converter):
             except Exception:
                 raise BadArgument("I couldn't understand that starting time.") from None
 
-        return command, start, recur
+        return cls(command=command, start=start, recur=recur)
 
 
-class TempMute(Converter):
-    async def convert(self, ctx: Context, argument: str) -> Tuple[str, datetime]:
+class TempMute(NamedTuple):
+    reason: Optional[str]
+    start: datetime
+
+    @classmethod
+    async def convert(cls, ctx: Context, argument: str):
 
         start: datetime
         reason: str
@@ -120,4 +135,4 @@ class TempMute(Converter):
             except Exception:
                 raise BadArgument("I couldn't understand that unmute time.") from None
 
-        return reason, start
+        return cls(reason, start)

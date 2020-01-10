@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import contextlib
 from typing import Set
@@ -5,7 +7,6 @@ from typing import Set
 import discord
 from redbot.core import commands, checks
 from redbot.core.config import Config
-from redbot.core.utils.chat_formatting import pagify
 
 from .converters import CommandConverter, CogOrCOmmand, TrinaryBool
 
@@ -15,7 +16,8 @@ class ChannelRedirect(commands.Cog):
     Redirect commands from wrong channels
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
@@ -58,6 +60,7 @@ class ChannelRedirect(commands.Cog):
         com = com or ctx.command
         gset = await self.config.guild(guild).all()
         channels = guild.text_channels
+        allowed_ids: Set[int] = set()
 
         if self.should_early_exit(gset, com):
             return set(channels)
@@ -263,23 +266,23 @@ class ChannelRedirect(commands.Cog):
         """
         Clears all exceptions.
         """
-        REACTS = {
+        reacts = {
             "\N{WHITE HEAVY CHECK MARK}": True,
             "\N{NEGATIVE SQUARED CROSS MARK}": False,
         }
         m = await ctx.send("Are you sure?")
-        for r in REACTS.keys():
+        for r in reacts.keys():
             await m.add_reaction(r)
         try:
             reaction, _user = await self.bot.wait_for(
                 "reaction_add",
-                check=lambda r, u: u == ctx.author and str(r) in REACTS,
+                check=lambda rr, u: u == ctx.author and str(rr) in reacts,
                 timeout=30,
             )
         except asyncio.TimeoutError:
             return await ctx.send("Ok, try responding with an emoji next time.")
 
-        if REACTS.get(str(reaction)):
+        if reacts.get(str(reaction)):
             await self.config.guild(ctx.guild).command.set({})
             await self.config.guild(ctx.guild).cog.set({})
             await ctx.tick()

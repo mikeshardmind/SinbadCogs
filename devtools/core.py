@@ -1,12 +1,15 @@
+from __future__ import annotations
+
 import asyncio
 import contextlib
 import re
-from copy import copy
 import unicodedata as ud
-from redbot.core.utils import menus
-from redbot.core.utils.chat_formatting import box, pagify
+from copy import copy
+
 import discord
 from redbot.core import commands, checks
+from redbot.core.utils import menus
+from redbot.core.utils.chat_formatting import box, pagify
 
 SPOILER_RE = re.compile(r"(?s)\|{2}(?P<CONTENT>.*?)\|{2}")
 
@@ -34,7 +37,9 @@ class DevTools(commands.Cog):
 
     @commands.guild_only()
     @commands.command(name="userallowedcoms")
-    async def usercontextallowedcoms(self, ctx, *, member: discord.Member):
+    async def usercontextallowedcoms(
+        self, ctx: commands.Context, *, member: discord.Member
+    ):
         """ checks user allowed commands in context """
 
         fmsg = copy(ctx.message)
@@ -64,7 +69,7 @@ class DevTools(commands.Cog):
             await menus.menu(ctx, pages, menus.DEFAULT_CONTROLS)
 
     @commands.command(name="emojiinfo")
-    async def emoji(self, ctx):
+    async def emoji(self, ctx: commands.Context):
         """
         Find info about an emoji
         """
@@ -102,15 +107,14 @@ class DevTools(commands.Cog):
                 f'    await ctx.send("I can\'t use that emoji")\n```'
             )
 
-    # noinspection PyProtectedMember
     @checks.admin_or_permissions(manage_messages=True)
     @commands.guild_only()
     @commands.command()
-    async def unspoil(self, ctx, message_id: int):
+    async def unspoil(self, ctx: commands.Context, message_id: int):
         """ Get what was said without spoiler tags """
 
         message = discord.utils.get(
-            ctx.guild._state._messages, channel=ctx.channel, id=message_id
+            ctx.bot.cached_messages, channel=ctx.channel, id=message_id
         )
         if message is None:
             try:

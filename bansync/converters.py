@@ -1,10 +1,12 @@
 import argparse
 import contextlib
-import shlex
 import re
-from typing import Dict, Any, cast
+import shlex
+from dataclasses import dataclass
+from typing import NamedTuple, Optional, Set
 
-from redbot.core.commands import Converter, Context, BadArgument, MemberConverter
+import discord
+from redbot.core.commands import Context, BadArgument, MemberConverter
 from redbot.core.i18n import Translator
 
 _ = Translator("BanSync", __file__)
@@ -14,17 +16,25 @@ class ParserError(Exception):
     pass
 
 
-class MemberOrID(MemberConverter):
-    async def convert(self, ctx: Context, argument: str) -> int:
+_discord_member_converter_instance = MemberConverter()
+_id_regex = re.compile(r"([0-9]{15,21})$")
+_mention_regex = re.compile(r"<@!?([0-9]{15,21})>$")
 
-        # noinspection PyBroadException
+
+class MemberOrID(NamedTuple):
+    member: Optional[discord.Member]
+    id: Optional[int]
+
+    @classmethod
+    async def convert(cls, ctx: Context, argument: str):
+
         with contextlib.suppress(Exception):
-            m = await super().convert(ctx, argument)
-            return cast(int, m.id)
+            m = await _discord_member_converter_instance.convert(ctx, argument)
+            return cls(m, m.id)
 
-        match = self._get_id_match(argument) or re.match(r"<@!?([0-9]+)>$", argument)
+        match = _id_regex.match(argument) or _mention_regex.match(argument)
         if match:
-            return int(match.group(1))
+            return cls(None, int(match.group(1)))
 
         raise BadArgument()
 
@@ -37,7 +47,8 @@ class NoExitParser(argparse.ArgumentParser):
         raise BadArgument() from None
 
 
-class SyndicatedConverter(Converter):
+@dataclass
+class SyndicatedConverter:
     """
     Parser based converter.
 
@@ -45,7 +56,14 @@ class SyndicatedConverter(Converter):
         destinations, a flag to automatically determine destinations, or both
     """
 
-    async def convert(self, ctx: Context, argument: str) -> dict:
+    sources: Set[discord.Guild]
+    dests: Set[discord.Guild]
+    usr: discord.User
+    shred_ratelimits: bool = False
+    auto: bool = False
+
+    @classmethod
+    async def convert(cls, ctx: Context, argument: str):
 
         parser = NoExitParser(description="Syndicated Ban Syntax", add_help=False)
         parser.add_argument("--sources", nargs="*", dest="sources", default=[])
@@ -61,23 +79,21 @@ class SyndicatedConverter(Converter):
         )
 
         vals = parser.parse_args(shlex.split(argument))
-        ret: Dict[str, Any] = {}
 
         guilds = set(ctx.bot.guilds)
 
-        ret["sources"] = set(filter(lambda g: str(g.id) in vals.sources, guilds))
-        if not ret["sources"]:
+        sources = set(filter(lambda g: str(g.id) in vals.sources, guilds))
+        if not sources:
             raise ParserError(_("I need at least 1 source.")) from None
 
         if vals.auto:
-            ret["dests"] = guilds - ret["sources"]
-            ret["auto"] = True
+            destinations = guilds - sources
         elif vals.dests:
-            ret["dests"] = set()
+            destinations = set()
             for guild in guilds:
                 to_comp = str(guild.id)
-                if to_comp in vals.dests and to_comp not in ret["sources"]:
-                    ret["dests"].add(guild)
+                if to_comp in vals.dests and to_comp not in sources:
+                    destinations.add(guild)
         else:
             raise ParserError(
                 _(
@@ -86,5 +102,11 @@ class SyndicatedConverter(Converter):
                     "or a combination of both to add extra destinations beyond the automatic."
                 )
             ) from None
-        ret["usr"] = ctx.author
-        return ret
+
+        return cls(
+            sources=sources,
+            dests=destinations,
+            shred_ratelimits=vals.shred_ratelimits,
+            auto=vals.auto,
+            usr=ctx.author,
+        )

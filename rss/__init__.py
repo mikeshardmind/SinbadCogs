@@ -1,7 +1,4 @@
-try:
-    from redbot.core.errors import CogLoadError
-except ImportError:
-    CogLoadError = RuntimeError
+from redbot.core.errors import CogLoadError
 
 
 def setup(bot):
