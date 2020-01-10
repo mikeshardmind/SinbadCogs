@@ -1,19 +1,22 @@
+from __future__ import annotations
+
 import asyncio
 import contextlib
+import dataclasses
 import io
 import json
-from typing import List, Set, TYPE_CHECKING, Union, AsyncIterator, Dict, Optional, cast
+from datetime import datetime
+from typing import List, Set, Union, AsyncIterator, Dict, Optional
 
 import discord
 from redbot.core import commands, checks
+from redbot.core.bot import Red
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
+from redbot.core.modlog import create_case
 from redbot.core.utils.chat_formatting import box, pagify
 
 from .converters import SyndicatedConverter, ParserError, MemberOrID
-
-if TYPE_CHECKING:
-    from redbot.core.bot import Red
 
 GuildList = List[discord.Guild]
 GuildSet = Set[discord.Guild]
@@ -29,9 +32,9 @@ class BanSync(commands.Cog):
 
     __version__ = "2.2.5"
 
-    def __init__(self, bot: "Red", *args, **kwargs):
+    def __init__(self, bot: Red, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.bot: "Red" = bot
+        self.bot: Red = bot
         self.config = Config.get_conf(self, identifier=78631113035100160)
         self.config.register_global(
             excluded_from_automatic=[],
@@ -208,20 +211,23 @@ class BanSync(commands.Cog):
         bool
             Whether the user is considered to be allowed to sync bans to the specified guild
         """
-        # x |= y used in place of x = x or y
-        # except in places where this adds significant overhead losing the short-circuiting.
-        user_allowed = False
-        user_allowed = user_allowed or await self.bot.is_owner(mod)
+        if not guild.me.guild_permissions.ban_members:
+            return False
+
         mod_member = guild.get_member(mod.id)
         if mod_member:
-            user_allowed |= mod_member.guild_permissions.ban_members
-            user_allowed = user_allowed or await self.bot.is_admin(mod_member)
+            if mod_member.guild_permissions.ban_members:
+                return True
+            if await self.bot.is_admin(mod_member):
+                return True
 
-        bot_allowed = guild.me.guild_permissions.ban_members
-        return user_allowed and bot_allowed
+        if await self.bot.is_owner(mod):
+            return True
+
+        return False
 
     async def ban_filter(
-        self, guild: discord.Guild, mod: discord.User, target: discord.User
+        self, guild: discord.Guild, mod: discord.User, target: discord.abc.Snowflake
     ) -> bool:
         """
         Determines if the specified user can ban another specified user in a guild
@@ -236,24 +242,24 @@ class BanSync(commands.Cog):
         -------
         bool
         """
+        # TODO: rewrite more maintainibly.
         is_owner: bool = await self.bot.is_owner(mod)
 
         mod_member = guild.get_member(mod.id)
         if mod_member is None and not is_owner:
             return False
 
+        # noted below lines contain a superflous condition covered above to help mypy
+
         can_ban: bool = guild.me.guild_permissions.ban_members
-        if not is_owner:
-            mod_member = cast(discord.Member, mod_member)
+        if not is_owner and mod_member is not None:  # note
             can_ban &= mod_member.guild_permissions.ban_members
 
         target_m = guild.get_member(target.id)
-        if target_m is not None:
-            target_m = cast(discord.Member, target_m)
+        if target_m is not None and mod_member is not None:  # note
             can_ban &= guild.me.top_role > target_m.top_role or guild.me == guild.owner
             can_ban &= target_m != guild.owner
             if not is_owner:
-                mod_member = cast(discord.Member, mod_member)
                 can_ban &= (
                     mod_member.top_role > target_m.top_role or mod_member == guild.owner
                 )
@@ -283,16 +289,20 @@ class BanSync(commands.Cog):
         bool
             Whether the ban was successful
         """
-        member = cast(discord.User, guild.get_member(_id))
+        member: Optional[discord.abc.Snowflake] = guild.get_member(_id)
         reason = reason or _("Ban synchronization")
         if member is None:
-            member = cast(discord.User, discord.Object(id=_id))
+            member = discord.Object(id=_id)
         if not await self.ban_filter(guild, mod, member):
             return False
         try:
             await guild.ban(member, reason=reason, delete_message_days=0)
         except discord.HTTPException:
             return False
+        else:
+            await create_case(
+                self.bot, guild, datetime.utcnow(), "ban", member, mod, reason
+            )
 
         return True
 
@@ -318,16 +328,20 @@ class BanSync(commands.Cog):
                 yield g
 
     async def interactive(self, ctx: commands.Context, excluded: GuildSet):
-        output = ""
         guilds = [g async for g in self.guild_discovery(ctx, excluded)]
         if not guilds:
             return -1
-        for i, guild in enumerate(guilds, 1):
-            output += "{}: {}\n".format(i, guild.name)
-        output += _(
-            "Select a server to add to the sync list by number, "
-            'or enter "-1" to stop adding servers'
+
+        output = "\n".join(
+            (
+                *(f"{i}: {guild.name}" for i, guild in enumerate(guilds, 1)),
+                _(
+                    "Select a server to add to the sync list by number, "
+                    "or -1 to stop adding servers"
+                ),
+            )
         )
+
         for page in pagify(output, delims=["\n"]):
             await ctx.send(box(page))
 
@@ -460,7 +474,7 @@ class BanSync(commands.Cog):
 
         elif auto is True:
             exclusions = await self.config.excluded_from_automatic()
-            guilds: GuildSet = {
+            guilds = {
                 g
                 for g in self.bot.guilds
                 if g.id not in exclusions and await self.can_sync(g, ctx.author)
@@ -486,8 +500,7 @@ class BanSync(commands.Cog):
         """
 
         async with ctx.typing():
-            # noinspection PyArgumentList
-            await self.process_sync(**query)
+            await self.process_sync(**dataclasses.asdict(query))
         await ctx.tick()
 
     @syndicated_bansync.error
@@ -517,7 +530,9 @@ class BanSync(commands.Cog):
         Swing the heaviest of ban hammers
         """
         async with ctx.typing():
-            banned = [await self.targeted_global_ban(ctx, user, rsn) for user in users]
+            banned = [
+                await self.targeted_global_ban(ctx, user.id, rsn) for user in users
+            ]
         if any(banned):
             await ctx.message.add_reaction("\N{HAMMER}")
         else:
@@ -545,8 +560,9 @@ class BanSync(commands.Cog):
         }
 
         guilds = [g async for g in self.guild_discovery(ctx, excluded)]
+        uids = [u.id for u in users]
 
-        tasks = [unban(guild, *users, rsn=reason) for guild in guilds]
+        tasks = [unban(guild, *uids, rsn=reason) for guild in guilds]
 
         async with ctx.typing():
             await asyncio.gather(*tasks)

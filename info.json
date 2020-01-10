@@ -1,14 +1,8 @@
 {
-    "author": [
-        "mikeshardmind (Sinbad)",
-        "DiscordLiz"
-    ],
-    "install_msg": "The cogs within are provided as-is. Fixes will happen when I have time. Open an issue on Github if you want to draw my attention to it. \nI'm also around in `mb85deu` and `red` (discord invite codes)",
-    "name": "Sinbad's Cogs",
-    "short": "Handful of various tools and features that I've wanted.",
-    "description": "Handful of various tools and features that I've wanted",
-    "tags": [
-        "Utility",
-        "Moderation"
-    ]
+    "author" : ["mikeshardmind (Sinbad)", "DiscordLiz"],
+    "install_msg" : "The cogs within are provided as-is. Fixes will happen when I have time. Open an issue on Github if you want to draw my attention to it. \nI'm also around in https://discord.gg/mb85deu as well as https://discord.gg/red",
+    "name" : "Sinbad's Cogs",
+    "short" : "Handful of various tools and features that I've wanted.",
+    "description" : "Handful of various tools and features that I've wanted",
+    "tags" : ["Utility", "Moderation"]
 }

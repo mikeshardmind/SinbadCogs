@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from redbot.core import commands
 import discord
 from .helpers import find_messages, embed_from_msg
@@ -7,7 +9,7 @@ CHANNEL_RE = re.compile(r"^<#(\d{15,21})>$|^(\d{15,21})$")
 
 
 class GlobalChannel(commands.Converter):
-    async def convert(self, ctx, argument):
+    async def convert(self, ctx: commands.Context, argument: str):
 
         bot = ctx.bot
 
@@ -65,9 +67,9 @@ class QuoteTools(commands.Cog):
             else:
                 msg1 = "\n".join(
                     [
-                        "Author: {0}({0.id})".format(m.author),
-                        "Channel: {}".format(m.channel.mention),
-                        "Time(UTC): {}".format(m.created_at.isoformat()),
+                        f"Author: {m.author}({m.author.id})",
+                        f"Channel: <#{m.channel.id}>",
+                        f"Time(UTC): {m.created_at.isoformat()}",
                     ]
                 )
                 if len(msg1) + len(m.clean_content) < 2000:

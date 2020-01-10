@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import logging
+
 from redbot.core.data_manager import cog_data_path
 
 

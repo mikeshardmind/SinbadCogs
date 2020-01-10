@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import io
 import logging
 
@@ -14,8 +16,6 @@ from .yaml_parse import embed_from_userstr
 log = logging.getLogger("red.sinbadcogs.embedmaker")
 
 
-# TODO: Remove this supression after handling `embed_from_userstr`
-# noinspection PyBroadException
 class EmbedMaker(commands.Cog):
     """
     Storable, recallable, embed maker
@@ -96,15 +96,14 @@ class EmbedMaker(commands.Cog):
 
     @_embed.command(name="uploadnostore")
     @commands.bot_has_permissions(embed_links=True)
-    async def no_storage_upload(self, ctx):
+    async def no_storage_upload(self, ctx: commands.Context):
         """
         Quickly make an embed without intent to store
         """
         try:
             with io.BytesIO() as fp:
                 await ctx.message.attachments[0].save(fp)
-                data = fp.read()
-                data = data.decode("utf-8")
+                data = fp.read().decode("utf-8")
         except IndexError:
             return await ctx.send("You need to upload a file")
 
@@ -118,7 +117,7 @@ class EmbedMaker(commands.Cog):
 
     @_embed.command(name="advnostore")
     @commands.bot_has_permissions(embed_links=True)
-    async def no_storage_adv(self, ctx, *, data):
+    async def no_storage_adv(self, ctx: commands.Context, *, data: str):
         """
         Quickly make an embed without intent to store
         """
@@ -466,7 +465,7 @@ class EmbedMaker(commands.Cog):
         await self.config.custom("EMBED", "GLOBAL", name).owner.set(ctx.author.id)
         await ctx.tick()
 
-    async def get_and_send(self, where, *identifiers):
+    async def get_and_send(self, where: discord.abc.Messageable, *identifiers: str):
         if await self.config.custom("EMBED", *identifiers).owner():
             data = await self.config.custom("EMBED", *identifiers).embed()
             embed = deserialize_embed(data)

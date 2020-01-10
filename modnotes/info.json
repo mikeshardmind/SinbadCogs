@@ -2,7 +2,7 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "If you need help, I have a channel in `mb85deu` (discord invite code)",
+    "install_msg": "Cog development currently on hold. What works works. If something here doesn't, open an issue.",
     "name": "ModNotes",
     "disabled": false,
     "short": "Notes",
@@ -12,5 +12,5 @@
         "apsw-wheels"
     ],
     "hidden": false,
-    "min_bot_version": "3.1.8"
+    "min_bot_version": "3.2.0a0.dev1"
 }

@@ -1,16 +1,15 @@
+from __future__ import annotations
+
 import asyncio
 import csv
 import io
 import logging
-
 from collections import defaultdict
-from typing import Dict, List, Tuple
 from datetime import datetime, timedelta
+from typing import Dict, Tuple
 
 import discord
-
 from redbot.core import commands, checks
-from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core.utils.mod import slow_deletion, mass_purge
 from redbot.core.utils.predicates import MessagePredicate
 
@@ -32,7 +31,8 @@ class TimeParser:
 class Sanctuary(commands.Cog):
     """ Cogs for Sancturary """
 
-    def __init__(self, bot):
+    def __init__(self, bot, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.bot = bot
 
     @checks.mod()

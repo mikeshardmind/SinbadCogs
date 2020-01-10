@@ -1,29 +1,27 @@
-import discord
+from __future__ import annotations
+
 from datetime import datetime, timedelta, timezone
-from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Optional, cast
+
+import attr
+
+import discord
+from redbot.core.utils.chat_formatting import humanize_timedelta
 
 from .message import SchedulerMessage
-from .time_utils import td_format
-from .dataclass_tools import add_slots
 
 
-@add_slots
-@dataclass()
+@attr.s(auto_attribs=True, slots=True)
 class Task:
     nicename: str
-    uid: Union[int, str]
+    uid: str
     author: discord.Member
     content: str
     channel: discord.TextChannel
     initial: datetime
     recur: Optional[timedelta] = None
 
-    def __post_init__(self):
-        # I'll take the minor performance hit for the convienice of not forgetting this
-        # interacts with config later.
-        self.uid = str(self.uid)
-        # As well as not fucking up time comparisons
+    def __attrs_post_init__(self):
         if self.initial.tzinfo is None:
             self.initial = self.initial.replace(tzinfo=timezone.utc)
 
@@ -61,7 +59,7 @@ class Task:
             initial = datetime.fromtimestamp(initial_ts, tz=timezone.utc)
             recur_raw = data.pop("recur", None)
             recur = timedelta(seconds=recur_raw) if recur_raw else None
-            channel = bot.get_channel(cid)
+            channel = cast(Optional[discord.TextChannel], bot.get_channel(cid))
             if channel:
                 author = channel.guild.get_member(aid)
                 if author:
@@ -108,7 +106,9 @@ class Task:
             description = f"{self.nicename} started running on {fmt_date}."
 
         if self.recur:
-            description += f"\nIt repeats every {td_format(self.recur)}"
+            description += (
+                f"\nIt repeats every {humanize_timedelta(timedelta=self.recur)}"
+            )
             footer = "Next runtime:"
         else:
             footer = "Runtime:"

@@ -1,16 +1,17 @@
-from datetime import datetime, timedelta
+from __future__ import annotations
+
 import asyncio
 import contextlib
+from datetime import datetime, timedelta
 
 import discord
-
+from redbot.core import checks
 from redbot.core import commands
 from redbot.core.utils.antispam import AntiSpam
-from redbot.core import checks
 from redbot.core.utils.chat_formatting import pagify
 
-from .checks import aa_active
 from .abcs import MixedMeta
+from .checks import aa_active
 
 
 class AutoRooms(MixedMeta):
@@ -18,31 +19,23 @@ class AutoRooms(MixedMeta):
     Automagical Discord Voice Channels
     """
 
-    @commands.Cog.listener("on_resumed")
-    async def ar_cleanup(self, *guilds: discord.Guild, load: bool = False):
-        if load:
-            await self.bot.wait_until_ready()
-        await asyncio.sleep(0.5)
+    async def ar_cleanup(self, guild: discord.Guild):
 
-        if not guilds:
-            guilds = self.bot.guilds
-
-        for guild in guilds:
-            for channel in guild.voice_channels:
-                conf = self.ar_config.channel(channel)
-                if not await conf.clone():
-                    continue
-                if (not channel.members) and (
-                    channel.created_at + timedelta(seconds=0.5)
-                ) < datetime.utcnow():
-                    try:
-                        await channel.delete(reason="autoroom cleaning")
-                    except discord.Forbidden:
-                        pass
-                    except discord.HTTPException:
-                        pass
-                    else:
-                        await conf.clear()
+        for channel in guild.voice_channels:
+            conf = self.ar_config.channel(channel)
+            if not await conf.clone():
+                continue
+            if (not channel.members) and (
+                channel.created_at + timedelta(seconds=0.5)
+            ) < datetime.utcnow():
+                try:
+                    await channel.delete(reason="autoroom cleaning")
+                except discord.Forbidden:
+                    pass
+                except discord.HTTPException:
+                    pass
+                else:
+                    await conf.clear()
 
     @commands.Cog.listener("on_voice_state_update")
     async def on_voice_state_update_ar(
@@ -60,15 +53,52 @@ class AutoRooms(MixedMeta):
 
         if member.id not in self._antispam:
             self._antispam[member.id] = AntiSpam(self.antispam_intervals)
-        if not self._antispam[member.id].spammy:
-            if after.channel:
-                if await self.ar_config.guild(after.channel.guild).active():
-                    conf = self.ar_config.channel(after.channel)
-                    if await conf.autoroom() or await conf.gameroom():
-                        await self.generate_room_for(who=member, source=after.channel)
+        if (
+            (not self._antispam[member.id].spammy)
+            and after.channel
+            and (await self.ar_config.guild(after.channel.guild).active())
+        ):
+            conf = self.ar_config.channel(after.channel)
+            if await conf.autoroom() or await conf.gameroom():
+                await self.generate_room_for(who=member, source=after.channel)
 
         if before.channel:
             await self.ar_cleanup(before.channel.guild)
+
+    @staticmethod
+    def _ar_get_overwrites(
+        source: discord.VoiceChannel, *, who: discord.Member, ownership: bool
+    ) -> dict:
+        overwrites = dict(source.overwrites)
+        if ownership:
+            if who in overwrites:
+                overwrites[who].update(manage_channels=True, manage_roles=True)
+            else:
+                overwrites.update(
+                    {
+                        who: discord.PermissionOverwrite(
+                            manage_channels=True, manage_roles=True
+                        )
+                    }
+                )
+        # Note: Connect is not optional. Even with manage_channels,
+        # the bot cannot edit or delete the channel
+        # if it does not have this. This is *not* documented, and was discovered by trial
+        # and error with a weird edge case someone had.
+        if source.guild.me in overwrites:
+            overwrites[source.guild.me].update(
+                manage_channels=True, manage_roles=True, connect=True
+            )
+        else:
+            overwrites.update(
+                {
+                    source.guild.me: discord.PermissionOverwrite(
+                        manage_channels=True, manage_roles=True, connect=True
+                    )
+                }
+            )
+
+        return overwrites
 
     async def generate_room_for(
         self, *, who: discord.Member, source: discord.VoiceChannel
@@ -88,36 +118,7 @@ class AutoRooms(MixedMeta):
 
         category = source.category
 
-        editargs = {"bitrate": source.bitrate, "user_limit": source.user_limit}
-        overwrites = dict(source.overwrites)
-        if ownership:
-            if who in overwrites:
-                overwrites[who].update(manage_channels=True, manage_roles=True)
-            else:
-                overwrites.update(
-                    {
-                        who: discord.PermissionOverwrite(
-                            manage_channels=True, manage_roles=True
-                        )
-                    }
-                )
-
-        # Note: Connect is not optional. Even with manage_channels,
-        # the bot cannot edit or delete the channel
-        # if it does not have this. This is *not* documented, and was discovered by trial
-        # and error with a weird edge case someone had.
-        if source.guild.me in overwrites:
-            overwrites[source.guild.me].update(
-                manage_channels=True, manage_roles=True, connect=True
-            )
-        else:
-            overwrites.update(
-                {
-                    source.guild.me: discord.PermissionOverwrite(
-                        manage_channels=True, manage_roles=True, connect=True
-                    )
-                }
-            )
+        overwrites: dict = self._ar_get_overwrites(source, who=who, ownership=ownership)
 
         if await self.ar_config.channel(source).gameroom():
             cname = "???"
@@ -143,7 +144,7 @@ class AutoRooms(MixedMeta):
             self._antispam[who.id].stamp()
             await who.move_to(chan, reason="autoroom")
             await asyncio.sleep(0.5)
-            await chan.edit(**editargs)
+            await chan.edit(bitrate=source.bitrate, user_limit=source.user_limit)
             # TODO:
             # discord.HTTP to avoid needing the edit
             # This extra API call is avoidable when working with the lower level tools.
@@ -227,7 +228,10 @@ class AutoRooms(MixedMeta):
         if val is None:
             val = not await self.ar_config.guild(ctx.guild).active()
         await self.ar_config.guild(ctx.guild).active.set(val)
-        await ctx.send(("Autorooms are now " + ("activated" if val else "deactivated")))
+        message = (
+            "Autorooms are now activated" if val else "Autorooms are now deactivated"
+        )
+        await ctx.send(message)
 
     @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
@@ -268,31 +272,28 @@ class AutoRooms(MixedMeta):
         requires the "Manage Channels" permission
         Defaults to false"""
         if val is None:
-            val = not await self.ar_config.guild(ctx.guild).active()
-        await self.ar_config.guild(ctx.guild).active.set(val)
-        await ctx.send(
-            (
-                "Autorooms are "
-                + ("now owned " if val else "no longer owned ")
-                + "by their creator"
-            )
+            val = not await self.ar_config.guild(ctx.guild).ownership()
+        await self.ar_config.guild(ctx.guild).ownership.set(val)
+        message = (
+            "Autorooms are now owned be their creator"
+            if val
+            else "Autorooms are no longer owned by their creator"
         )
+        await ctx.send(message)
 
     @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="creatorname")
-    async def creatorname(
+    async def togglecreatorname(
         self, ctx: commands.Context, channel: discord.VoiceChannel, val: bool = None
     ):
         """Toggles if an autoroom will get the owner name after the channel name."""
         if val is None:
             val = not await self.ar_config.channel(channel).creatorname()
         await self.ar_config.channel(channel).creatorname.set(val)
-        await ctx.send(
-            f"Channel `{channel.name}` "
-            + (
-                "will now have creator name after their name."
-                if val
-                else "will no longer have creator name after their name."
-            )
+        message = (
+            "This channel will be generated by appending the creator's name"
+            if val
+            else "This channel will not be generated by appending the creator's name"
         )
+        await ctx.send(message)

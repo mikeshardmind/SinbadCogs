@@ -1,18 +1,24 @@
+from __future__ import annotations
+
 import re
-from typing import List, TypeVar, Iterable
+from typing import List, TypeVar, Iterable, Union, cast
 
 import discord
 from redbot.core import commands
-
-# Pulled from Red-Discordbot PR#1942 which I'm the author of, but not waiting for merge for use.
-INVITE_URL_RE = re.compile(r"(discord.gg|discordapp.com/invite|discord.me)(\S+)", re.I)
+from redbot.core.utils.common_filters import INVITE_URL_RE
 
 
-def role_mention_cleanup(message: discord.Message) -> str:
+def role_mention_cleanup(message: discord.Message) -> Union[str, None]:
+
+    content = message.content
+
+    if not content:
+        return None
+
+    assert isinstance(content, str), "Message.content got screwed somehow..."  # nosec
 
     if message.guild is None:
-        ret: str = message.content
-        return ret
+        return content
 
     transformations = {
         re.escape("<@&{0.id}>".format(role)): "@" + role.name
@@ -23,21 +29,17 @@ def role_mention_cleanup(message: discord.Message) -> str:
         return transformations.get(re.escape(obj.group(0)), "")
 
     pattern = re.compile("|".join(transformations.keys()))
-    result = pattern.sub(repl, message.content)
+    result = pattern.sub(repl, content)
 
     return result
 
 
-def embed_from_msg(
-    message: discord.Message, filter_invites=False, mod_filter_obj=None
-) -> discord.Embed:
-    channel = message.channel
+def embed_from_msg(message: discord.Message, filter_invites=False) -> discord.Embed:
+    channel = cast(discord.TextChannel, message.channel)
     server = channel.guild
     content = role_mention_cleanup(message)
-    if filter_invites:
+    if filter_invites and content:
         content = INVITE_URL_RE.sub("[SCRUBBED INVITE]", content)
-    if mod_filter_obj:
-        pass
     author = message.author
     sname = server.name
     cname = channel.name
@@ -89,6 +91,7 @@ def txt_channel_finder(bot: commands.Bot, chaninfo: str) -> List[discord.TextCha
     if match is not None:
 
         def txt_check(c):
+            assert match is not None, "mypy, removed from optimized..."  # nosec
             return isinstance(c, discord.TextChannel) and c.id == int(match.group(1))
 
     else:

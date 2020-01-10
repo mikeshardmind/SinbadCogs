@@ -1,10 +1,13 @@
+from __future__ import annotations
+
+from datetime import datetime as dt
+
+import discord
+
 # This exists because
 # `discord.Embed(**discord.Embed().to_dict())`
 # fails in hillarious ways when dealing with any embed
 # containing a `discord.Embed.Empty()`
-
-import discord
-from datetime import datetime as dt
 
 template: dict = {
     "initable": {

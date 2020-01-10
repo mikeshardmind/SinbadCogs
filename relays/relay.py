@@ -1,4 +1,7 @@
-from typing import List
+from __future__ import annotations
+
+from typing import List, Optional, cast
+
 import discord
 from redbot.core.bot import Red
 
@@ -40,8 +43,12 @@ class OnewayRelay:
         self.bot: Red = bot
 
     @property
-    def source(self) -> discord.TextChannel:
-        return self.bot.get_channel(self.source_id)
+    def source(self) -> Optional[discord.TextChannel]:
+        # because of intermixed types in discord.py ...
+        return cast(
+            Optional[discord.TextChannel],  # ...this won't get much better.
+            self.bot.get_channel(self.source_id),
+        )
 
     @property
     def destinations(self) -> List[discord.TextChannel]:

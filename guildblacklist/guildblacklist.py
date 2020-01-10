@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 import discord
@@ -7,14 +9,7 @@ from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
 
 log = logging.getLogger("red.guildblacklist")
-
-T_ = Translator("GuildBlacklist", __file__)
-_ = lambda s: s
-
-GBL_LIST_HEADER = _("IDs in blacklist:\n")
-FILE_NOT_FOUND = _("That doesn't appear to be a valid path for that")
-
-_ = T_
+_ = Translator("GuildBlacklist", __file__)
 
 
 @cog_i18n(_)
@@ -71,9 +66,8 @@ class GuildBlacklist(commands.Cog):
         """
         list blacklisted IDs
         """
-        output = GBL_LIST_HEADER
         blacklist = await self.config.blacklist()
-        output += "\n".join(str(x) for x in blacklist)
+        output = "\n".join((_("IDs in blacklist:"), *map(str, blacklist)))
 
         for page in pagify(output):
             await ctx.send(box(page))
