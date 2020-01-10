@@ -6,9 +6,9 @@ notifications:
 sudo: true
 
 python:
-  - "3.7"
+  - "3.8.1"
 install:
-  - pip install black==18.9b0
+  - pip install black==19.10b0
 script:
   - python -m compileall .
   - black --check -N `git ls-files "*.py"`
