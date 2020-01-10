@@ -1,9 +1,6 @@
 name: mypy
 
-on:
-  push:
-    branches:
-      - v3
+on: [push, pull_request] 
 
 
 jobs:
