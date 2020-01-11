@@ -21,7 +21,7 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "5.0.1"
+    __version__ = "5.0.2"
 
     def __init__(self, bot):
         super().__init__()
@@ -44,7 +44,11 @@ class EmbedMaker(commands.Cog):
     @commands.guild_only()
     @_embed.command(name="editmsg")
     async def editmessage_embed(
-        self, ctx: commands.Context, message: discord.Message, embedname: str
+        self,
+        ctx: commands.Context,
+        message: discord.Message,
+        embedname: str,
+        use_global: bool = False,
     ):
         """
         Edits an existing message by channelID-messageID to have an embed (must be saved)
@@ -56,8 +60,14 @@ class EmbedMaker(commands.Cog):
         if message.author != ctx.guild.me:
             return await ctx.send("Not my message, can't edit")
 
-        if await self.config.custom("EMBED", ctx.guild.id, embedname).owner():
-            data = await self.config.custom("EMBED", ctx.guild.id, embedname).embed()
+        grp = self.config.custom(
+            "EMBED",
+            ("GLOBAL" if use_global else ctx.guild.id),
+            embedname
+        )
+
+        if await grp.owner():
+            data = await grp.embed()
             embed = deserialize_embed(data)
         else:
             return await ctx.send("No embed by that name here")
