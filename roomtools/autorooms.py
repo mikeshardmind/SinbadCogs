@@ -112,7 +112,9 @@ class AutoRooms(MixedMeta):
         if not source.guild.me.guild_permissions.value & 17825808 == 17825808:
             return
 
-        ownership = await self.ar_config.channel(source).ownership()
+        cdata = await self.ar_config.channel(source).all(acquire_lock=False)
+
+        ownership = cdata["ownership"]
         if ownership is None:
             ownership = await self.ar_config.guild(source.guild).ownership()
 
@@ -120,15 +122,18 @@ class AutoRooms(MixedMeta):
 
         overwrites: dict = self._ar_get_overwrites(source, who=who, ownership=ownership)
 
-        if await self.ar_config.channel(source).gameroom():
-            cname = "???"
-            with contextlib.suppress(Exception):
-                cname = next(
-                    (a.name for a in who.activities if a.type.value == 0)
-                )
+        if cdata["gameroom"]:
+            cname = next((a.name for a in who.activities if a.type.value == 0), "???")
+        elif cdata["creatorname"]:
+            cname = f"{source.name} {who.name}"
+        # Stuff here might warrant a schema change to do this better.
+        # Don't add this yet.
+        # elif cdata["personalnamed"]:
+        #     cname = f"{who}'s room"
+        # elif cdata["randomname"]:
+        #     pass   # TODO
         else:
-            creatorname = await self.ar_config.channel(source).creatorname()
-            cname = source.name if not creatorname else source.name + f" {who.name}"
+            cname = source.name
 
         try:
             chan = await source.guild.create_voice_channel(
