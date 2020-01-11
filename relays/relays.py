@@ -172,15 +172,20 @@ class Relays(commands.Cog):
         if name in self.oneways:
             relay = self.oneways[name]
             msg = _(
+                "Relay name: {name}\n"
                 "Relay type: one way\n"
                 "Source (Channel | Server): {source.name} | {source.guild.name}\n"
-                "Destinations (Channel | Server):\n"
-            ).format(source=relay.source)
+                "Destinations (Channel | Guild):\n"
+            ).format(source=relay.source, name=name)
             msg += "\n".join(f"{x.name} | {x.guild.name}" for x in relay.destinations)
 
         elif name in self.nways:
             nrelay = self.nways[name]
-            msg = _("Relay type: multiway\nChannels Channel | Guild):\n")
+            msg = _(
+                "Relay name: {name}\n"
+                "Relay type: multiway\n"
+                "Channels: (Channel | Guild):\n"
+            ).format(name=name)
             msg += "\n".join(f"{x.name} | {x.guild.name}" for x in nrelay.channels)
 
         return msg
