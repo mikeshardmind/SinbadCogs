@@ -61,9 +61,7 @@ class EmbedMaker(commands.Cog):
             return await ctx.send("Not my message, can't edit")
 
         grp = self.config.custom(
-            "EMBED",
-            ("GLOBAL" if use_global else ctx.guild.id),
-            embedname
+            "EMBED", ("GLOBAL" if use_global else ctx.guild.id), embedname
         )
 
         if await grp.owner():

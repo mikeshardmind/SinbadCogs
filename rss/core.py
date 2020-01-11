@@ -372,13 +372,15 @@ class RSS(commands.Cog):
         channel = channel or ctx.channel
 
         data = await self.config.channel(channel).feeds()
+        if not data:
+            return await ctx.send("No feeds here.")
 
         if await ctx.embed_requested():
             output = "\n".join(
-                [
+                (
                     "{name}: {url}".format(name=k, url=v.get("url", "broken feed"))
                     for k, v in data.items()
-                ]
+                )
             )
             for page in pagify(output):
                 await ctx.send(
@@ -388,10 +390,10 @@ class RSS(commands.Cog):
                 )
         else:
             output = "\n".join(
-                [
+                (
                     "{name}: <{url}>".format(name=k, url=v.get("url", "broken feed"))
                     for k, v in data.items()
-                ]
+                )
             )
             for page in pagify(output):
                 await ctx.send(page)
