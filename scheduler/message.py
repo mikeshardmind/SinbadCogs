@@ -50,7 +50,8 @@ async def replacement_delete_messages(self, messages):
 
 
 # This entire below block is such an awful hack. Don't look at it too closely.
-# type: ignore
+
+
 @neuter_coroutines
 class SchedulerMessage(discord.Message):
     """
@@ -81,7 +82,7 @@ class SchedulerMessage(discord.Message):
         self.attachments: List[discord.Attachment] = []
         # mentions
         self.mention_everyone = self.channel.permissions_for(
-            self.author  # type: ignore
+            self.author
         ).mention_everyone and bool(EVERYONE_REGEX.match(self.content))
         # pylint: disable=E1133
         # pylint improperly detects the inherited properties here as not being iterable
