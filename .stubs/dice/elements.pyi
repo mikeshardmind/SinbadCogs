@@ -1,7 +1,7 @@
 # These stubs are possibly wrong.
 # They were generated with monkeytype and are "good enough"
 # After some minor corrections
-from typing import List, Optional, Type, Union, Any
+from typing import List, Optional, Type, Union, Any, SupportsInt
 
 Integer = int
 IntegerList = List[Integer]
@@ -25,7 +25,7 @@ class Element:
         obj: Union[Integer, Dice, int],
         cls: Optional[Type[Integer]] = ...,
         cache: bool = ...,
-        **kwargs
+        **kwargs,
     ) -> Union[Integer, Roll]: ...
     @classmethod
     def parse(
@@ -59,7 +59,7 @@ class RandomElement:
         cls, new_cls: Union[Type[WildDice], Type[FudgeDice], Type[Dice]]
     ) -> Union[Type[WildDice], Type[FudgeDice], Type[Dice]]: ...
 
-class Roll:
+class Roll(SupportsInt):
     def __init__(
         self, element: Union[FudgeDice, Dice, WildDice], rolled: None = ..., **kwargs
     ) -> None: ...
@@ -72,12 +72,14 @@ class Roll:
     ) -> List[int]: ...
     @classmethod
     def roll_single(cls, min_value: int, max_value: Integer, **kwargs) -> int: ...
+    def __int__(self) -> int: ...
 
 class WildDice:
     def evaluate(self, **kwargs) -> WildRoll: ...
 
-class WildRoll:
+class WildRoll(SupportsInt):
     @classmethod
     def roll(
         cls, amount: Integer, min_value: int, max_value: Integer, **kwargs
     ) -> List[int]: ...
+    def __int__(self) -> int: ...

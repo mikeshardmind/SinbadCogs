@@ -1,12 +1,19 @@
 from __future__ import annotations
 
 from random import randint
-from typing import Union, cast, Iterable
+from typing import Union, Iterable, Tuple, SupportsInt
 
 import dice
 from redbot.cogs.general.general import General as RedGeneral
 from redbot.core import commands
 from redbot.core.config import Config
+
+
+def as_iterable(item: Union[Iterable, SupportsInt]) -> Iterable:
+    if isinstance(item, Iterable):
+        return item
+    else:
+        return (item,)
 
 
 class General(RedGeneral):
@@ -62,17 +69,10 @@ class General(RedGeneral):
         else:
 
             def handler(exp):
-                real = dice.roll(exp)
-                mx = dice.roll_max(exp)
-                mn = dice.roll_min(exp)
-                try:
-                    yield from zip(
-                        cast(Iterable[int], real),
-                        cast(Iterable[int], mn),
-                        cast(Iterable[int], mx),
-                    )
-                except TypeError:
-                    yield (real, mn, mx)
+                real = as_iterable(dice.roll(exp))
+                mn = as_iterable(dice.roll_min(exp))
+                mx = as_iterable(dice.roll_max(exp))
+                yield from zip(real, mn, mx)
 
             def get_formatted(an_expr):
                 return "\n".join(
