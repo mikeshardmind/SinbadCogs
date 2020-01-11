@@ -31,8 +31,7 @@ class EventMixin(MixinMeta):
             return True
 
         if level >= 4:  # high
-            assert member.joined_at is not None, "mypy"  # nosec
-            if member.joined_at + timedelta(minutes=10) > now:
+            if not member.joined_at or member.joined_at + timedelta(minutes=10) > now:
                 return True
 
         return False
@@ -47,15 +46,14 @@ class EventMixin(MixinMeta):
         if before._roles == after._roles:
             return
 
-        sym_diff = set(before._roles).symmetric_difference(set(after._roles))
+        lost, gained = set(before._roles), set(after._roles)
+        lost, gained = lost - gained, gained - lost
+        sym_diff = lost | gained
 
-        gained, lost = [], []
         for r in sym_diff:
-            if await self.config.role_from_id(r).sticky():
-                if r in before.roles:
-                    lost.append(r)
-                else:
-                    gained.append(r)
+            if not await self.config.role_from_id(r).sticky():
+                lost.discard(r)
+                gained.discard(r)
 
         async with self.config.member(after).roles() as rids:
             for r in lost:
