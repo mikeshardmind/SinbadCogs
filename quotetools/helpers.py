@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Dict, Sequence, Optional, Union, cast
-
+from typing import Dict, Sequence, Optional, Union
 import discord
 from discord.ext import commands
 
@@ -41,15 +40,15 @@ def embed_from_msg(message: discord.Message) -> discord.Embed:
     author = message.author
     avatar = author.avatar_url
     footer = f"Said in {guild.name} #{channel.name}"
+
     try:
-        color = author.color if author.color.value != 0 else discord.Embed.Empty
+        color = author.color if author.color.value != 0 else None
     except AttributeError:  # happens if message author not in guild anymore.
-        color = discord.Embed.Empty
-    em = discord.Embed(
-        description=content,
-        color=cast(discord.Color, color),  # This is an amusing lie
-        timestamp=message.created_at,
-    )
+        color = None
+    em = discord.Embed(description=content, timestamp=message.created_at)
+    if color:
+        em.color = color
+
     em.set_author(name=f"{author.name}", icon_url=avatar)
     em.set_footer(icon_url=guild.icon_url, text=footer)
     if message.attachments:
@@ -77,9 +76,14 @@ async def eligible_channels(ctx: commands.Context) -> Sequence[discord.TextChann
 
     ret = []
 
-    guild = cast(discord.Guild, ctx.guild)
-    author = cast(discord.Member, ctx.author)
-    channel = cast(discord.TextChannel, ctx.channel)
+    guild = ctx.guild
+    author = ctx.author
+    channel = ctx.channel
+    assert (  # nosec
+        guild is not None
+        and isinstance(author, discord.Member)
+        and isinstance(channel, discord.TextChannel)
+    ), "mypy... I'd love for a DMContext + GuildContext split actually"
 
     is_owner = await ctx.bot.is_owner(author)
     needed_perms = discord.Permissions()

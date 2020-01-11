@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import List, cast
+from typing import List
 
 import discord
 from redbot.core import commands
@@ -136,12 +136,12 @@ class EventMixin(MixinMeta):
             return
 
         if await self.config.role_from_id(rid).self_removable():
-            guild = self.bot.get_guild(payload.guild_id)
+            guild: discord.Guild = self.bot.get_guild(payload.guild_id)
             member = guild.get_member(payload.user_id)
-            if member.bot:
+            if not member or member.bot:
                 return
-            role = cast(discord.Role, discord.utils.get(guild.roles, id=rid))
-            if role not in member.roles:
+            role = discord.utils.get(guild.roles, id=rid)
+            if not role or role not in member.roles:
                 return
             if guild.me.guild_permissions.manage_roles and guild.me.top_role > role:
                 await self.update_roles_atomically(who=member, give=None, remove=[role])
