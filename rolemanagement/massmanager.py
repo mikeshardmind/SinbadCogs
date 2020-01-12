@@ -1,8 +1,7 @@
-from __future__ import annotations
-
 import csv
 import io
 import logging
+from typing import Optional, cast, no_type_check, Set
 
 import discord
 from redbot.core import checks, commands
@@ -32,14 +31,102 @@ class MassManagementMixin(MixinMeta):
         """
         pass
 
-    @mrole.command(name="user", usage="[users] [args]")
+    @staticmethod
+    def search_filter(members: set, query: dict) -> set:
+        """
+        Reusable
+        """
+
+        if query["everyone"]:
+            return members
+
+        all_set: Set[discord.Member] = set()
+        if query["all"]:
+            first, *rest = query["all"]
+            all_set = set(first.members)
+            for other_role in rest:
+                all_set &= set(other_role.members)
+
+        none_set: Set[discord.Member] = set()
+        if query["none"]:
+            for role in query["none"]:
+                none_set.update(role.members)
+
+        any_set: Set[discord.Member] = set()
+        if query["any"]:
+            for role in query["any"]:
+                any_set.update(role.members)
+
+        minimum_perms: Optional[discord.Permissions] = None
+        if query["hasperm"]:
+            minimum_perms = discord.Permissions()
+            minimum_perms.update(**{x: True for x in query["hasperm"]})
+
+        def mfilter(m: discord.Member) -> bool:
+            if query["bots"] and not m.bot:
+                return False
+
+            if query["humans"] and m.bot:
+                return False
+
+            if query["any"] and m not in any_set:
+                return False
+
+            if query["all"] and m not in all_set:
+                return False
+
+            if query["none"] and m in none_set:
+                return False
+
+            if query["hasperm"] and not m.guild_permissions.is_superset(minimum_perms):
+                return False
+
+            if query["anyperm"] and not any(
+                bool(value and perm in query["anyperm"])
+                for perm, value in iter(m.guild_permissions)
+            ):
+                return False
+
+            if query["notperm"] and any(
+                bool(value and perm in query["notperm"])
+                for perm, value in iter(m.guild_permissions)
+            ):
+                return False
+
+            if query["noroles"] and len(m.roles) != 1:
+                return False
+
+            # 0 is a valid option for these, everyone role not counted
+            if query["quantity"] is not None and len(m.roles) - 1 != query["quantity"]:
+                return False
+
+            if query["lt"] is not None and len(m.roles) - 1 >= query["lt"]:
+                return False
+
+            if query["gt"] is not None and len(m.roles) - 1 <= query["gt"]:
+                return False
+
+            if query["above"] and m.top_role <= query["above"]:
+                return False
+
+            if query["below"] and m.top_role >= query["below"]:
+                return False
+
+            return True
+
+        members = {m for m in members if mfilter(m)}
+
+        return members
+
+    @mrole.command(name="user")
+    @no_type_check
     async def mrole_user(
         self,
         ctx: commands.Context,
         users: commands.Greedy[discord.Member],
         *,
         roles: RoleSyntaxConverter,
-    ):
+    ) -> None:
         """
         adds/removes roles to one or more users
 
@@ -47,22 +134,22 @@ class MassManagementMixin(MixinMeta):
 
         Example Usage:
 
-        [p]massrole user Sinbad --add RoleToGive "Role with spaces to give"
+        [p]massrole user Sinbad --add RoleToGive "Role with spaces to give" 
         --remove RoleToRemove "some other role to remove" Somethirdrole
 
         [p]massrole user LoudMouthedUser ProfaneUser --add muted
 
         For role operations based on role membership, permissions had, or whether someone is a bot
-        (or even just add to/remove from all) see `[p]massrole search` and `[p]massrole modify`
+        (or even just add to/remove from all) see `[p]massrole search` and `[p]massrole modify` 
         """
-        give, remove = roles.add, roles.remove
+        roles = cast(dict, roles)
+        give, remove = roles["add"], roles["remove"]
         apply = give + remove
         if not await self.all_are_valid_roles(ctx, *apply):
-            await ctx.send(
+            return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
             )
-            return
 
         for user in users:
             await self.update_roles_atomically(who=user, give=give, remove=remove)
@@ -70,6 +157,7 @@ class MassManagementMixin(MixinMeta):
         await ctx.tick()
 
     @mrole.command(name="search")
+    @no_type_check
     async def mrole_search(
         self, ctx: commands.Context, *, query: ComplexSearchConverter
     ):
@@ -101,9 +189,11 @@ class MassManagementMixin(MixinMeta):
         csv output will be used if output would exceed embed limits, or if flag is provided
         """
 
-        members = query.get_members()
+        members = set(ctx.guild.members)
+        query = cast(dict, query)
+        members = self.search_filter(members, query)
 
-        if len(members) < 50 and not query.csv:
+        if len(members) < 50 and not query["csv"]:
 
             def chunker(memberset, size=3):
                 ret_str = ""
@@ -181,7 +271,7 @@ class MassManagementMixin(MixinMeta):
     ):
         """
         Similar syntax to search, while applying/removing roles
-
+        
         --has-all roles
         --has-none roles
         --has-any roles
@@ -201,18 +291,20 @@ class MassManagementMixin(MixinMeta):
         --only-humans
         --only-bots
         --everyone
-
+        
         --add roles
         --remove roles
         """
-        apply = query.add + query.remove
+        query = cast(dict, query)  # type: ignore
+        apply = query["add"] + query["remove"]
         if not await self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
             )
 
-        members = query.get_members()
+        members = set(ctx.guild.members)
+        members = self.search_filter(members, query)
 
         if len(members) > 100:
             await ctx.send(
@@ -223,7 +315,7 @@ class MassManagementMixin(MixinMeta):
             for member in members:
                 try:
                     await self.update_roles_atomically(
-                        who=member, give=query.add, remove=query.remove
+                        who=member, give=query["add"], remove=query["remove"]
                     )
                 except RoleManagementException:
                     log.debug(
