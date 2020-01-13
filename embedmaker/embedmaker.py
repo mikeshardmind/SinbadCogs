@@ -21,7 +21,11 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "5.0.2"
+    __version__ = "323.0.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
 
     def __init__(self, bot):
         super().__init__()

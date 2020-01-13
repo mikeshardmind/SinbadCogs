@@ -48,6 +48,12 @@ class Note(NamedTuple):
 class ModNotes(commands.Cog):
     """ Store moderation notes """
 
+    __version__ = "323.0.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
+
     def __init__(self, bot: Red):
         self.bot: Red = bot
         fp = str(cog_data_path(self) / "notes.db")

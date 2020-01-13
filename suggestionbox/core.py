@@ -17,7 +17,11 @@ class SuggestionBox(commands.Cog):
     A configureable suggestion box cog
     """
 
-    __version__ = "1.0.6"
+    __version__ = "323.0.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
 
     def __init__(self, bot):
         super().__init__()

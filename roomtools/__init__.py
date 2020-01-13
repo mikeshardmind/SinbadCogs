@@ -27,8 +27,11 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "7.1.5"
-    __flavor_text__ = "Weird Edge case fix."
+    __version__ = "323.0.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
 
     antispam_intervals = [
         (timedelta(seconds=5), 3),
