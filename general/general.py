@@ -17,6 +17,17 @@ def as_iterable(item: Union[Iterable, SupportsInt]) -> Iterable:
 
 
 class General(RedGeneral):
+
+    __version__ = "323.0.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return (
+            f"{pre_processed}"
+            f"\nThis is a replacement providing a different roll command"
+            f"\nCog Version: {self.__version__}"
+        )
+
     def __init__(self, bot):
         super().__init__()
         self.bot = bot

@@ -15,10 +15,11 @@ class ScreenshareAutoMod(commands.Cog):
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "1.0.1"
-    __flavor_text__ = (
-        "UGH, discord doesn't remove this or make it respect the new system."
-    )
+    __version__ = "323.0.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
 
     def __init__(self, bot):
         super().__init__()

@@ -15,11 +15,15 @@ _ = Translator("GuildBlacklist", __file__)
 @cog_i18n(_)
 class GuildBlacklist(commands.Cog):
     """
-    prevent the bot from joining servers by either
+    Prevent the bot from joining servers by either
     the server's ID, or the serverowner's ID
     """
 
-    __version__ = "2.0.2"
+    __version__ = "323.0.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
 
     def __init__(self, bot):
         super().__init__()

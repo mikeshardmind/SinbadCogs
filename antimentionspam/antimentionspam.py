@@ -19,7 +19,11 @@ __all__ = ["AntiMentionSpam"]
 class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
-    __version__ = "3.0.1"
+    __version__ = "323.0.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
 
     def __init__(self, bot: Red, *args, **kwargs):
         super().__init__(*args, **kwargs)

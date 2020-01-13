@@ -15,11 +15,15 @@ log = logging.getLogger("red.guildwhitelist")
 @cog_i18n(_)
 class GuildWhitelist(commands.Cog):
     """
-    prevent the bot from joining servers who are not whitelisted
+    Prevent the bot from joining servers who are not whitelisted
     or whose owner is not whitelisted or the owner of the bot
     """
 
-    __version__ = "2.0.2"
+    __version__ = "323.0.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
 
     def __init__(self, bot):
         super().__init__()

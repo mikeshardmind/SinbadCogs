@@ -26,9 +26,12 @@ class Scheduler(commands.Cog):
     A somewhat sane scheduler cog
     """
 
-    __version__ = "1.0.27"
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __flavor_text__ = "Unhidden remindme."
+    __version__ = "323.0.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
 
     def __init__(self, bot, *args, **kwargs):
         super().__init__(*args, **kwargs)
