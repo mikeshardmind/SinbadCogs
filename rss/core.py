@@ -64,7 +64,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "323.0.2"
+    __version__ = "323.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
