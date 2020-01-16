@@ -27,7 +27,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.0.1"
+    __version__ = "323.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -346,6 +346,9 @@ class Scheduler(commands.Cog):
             await cog._remove_tasks(to_cancel)
             if page_mapping:
                 tasks = list(page_mapping.values())
+                if ctx.channel.permissions_for(ctx.me).manage_messages:
+                    with contextlib.suppress(discord.HTTPException):
+                        await message.remove_reaction("\N{NO ENTRY SIGN}", ctx.author)
                 await cog.task_menu(ctx, tasks, message)
             else:
                 with contextlib.suppress(discord.NotFound):
