@@ -78,13 +78,15 @@ class RSS(commands.Cog):
         )
         self.config.register_channel(feeds={})
         self.session = aiohttp.ClientSession()
+        self.bg_loop_task: Optional[asyncio.Task] = None
+
+    def init(self):
         self.bg_loop_task = self.bot.loop.create_task(self.bg_loop())
 
     def cog_unload(self):
-        self.bg_loop_task.cancel()
-        self.session.detach()
-
-    __del__ = cog_unload
+        if self.bg_loop_task:
+            self.bg_loop_task.cancel()
+        self.bot.loop.create_task(self.session.close())
 
     def clear_feed(self, channel, feedname):
         """
