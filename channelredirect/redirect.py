@@ -110,14 +110,16 @@ class ChannelRedirect(commands.Cog):
         if immune_ids & {r.id for r in ctx.author.roles}:
             return True
 
-    async def before_invoke_hook(self, ctx):
+    async def before_invoke_hook(self, ctx: commands.Context):
 
         if await self.is_redirect_immune(ctx):
             return True
 
         allowed_chans = await self.get_allowed_channels(ctx)
 
-        if ctx.channel not in allowed_chans:
+        if ctx.channel not in allowed_chans and not isinstance(
+            ctx.command, commands._AlwaysAvailableCommand
+        ):
             chan_mentions = ", ".join(c.mention for c in allowed_chans)
             await ctx.send(
                 f"{ctx.author.mention} This command is only available in {chan_mentions}",
