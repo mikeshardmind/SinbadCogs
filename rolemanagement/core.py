@@ -44,7 +44,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.0.1"
+    __version__ = "323.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -519,6 +519,9 @@ class RoleManagement(
             for role_id, vals in (await self.config.all_roles()).items()
             if (role := ctx.guild.get_role(role_id)) and vals["self_role"]
         }
+
+        if not data:
+            return await ctx.send("There aren't any self roles here.")
 
         # This is really ugly, but relatively optimal.
         # Should this be changed later for clarity instead? --Liz
