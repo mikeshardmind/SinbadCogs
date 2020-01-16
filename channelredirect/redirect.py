@@ -102,7 +102,6 @@ class ChannelRedirect(commands.Cog):
             return True
 
         imset = await self.config.guild(ctx.guild).immunities.all()
-        print(imset)
         vals = [v for k, v in imset.items() if k in (str(ctx.channel.id), "global")]
         immune_ids = set()
         for val in vals:
