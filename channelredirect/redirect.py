@@ -37,6 +37,7 @@ class ChannelRedirect(commands.Cog):
             immunities={},
             com_whitelist={"cog": {}, "command": {}},
         )
+        bot.before_invoke(self.before_invoke_hook)
 
     def cog_unload(self):
         self.bot.remove_before_invoke_hook(self.before_invoke_hook)
