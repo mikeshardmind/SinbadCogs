@@ -535,7 +535,6 @@ class RoleManagement(
         for page in pagify(message):
             await ctx.send(box(message))
 
-
     @srole.command(name="buy")
     async def srole_buy(self, ctx: commands.Context, *, role: discord.Role):
         """
