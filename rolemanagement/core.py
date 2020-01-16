@@ -8,7 +8,7 @@ import discord
 from discord.ext.commands import CogMeta as DPYCogMeta
 from redbot.core import checks, commands, bank
 from redbot.core.config import Config
-from redbot.core.utils.chat_formatting import pagify
+from redbot.core.utils.chat_formatting import box, pagify
 
 from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
@@ -43,8 +43,8 @@ class RoleManagement(
     Cog for role management
     """
 
-    __author__ = "mikeshardmind (Sinbad)"
-    __version__ = "323.0.0"
+    __author__ = "mikeshardmind(Sinbad), DiscordLiz"
+    __version__ = "323.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -507,6 +507,31 @@ class RoleManagement(
         Self assignable role commands
         """
         pass
+
+    @srole.command(name="list")
+    async def srole_list(self, ctx: commands.Context):
+        """
+        Lists the selfroles and any associated costs.
+        """
+
+        data = {
+            role: vals["cost"]
+            for role_id, vals in (await self.config.all_roles()).items()
+            if (role := ctx.guild.get_role(role_id)) and vals["self_role"]
+        }
+
+        # This is really ugly, but relatively optimal.
+        # Should this be changed later for clarity instead? --Liz
+        message = "\n".join(
+            (
+                "%s%s" % (role.name, (f": {cost}" if cost else ""))
+                for role, cost in sorted(data.items(), key=lambda kv: kv[1])
+            )
+        )
+
+        for page in pagify(message):
+            await ctx.send(box(message))
+
 
     @srole.command(name="buy")
     async def srole_buy(self, ctx: commands.Context, *, role: discord.Role):
