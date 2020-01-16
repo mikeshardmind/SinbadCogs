@@ -26,6 +26,7 @@ class Schedule:
     start: datetime
     command: str
     recur: Optional[timedelta] = None
+    quiet: bool = False
 
     def to_tuple(self) -> Tuple[str, datetime, Optional[timedelta]]:
         return self.command, self.start, self.recur
@@ -48,6 +49,9 @@ class Schedule:
             command = None
 
         parser = NoExitParser(description="Scheduler event parsing", add_help=False)
+        parser.add_argument(
+            "-q", "--quiet", action="store_true", dest="quiet", default=False
+        )
         parser.add_argument("--every", nargs="*", dest="every", default=[])
         if not command:
             parser.add_argument("command", nargs="*")
@@ -90,7 +94,7 @@ class Schedule:
             except Exception:
                 raise BadArgument("I couldn't understand that starting time.") from None
 
-        return cls(command=command, start=start, recur=recur)
+        return cls(command=command, start=start, recur=recur, quiet=vals["quiet"])
 
 
 class TempMute(NamedTuple):

@@ -27,7 +27,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.0.0"
+    __version__ = "323.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -85,7 +85,7 @@ class Scheduler(commands.Cog):
 
         async with self._iter_lock:
             await self._load_tasks()
-        while self is self.bot.get_cog("Scheduler"):
+        while True:
             sleep_for = await self.schedule_upcoming()
             await asyncio.sleep(sleep_for)
 
@@ -142,11 +142,9 @@ class Scheduler(commands.Cog):
 
     @property
     def task_class(self):
-        """ API class Access """
         return Task
 
     async def submit_task(self, task: Task):
-        """ externally safe API """
         async with self._iter_lock:
             self.tasks.append(task)
 
@@ -244,15 +242,21 @@ class Scheduler(commands.Cog):
             recur=recur,
         )
 
+        quiet: bool = schedule.quiet or ctx.assume_yes
+
         if await self.fetch_task_by_attrs_exact(
             author=ctx.author, channel=ctx.channel, nicename=event_name
         ):
-            return await ctx.send("You already have an event by that name here.")
+            if not quiet:
+                return await ctx.send("You already have an event by that name here.")
 
         async with self._iter_lock:
             async with self.config.channel(ctx.channel).tasks() as tsks:
                 tsks.update(t.to_config())
             self.tasks.append(t)
+
+        if quiet:
+            return
 
         ret = (
             f"Task Scheduled. You can cancel this task with "
@@ -277,12 +281,14 @@ class Scheduler(commands.Cog):
         unschedule something.
         """
 
+        quiet: bool = ctx.assume_yes
+
         tasks = await self.fetch_task_by_attrs_lax(
             lax={"uid": info, "nicename": info},
             strict={"author": ctx.author, "channel": ctx.channel},
         )
 
-        if not tasks:
+        if not tasks and not quiet:
             await ctx.send(
                 f"Hmm, I couldn't find that task. (try `{ctx.clean_prefix}showscheduled`)"
             )
@@ -291,13 +297,17 @@ class Scheduler(commands.Cog):
             self.log.warning(
                 f"Mutiple tasks where should be unique. Task data: {tasks}"
             )
-            return await ctx.send(
-                "There seems to have been breakage here. Cleaning up and logging incident."
-            )
+            if not quiet:
+                await ctx.send(
+                    "There seems to have been breakage here. "
+                    "Cleaning up and logging incident."
+                )
+            return
 
         else:
             await self._remove_tasks(*tasks)
-            await ctx.tick()
+            if not quiet:
+                await ctx.tick()
 
     @commands.guild_only()
     @commands.command()
