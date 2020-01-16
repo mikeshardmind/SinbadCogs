@@ -39,8 +39,7 @@ class ChannelRedirect(commands.Cog):
         )
 
     def cog_unload(self):
-        if self.bot._before_invoke is self.before_invoke_hook:
-            self.bot._before_invoke = None
+        self.bot.remove_before_invoke_hook(self.before_invoke_hook)
 
     @staticmethod
     def should_early_exit(conf: dict, com: commands.Command):
@@ -124,7 +123,7 @@ class ChannelRedirect(commands.Cog):
                 f"{ctx.author.mention} This command is only available in {chan_mentions}",
                 delete_after=30,
             )
-            raise commands.CheckFailure()  # This is abuse.
+            raise commands.CheckFailure()
         else:
             return True
 
