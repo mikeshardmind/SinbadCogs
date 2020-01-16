@@ -17,4 +17,6 @@ def setup(bot):
 
     from .core import RSS
 
-    bot.add_cog(RSS(bot))
+    cog = RSS(bot)
+    bot.add_cog(cog)
+    cog.init()

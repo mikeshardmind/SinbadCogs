@@ -27,7 +27,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.0.2"
+    __version__ = "323.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -41,20 +41,20 @@ class Scheduler(commands.Cog):
         )
         self.config.register_channel(tasks={})  # Serialized Tasks go in here.
         self.log = get_logger("sinbadcogs.scheduler")
-        self.bg_loop_task = bot.loop.create_task(self.bg_loop())
+        self.bg_loop_task: Optional[asyncio.Task] = None
         self.scheduled = {}  # Might change this to a list later.
         self.tasks = []
         self._iter_lock = asyncio.Lock()
 
+    def init(self):
+        self.bot.loop.create_task(self.bg_loop())
+
     def cog_unload(self):
-        self.bg_loop_task.cancel()
+        if self.bg_loop_task:
+            self.bg_loop_task.cancel()
         for task in self.scheduled.values():
             task.cancel()
         self.log.handlers = []
-
-    # This never should be needed,
-    # but it doesn't hurt to add and could cover a weird edge case.
-    __del__ = cog_unload
 
     async def _load_tasks(self):
         chan_dict = await self.config.all_channels()
