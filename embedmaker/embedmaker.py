@@ -253,6 +253,19 @@ class EmbedMaker(commands.Cog):
             )
 
     @commands.guild_only()
+    @_embed.command(name="nostore")
+    async def _e_nostore(self, ctx: commands.Context, *, content: str):
+        """
+        Quick embeds.
+        """
+        color = await ctx.embed_color()
+        e = discord.Embed(description=content, color=color)
+        try:
+            await ctx.send(embed=e)
+        except (discord.Forbidden, discord.HTTPException):
+            await ctx.maybe_send_embed("Discord didn't like that embed")
+
+    @commands.guild_only()
     @_embed.command(name="make")
     async def _make(self, ctx: commands.Context, name: str, *, content: str):
         """
