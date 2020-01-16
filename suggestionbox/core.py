@@ -17,7 +17,7 @@ class SuggestionBox(commands.Cog):
     A configureable suggestion box cog
     """
 
-    __version__ = "323.0.0"
+    __version__ = "323.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -180,7 +180,7 @@ class SuggestionBox(commands.Cog):
         if not suggestion:
             return await ctx.send(_("Please try again while including a suggestion."))
 
-        channel = await self.guess_channel(ctx, channel)
+        channel = await self.get_suggestion_channel(ctx, channel)
         if not channel:
             return
 
