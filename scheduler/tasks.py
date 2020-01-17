@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from datetime import datetime, timedelta, timezone
 from typing import Optional, cast
 
@@ -59,18 +60,24 @@ class Task:
             initial = datetime.fromtimestamp(initial_ts, tz=timezone.utc)
             recur_raw = data.pop("recur", None)
             recur = timedelta(seconds=recur_raw) if recur_raw else None
+
             channel = cast(Optional[discord.TextChannel], bot.get_channel(cid))
-            if channel:
-                author = channel.guild.get_member(aid)
-                if author:
-                    yield cls(
-                        initial=initial,
-                        recur=recur,
-                        channel=channel,
-                        author=author,
-                        uid=uid,
-                        **data,
-                    )
+            if not channel:
+                continue
+
+            author = channel.guild.get_member(aid)
+            if not author:
+                continue
+
+            with contextlib.suppress(AttributeError, ValueError):
+                yield cls(
+                    initial=initial,
+                    recur=recur,
+                    channel=channel,
+                    author=author,
+                    uid=uid,
+                    **data,
+                )
 
     @property
     def next_call_delay(self) -> float:
