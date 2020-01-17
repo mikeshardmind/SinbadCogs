@@ -4,7 +4,7 @@ import asyncio
 import contextlib
 import functools
 from datetime import datetime, timezone
-from typing import Optional, List, no_type_check
+from typing import Dict, List, Optional
 
 import discord
 from redbot.core import commands, checks
@@ -13,7 +13,7 @@ from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 from .checks import can_run_command
-from .converters import Schedule, non_numeric, TempMute
+from .converters import NonNumeric, Schedule, TempMute
 from .logs import get_logger
 from .tasks import Task
 
@@ -27,7 +27,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.0.4"
+    __version__ = "323.0.5"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -42,8 +42,10 @@ class Scheduler(commands.Cog):
         self.config.register_channel(tasks={})  # Serialized Tasks go in here.
         self.log = get_logger("sinbadcogs.scheduler")
         self.bg_loop_task: Optional[asyncio.Task] = None
-        self.scheduled = {}  # Might change this to a list later.
-        self.tasks = []
+        self.scheduled: Dict[
+            str, asyncio.Task
+        ] = {}  # Might change this to a list later.
+        self.tasks: List[Task] = []
         self._iter_lock = asyncio.Lock()
 
     def init(self):
@@ -89,7 +91,7 @@ class Scheduler(commands.Cog):
             sleep_for = await self.schedule_upcoming()
             await asyncio.sleep(sleep_for)
 
-    async def delayed_wrap_and_invoke(self, task: Task, delay: int):
+    async def delayed_wrap_and_invoke(self, task: Task, delay: float):
         await asyncio.sleep(delay)
         task.update_objects(self.bot)
         chan = task.channel
@@ -184,8 +186,9 @@ class Scheduler(commands.Cog):
     @checks.mod_or_permissions(manage_guild=True)
     @commands.guild_only()
     @commands.command(usage="<eventname> <command> <args>")
-    @no_type_check
-    async def schedule(self, ctx, event_name: non_numeric, *, schedule: Schedule):
+    async def schedule(
+        self, ctx: commands.Context, event_name: NonNumeric, *, schedule: Schedule
+    ):
         """
         Schedule something
 
@@ -234,7 +237,7 @@ class Scheduler(commands.Cog):
 
         t = Task(
             uid=ctx.message.id,
-            nicename=event_name,
+            nicename=event_name.parsed,
             author=ctx.author,
             content=command,
             channel=ctx.channel,
@@ -276,7 +279,7 @@ class Scheduler(commands.Cog):
 
     @commands.guild_only()
     @commands.command()
-    async def unschedule(self, ctx, info):
+    async def unschedule(self, ctx: commands.Context, info: str):
         """
         unschedule something.
         """
@@ -327,7 +330,12 @@ class Scheduler(commands.Cog):
 
         await self.task_menu(ctx, tasks)
 
-    async def task_menu(self, ctx, tasks, message: Optional[discord.Message] = None):
+    async def task_menu(
+        self,
+        ctx: commands.Context,
+        tasks: List[Task],
+        message: Optional[discord.Message] = None,
+    ):
 
         color = await ctx.embed_color()
 
@@ -367,7 +375,7 @@ class Scheduler(commands.Cog):
         await menu(ctx, embeds, controls, message=message)
 
     @commands.command(name="remindme", usage="<what to be reminded of> <args>")
-    async def reminder(self, ctx, *, reminder: Schedule):
+    async def reminder(self, ctx: commands.Context, *, reminder: Schedule):
         """
         Schedule a reminder DM from the bot
 
@@ -426,28 +434,28 @@ class Scheduler(commands.Cog):
 
     @commands.check(lambda ctx: ctx.message.__class__.__name__ == "SchedulerMessage")
     @commands.group(hidden=True, name="schedhelpers")
-    async def helpers(self, ctx):
+    async def helpers(self, ctx: commands.Context):
         """ helper commands for scheduler use """
         pass
 
     @helpers.command(name="say")
-    async def say(self, ctx, *, content):
+    async def say(self, ctx: commands.Context, *, content: str):
         await ctx.send(content)
 
     @helpers.command(name="selfwhisper")
-    async def swhisp(self, ctx, *, content):
+    async def swhisp(self, ctx: commands.Context, *, content: str):
         with contextlib.suppress(discord.HTTPException):
             await ctx.author.send(content)
 
     @commands.admin_or_permissions(manage_guild=True)
     @commands.guild_only()
     @commands.group()
-    async def scheduleradmin(self, ctx):
+    async def scheduleradmin(self, ctx: commands.Context):
         """ Administrative commands for scheduler """
         pass
 
     @scheduleradmin.command()
-    async def viewall(self, ctx):
+    async def viewall(self, ctx: commands.Context):
         """ view all scheduled events in a guild """
 
         tasks = await self.fetch_tasks_by_guild(ctx.guild)
@@ -458,7 +466,7 @@ class Scheduler(commands.Cog):
         await self.task_menu(ctx, tasks)
 
     @scheduleradmin.command()
-    async def kill(self, ctx, *, task_id):
+    async def kill(self, ctx: commands.Context, *, task_id: str):
         """ kill another user's task (id only) """
 
         tasks = await self.fetch_task_by_attrs_exact(uid=task_id)

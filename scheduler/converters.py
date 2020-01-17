@@ -10,10 +10,14 @@ from redbot.core.commands import Context, BadArgument, Converter
 from .time_utils import parse_time, parse_timedelta
 
 
-def non_numeric(arg: str) -> str:
-    if arg.isdigit():
-        raise BadArgument("Event names must contain at least 1 non-numeric value")
-    return arg
+class NonNumeric(NamedTuple):
+    parsed: str
+
+    @classmethod
+    async def convert(cls, context: Context, argument: str):
+        if argument.isdigit():
+            raise BadArgument("Event names must contain at least 1 non-numeric value")
+        return cls(argument)
 
 
 class NoExitParser(argparse.ArgumentParser):
