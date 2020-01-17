@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import functools
 import io
+import os
 import subprocess  # nosec
+import sys
 from concurrent.futures import ThreadPoolExecutor
 
 import discord
@@ -23,9 +25,11 @@ class Runner(commands.Cog):
 
     def cog_unload(self):
         self.executor.shutdown(wait=False)
-
+        
     async def _run(self, command):
-
+        env = os.environ.copy()
+        if hasattr(sys, "real_prefix") or sys.base_prefix != sys.prefix:
+            env["PATH"] = f"{sys.prefix}:{env['PATH']}"
         return (
             await self.bot.loop.run_in_executor(
                 self.executor,
@@ -35,6 +39,7 @@ class Runner(commands.Cog):
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     shell=True,  # nosec
+                    env=env,
                 ),
             )
         ).stdout
