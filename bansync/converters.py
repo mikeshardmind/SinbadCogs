@@ -62,6 +62,15 @@ class SyndicatedConverter:
     shred_ratelimits: bool = False
     auto: bool = False
 
+    def to_dict(self) -> dict:
+        return {
+            "sources": self.sources,
+            "dests": self.dests,
+            "usr": self.usr,
+            "shred_ratelimits": self.shred_ratelimits,
+            "auto": self.auto,
+        }
+
     @classmethod
     async def convert(cls, ctx: Context, argument: str):
 
