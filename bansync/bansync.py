@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
-import dataclasses
 import io
 import json
 from datetime import datetime
@@ -30,7 +29,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "323.0.0"
+    __version__ = "323.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -504,7 +503,8 @@ class BanSync(commands.Cog):
         """
 
         async with ctx.typing():
-            await self.process_sync(**dataclasses.asdict(query))
+            kwargs = query.to_dict()
+            await self.process_sync(**kwargs)
         await ctx.tick()
 
     @syndicated_bansync.error
