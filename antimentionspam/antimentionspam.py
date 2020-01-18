@@ -5,11 +5,13 @@ from datetime import timedelta, datetime
 from typing import Dict
 
 import discord
-from redbot.core import commands, checks
+from redbot.core import checks
 from redbot.core.bot import Red
 from redbot.core.config import Config
 from redbot.core.modlog import create_case
 from redbot.core.utils.antispam import AntiSpam
+
+from . import commands
 
 log = logging.getLogger("red.sinbadcogs.antimentionspam")
 
@@ -19,7 +21,7 @@ __all__ = ["AntiMentionSpam"]
 class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
-    __version__ = "323.0.0"
+    __version__ = "323.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -83,6 +85,7 @@ class AntiMentionSpam(commands.Cog):
             if number > 0 and seconds > 0
             else "Mention interval filtering has been disabled"
         )
+        assert ctx.guild, "mypy"  # nosec
         self.antispam[ctx.guild.id] = {}
         await ctx.send(message)
 
