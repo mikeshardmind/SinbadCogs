@@ -18,7 +18,7 @@ def as_iterable(item: Union[Iterable, SupportsInt]) -> Iterable:
 
 class General(RedGeneral):
 
-    __version__ = "323.0.0"
+    __version__ = "323.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -96,7 +96,10 @@ class General(RedGeneral):
             except Exception:
                 await ctx.send("Invalid expression")
             else:
-                await ctx.send(f"{ctx.author.mention}\n```\n{result}\n```")
+                m = f"{ctx.author.mention}\n```\n{result}\n```"
+                if len(m) > 1800:
+                    m = "Oops, too many dice, I dropped some"
+                await ctx.send(m)
 
     @commands.guild_only()
     @commands.command(name="makemacro")
