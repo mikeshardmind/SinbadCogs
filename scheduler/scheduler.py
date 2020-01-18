@@ -27,7 +27,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.0.6"
+    __version__ = "323.0.7"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -49,7 +49,7 @@ class Scheduler(commands.Cog):
         self._iter_lock = asyncio.Lock()
 
     def init(self):
-        self.bot.loop.create_task(self.bg_loop())
+        self.bg_loop_task = self.bot.loop.create_task(self.bg_loop())
 
     def cog_unload(self):
         if self.bg_loop_task:
