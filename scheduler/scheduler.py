@@ -312,6 +312,7 @@ class Scheduler(commands.Cog):
             if not quiet:
                 await ctx.tick()
 
+    @checks.bot_has_permissions(add_reactions=True, embed_links=True)
     @commands.guild_only()
     @commands.command()
     async def showscheduled(self, ctx: commands.Context, all_channels: bool = False):
@@ -454,6 +455,7 @@ class Scheduler(commands.Cog):
         """ Administrative commands for scheduler """
         pass
 
+    @checks.bot_has_permissions(add_reactions=True, embed_links=True)
     @scheduleradmin.command()
     async def viewall(self, ctx: commands.Context):
         """ view all scheduled events in a guild """
