@@ -35,7 +35,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "323.0.1"
+    __version__ = "323.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
