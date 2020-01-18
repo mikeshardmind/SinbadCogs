@@ -15,5 +15,5 @@
         "feedparser==6.0.0b1",
         "discord-text-sanitizer"
     ],
-    "min_bot_version": "3.2.0a0.dev1"
+    "min_bot_version": "3.2.3"
 }
