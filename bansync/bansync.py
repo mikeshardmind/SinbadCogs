@@ -5,20 +5,26 @@ import contextlib
 import io
 import json
 from datetime import datetime
-from typing import List, Set, Union, AsyncIterator, Dict, Optional
+from typing import List, Set, Union, AsyncIterator, Dict, Optional, cast
 
 import discord
-from redbot.core import commands, checks
+from redbot.core import checks
 from redbot.core.bot import Red
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.modlog import create_case
 from redbot.core.utils.chat_formatting import box, pagify
 
+from . import commands
 from .converters import SyndicatedConverter, ParserError, MemberOrID
 
 GuildList = List[discord.Guild]
 GuildSet = Set[discord.Guild]
+UserLike = Union[discord.Member, discord.User]
+
+
+def mock_user(idx: int) -> UserLike:
+    return cast(discord.User, discord.Object(id=idx))
 
 _ = Translator("BanSync", __file__)
 
@@ -70,6 +76,7 @@ class BanSync(commands.Cog):
         bansync with an explicit choice to include the server.
         syndicatebans with automatic destinations
         """
+        assert ctx.guild, "mypy"  # nosec
         async with self.config.excluded_from_automatic() as exclusions:
             if ctx.guild.id in exclusions:
                 return await ctx.send(
@@ -87,6 +94,7 @@ class BanSync(commands.Cog):
 
         See `[p]help bansyncset automaticoptout` for more details
         """
+        assert ctx.guild, "mypy"  # nosec
         async with self.config.excluded_from_automatic() as exclusions:
             if ctx.guild.id not in exclusions:
                 return await ctx.send(
@@ -103,6 +111,7 @@ class BanSync(commands.Cog):
         """
         Exports current servers bans to json
         """
+        assert ctx.guild, "mypy"  # nosec
         bans = await ctx.guild.bans()
 
         data = [b.user.id for b in bans]
@@ -131,6 +140,7 @@ class BanSync(commands.Cog):
         """
         Imports bans from json
         """
+        assert ctx.guild, "mypy"  # nosec
 
         if not ctx.message.attachments:
             return await ctx.send(
@@ -199,7 +209,7 @@ class BanSync(commands.Cog):
                 )
             )
 
-    async def can_sync(self, guild: discord.Guild, mod: discord.User) -> bool:
+    async def can_sync(self, guild: discord.Guild, mod: UserLike) -> bool:
         """
         Determines if the specified user should
         be considered allowed to sync bans to the specified guild
@@ -230,7 +240,7 @@ class BanSync(commands.Cog):
         return False
 
     async def ban_filter(
-        self, guild: discord.Guild, mod: discord.User, target: discord.abc.Snowflake
+        self, guild: discord.Guild, mod: UserLike, target: discord.abc.Snowflake
     ) -> bool:
         """
         Determines if the specified user can ban another specified user in a guild
@@ -273,7 +283,7 @@ class BanSync(commands.Cog):
         guild: discord.Guild,
         _id: int,
         *,
-        mod: discord.User,
+        mod: UserLike,
         reason: Optional[str] = None,
     ) -> bool:
         """
@@ -292,10 +302,10 @@ class BanSync(commands.Cog):
         bool
             Whether the ban was successful
         """
-        member: Optional[discord.abc.Snowflake] = guild.get_member(_id)
+        member: Optional[UserLike] = guild.get_member(_id)
         reason = reason or _("Ban synchronization")
         if member is None:
-            member = discord.Object(id=_id)
+            member = mock_user(_id)
         if not await self.ban_filter(guild, mod, member):
             return False
         try:
@@ -527,15 +537,13 @@ class BanSync(commands.Cog):
             await ctx.bot.on_command_error(ctx, wrapped_error, unhandled_by_cog=True)
 
     @commands.command(name="mjolnir", aliases=["globalban"])
-    async def mjolnir(
-        self, ctx, users: commands.Greedy[MemberOrID], *, rsn: str = None
-    ):
+    async def mjolnir(self, ctx, *users: MemberOrID):
         """
         Swing the heaviest of ban hammers
         """
         async with ctx.typing():
             banned = [
-                await self.targeted_global_ban(ctx, user.id, rsn) for user in users
+                await self.targeted_global_ban(ctx, user.id) for user in users
             ]
         if any(banned):
             await ctx.message.add_reaction("\N{HAMMER}")
@@ -544,7 +552,7 @@ class BanSync(commands.Cog):
 
     @commands.command()
     async def unglobalban(
-        self, ctx, users: commands.Greedy[MemberOrID], *, reason: str = None
+        self, ctx, *users: MemberOrID
     ):
         """
         To issue forgiveness.
@@ -555,7 +563,7 @@ class BanSync(commands.Cog):
         async def unban(guild, *user_ids, rsn=None):
             for user_id in user_ids:
                 with contextlib.suppress(discord.HTTPException):
-                    await guild.unban(discord.Object(id=user_id), reason=rsn)
+                    await guild.unban(discord.Object(id=user_id))
 
         excluded: GuildSet = {
             g
@@ -566,7 +574,7 @@ class BanSync(commands.Cog):
         guilds = [g async for g in self.guild_discovery(ctx, excluded)]
         uids = [u.id for u in users]
 
-        tasks = [unban(guild, *uids, rsn=reason) for guild in guilds]
+        tasks = [unban(guild, *uids) for guild in guilds]
 
         async with ctx.typing():
             await asyncio.gather(*tasks)

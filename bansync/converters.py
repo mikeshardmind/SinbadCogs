@@ -3,7 +3,7 @@ import contextlib
 import re
 import shlex
 from dataclasses import dataclass
-from typing import NamedTuple, Optional, Set
+from typing import NamedTuple, Optional, Set, Union
 
 import discord
 from redbot.core.commands import Context, BadArgument, MemberConverter
@@ -23,7 +23,7 @@ _mention_regex = re.compile(r"<@!?([0-9]{15,21})>$")
 
 class MemberOrID(NamedTuple):
     member: Optional[discord.Member]
-    id: Optional[int]
+    id: int
 
     @classmethod
     async def convert(cls, ctx: Context, argument: str):
@@ -58,7 +58,7 @@ class SyndicatedConverter:
 
     sources: Set[discord.Guild]
     dests: Set[discord.Guild]
-    usr: discord.User
+    usr: Union[discord.Member, discord.User]
     shred_ratelimits: bool = False
     auto: bool = False
 
