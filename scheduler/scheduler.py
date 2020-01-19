@@ -142,14 +142,6 @@ class Scheduler(commands.Cog):
 
         return 15
 
-    @property
-    def task_class(self):
-        return Task
-
-    async def submit_task(self, task: Task):
-        async with self._iter_lock:
-            self.tasks.append(task)
-
     async def fetch_task_by_attrs_exact(self, **kwargs) -> List[Task]:
         def pred(item):
             try:
