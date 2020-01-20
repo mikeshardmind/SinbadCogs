@@ -27,7 +27,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.0.7"
+    __version__ = "323.0.9"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -240,7 +240,7 @@ class Scheduler(commands.Cog):
         quiet: bool = schedule.quiet or ctx.assume_yes
 
         if await self.fetch_task_by_attrs_exact(
-            author=ctx.author, channel=ctx.channel, nicename=event_name
+            author=ctx.author, channel=ctx.channel, nicename=event_name.parsed
         ):
             if not quiet:
                 return await ctx.send("You already have an event by that name here.")
@@ -256,7 +256,7 @@ class Scheduler(commands.Cog):
         ret = (
             f"Task Scheduled. You can cancel this task with "
             f"`{ctx.clean_prefix}unschedule {ctx.message.id}` "
-            f"or with `{ctx.clean_prefix}unschedule {event_name}`"
+            f"or with `{ctx.clean_prefix}unschedule {event_name.parsed}`"
         )
 
         if recur and t.next_call_delay < 60:
