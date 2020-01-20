@@ -16,7 +16,7 @@ class ChannelRedirect(commands.Cog):
     Redirect commands from wrong channels
     """
 
-    __version__ = "323.0.0a"
+    __version__ = "323.0.1a"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

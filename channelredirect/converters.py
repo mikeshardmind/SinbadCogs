@@ -18,7 +18,7 @@ class CommandConverter(NamedTuple):
 
 class CogOrCOmmand(NamedTuple):
     stype: str
-    obj: Union[commands.Command, commands.Cog]
+    obj: str
 
     @classmethod
     async def convert(cls, ctx: commands.Context, arg: str):
