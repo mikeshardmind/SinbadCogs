@@ -107,18 +107,32 @@ class Task:
             # This looks less natural, but I'm not doing this piecemeal to emulate.
             fmt_date = self.initial.strftime("%A %B %d, %Y at %I%p %Z")
 
-        if self.initial > now:
-            description = f"{self.nicename} starts running on {fmt_date}."
-        else:
-            description = f"{self.nicename} started running on {fmt_date}."
-
         if self.recur:
-            description += (
-                f"\nIt repeats every {humanize_timedelta(timedelta=self.recur)}"
-            )
+            try:
+                fmt_date = self.initial.strftime("%A %B %-d, %Y at %-I%p %Z")
+            except ValueError:  # Windows
+                # This looks less natural, but I'm not doing this piecemeal to emulate.
+                fmt_date = self.initial.strftime("%A %B %d, %Y at %I%p %Z")
+
+            if self.initial > now:
+                description = (
+                    f"{self.nicename} starts running on {fmt_date}."
+                    f"\nIt repeats every {humanize_timedelta(timedelta=self.recur)}"
+                )
+            else:
+                description = (
+                    f"{self.nicename} started running on {fmt_date}."
+                    f"\nIt repeats every {humanize_timedelta(timedelta=self.recur)}"
+                )
             footer = "Next runtime:"
         else:
-            footer = "Runtime:"
+            try:
+                fmt_date = next_run_at.strftime("%A %B %-d, %Y at %-I%p %Z")
+            except ValueError:  # Windows
+                # This looks less natural, but I'm not doing this piecemeal to emulate.
+                fmt_date = next_run_at.strftime("%A %B %d, %Y at %I%p %Z")
+            description = f"{self.nicename} will run at {fmt_date}."
+            footer = "Runtime:"      
 
         embed.set_footer(text=footer)
         embed.description = description
