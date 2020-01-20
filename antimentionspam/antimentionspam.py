@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from datetime import timedelta, datetime
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 
 import discord
 from redbot.core import checks
@@ -21,7 +21,7 @@ __all__ = ["AntiMentionSpam"]
 class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
-    __version__ = "323.0.1"
+    __version__ = "323.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -46,7 +46,7 @@ class AntiMentionSpam(commands.Cog):
 
     @commands.guild_only()
     @commands.group(autohelp=True)
-    async def antimentionspam(self, ctx: commands.Context):
+    async def antimentionspam(self, ctx: commands.GuildContext):
         """
         Configuration settings for AntiMentionSpam
         """
@@ -54,7 +54,7 @@ class AntiMentionSpam(commands.Cog):
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="max")
-    async def set_max_mentions(self, ctx: commands.Context, number: int):
+    async def set_max_mentions(self, ctx: commands.GuildContext, number: int):
         """
         Sets the maximum number of mentions allowed in a message.
 
@@ -71,7 +71,7 @@ class AntiMentionSpam(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="maxinterval")
     async def set_max_interval_mentions(
-        self, ctx: commands.Context, number: int, seconds: int
+        self, ctx: commands.GuildContext, number: int, seconds: int
     ):
         """
         sets the maximum number of mentions allowed in a time period.
@@ -85,13 +85,12 @@ class AntiMentionSpam(commands.Cog):
             if number > 0 and seconds > 0
             else "Mention interval filtering has been disabled"
         )
-        assert ctx.guild, "mypy"  # nosec
         self.antispam[ctx.guild.id] = {}
         await ctx.send(message)
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="autobantoggle")
-    async def autobantoggle(self, ctx: commands.Context, enabled: bool = None):
+    async def autobantoggle(self, ctx: commands.GuildContext, enabled: bool = None):
         """
         Toggle automatic ban for spam (default off)
         """
@@ -104,7 +103,7 @@ class AntiMentionSpam(commands.Cog):
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="warnmsg")
-    async def warnmessage(self, ctx: commands.Context, *, msg: str):
+    async def warnmessage(self, ctx: commands.GuildContext, *, msg: str):
         """
         Sets the warn message. a message of "clear" turns the warn message off
         """
@@ -116,7 +115,7 @@ class AntiMentionSpam(commands.Cog):
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="singlebantoggle")
-    async def singlebantog(self, ctx: commands.Context, enabled: bool = None):
+    async def singlebantog(self, ctx: commands.GuildContext, enabled: bool = None):
         """
         Sets if single message limits allow a ban
 
@@ -129,7 +128,7 @@ class AntiMentionSpam(commands.Cog):
 
     @checks.admin_or_permissions(manage_guild=True)
     @antimentionspam.command(name="mutetoggle")
-    async def mute_toggle(self, ctx: commands.Context, enabled: bool = None):
+    async def mute_toggle(self, ctx: commands.GuildContext, enabled: bool = None):
         """
         Sets if a mute should be applied on exceeding limits set.
         """

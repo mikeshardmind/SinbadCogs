@@ -35,7 +35,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "323.0.2"
+    __version__ = "323.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -61,7 +61,7 @@ class BanSync(commands.Cog):
     @checks.guildowner_or_permissions(administrator=True)
     @commands.guild_only()
     @bansyncset.command()
-    async def automaticoptout(self, ctx: commands.Context):
+    async def automaticoptout(self, ctx: commands.GuildContext):
         """
         This allows you to opt a server out of being selected for some actions
 
@@ -76,7 +76,6 @@ class BanSync(commands.Cog):
         bansync with an explicit choice to include the server.
         syndicatebans with automatic destinations
         """
-        assert ctx.guild, "mypy"  # nosec
         async with self.config.excluded_from_automatic() as exclusions:
             if ctx.guild.id in exclusions:
                 return await ctx.send(
@@ -88,13 +87,12 @@ class BanSync(commands.Cog):
     @checks.guildowner_or_permissions(administrator=True)
     @commands.guild_only()
     @bansyncset.command()
-    async def automaticoptin(self, ctx: commands.Context):
+    async def automaticoptin(self, ctx: commands.GuildContext):
         """
         This allows you to opt back into certain automatic actions.
 
         See `[p]help bansyncset automaticoptout` for more details
         """
-        assert ctx.guild, "mypy"  # nosec
         async with self.config.excluded_from_automatic() as exclusions:
             if ctx.guild.id not in exclusions:
                 return await ctx.send(
@@ -107,11 +105,10 @@ class BanSync(commands.Cog):
     @checks.admin_or_permissions(ban_members=True)
     @commands.guild_only()
     @commands.command(name="exportbans")
-    async def exportbans(self, ctx: commands.Context):
+    async def exportbans(self, ctx: commands.GuildContext):
         """
         Exports current servers bans to json
         """
-        assert ctx.guild, "mypy"  # nosec
         bans = await ctx.guild.bans()
 
         data = [b.user.id for b in bans]
@@ -136,12 +133,10 @@ class BanSync(commands.Cog):
     @checks.admin_or_permissions(ban_members=True)
     @commands.guild_only()
     @commands.command(name="importbans")
-    async def importbans(self, ctx: commands.Context):
+    async def importbans(self, ctx: commands.GuildContext):
         """
         Imports bans from json
         """
-        assert ctx.guild, "mypy"  # nosec
-
         if not ctx.message.attachments:
             return await ctx.send(
                 _(
