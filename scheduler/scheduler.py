@@ -27,7 +27,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.0.9"
+    __version__ = "323.0.10"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -246,7 +246,7 @@ class Scheduler(commands.Cog):
                 return await ctx.send("You already have an event by that name here.")
 
         async with self._iter_lock:
-            async with self.config.channel(ctx.channel).tasks() as tsks:
+            async with self.config.channel(ctx.channel).tasks(acquire_lock=False) as tsks:
                 tsks.update(t.to_config())
             self.tasks.append(t)
 
@@ -419,7 +419,7 @@ class Scheduler(commands.Cog):
         )
 
         async with self._iter_lock:
-            async with self.config.channel(ctx.channel).tasks() as tsks:
+            async with self.config.channel(ctx.channel).tasks(acquire_lock=False) as tsks:
                 tsks.update(t.to_config())
             self.tasks.append(t)
 
@@ -564,7 +564,7 @@ class Scheduler(commands.Cog):
                 self.delayed_wrap_and_invoke(mute_task, 0)
             )
 
-            async with self.config.channel(ctx.channel).tasks() as tsks:
+            async with self.config.channel(ctx.channel).tasks(acquire_lock=False) as tsks:
                 tsks.update(unmute_task.to_config())
             self.tasks.append(unmute_task)
 
@@ -624,6 +624,6 @@ class Scheduler(commands.Cog):
                 self.delayed_wrap_and_invoke(mute_task, 0)
             )
 
-            async with self.config.channel(ctx.channel).tasks() as tsks:
+            async with self.config.channel(ctx.channel).tasks(acquire_lock=False) as tsks:
                 tsks.update(unmute_task.to_config())
             self.tasks.append(unmute_task)
