@@ -132,7 +132,7 @@ class Task:
                 # This looks less natural, but I'm not doing this piecemeal to emulate.
                 fmt_date = next_run_at.strftime("%A %B %d, %Y at %I%p %Z")
             description = f"{self.nicename} will run at {fmt_date}."
-            footer = "Runtime:"      
+            footer = "Runtime:"
 
         embed.set_footer(text=footer)
         embed.description = description

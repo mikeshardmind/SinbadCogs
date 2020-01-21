@@ -26,6 +26,7 @@ UserLike = Union[discord.Member, discord.User]
 def mock_user(idx: int) -> UserLike:
     return cast(discord.User, discord.Object(id=idx))
 
+
 _ = Translator("BanSync", __file__)
 
 
@@ -537,18 +538,14 @@ class BanSync(commands.Cog):
         Swing the heaviest of ban hammers
         """
         async with ctx.typing():
-            banned = [
-                await self.targeted_global_ban(ctx, user.id) for user in users
-            ]
+            banned = [await self.targeted_global_ban(ctx, user.id) for user in users]
         if any(banned):
             await ctx.message.add_reaction("\N{HAMMER}")
         else:
             await ctx.send(_("You are not worthy"))
 
     @commands.command()
-    async def unglobalban(
-        self, ctx, *users: MemberOrID
-    ):
+    async def unglobalban(self, ctx, *users: MemberOrID):
         """
         To issue forgiveness.
 

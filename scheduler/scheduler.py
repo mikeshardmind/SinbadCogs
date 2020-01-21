@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import functools
+import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
@@ -14,7 +15,6 @@ from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 from .checks import can_run_command
 from .converters import NonNumeric, Schedule, TempMute
-from .logs import get_logger
 from .tasks import Task
 
 _ = Translator("And I think it's gonna be a long long time...", __file__)
@@ -27,20 +27,19 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.0.10"
+    __version__ = "323.1.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
         return f"{pre_processed}\nCog Version: {self.__version__}"
 
     def __init__(self, bot, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.bot = bot
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
         self.config.register_channel(tasks={})  # Serialized Tasks go in here.
-        self.log = get_logger("sinbadcogs.scheduler")
+        self.log = logging.getLogger("red.sinbadcogs.scheduler")
         self.bg_loop_task: Optional[asyncio.Task] = None
         self.scheduled: Dict[
             str, asyncio.Task
@@ -49,14 +48,13 @@ class Scheduler(commands.Cog):
         self._iter_lock = asyncio.Lock()
 
     def init(self):
-        self.bg_loop_task = self.bot.loop.create_task(self.bg_loop())
+        self.bg_loop_task = asyncio.create_task(self.bg_loop())
 
     def cog_unload(self):
         if self.bg_loop_task:
             self.bg_loop_task.cancel()
         for task in self.scheduled.values():
             task.cancel()
-        self.log.handlers = []
 
     async def _load_tasks(self):
         chan_dict = await self.config.all_channels()
@@ -246,7 +244,9 @@ class Scheduler(commands.Cog):
                 return await ctx.send("You already have an event by that name here.")
 
         async with self._iter_lock:
-            async with self.config.channel(ctx.channel).tasks(acquire_lock=False) as tsks:
+            async with self.config.channel(ctx.channel).tasks(
+                acquire_lock=False
+            ) as tsks:
                 tsks.update(t.to_config())
             self.tasks.append(t)
 
@@ -419,7 +419,9 @@ class Scheduler(commands.Cog):
         )
 
         async with self._iter_lock:
-            async with self.config.channel(ctx.channel).tasks(acquire_lock=False) as tsks:
+            async with self.config.channel(ctx.channel).tasks(
+                acquire_lock=False
+            ) as tsks:
                 tsks.update(t.to_config())
             self.tasks.append(t)
 
@@ -564,7 +566,9 @@ class Scheduler(commands.Cog):
                 self.delayed_wrap_and_invoke(mute_task, 0)
             )
 
-            async with self.config.channel(ctx.channel).tasks(acquire_lock=False) as tsks:
+            async with self.config.channel(ctx.channel).tasks(
+                acquire_lock=False
+            ) as tsks:
                 tsks.update(unmute_task.to_config())
             self.tasks.append(unmute_task)
 
@@ -624,6 +628,8 @@ class Scheduler(commands.Cog):
                 self.delayed_wrap_and_invoke(mute_task, 0)
             )
 
-            async with self.config.channel(ctx.channel).tasks(acquire_lock=False) as tsks:
+            async with self.config.channel(ctx.channel).tasks(
+                acquire_lock=False
+            ) as tsks:
                 tsks.update(unmute_task.to_config())
             self.tasks.append(unmute_task)
