@@ -15,8 +15,14 @@ from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 class Runner(commands.Cog):
     """
-    Look, it works..... don't use this.
+    Look, it works. Be careful when using this.
     """
+
+    __version__ = "323.0.1"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
 
     def __init__(self, bot, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,7 +62,7 @@ class Runner(commands.Cog):
     @commands.command()
     async def shell(self, ctx: commands.Context, *, command: str):
         """
-        runs a command
+        Runs a command.
         """
         async with ctx.typing():
             result = await self._run(command)
@@ -85,7 +91,7 @@ class Runner(commands.Cog):
         await menu(ctx, pages, DEFAULT_CONTROLS)
 
     @checks.is_owner()
-    @commands.command(hidden=True)
+    @commands.command()
     async def killshells(self, ctx: commands.Context):
         """
         kills the shells
