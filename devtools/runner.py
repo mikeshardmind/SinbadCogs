@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import functools
 import io
+import os
 import subprocess  # nosec
+import sys
 from concurrent.futures import ThreadPoolExecutor
 
 import discord
@@ -25,7 +27,17 @@ class Runner(commands.Cog):
         self.executor.shutdown(wait=False)
 
     async def _run(self, command):
-
+        env = os.environ.copy()
+        if hasattr(sys, "real_prefix") or sys.base_prefix != sys.prefix:
+            # os.path.sep - this is folder separator, i.e. `\` on win or `/` on unix
+            # os.pathsep - this is paths separator in PATH, i.e. `;` on win or `:` on unix
+            # a wonderful idea to call them almost the same >.<
+            if sys.platform == "win32":
+                binfolder = f"{sys.prefix}{os.path.sep}Scripts"
+                env["PATH"] = f"{binfolder}{os.pathsep}{env['PATH']}"
+            else:
+                binfolder = f"{sys.prefix}{os.path.sep}bin"
+                env["PATH"] = f"{binfolder}{os.pathsep}{env['PATH']}"
         return (
             await self.bot.loop.run_in_executor(
                 self.executor,
@@ -35,6 +47,7 @@ class Runner(commands.Cog):
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     shell=True,  # nosec
+                    env=env,
                 ),
             )
         ).stdout
