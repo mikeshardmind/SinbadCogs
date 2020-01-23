@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import asyncio
+import re
 from abc import ABCMeta
 from typing import AsyncIterator, Tuple, Optional, Union
 
@@ -45,7 +46,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.1.0"
+    __version__ = "323.1.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -56,7 +57,9 @@ class RoleManagement(
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_global(handled_variation=False)
+        self.config.register_global(
+            handled_variation=False, handled_full_str_emoji=False
+        )
         self.config.register_role(
             exclusive_to=[],
             requires_any=[],
@@ -78,7 +81,8 @@ class RoleManagement(
         super().__init__()
 
     def cog_unload(self):
-        self._start_task.cancel()
+        if self._start_task:
+            self._start_task.cancel()
 
     def init(self):
         self._start_task = asyncio.create_task(self.initialization())
@@ -100,6 +104,24 @@ class RoleManagement(
 
             await self.config.custom("REACTROLE").set(data)
             await self.config.handled_variation.set(True)
+
+        if not await self.config.handled_full_str_emoji():
+            data = await self.config.custom("REACTROLE").all()
+            to_adjust = {}
+            pattern = re.compile(r"^(<?a?:)?([A-Za-z0-9_]+):([0-9]+)(\:?>?)$")
+            # Am not a fan....
+            for message_id, emojis_to_data in data.items():
+                for emoji_key in emojis_to_data:
+                    new_key, c = pattern.subn(r"\3", emoji_key)
+                    if c:
+                        to_adjust[(message_id, emoji_key)] = new_key
+
+            for (message_id, emoji_key), new_key in to_adjust.items():
+                data[message_id, new_key] = data[message_id, emoji_key]
+                data.pop((message_id, emoji_key), None)
+
+            await self.config.custom("REACTROLE").set(data)
+            await self.config.handled_full_str_emoji.set(True)
 
         self._ready.set()
 
