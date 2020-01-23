@@ -32,7 +32,7 @@ def get_name(c: str) -> str:
 class DevTools(commands.Cog):
     """ Some tools """
 
-    __version__ = "323.1.3"
+    __version__ = "323.1.4"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -105,7 +105,7 @@ class DevTools(commands.Cog):
                 f"\nExample: "
                 f"\n```py\n"
                 f"# The example uses the emoji you used\n"
-                f'await ctx.send("{to_send})"\n'
+                f'await ctx.send("{to_send}")\n'
                 f'await ctx.message.add_reaction("{to_send}")\n```'
             )
         else:
