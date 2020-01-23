@@ -20,6 +20,14 @@ class MixinMeta(ABC):
         self.bot: Red
 
     @abstractmethod
+    def strip_variations(self, s: str) -> str:
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def wait_for_ready(self) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
     async def is_self_assign_eligible(
         self, who: discord.Member, role: discord.Role
     ) -> List[discord.Role]:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import List
 
 import discord
@@ -11,11 +12,19 @@ from .exceptions import (
     PermissionOrHierarchyException,
 )
 
+variation_stripper_re = re.compile(r"[\ufe00-\ufe0f]")
+
 
 class UtilMixin(MixinMeta):
     """
     Mixin for utils, some of which need things stored in the class
     """
+
+    def strip_variations(self, s: str) -> str:
+        """
+        Normalizes emoji, removing variation selectors
+        """
+        return variation_stripper_re.sub("", s)
 
     async def update_roles_atomically(
         self,
