@@ -12,6 +12,7 @@ from redbot.core.utils import menus
 from redbot.core.utils.chat_formatting import box, pagify
 
 SPOILER_RE = re.compile(r"(?s)\|{2}(?P<CONTENT>.*?)\|{2}")
+VARIATION = "\N{VARIATION SELECTOR-16}"
 
 
 def get_name(c: str) -> str:
@@ -29,7 +30,7 @@ def get_name(c: str) -> str:
 class DevTools(commands.Cog):
     """ Some tools """
 
-    __version__ = "323.0.0"
+    __version__ = "323.1.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -84,17 +85,28 @@ class DevTools(commands.Cog):
                 "reaction_add",
                 check=(lambda r, u: u == ctx.author and r.message.id == m.id),
                 timeout=60,
-            )  # type: discord.Reaction, discord.User
+            )
         except asyncio.TimeoutError:
             return await ctx.send("Okay, try again later.")
         else:
             emoji = react.emoji
 
         if isinstance(emoji, str):
+            # if len(emoji) == 1:
+            #    emoji = emoji + VARIATION
+            # Should use a better test, this isn't actually accurate.
             to_send = "".join(get_name(c) for c in emoji)
             await ctx.send(
-                f"To send or react with this unicode emoji, send or react with:"
-                f'\n```\n"{to_send}"\n```'
+                f"This is a unicode emoji. To send it or react with it, "
+                f"just pass the string itself. Some emoji should use variation-selector-16 "
+                f"to request an emoji rendering for consistent behavior. "
+                f"(further reading <https://unicode.org/Public/emoji/12.1/emoji-variation-sequences.txt>)"
+                f"\nExample: "
+                f"\n```py\n"
+                f"emoji = {to_send}\n"
+                f"# The example uses the emoji you used\n"
+                f'await ctx.send("Some string {{}}".format(emoji))\n'
+                f"await ctx.message.add_reaction(emoji)\n```"
             )
         else:
             await ctx.send(
