@@ -16,7 +16,7 @@ class ChannelRedirect(commands.Cog):
     Redirect commands from wrong channels
     """
 
-    __version__ = "323.0.1a"
+    __version__ = "323.0.1b"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -37,7 +37,6 @@ class ChannelRedirect(commands.Cog):
             immunities={},
             com_whitelist={"cog": {}, "command": {}},
         )
-        bot.before_invoke(self.before_invoke_hook)
 
     def cog_unload(self):
         self.bot.remove_before_invoke_hook(self.before_invoke_hook)
@@ -102,10 +101,9 @@ class ChannelRedirect(commands.Cog):
             return True
 
         imset = await self.config.guild(ctx.guild).immunities.all()
-        vals = [v for k, v in imset.items() if k in (str(ctx.channel.id), "global")]
-        immune_ids = set()
-        for val in vals:
-            immune_ids.update({int(v) for v in val})
+        immune_ids = {
+            int(v) for k, v in imset.items() if k in (str(ctx.channel.id), "global")
+        }
 
         if immune_ids & {r.id for r in ctx.author.roles}:
             return True
@@ -118,7 +116,7 @@ class ChannelRedirect(commands.Cog):
         allowed_chans = await self.get_allowed_channels(ctx)
 
         if ctx.channel not in allowed_chans and not isinstance(
-            ctx.command, commands._AlwaysAvailableCommand
+            ctx.command, commands.commands._AlwaysAvailableCommand
         ):
             chan_mentions = ", ".join(c.mention for c in allowed_chans)
             await ctx.send(

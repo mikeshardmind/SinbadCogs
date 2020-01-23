@@ -2,11 +2,11 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "Cog for redirecting command uses to other channels",
+    "install_msg": "This cog is still in early stages, but ff you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "ChannelRedirect",
     "disabled": false,
-    "short": "",
-    "description": "",
+    "short": "Cog for redirecting command uses to other channels.",
+    "description": "Why don't we take these command uses, and shove them somewhere else.",
     "tags": [],
     "hidden": false,
     "min_bot_version": "3.2.3"
