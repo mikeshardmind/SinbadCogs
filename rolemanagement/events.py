@@ -43,6 +43,7 @@ class EventMixin(MixinMeta):
         Section has been optimized assuming member._roles
         remains an iterable containing snowflakes
         """
+        await self.wait_for_ready()
         if before._roles == after._roles:
             return
 
@@ -65,6 +66,7 @@ class EventMixin(MixinMeta):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        await self.wait_for_ready()
         guild = member.guild
         if not guild.me.guild_permissions.manage_roles:
             return
@@ -85,12 +87,17 @@ class EventMixin(MixinMeta):
     async def on_raw_reaction_add(
         self, payload: discord.raw_models.RawReactionActionEvent
     ):
+        await self.wait_for_ready()
         if not payload.guild_id:
             return
 
         emoji = payload.emoji
-        eid = emoji.id if emoji.is_custom_emoji() else str(emoji)
-        cfg = self.config.custom("REACTROLE", payload.message_id, eid)
+        if emoji.is_custom_emoji():
+            eid = str(emoji.id)
+        else:
+            eid = self.strip_variations(str(emoji))
+
+        cfg = self.config.custom("REACTROLE", str(payload.message_id), eid)
         rid = await cfg.roleid()
         if rid is None or not await self.config.role_from_id(rid).self_role():
             return
@@ -122,12 +129,18 @@ class EventMixin(MixinMeta):
     async def on_raw_reaction_remove(
         self, payload: discord.raw_models.RawReactionActionEvent
     ):
+        await self.wait_for_ready()
         if not payload.guild_id:
             return
 
         emoji = payload.emoji
-        eid = emoji.id if emoji.is_custom_emoji() else str(emoji)
-        cfg = self.config.custom("REACTROLE", payload.message_id, eid)
+
+        if emoji.is_custom_emoji():
+            eid = str(emoji.id)
+        else:
+            eid = self.strip_variations(str(emoji))
+
+        cfg = self.config.custom("REACTROLE", str(payload.message_id), eid)
         rid = await cfg.roleid()
 
         if rid is None:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import asyncio
 from abc import ABCMeta
 from typing import AsyncIterator, Tuple, Optional, Union
 
@@ -13,7 +14,7 @@ from redbot.core.utils.chat_formatting import box, pagify
 from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
 from .massmanager import MassManagementMixin
-from .utils import UtilMixin
+from .utils import UtilMixin, variation_stripper_re
 
 
 # This previously used ``(type(commands.Cog), type(ABC))``
@@ -44,7 +45,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.0.2"
+    __version__ = "323.1.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -55,6 +56,7 @@ class RoleManagement(
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
+        self.config.register_global(handled_variation=False)
         self.config.register_role(
             exclusive_to=[],
             requires_any=[],
@@ -71,9 +73,41 @@ class RoleManagement(
             "REACTROLE", roleid=None, channelid=None, guildid=None
         )  # ID : Message.id, str(React)
         self.config.register_guild(notify_channel=None)
+        self._ready = asyncio.Event()
+        self._start_task: Optional[asyncio.Task] = None
         super().__init__()
 
+    def cog_unload(self):
+        self._start_task.cancel()
+
+    def init(self):
+        self._start_task = asyncio.create_task(self.initialization())
+
+    async def initialization(self):
+        await self.bot.wait_until_red_ready()
+        if not await self.config.handled_variation():
+            data = await self.config.custom("REACTROLE").all()
+            to_adjust = {}
+            for message_id, emojis_to_data in data.items():
+                for emoji_key in emojis_to_data:
+                    new_key, c = variation_stripper_re.subn("", emoji_key)
+                    if c:
+                        to_adjust[(message_id, emoji_key)] = new_key
+
+            for (message_id, emoji_key), new_key in to_adjust.items():
+                data[message_id, new_key] = data[message_id, emoji_key]
+                data.pop((message_id, emoji_key), None)
+
+            await self.config.custom("REACTROLE").set(data)
+            await self.config.handled_variation.set(True)
+
+        self._ready.set()
+
+    async def wait_for_ready(self):
+        await self._ready.wait()
+
     async def cog_before_invoke(self, ctx):
+        await self.wait_for_ready()
         if ctx.guild:
             await self.maybe_update_guilds(ctx.guild)
 
@@ -188,7 +222,7 @@ class RoleManagement(
                 return await ctx.maybe_send_embed("No such emoji")
             else:
                 _emoji = emoji
-                eid = emoji
+                eid = self.strip_variations(emoji)
         else:
             eid = str(_emoji.id)
 
@@ -230,7 +264,9 @@ class RoleManagement(
                 "Can't do that. Discord role heirarchy applies here."
             )
 
-        await self.config.custom("REACTROLE", f"{msgid}", emoji).clear()
+        await self.config.custom(
+            "REACTROLE", f"{msgid}", self.strip_variations(emoji)
+        ).clear()
         await ctx.tick()
 
     @commands.guild_only()
