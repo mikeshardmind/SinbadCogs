@@ -16,7 +16,7 @@ class ChannelRedirect(commands.Cog):
     Redirect commands from wrong channels
     """
 
-    __version__ = "323.0.1b"
+    __version__ = "323.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -62,12 +62,13 @@ class ChannelRedirect(commands.Cog):
     ) -> Set[discord.TextChannel]:
 
         guild = ctx.guild
+        assert guild is not None  # nosec
         com = com or ctx.command
         gset = await self.config.guild(guild).all()
         channels = guild.text_channels
         allowed_ids: Set[int] = set()
 
-        if self.should_early_exit(gset, com):
+        if com and self.should_early_exit(gset, com):
             return set(channels)
 
         if gset["mode"] == "whitelist":
@@ -127,6 +128,7 @@ class ChannelRedirect(commands.Cog):
         else:
             return True
 
+    @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     @commands.group(name="redirectset")
     async def rset(self, ctx):
