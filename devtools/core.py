@@ -30,7 +30,7 @@ def get_name(c: str) -> str:
 class DevTools(commands.Cog):
     """ Some tools """
 
-    __version__ = "323.1.1"
+    __version__ = "323.1.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -100,13 +100,12 @@ class DevTools(commands.Cog):
                 f"This is a unicode emoji. To send it or react with it, "
                 f"just pass the string itself. Some emoji should use variation-selector-16 "
                 f"to request an emoji rendering for consistent behavior. "
-                f"(further reading <https://unicode.org/Public/emoji/12.1/emoji-variation-sequences.txt>)"
+                f"\n(Further reading <https://unicode.org/Public/emoji/12.1/emoji-variation-sequences.txt>)"
                 f"\nExample: "
                 f"\n```py\n"
-                f"emoji = {to_send}\n"
                 f"# The example uses the emoji you used\n"
-                f'await ctx.send("Some string {{}}".format(emoji))\n'
-                f"await ctx.message.add_reaction(emoji)\n```"
+                f'await ctx.send("{to_send})"\n'
+                f'await ctx.message.add_reaction("{to_send}")\n```'
             )
         else:
             await ctx.send(
