@@ -11,6 +11,8 @@ from redbot.core import commands, checks
 from redbot.core.utils import menus
 from redbot.core.utils.chat_formatting import box, pagify
 
+from .variations import APPEND_VARIATIONS_TO
+
 SPOILER_RE = re.compile(r"(?s)\|{2}(?P<CONTENT>.*?)\|{2}")
 VARIATION = "\N{VARIATION SELECTOR-16}"
 
@@ -30,7 +32,7 @@ def get_name(c: str) -> str:
 class DevTools(commands.Cog):
     """ Some tools """
 
-    __version__ = "323.1.2"
+    __version__ = "323.1.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -92,9 +94,8 @@ class DevTools(commands.Cog):
             emoji = react.emoji
 
         if isinstance(emoji, str):
-            # if len(emoji) == 1:
-            #    emoji = emoji + VARIATION
-            # Should use a better test, this isn't actually accurate.
+            if emoji in APPEND_VARIATIONS_TO:
+                emoji = emoji + VARIATION
             to_send = "".join(get_name(c) for c in emoji)
             await ctx.send(
                 f"This is a unicode emoji. To send it or react with it, "
