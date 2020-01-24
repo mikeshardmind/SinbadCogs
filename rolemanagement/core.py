@@ -4,7 +4,7 @@ import contextlib
 import asyncio
 import re
 from abc import ABCMeta
-from typing import AsyncIterator, Tuple, Optional, Union
+from typing import AsyncIterator, Tuple, Optional, Union, List, Dict
 
 import discord
 from discord.ext.commands import CogMeta as DPYCogMeta
@@ -46,7 +46,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.1.1"
+    __version__ = "323.1.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -86,8 +86,10 @@ class RoleManagement(
 
     def init(self):
         self._start_task = asyncio.create_task(self.initialization())
+        self._start_task.add_done_callback(lambda f: f.result())
 
     async def initialization(self):
+        data: Dict[str, Dict[str, Dict[str, Union[int, bool, List[int]]]]]
         await self.bot.wait_until_red_ready()
         if not await self.config.handled_variation():
             data = await self.config.custom("REACTROLE").all()
@@ -99,8 +101,8 @@ class RoleManagement(
                         to_adjust[(message_id, emoji_key)] = new_key
 
             for (message_id, emoji_key), new_key in to_adjust.items():
-                data[message_id, new_key] = data[message_id, emoji_key]
-                data.pop((message_id, emoji_key), None)
+                data[message_id][new_key] = data[message_id][emoji_key]
+                data[message_id].pop(emoji_key, None)
 
             await self.config.custom("REACTROLE").set(data)
             await self.config.handled_variation.set(True)
@@ -117,8 +119,8 @@ class RoleManagement(
                         to_adjust[(message_id, emoji_key)] = new_key
 
             for (message_id, emoji_key), new_key in to_adjust.items():
-                data[message_id, new_key] = data[message_id, emoji_key]
-                data.pop((message_id, emoji_key), None)
+                data[message_id][new_key] = data[message_id][emoji_key]
+                data[message_id].pop(emoji_key, None)
 
             await self.config.custom("REACTROLE").set(data)
             await self.config.handled_full_str_emoji.set(True)
