@@ -164,9 +164,7 @@ class MassManagementMixin(MixinMeta):
 
     @mrole.command(name="search")
     @no_type_check  # TODO
-    async def mrole_search(
-        self, ctx: GuildContext, *, query: ComplexSearchConverter
-    ):
+    async def mrole_search(self, ctx: GuildContext, *, query: ComplexSearchConverter):
         """
         Searches for users with the specified role criteria
 
@@ -273,9 +271,7 @@ class MassManagementMixin(MixinMeta):
 
     @mrole.command(name="modify")
     @no_type_check  # TODO
-    async def mrole_complex(
-        self, ctx: GuildContext, *, query: ComplexActionConverter
-    ):
+    async def mrole_complex(self, ctx: GuildContext, *, query: ComplexActionConverter):
         """
         Similar syntax to search, while applying/removing roles
         
