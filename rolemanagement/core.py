@@ -143,9 +143,7 @@ class RoleManagement(
     @commands.bot_has_permissions(manage_roles=True)
     @checks.admin_or_permissions(manage_roles=True)
     @commands.command(name="hackrole")
-    async def hackrole(
-        self, ctx: GuildContext, user_id: int, *, role: discord.Role
-    ):
+    async def hackrole(self, ctx: GuildContext, user_id: int, *, role: discord.Role):
         """
         Puts a stickyrole on someone not in the server.
         """
@@ -384,7 +382,9 @@ class RoleManagement(
             await ctx.send(page)
 
     @rgroup.command(name="cost")
-    async def make_purchasable(self, ctx: GuildContext, cost: int, *, role: discord.Role):
+    async def make_purchasable(
+        self, ctx: GuildContext, cost: int, *, role: discord.Role
+    ):
         """
         Makes a role purchasable for a specified cost. 
         Cost must be a number greater than 0.
@@ -474,7 +474,9 @@ class RoleManagement(
         await ctx.tick()
 
     @rgroup.command(name="sticky")
-    async def setsticky(self, ctx: GuildContext, role: discord.Role, sticky: bool = None):
+    async def setsticky(
+        self, ctx: GuildContext, role: discord.Role, sticky: bool = None
+    ):
         """
         sets a role as sticky if used without a settings, gets the current ones
         """
@@ -497,9 +499,7 @@ class RoleManagement(
         await ctx.tick()
 
     @rgroup.command(name="requireall")
-    async def reqall(
-        self, ctx: GuildContext, role: discord.Role, *roles: discord.Role
-    ):
+    async def reqall(self, ctx: GuildContext, role: discord.Role, *roles: discord.Role):
         """
         Sets the required roles to gain a role
 
@@ -511,9 +511,7 @@ class RoleManagement(
         await ctx.tick()
 
     @rgroup.command(name="requireany")
-    async def reqany(
-        self, ctx: GuildContext, role: discord.Role, *roles: discord.Role
-    ):
+    async def reqany(self, ctx: GuildContext, role: discord.Role, *roles: discord.Role):
         """
         Sets a role to require already having one of another
 
@@ -525,7 +523,9 @@ class RoleManagement(
         await ctx.tick()
 
     @rgroup.command(name="selfrem")
-    async def selfrem(self, ctx: GuildContext, role: discord.Role, removable: bool = None):
+    async def selfrem(
+        self, ctx: GuildContext, role: discord.Role, removable: bool = None
+    ):
         """
         Sets if a role is self-removable (default False)
 
@@ -544,7 +544,9 @@ class RoleManagement(
         await ctx.tick()
 
     @rgroup.command(name="selfadd")
-    async def selfadd(self, ctx: GuildContext, role: discord.Role, assignable: bool = None):
+    async def selfadd(
+        self, ctx: GuildContext, role: discord.Role, assignable: bool = None
+    ):
         """
         Sets if a role is self-assignable via command
         
@@ -582,7 +584,7 @@ class RoleManagement(
         MYPY = False
         if MYPY:
             # remove this when mypy supports type narrowing from :=
-            # It's less efficient, so not removing the actual 
+            # It's less efficient, so not removing the actual
             # implementation below
             data: Dict[discord.Role, int] = {}
             for role_id, vals in (await self.config.all_roles()).items():
@@ -733,7 +735,7 @@ class RoleManagement(
                 emoji: Union[discord.Emoji, str]
                 if emoji_info.isdigit():
                     emoji = (
-                        discord.utils.get(self.bot.emojis, id=int(emoji_info)) 
+                        discord.utils.get(self.bot.emojis, id=int(emoji_info))
                         or f"A custom enoji with id {emoji_info}"
                     )
                 else:
