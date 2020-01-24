@@ -1,19 +1,23 @@
 import argparse
 import shlex
+from typing import Optional, List, NamedTuple, Dict
+
 from redbot.core.commands import RoleConverter, Context, BadArgument
 import discord
 
+
+_RoleConverter = RoleConverter()
 
 class NoExitParser(argparse.ArgumentParser):
     def error(self, message):
         raise BadArgument()
 
 
-class RoleSyntaxConverter(RoleConverter):
-    def __init__(self):
-        super().__init__()
-
-    async def convert(self, ctx: Context, argument: str):
+class RoleSyntaxConverter(NamedTuple):
+    parsed: Dict[str, List[discord.Role]]
+    
+    @classmethod
+    async def convert(cls, ctx: Context, argument: str):
         parser = NoExitParser(
             description="Role management syntax help", add_help=False, allow_abbrev=True
         )
@@ -29,14 +33,14 @@ class RoleSyntaxConverter(RoleConverter):
 
         for attr in ("add", "remove"):
             vals[attr] = [
-                await super(RoleSyntaxConverter, self).convert(ctx, r)
+                await _RoleConverter.convert(ctx, r)
                 for r in vals[attr]
             ]
 
-        return vals
+        return cls(vals)
 
 
-class ComplexActionConverter(RoleConverter):
+class ComplexActionConverter(NamedTuple):
     """
     --has-all roles
     --has-none roles
@@ -56,11 +60,10 @@ class ComplexActionConverter(RoleConverter):
     --only-bots
     --everyone
     """
+    parsed: dict
 
-    def __init__(self):
-        super().__init__()
-
-    async def convert(self, ctx: Context, argument: str) -> dict:
+    @classmethod
+    async def convert(cls, ctx: Context, argument: str):
 
         parser = NoExitParser(description="Role management syntax help", add_help=False)
         parser.add_argument("--has-any", nargs="*", dest="any", default=[])
@@ -121,14 +124,14 @@ class ComplexActionConverter(RoleConverter):
 
         for attr in ("any", "all", "none", "add", "remove"):
             vals[attr] = [
-                await super(ComplexActionConverter, self).convert(ctx, r)
+                await _RoleConverter.convert(ctx, r)
                 for r in vals[attr]
             ]
 
         for attr in ("below", "above"):
             if vals[attr] is None:
                 continue
-            vals[attr] = await super(ComplexActionConverter, self).convert(
+            vals[attr] = await _RoleConverter.convert(
                 ctx, vals[attr]
             )
 
@@ -141,10 +144,10 @@ class ComplexActionConverter(RoleConverter):
             if any(perm not in dir(discord.Permissions) for perm in vals[attr]):
                 raise BadArgument("You gave an invalid permission")
 
-        return vals
+        return cls(vals)
 
 
-class ComplexSearchConverter(RoleConverter):
+class ComplexSearchConverter(NamedTuple):
     """
     --has-all roles
     --has-none roles
@@ -163,11 +166,10 @@ class ComplexSearchConverter(RoleConverter):
     --everyone
     --csv
     """
+    parsed: dict
 
-    def __init__(self):
-        super().__init__()
-
-    async def convert(self, ctx: Context, argument: str) -> dict:
+    @classmethod
+    async def convert(cls, ctx: Context, argument: str):
         parser = NoExitParser(description="Role management syntax help", add_help=False)
         parser.add_argument("--has-any", nargs="*", dest="any", default=[])
         parser.add_argument("--has-all", nargs="*", dest="all", default=[])
@@ -224,14 +226,14 @@ class ComplexSearchConverter(RoleConverter):
 
         for attr in ("any", "all", "none"):
             vals[attr] = [
-                await super(ComplexSearchConverter, self).convert(ctx, r)
+                await _RoleConverter.convert(ctx, r)
                 for r in vals[attr]
             ]
 
         for attr in ("below", "above"):
             if vals[attr] is None:
                 continue
-            vals[attr] = await super(ComplexSearchConverter, self).convert(
+            vals[attr] = await _RoleConverter.convert(
                 ctx, vals[attr]
             )
 
@@ -244,4 +246,4 @@ class ComplexSearchConverter(RoleConverter):
             if any(perm not in dir(discord.Permissions) for perm in vals[attr]):
                 raise BadArgument("You gave an invalid permission")
 
-        return vals
+        return cls(vals)

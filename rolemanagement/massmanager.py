@@ -1,13 +1,13 @@
 import csv
 import io
 import logging
-from typing import Optional, cast, no_type_check, Set
+from typing import Optional, cast, Set
 
 import discord
 from redbot.core import checks, commands
 
 from .abc import MixinMeta
-from .converters import (
+from .converters import ( 
     RoleSyntaxConverter,
     ComplexActionConverter,
     ComplexSearchConverter,
@@ -125,13 +125,12 @@ class MassManagementMixin(MixinMeta):
         return members
 
     @mrole.command(name="user")
-    @no_type_check
     async def mrole_user(
         self,
         ctx: GuildContext,
         users: commands.Greedy[discord.Member],
         *,
-        roles: RoleSyntaxConverter,
+        _query: RoleSyntaxConverter,
     ) -> None:
         """
         adds/removes roles to one or more users
@@ -148,23 +147,22 @@ class MassManagementMixin(MixinMeta):
         For role operations based on role membership, permissions had, or whether someone is a bot
         (or even just add to/remove from all) see `[p]massrole search` and `[p]massrole modify` 
         """
-        roles = cast(dict, roles)
-        give, remove = roles["add"], roles["remove"]
-        apply = give + remove
+        query = _query.parsed
+        apply = query["add"] + query["remove"]
         if not await self.all_are_valid_roles(ctx, *apply):
-            return await ctx.send(
+            await ctx.send(
                 "Either you or I don't have the required permissions "
                 "or position in the hierarchy."
             )
+            return
 
         for user in users:
-            await self.update_roles_atomically(who=user, give=give, remove=remove)
+            await self.update_roles_atomically(who=user, give=query["add"], remove=query["remove"])
 
         await ctx.tick()
 
     @mrole.command(name="search")
-    @no_type_check  # TODO
-    async def mrole_search(self, ctx: GuildContext, *, query: ComplexSearchConverter):
+    async def mrole_search(self, ctx: GuildContext, *, _query: ComplexSearchConverter):
         """
         Searches for users with the specified role criteria
 
@@ -194,7 +192,7 @@ class MassManagementMixin(MixinMeta):
         """
 
         members = set(ctx.guild.members)
-        query = cast(dict, query)
+        query = _query.parsed
         members = self.search_filter(members, query)
 
         if len(members) < 50 and not query["csv"]:
@@ -210,8 +208,9 @@ class MassManagementMixin(MixinMeta):
                 return ret_str
 
             description = chunker(members)
-            color = ctx.guild.me.color if ctx.guild else discord.Embed.Empty
-            embed = discord.Embed(description=description, color=color)
+            embed = discord.Embed(description=description)
+            if ctx.guild:
+                embed.color = ctx.guild.me.color
             await ctx.send(
                 embed=embed, content=f"Search results for {ctx.author.mention}"
             )
@@ -270,8 +269,7 @@ class MassManagementMixin(MixinMeta):
             del data
 
     @mrole.command(name="modify")
-    @no_type_check  # TODO
-    async def mrole_complex(self, ctx: GuildContext, *, query: ComplexActionConverter):
+    async def mrole_complex(self, ctx: GuildContext, *, _query: ComplexActionConverter):
         """
         Similar syntax to search, while applying/removing roles
         
@@ -298,6 +296,7 @@ class MassManagementMixin(MixinMeta):
         --add roles
         --remove roles
         """
+        query = _query.parsed
         apply = query["add"] + query["remove"]
         if not await self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(

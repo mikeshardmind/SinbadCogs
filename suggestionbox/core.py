@@ -8,6 +8,11 @@ from redbot.core.utils.antispam import AntiSpam
 
 from .checks import has_active_box
 
+try:
+    from redbot.core.commands import GuildContext
+except ImportError:
+    from redbot.core.commands import Context as GuildContext  # type: ignore
+
 _ = Translator("??", __file__)
 
 
@@ -17,7 +22,7 @@ class SuggestionBox(commands.Cog):
     A configureable suggestion box cog
     """
 
-    __version__ = "323.0.1"
+    __version__ = "323.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -88,7 +93,7 @@ class SuggestionBox(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     @commands.guild_only()
     @commands.group(name="suggestionset", aliases=["setsuggestion"])
-    async def sset(self, ctx: commands.Context):
+    async def sset(self, ctx: GuildContext):
         """
         Configuration settings for SuggestionBox
         """
@@ -152,11 +157,11 @@ class SuggestionBox(commands.Cog):
         await ctx.tick()
 
     @has_active_box()
-    @commands.guild_only()  # TODO # Change this with additional logic.
+    @commands.guild_only()
     @commands.command()
     async def suggest(
         self,
-        ctx,
+        ctx: commands.GuildContext,
         channel: Optional[discord.TextChannel] = None,
         *,
         suggestion: str = "",
@@ -224,7 +229,7 @@ class SuggestionBox(commands.Cog):
                 await msg.add_reaction(reaction)
 
     async def get_suggestion_channel(
-        self, ctx: commands.Context, channel: Optional[discord.TextChannel] = None
+        self, ctx: GuildContext, channel: Optional[discord.TextChannel] = None
     ) -> Optional[discord.TextChannel]:
         """ Tries to get the appropriate channel """
 
