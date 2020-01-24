@@ -1,2 +1,3 @@
 discord-text-sanitizer
 mypy
+-e git+https://github.com/mikeshardmind/Red-DiscordBot@typehint-improvements
