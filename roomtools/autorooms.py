@@ -13,6 +13,11 @@ from redbot.core.utils.chat_formatting import pagify
 from .abcs import MixedMeta
 from .checks import aa_active
 
+try:
+    from redbot.core.commands import GuildContext
+except ImportError:
+    from redbot.core.commands import Context as GuildContext  # type: ignore
+
 
 class AutoRooms(MixedMeta):
     """
@@ -159,7 +164,7 @@ class AutoRooms(MixedMeta):
     @commands.bot_has_permissions(manage_channels=True)
     @checks.admin_or_permissions(manage_channels=True)
     @commands.group(autohelp=True)
-    async def autoroomset(self, ctx: commands.Context):
+    async def autoroomset(self, ctx: GuildContext):
         """
         Commands for configuring autorooms
         """
@@ -169,7 +174,7 @@ class AutoRooms(MixedMeta):
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="channelsettings")
     async def setchannelsettings(
-        self, ctx: commands.Context, channel: discord.VoiceChannel
+        self, ctx: GuildContext, channel: discord.VoiceChannel
     ):
         """
         Interactive prompt for editing the autoroom behavior for specific
@@ -228,7 +233,7 @@ class AutoRooms(MixedMeta):
 
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="toggleactive")
-    async def autoroomtoggle(self, ctx: commands.Context, val: bool = None):
+    async def autoroomtoggle(self, ctx: GuildContext, val: bool = None):
         """
         turns autorooms on and off
         """
@@ -243,7 +248,7 @@ class AutoRooms(MixedMeta):
     @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="makeclone")
-    async def makeclone(self, ctx: commands.Context, channel: discord.VoiceChannel):
+    async def makeclone(self, ctx: GuildContext, channel: discord.VoiceChannel):
         """Takes a channel, turns that voice channel into an autoroom"""
 
         await self.ar_config.channel(channel).autoroom.set(True)
@@ -260,7 +265,7 @@ class AutoRooms(MixedMeta):
     @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="listautorooms")
-    async def listclones(self, ctx: commands.Context):
+    async def listclones(self, ctx: GuildContext):
         """Lists the current autorooms"""
         clist = []
         for c in ctx.guild.voice_channels:
@@ -274,7 +279,7 @@ class AutoRooms(MixedMeta):
     @aa_active()
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="toggleowner")
-    async def toggleowner(self, ctx: commands.Context, val: bool = None):
+    async def toggleowner(self, ctx: GuildContext, val: bool = None):
         """toggles if the creator of the autoroom owns it
         requires the "Manage Channels" permission
         Defaults to false"""
@@ -292,7 +297,7 @@ class AutoRooms(MixedMeta):
     @checks.admin_or_permissions(manage_channels=True)
     @autoroomset.command(name="creatorname")
     async def togglecreatorname(
-        self, ctx: commands.Context, channel: discord.VoiceChannel, val: bool = None
+        self, ctx: GuildContext, channel: discord.VoiceChannel, val: bool = None
     ):
         """Toggles if an autoroom will get the owner name after the channel name."""
         if val is None:
