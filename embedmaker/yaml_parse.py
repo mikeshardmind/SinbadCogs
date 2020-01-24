@@ -38,7 +38,8 @@ def handle_timestamp(to_set) -> float:
 async def handle_color(ctx, to_set) -> int:
     x: int
     try:
-        x = (await commands.converter.ColourConverter().convert(ctx, to_set)).value
+        conv = discord.ext.commands.ColourConverter()
+        x = (await conv.convert(ctx, to_set)).value
     except Exception:
         if isinstance(to_set, str) and to_set.startswith("#"):
             x = int(to_set.lstrip("#"), 16)

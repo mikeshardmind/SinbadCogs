@@ -17,6 +17,7 @@ class NwayRelay:
         for idx in self.channel_ids:
             c = self.bot.get_channel(idx)
             if c:
+                assert isinstance(c, discord.TextChannel)  # nosec
                 ret.append(c)
         return ret
 
@@ -29,6 +30,7 @@ class NwayRelay:
                 continue
             c = self.bot.get_channel(idx)
             if c:
+                assert isinstance(c, discord.TextChannel)  # nosec
                 ret.append(c)
         return ret
 
@@ -56,6 +58,7 @@ class OnewayRelay:
         for idx in self.destination_ids:
             c = self.bot.get_channel(idx)
             if c:
+                assert isinstance(c, discord.TextChannel)  # nosec
                 ret.append(c)
         return ret
 
@@ -68,6 +71,7 @@ class OnewayRelay:
                 continue
             c = self.bot.get_channel(idx)
             if c:
+                assert isinstance(c, discord.TextChannel)  # nosec
                 ret.append(c)
         return ret
 

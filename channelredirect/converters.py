@@ -22,12 +22,10 @@ class CogOrCOmmand(NamedTuple):
 
     @classmethod
     async def convert(cls, ctx: commands.Context, arg: str):
-        ret = ctx.bot.get_command(arg)
-        if ret:
-            return cls("command", ret.qualified_name)
-        ret = ctx.bot.get_cog(arg)
-        if ret:
-            return cls("cog", ret.__class__.__name__)
+        if (com := ctx.bot.get_command(arg)) :
+            return cls("command", com.qualified_name)
+        if (cog := ctx.bot.get_cog(arg)) :
+            return cls("cog", cog.__class__.__name__)
         raise commands.BadArgument('Cog or Command "{arg}" not found.'.format(arg=arg))
 
 

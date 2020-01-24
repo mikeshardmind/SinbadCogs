@@ -8,6 +8,7 @@ import discord
 
 _RoleConverter = RoleConverter()
 
+
 class NoExitParser(argparse.ArgumentParser):
     def error(self, message):
         raise BadArgument()
@@ -15,7 +16,7 @@ class NoExitParser(argparse.ArgumentParser):
 
 class RoleSyntaxConverter(NamedTuple):
     parsed: Dict[str, List[discord.Role]]
-    
+
     @classmethod
     async def convert(cls, ctx: Context, argument: str):
         parser = NoExitParser(
@@ -32,10 +33,7 @@ class RoleSyntaxConverter(NamedTuple):
             raise BadArgument("Must provide at least one action")
 
         for attr in ("add", "remove"):
-            vals[attr] = [
-                await _RoleConverter.convert(ctx, r)
-                for r in vals[attr]
-            ]
+            vals[attr] = [await _RoleConverter.convert(ctx, r) for r in vals[attr]]
 
         return cls(vals)
 
@@ -60,6 +58,7 @@ class ComplexActionConverter(NamedTuple):
     --only-bots
     --everyone
     """
+
     parsed: dict
 
     @classmethod
@@ -123,17 +122,12 @@ class ComplexActionConverter(NamedTuple):
             raise BadArgument("You need to provide at least 1 search criterion")
 
         for attr in ("any", "all", "none", "add", "remove"):
-            vals[attr] = [
-                await _RoleConverter.convert(ctx, r)
-                for r in vals[attr]
-            ]
+            vals[attr] = [await _RoleConverter.convert(ctx, r) for r in vals[attr]]
 
         for attr in ("below", "above"):
             if vals[attr] is None:
                 continue
-            vals[attr] = await _RoleConverter.convert(
-                ctx, vals[attr]
-            )
+            vals[attr] = await _RoleConverter.convert(ctx, vals[attr])
 
         for attr in ("hasperm", "anyperm", "notperm"):
 
@@ -166,6 +160,7 @@ class ComplexSearchConverter(NamedTuple):
     --everyone
     --csv
     """
+
     parsed: dict
 
     @classmethod
@@ -225,17 +220,12 @@ class ComplexSearchConverter(NamedTuple):
             raise BadArgument("You need to provide at least 1 search criterion")
 
         for attr in ("any", "all", "none"):
-            vals[attr] = [
-                await _RoleConverter.convert(ctx, r)
-                for r in vals[attr]
-            ]
+            vals[attr] = [await _RoleConverter.convert(ctx, r) for r in vals[attr]]
 
         for attr in ("below", "above"):
             if vals[attr] is None:
                 continue
-            vals[attr] = await _RoleConverter.convert(
-                ctx, vals[attr]
-            )
+            vals[attr] = await _RoleConverter.convert(ctx, vals[attr])
 
         for attr in ("hasperm", "anyperm", "notperm"):
 

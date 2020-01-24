@@ -9,6 +9,7 @@ def has_active_box():
         cog = ctx.bot.get_cog("SuggestionBox")
         if TYPE_CHECKING:
             from .core import SuggestionBox
+
             assert isinstance(cog, SuggestionBox)  # nosec
         if not cog:
             return False

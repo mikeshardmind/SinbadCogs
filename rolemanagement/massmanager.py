@@ -7,7 +7,7 @@ import discord
 from redbot.core import checks, commands
 
 from .abc import MixinMeta
-from .converters import ( 
+from .converters import (
     RoleSyntaxConverter,
     ComplexActionConverter,
     ComplexSearchConverter,
@@ -157,7 +157,9 @@ class MassManagementMixin(MixinMeta):
             return
 
         for user in users:
-            await self.update_roles_atomically(who=user, give=query["add"], remove=query["remove"])
+            await self.update_roles_atomically(
+                who=user, give=query["add"], remove=query["remove"]
+            )
 
         await ctx.tick()
 
