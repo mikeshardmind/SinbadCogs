@@ -15,13 +15,18 @@ from .yaml_parse import embed_from_userstr
 
 log = logging.getLogger("red.sinbadcogs.embedmaker")
 
+try:
+    from redbot.core.commands import GuildContext
+except ImportError:
+    from redbot.core.commands import Context as GuildContext  # type: ignore
+
 
 class EmbedMaker(commands.Cog):
     """
     Storable, recallable, embed maker
     """
 
-    __version__ = "323.0.1"
+    __version__ = "323.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -49,7 +54,7 @@ class EmbedMaker(commands.Cog):
     @_embed.command(name="editmsg")
     async def editmessage_embed(
         self,
-        ctx: commands.Context,
+        ctx: GuildContext,
         message: discord.Message,
         embedname: str,
         use_global: bool = False,
@@ -83,7 +88,7 @@ class EmbedMaker(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command(name="advmake")
-    async def make_adv(self, ctx: commands.Context, name: str, *, data: str):
+    async def make_adv(self, ctx: GuildContext, name: str, *, data: str):
         """
         makes an embed from valid yaml
 
@@ -144,7 +149,7 @@ class EmbedMaker(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command(name="upload")
-    async def make_upload(self, ctx: commands.Context, name: str):
+    async def make_upload(self, ctx: GuildContext, name: str):
         """
         makes an embed from valid yaml file upload
 
@@ -218,10 +223,12 @@ class EmbedMaker(commands.Cog):
             timestamp = parse_time(time)
         except Exception:
             return await ctx.send("I could not parse that timestamp")
-        color = ctx.guild.me.color if ctx.guild else discord.Embed.Empty
+
         author = ctx.author
         avatar = ctx.author.avatar_url
-        embed = discord.Embed(description=event, color=color, timestamp=timestamp)
+        embed = discord.Embed(description=event, timestamp=timestamp)
+        if ctx.guild:
+            embed.color = ctx.guild.me.color
         embed.set_author(
             name=f"Event created by {author.display_name}", icon_url=avatar
         )
@@ -254,7 +261,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.guild_only()
     @_embed.command(name="nostore")
-    async def _e_nostore(self, ctx: commands.Context, *, content: str):
+    async def _e_nostore(self, ctx: GuildContext, *, content: str):
         """
         Quick embeds.
         """
@@ -267,7 +274,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.guild_only()
     @_embed.command(name="make")
-    async def _make(self, ctx: commands.Context, name: str, *, content: str):
+    async def _make(self, ctx: GuildContext, name: str, *, content: str):
         """
         makes an embed
         """
@@ -334,7 +341,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.guild_only()
     @_embed.command(name="remove")
-    async def _remove(self, ctx: commands.Context, name: str):
+    async def _remove(self, ctx: GuildContext, name: str):
         """
         removes an embed
         """
@@ -366,13 +373,13 @@ class EmbedMaker(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command()
-    async def drop(self, ctx: commands.Context, name: str):
+    async def drop(self, ctx: GuildContext, name: str):
         """
         drops an embed here
         """
         name = name.lower()
         try:
-            await self.get_and_send(ctx.channel, ctx.guild.id, name)
+            await self.get_and_send(ctx.channel, str(ctx.guild.id), name)
         except (discord.Forbidden, discord.HTTPException) as e:
             log.error(e)
 
@@ -391,13 +398,13 @@ class EmbedMaker(commands.Cog):
     @checks.admin()
     @commands.guild_only()
     @_embed.command()
-    async def dm(self, ctx: commands.Context, name: str, user: discord.Member):
+    async def dm(self, ctx: GuildContext, name: str, user: discord.Member):
         """
         DMs an embed
         """
         name = name.lower()
         try:
-            x = await self.get_and_send(user, ctx.guild.id, name)
+            x = await self.get_and_send(user, str(ctx.guild.id), name)
         except discord.Forbidden:
             await ctx.maybe_send_embed(
                 "User has disabled DMs from this server or blocked me"
@@ -408,7 +415,7 @@ class EmbedMaker(commands.Cog):
 
     @checks.admin()
     @_embed.command()
-    async def dmglobal(self, ctx: commands.Context, name: str, user: discord.Member):
+    async def dmglobal(self, ctx: GuildContext, name: str, user: discord.Member):
         """
         DMs a global embed
         """
@@ -425,13 +432,13 @@ class EmbedMaker(commands.Cog):
 
     @commands.guild_only()
     @_embed.command()
-    async def dmme(self, ctx: commands.Context, name: str):
+    async def dmme(self, ctx: GuildContext, name: str):
         """
         DMs an embed
         """
         name = name.lower()
         try:
-            x = await self.get_and_send(ctx.author, ctx.guild.id, name)
+            x = await self.get_and_send(ctx.author, str(ctx.guild.id), name)
         except discord.Forbidden:
             await ctx.maybe_send_embed(
                 "User has disabled DMs from this server or blocked me"
@@ -458,7 +465,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.guild_only()
     @_embed.command(name="frommsg")
-    async def from_message(self, ctx: commands.Context, name: str, _id: int):
+    async def from_message(self, ctx: GuildContext, name: str, _id: int):
         """
         Store's a message's embed
         """
