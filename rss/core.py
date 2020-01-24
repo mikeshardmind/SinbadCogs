@@ -16,6 +16,11 @@ from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import pagify
 
+try:
+    from redbot.core.commands import GuildContext
+except ImportError:
+    from redbot.core.commands import Context as GuildContext  # type: ignore
+
 from .cleanup import html_to_text
 from .converters import TriState
 
@@ -64,7 +69,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "323.0.3"
+    __version__ = "323.0.4"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -81,17 +86,15 @@ class RSS(commands.Cog):
         self.bg_loop_task: Optional[asyncio.Task] = None
 
     def init(self):
-        self.bg_loop_task = self.bot.loop.create_task(self.bg_loop())
+        self.bg_loop_task = asyncio.create_task(self.bg_loop())
+        self.bg_loop_task.add_done_callback(lambda f: f.result())
 
     def cog_unload(self):
         if self.bg_loop_task:
             self.bg_loop_task.cancel()
-        self.bot.loop.create_task(self.session.close())
+        asyncio.create_task(self.session.close())
 
     def clear_feed(self, channel, feedname):
-        """
-        This is abuse.
-        """
         return self.config.channel(channel).clear_raw("feeds", feedname)
 
     async def should_embed(self, channel: discord.TextChannel) -> bool:
@@ -283,7 +286,7 @@ class RSS(commands.Cog):
     @checks.mod_or_permissions(manage_channels=True)
     @commands.guild_only()
     @commands.group()
-    async def rss(self, ctx: commands.Context):
+    async def rss(self, ctx: GuildContext):
         """
         Configuration for rss
         """
@@ -328,7 +331,7 @@ class RSS(commands.Cog):
     @rss.command()
     async def addfeed(
         self,
-        ctx: commands.Context,
+        ctx: GuildContext,
         name: str,
         url: str,
         channel: Optional[discord.TextChannel] = None,
@@ -368,7 +371,7 @@ class RSS(commands.Cog):
 
     @rss.command(name="list")
     async def list_feeds(
-        self, ctx: commands.Context, channel: Optional[discord.TextChannel] = None
+        self, ctx: GuildContext, channel: Optional[discord.TextChannel] = None
     ):
         """
         Lists the current feeds for the current channel, or a provided one.

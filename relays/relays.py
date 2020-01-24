@@ -24,7 +24,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "323.0.0"
+    __version__ = "323.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -41,10 +41,15 @@ class Relays(commands.Cog):
         self.oneways: Dict[str, OnewayRelay] = {}
         self.scrub_invites: Optional[bool] = None
         self._load_event = asyncio.Event()
-        self._load_task = bot.loop.create_task(self.initialize())
+        self._load_task: Optional[asyncio.Task] = None
+
+    def init(self):
+        self._load_task = asyncio.create_task(self.initialize())
+        self._load_task.add_done_callback(lambda f: f.result())
 
     def cog_unload(self):
-        self._load_task.cancel()
+        if self._load_task:
+            self._load_task.cancel()
 
     async def cog_before_invoke(self, _ctx):
         await self._load_event.wait()
@@ -163,7 +168,8 @@ class Relays(commands.Cog):
                 ret = name
 
         if (
-            isinstance(ctx.channel, discord.TextChannel)
+            ctx.guild is not None
+            and isinstance(ctx.channel, discord.TextChannel)
             and ctx.channel.permissions_for(ctx.guild.me).manage_messages
         ):
             await mass_purge(msgs_to_del, ctx.channel)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Iterator, NamedTuple
+from typing import Iterator, NamedTuple, Optional
 from datetime import datetime
 
 import discord
@@ -48,7 +48,7 @@ class Note(NamedTuple):
 class ModNotes(commands.Cog):
     """ Store moderation notes """
 
-    __version__ = "323.0.1"
+    __version__ = "323.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -59,7 +59,11 @@ class ModNotes(commands.Cog):
         fp = str(cog_data_path(self) / "notes.db")
         self._connection = Connection(fp)
         self._ready_event = asyncio.Event()
+        self._init_task: Optional[asyncio.Task] = None
+
+    def init(self):
         self._init_task = asyncio.create_task(self.initialize())
+        self._init_task.add_done_callback(lambda f: f.result())
 
     async def initialize(self):
         await self.bot.wait_until_ready()
@@ -91,7 +95,8 @@ class ModNotes(commands.Cog):
         await self._ready_event.wait()
 
     def cog_unload(self):
-        self._connection.close()
+        if self._init_task:
+            self._init_task.cancel()
 
     def insert(self, *, author_id: int, subject_id: int, guild_id: int, note: str):
         with self._connection.with_cursor() as cursor:

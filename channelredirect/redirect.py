@@ -16,7 +16,7 @@ class ChannelRedirect(commands.Cog):
     Redirect commands from wrong channels
     """
 
-    __version__ = "323.0.2"
+    __version__ = "323.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -102,9 +102,10 @@ class ChannelRedirect(commands.Cog):
             return True
 
         imset = await self.config.guild(ctx.guild).immunities.all()
-        immune_ids = {
-            int(v) for k, v in imset.items() if k in (str(ctx.channel.id), "global")
-        }
+        vals = [v for k, v in imset.items() if k in (str(ctx.channel.id), "global")]
+        immune_ids = set()
+        for val in vals:
+            immune_ids.update({int(v) for v in val})
 
         if immune_ids & {r.id for r in ctx.author.roles}:
             return True

@@ -1,5 +1,5 @@
-from . import antimentionspam
+from .antimentionspam import AntiMentionSpam
 
 
 def setup(bot):
-    bot.add_cog(antimentionspam.AntiMentionSpam(bot))
+    bot.add_cog(AntiMentionSpam(bot))

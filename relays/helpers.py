@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import re
-from typing import List, TypeVar, Iterable, Union, cast
+from typing import List, TypeVar, Iterable, Union, Iterator, cast
 
 import discord
 from redbot.core import commands
+from redbot.core.bot import Red
 from redbot.core.utils.common_filters import INVITE_URL_RE
 
 
@@ -77,7 +78,7 @@ def unique(a: Iterable[T]) -> List[T]:
     return ret
 
 
-def txt_channel_finder(bot: commands.Bot, chaninfo: str) -> List[discord.TextChannel]:
+def txt_channel_finder(bot: Red, chaninfo: str) -> List[discord.TextChannel]:
     """
     custom text channel finder
     """
@@ -88,15 +89,11 @@ def txt_channel_finder(bot: commands.Bot, chaninfo: str) -> List[discord.TextCha
 
     match = _get_id_match(chaninfo) or re.match(r"<#?([0-9]+)>$", chaninfo)
 
-    if match is not None:
+    def txt_check(c):
+        return c.id == int(match.group(1)) if match is not None else c.name == chaninfo
 
-        def txt_check(c):
-            assert match is not None, "mypy, removed from optimized..."  # nosec
-            return isinstance(c, discord.TextChannel) and c.id == int(match.group(1))
+    def all_text() -> Iterator[discord.TextChannel]:
+        for guild in bot.guilds:
+            yield from guild.text_channels
 
-    else:
-
-        def txt_check(c):
-            return isinstance(c, discord.TextChannel) and c.name == chaninfo
-
-    return list(filter(txt_check, bot.get_all_channels()))
+    return [c for c in all_text() if txt_check(c)]
