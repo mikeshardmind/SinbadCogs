@@ -14,6 +14,12 @@ from .converters import (
 )
 from .exceptions import RoleManagementException
 
+try:
+    from redbot.core.commands import GuildContext
+except ImportError:
+    from redbot.core.commands import Context as GuildContext  # type: ignore
+
+
 log = logging.getLogger("red.sinbadcogs.rolemanagement.massmanager")
 
 
@@ -25,7 +31,7 @@ class MassManagementMixin(MixinMeta):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     @commands.group(name="massrole", autohelp=True, aliases=["mrole"])
-    async def mrole(self, ctx: commands.Context):
+    async def mrole(self, ctx: GuildContext):
         """
         Commands for mass role management
         """
@@ -122,7 +128,7 @@ class MassManagementMixin(MixinMeta):
     @no_type_check
     async def mrole_user(
         self,
-        ctx: commands.Context,
+        ctx: GuildContext,
         users: commands.Greedy[discord.Member],
         *,
         roles: RoleSyntaxConverter,
@@ -157,9 +163,9 @@ class MassManagementMixin(MixinMeta):
         await ctx.tick()
 
     @mrole.command(name="search")
-    @no_type_check
+    @no_type_check  # TODO
     async def mrole_search(
-        self, ctx: commands.Context, *, query: ComplexSearchConverter
+        self, ctx: GuildContext, *, query: ComplexSearchConverter
     ):
         """
         Searches for users with the specified role criteria
@@ -216,7 +222,7 @@ class MassManagementMixin(MixinMeta):
             await self.send_maybe_chunked_csv(ctx, list(members))
 
     @staticmethod
-    async def send_maybe_chunked_csv(ctx: commands.Context, members):
+    async def send_maybe_chunked_csv(ctx: GuildContext, members):
         chunk_size = 75000
         chunks = [
             members[i : (i + chunk_size)] for i in range(0, len(members), chunk_size)
@@ -266,8 +272,9 @@ class MassManagementMixin(MixinMeta):
             del data
 
     @mrole.command(name="modify")
+    @no_type_check  # TODO
     async def mrole_complex(
-        self, ctx: commands.Context, *, query: ComplexActionConverter
+        self, ctx: GuildContext, *, query: ComplexActionConverter
     ):
         """
         Similar syntax to search, while applying/removing roles
@@ -295,7 +302,6 @@ class MassManagementMixin(MixinMeta):
         --add roles
         --remove roles
         """
-        query = cast(dict, query)  # type: ignore
         apply = query["add"] + query["remove"]
         if not await self.all_are_valid_roles(ctx, *apply):
             return await ctx.send(

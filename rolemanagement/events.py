@@ -109,13 +109,14 @@ class EventMixin(MixinMeta):
             return
         member = guild.get_member(payload.user_id)
 
+        if member is None or member.bot:
+            return
+
         if self.verification_level_issue(member):
             return
 
-        if member.bot:
-            return
         role = guild.get_role(rid)
-        if role in member.roles:
+        if role is None or role in member.roles:
             return
 
         try:
@@ -147,7 +148,10 @@ class EventMixin(MixinMeta):
             return
 
         if await self.config.role_from_id(rid).self_removable():
-            guild: discord.Guild = self.bot.get_guild(payload.guild_id)
+            guild = self.bot.get_guild(payload.guild_id)
+            if not guild:
+                # Where's it go?
+                return
             member = guild.get_member(payload.user_id)
             if not member or member.bot:
                 return
