@@ -15,6 +15,11 @@ from redbot.core.utils.predicates import MessagePredicate
 
 log = logging.getLogger("red.sinbadcogs.sanctuary")
 
+try:
+    from redbot.core.commands import GuildContext
+except ImportError:
+    from redbot.core.commands import Context as GuildContext  # type: ignore
+
 
 class TimeParser:
     def __init__(self, td):
@@ -31,7 +36,7 @@ class TimeParser:
 class Sanctuary(commands.Cog):
     """ Cogs for Sancturary """
 
-    __version__ = "323.0.0"
+    __version__ = "323.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -47,7 +52,7 @@ class Sanctuary(commands.Cog):
     )
     @checks.bot_has_permissions(read_message_history=True)
     @commands.command()
-    async def getinactives(self, ctx: commands.Context, *, amountoftime: TimeParser):
+    async def getinactives(self, ctx: GuildContext, *, amountoftime: TimeParser):
         """
         Get the inactive users.
 
@@ -102,7 +107,7 @@ class Sanctuary(commands.Cog):
             return counts, recents
 
     @staticmethod
-    async def send_maybe_chunked_csv(ctx: commands.Context, members, recents, counts):
+    async def send_maybe_chunked_csv(ctx: GuildContext, members, recents, counts):
         if not members:
             return await ctx.send("Zero matches.")
 
@@ -165,7 +170,7 @@ class Sanctuary(commands.Cog):
     @commands.guild_only()
     @checks.mod()
     @commands.command()
-    async def removegone(self, ctx: commands.Context):
+    async def removegone(self, ctx: GuildContext):
         """
         Removes posts from users no longer in the channel
         """
