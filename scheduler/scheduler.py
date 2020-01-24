@@ -19,6 +19,11 @@ from .tasks import Task
 
 _ = Translator("And I think it's gonna be a long long time...", __file__)
 
+try:
+    from redbot.core.commands import GuildContext
+except ImportError:
+    from redbot.core.commands import Context as GuildContext  # type: ignore
+
 
 @cog_i18n(_)
 class Scheduler(commands.Cog):
@@ -27,7 +32,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.1.0"
+    __version__ = "323.1.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -177,7 +182,7 @@ class Scheduler(commands.Cog):
     @commands.guild_only()
     @commands.command(usage="<eventname> <command> <args>")
     async def schedule(
-        self, ctx: commands.Context, event_name: NonNumeric, *, schedule: Schedule
+        self, ctx: GuildContext, event_name: NonNumeric, *, schedule: Schedule
     ):
         """
         Schedule something
@@ -226,7 +231,7 @@ class Scheduler(commands.Cog):
         command, start, recur = schedule.to_tuple()
 
         t = Task(
-            uid=ctx.message.id,
+            uid=str(ctx.message.id),
             nicename=event_name.parsed,
             author=ctx.author,
             content=command,
@@ -271,7 +276,7 @@ class Scheduler(commands.Cog):
 
     @commands.guild_only()
     @commands.command()
-    async def unschedule(self, ctx: commands.Context, info: str):
+    async def unschedule(self, ctx: GuildContext, info: str):
         """
         unschedule something.
         """
@@ -307,7 +312,7 @@ class Scheduler(commands.Cog):
     @checks.bot_has_permissions(add_reactions=True, embed_links=True)
     @commands.guild_only()
     @commands.command()
-    async def showscheduled(self, ctx: commands.Context, all_channels: bool = False):
+    async def showscheduled(self, ctx: GuildContext, all_channels: bool = False):
         """ shows your scheduled tasks in this, or all channels """
 
         if all_channels:
@@ -325,7 +330,7 @@ class Scheduler(commands.Cog):
 
     async def task_menu(
         self,
-        ctx: commands.Context,
+        ctx: GuildContext,
         tasks: List[Task],
         message: Optional[discord.Message] = None,
     ):
@@ -335,7 +340,7 @@ class Scheduler(commands.Cog):
         async def task_killer(
             cog: "Scheduler",
             page_mapping: dict,
-            ctx: commands.Context,
+            ctx: GuildContext,
             pages: list,
             controls: dict,
             message: discord.Message,
@@ -368,7 +373,7 @@ class Scheduler(commands.Cog):
         await menu(ctx, embeds, controls, message=message)
 
     @commands.command(name="remindme", usage="<what to be reminded of> <args>")
-    async def reminder(self, ctx: commands.Context, *, reminder: Schedule):
+    async def reminder(self, ctx: GuildContext, *, reminder: Schedule):
         """
         Schedule a reminder DM from the bot
 
@@ -409,7 +414,7 @@ class Scheduler(commands.Cog):
         command, start, recur = reminder.to_tuple()
 
         t = Task(
-            uid=ctx.message.id,
+            uid=str(ctx.message.id),
             nicename=f"reminder-{ctx.message.id}",
             author=ctx.author,
             content=f"schedhelpers selfwhisper {command}",
@@ -429,29 +434,29 @@ class Scheduler(commands.Cog):
 
     @commands.check(lambda ctx: ctx.message.__class__.__name__ == "SchedulerMessage")
     @commands.group(hidden=True, name="schedhelpers")
-    async def helpers(self, ctx: commands.Context):
+    async def helpers(self, ctx: GuildContext):
         """ helper commands for scheduler use """
         pass
 
     @helpers.command(name="say")
-    async def say(self, ctx: commands.Context, *, content: str):
+    async def say(self, ctx: GuildContext, *, content: str):
         await ctx.send(content)
 
     @helpers.command(name="selfwhisper")
-    async def swhisp(self, ctx: commands.Context, *, content: str):
+    async def swhisp(self, ctx: GuildContext, *, content: str):
         with contextlib.suppress(discord.HTTPException):
             await ctx.author.send(content)
 
     @commands.admin_or_permissions(manage_guild=True)
     @commands.guild_only()
     @commands.group()
-    async def scheduleradmin(self, ctx: commands.Context):
+    async def scheduleradmin(self, ctx: GuildContext):
         """ Administrative commands for scheduler """
         pass
 
     @checks.bot_has_permissions(add_reactions=True, embed_links=True)
     @scheduleradmin.command()
-    async def viewall(self, ctx: commands.Context):
+    async def viewall(self, ctx: GuildContext):
         """ view all scheduled events in a guild """
 
         tasks = await self.fetch_tasks_by_guild(ctx.guild)
@@ -462,7 +467,7 @@ class Scheduler(commands.Cog):
         await self.task_menu(ctx, tasks)
 
     @scheduleradmin.command()
-    async def kill(self, ctx: commands.Context, *, task_id: str):
+    async def kill(self, ctx: GuildContext, *, task_id: str):
         """ kill another user's task (id only) """
 
         tasks = await self.fetch_task_by_attrs_exact(uid=task_id)

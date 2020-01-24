@@ -13,6 +13,11 @@ from .checks import tmpc_active
 from .abcs import MixedMeta
 from .converters import TempChannelConverter as ChannelData
 
+try:
+    from redbot.core.commands import GuildContext
+except ImportError:
+    from redbot.core.commands import Context as GuildContext  # type: ignore
+
 
 class TempChannels(MixedMeta):
     """
@@ -53,7 +58,7 @@ class TempChannels(MixedMeta):
     @commands.bot_has_permissions(manage_channels=True)
     @checks.admin_or_permissions(manage_channels=True)
     @commands.group(name="tempchannelset", aliases=["tmpcset"], autohelp=True)
-    async def tmpcset(self, ctx: commands.Context):
+    async def tmpcset(self, ctx: GuildContext):
         """
         Temporary Channel Settings
         """
@@ -61,7 +66,7 @@ class TempChannels(MixedMeta):
 
     @checks.admin_or_permissions(manage_channels=True)
     @tmpcset.command()
-    async def toggleactive(self, ctx: commands.Context, val: bool = None):
+    async def toggleactive(self, ctx: GuildContext, val: bool = None):
         """
         toggle (or explicitly set) whether temp channel creation is enabled
         """
@@ -77,7 +82,7 @@ class TempChannels(MixedMeta):
     @checks.admin_or_permissions(manage_channels=True)
     @tmpcset.command(name="category")
     async def _category(
-        self, ctx: commands.Context, *, cat: discord.CategoryChannel = None
+        self, ctx: GuildContext, *, cat: discord.CategoryChannel = None
     ):
         """
         Sets the category for temporary channels
@@ -94,7 +99,7 @@ class TempChannels(MixedMeta):
 
     @checks.admin_or_permissions(manage_channels=True)
     @tmpcset.command(name="usecurrentcategory")
-    async def _current_category(self, ctx: commands.Context, yes_or_no: bool):
+    async def _current_category(self, ctx: GuildContext, yes_or_no: bool):
         """
         Sets temporary channels to be made in the same category as the command used.
 
@@ -111,7 +116,7 @@ class TempChannels(MixedMeta):
     @tmpc_active()
     @commands.bot_has_permissions(manage_channels=True)
     @commands.command(name="tmpc")
-    async def create_temp(self, ctx: commands.Context, *, channeldata: ChannelData):
+    async def create_temp(self, ctx: GuildContext, *, channeldata: ChannelData):
         """
         Creates a temporary channel
 
@@ -163,8 +168,6 @@ class TempChannels(MixedMeta):
         await self.tmpc_config.channel(created).is_temp.set(True)
         self._antispam[ctx.author.id].stamp()
         asyncio.create_task(self._delayed_check(ctx.guild))
-        current_voice = None
-        with contextlib.suppress(AttributeError):
-            current_voice = ctx.author.voice.channel
-            if current_voice and ctx.guild.me.guild_permissions.move_members:
-                await ctx.author.move(created)
+        current_voice = ctx.author.voice.channel if ctx.author.voice else None
+        if current_voice and ctx.guild.me.guild_permissions.move_members:
+            await ctx.author.move_to(created)
