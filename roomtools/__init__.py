@@ -1,6 +1,7 @@
 import asyncio
 from abc import ABCMeta
 from datetime import timedelta
+from typing import Optional
 
 from discord.ext.commands import CogMeta as DPYCogMeta
 from redbot.core import Config, commands
@@ -27,7 +28,7 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "323.0.0"
+    __version__ = "323.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -66,7 +67,11 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
             creatorname=False,
         )
         self._ready_event = asyncio.Event()
+        self._init_task: Optional[asyncio.Task] = None
+
+    def init(self):
         self._init_task = asyncio.create_task(self.initialize())
+        self._init_task.add_done_callback(lambda f: f.result())
 
     async def cog_before_invoke(self, ctx):
         await self._ready_event.wait()
@@ -77,7 +82,8 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
         self._ready_event.set()
 
     def cog_unload(self):
-        self._init_task.cancel()
+        if self._init_task:
+            self._init_task.cancel()
 
     @commands.Cog.listener("on_resumed")
     async def resume_or_start_handler(self):
@@ -89,3 +95,4 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
 def setup(bot):
     cog = RoomTools(bot)
     bot.add_cog(cog)
+    cog.init()
