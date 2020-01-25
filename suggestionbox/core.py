@@ -22,7 +22,7 @@ class SuggestionBox(commands.Cog):
     A configureable suggestion box cog
     """
 
-    __version__ = "323.0.2"
+    __version__ = "323.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -161,7 +161,7 @@ class SuggestionBox(commands.Cog):
     @commands.command()
     async def suggest(
         self,
-        ctx: commands.GuildContext,
+        ctx: GuildContext,
         channel: Optional[discord.TextChannel] = None,
         *,
         suggestion: str = "",
