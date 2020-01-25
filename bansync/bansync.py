@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import List, Set, Union, AsyncIterator, Dict, Optional, cast
 
 import discord
+from discord.ext.commands import Greedy
 from redbot.core import checks
 from redbot.core.bot import Red
 from redbot.core.config import Config
@@ -16,7 +17,7 @@ from redbot.core.modlog import create_case
 from redbot.core.utils.chat_formatting import box, pagify
 
 from . import commands
-from .converters import SyndicatedConverter, ParserError, MemberOrID
+from .converters import SyndicatedConverter, ParserError, MentionOrID
 
 GuildList = List[discord.Guild]
 GuildSet = Set[discord.Guild]
@@ -36,7 +37,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "323.0.3"
+    __version__ = "323.0.4"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -533,29 +534,34 @@ class BanSync(commands.Cog):
             await ctx.bot.on_command_error(ctx, wrapped_error, unhandled_by_cog=True)
 
     @commands.command(name="mjolnir", aliases=["globalban"])
-    async def mjolnir(self, ctx, *users: MemberOrID):
+    async def mjolnir(self, ctx, users: Greedy[MentionOrID], *, reason: str = ""):
         """
         Swing the heaviest of ban hammers
         """
         async with ctx.typing():
-            banned = [await self.targeted_global_ban(ctx, user.id) for user in users]
+            banned = [
+                await self.targeted_global_ban(ctx, user.id, rsn=reason)
+                for user in users
+            ]
         if any(banned):
             await ctx.message.add_reaction("\N{HAMMER}")
         else:
             await ctx.send(_("You are not worthy"))
 
     @commands.command()
-    async def unglobalban(self, ctx, *users: MemberOrID):
+    async def unglobalban(self, ctx, users: Greedy[MentionOrID], *, reason: str = ""):
         """
         To issue forgiveness.
 
         Or to fix a fuckup.
         """
 
-        async def unban(guild, *user_ids, rsn=None):
+        async def unban(
+            guild: discord.Guild, *user_ids: int, rsn: Optional[str] = None
+        ):
             for user_id in user_ids:
                 with contextlib.suppress(discord.HTTPException):
-                    await guild.unban(discord.Object(id=user_id))
+                    await guild.unban(discord.Object(id=user_id), reason=rsn)
 
         excluded: GuildSet = {
             g
@@ -566,13 +572,16 @@ class BanSync(commands.Cog):
         guilds = [g async for g in self.guild_discovery(ctx, excluded)]
         uids = [u.id for u in users]
 
-        tasks = [unban(guild, *uids) for guild in guilds]
+        tasks = [unban(guild, *uids, rsn=(reason or None)) for guild in guilds]
 
         async with ctx.typing():
             await asyncio.gather(*tasks)
 
     async def targeted_global_ban(
-        self, ctx: commands.Context, user: Union[discord.Member, int], rsn: str = None
+        self,
+        ctx: commands.Context,
+        user: Union[discord.Member, int],
+        rsn: Optional[str] = None,
     ) -> bool:
         """
         Bans a user everywhere the current moderator is allowed to,
@@ -592,7 +601,8 @@ class BanSync(commands.Cog):
         bool
             Whether the user was banned from at least 1 guild by this action.
         """
-
+        # passing an empty string reason to the gateway is bad.
+        rsn = rsn or None
         _id: int = getattr(user, "id", user)
 
         excluded: GuildSet = {
