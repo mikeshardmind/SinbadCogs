@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import contextlib
 import asyncio
+import logging
+import contextlib
 import re
 from abc import ABCMeta
 from typing import AsyncIterator, Tuple, Optional, Union, List, Dict
@@ -21,6 +22,9 @@ try:
     from redbot.core.commands import GuildContext
 except ImportError:
     from redbot.core.commands import Context as GuildContext  # type: ignore
+
+log = logging.getLogger("red.sinbadcogs.rolemanagement")
+
 
 # This previously used ``(type(commands.Cog), type(ABC))``
 # This was changed to be explicit so that mypy
@@ -50,7 +54,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.1.4"
+    __version__ = "323.1.5"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -90,7 +94,21 @@ class RoleManagement(
 
     def init(self):
         self._start_task = asyncio.create_task(self.initialization())
-        self._start_task.add_done_callback(lambda f: f.result())
+
+        def done_callback(fut: asyncio.Future):
+
+            try:
+                fut.exception()
+            except asyncio.CancelledError:
+                log.info("rolemanagement didn't set up and was cancelled")
+            except asyncio.InvalidStateError as exc:
+                log.exception(
+                    "We somehow have a done callback when not done?", exc_info=exc
+                )
+            except Exception as exc:
+                log.exception("Unexpected exception in rolemanagement: ", exc_info=exc)
+
+        self._start_task.add_done_callback(done_callback)
 
     async def initialization(self):
         data: Dict[str, Dict[str, Dict[str, Union[int, bool, List[int]]]]]

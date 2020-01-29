@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import logging
+
 from typing import Iterator, NamedTuple, Optional
 from datetime import datetime
 
@@ -12,6 +14,9 @@ from redbot.core.data_manager import cog_data_path
 from redbot.core.utils import menus
 from .converters import MemberOrID
 from .apsw_wrapper import Connection
+
+
+log = logging.getLogger("red.sinbadcogs.modnotes")
 
 
 class Note(NamedTuple):
@@ -48,7 +53,7 @@ class Note(NamedTuple):
 class ModNotes(commands.Cog):
     """ Store moderation notes """
 
-    __version__ = "323.0.2"
+    __version__ = "323.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -63,7 +68,21 @@ class ModNotes(commands.Cog):
 
     def init(self):
         self._init_task = asyncio.create_task(self.initialize())
-        self._init_task.add_done_callback(lambda f: f.result())
+
+        def done_callback(fut: asyncio.Future):
+
+            try:
+                fut.exception()
+            except asyncio.CancelledError:
+                log.info("Modnotes didn't set up and was cancelled")
+            except asyncio.InvalidStateError as exc:
+                log.exception(
+                    "We somehow have a done callback when not done?", exc_info=exc
+                )
+            except Exception as exc:
+                log.exception("Unexpected exception in modnotes: ", exc_info=exc)
+
+        self._init_task.add_done_callback(done_callback)
 
     async def initialize(self):
         await self.bot.wait_until_ready()

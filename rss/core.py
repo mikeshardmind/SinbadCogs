@@ -69,7 +69,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "323.0.4"
+    __version__ = "323.0.5"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -87,7 +87,21 @@ class RSS(commands.Cog):
 
     def init(self):
         self.bg_loop_task = asyncio.create_task(self.bg_loop())
-        self.bg_loop_task.add_done_callback(lambda f: f.result())
+
+        def done_callback(fut: asyncio.Future):
+
+            try:
+                fut.exception()
+            except asyncio.CancelledError:
+                pass
+            except asyncio.InvalidStateError as exc:
+                log.exception(
+                    "We somehow have a done callback when not done?", exc_info=exc
+                )
+            except Exception as exc:
+                log.exception("Unexpected exception in roomtools: ", exc_info=exc)
+
+        self.bg_loop_task.add_done_callback(done_callback)
 
     def cog_unload(self):
         if self.bg_loop_task:

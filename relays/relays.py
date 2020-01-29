@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import logging
+
 from typing import Dict, Optional, List, Union
 
 import discord
@@ -15,6 +17,7 @@ from .relay import NwayRelay, OnewayRelay
 from .helpers import unique, embed_from_msg, txt_channel_finder
 
 _ = Translator("Relays", __file__)
+log = logging.getLogger("red.sinbadcogs.relays")
 
 
 @cog_i18n(_)
@@ -24,7 +27,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "323.0.1"
+    __version__ = "323.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -45,7 +48,21 @@ class Relays(commands.Cog):
 
     def init(self):
         self._load_task = asyncio.create_task(self.initialize())
-        self._load_task.add_done_callback(lambda f: f.result())
+
+        def done_callback(fut: asyncio.Future):
+
+            try:
+                fut.exception()
+            except asyncio.CancelledError:
+                log.info("Relays didn't set up and was cancelled")
+            except asyncio.InvalidStateError as exc:
+                log.exception(
+                    "We somehow have a done callback when not done?", exc_info=exc
+                )
+            except Exception as exc:
+                log.exception("Unexpected exception in relays: ", exc_info=exc)
+
+        self._load_task.add_done_callback(done_callback)
 
     def cog_unload(self):
         if self._load_task:
