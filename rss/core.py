@@ -99,7 +99,7 @@ class RSS(commands.Cog):
                     "We somehow have a done callback when not done?", exc_info=exc
                 )
             except Exception as exc:
-                log.exception("Unexpected exception in roomtools: ", exc_info=exc)
+                log.exception("Unexpected exception in rss: ", exc_info=exc)
 
         self.bg_loop_task.add_done_callback(done_callback)
 
