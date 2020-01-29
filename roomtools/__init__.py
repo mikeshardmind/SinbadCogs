@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from abc import ABCMeta
 from datetime import timedelta
 from typing import Optional
@@ -8,6 +9,8 @@ from redbot.core import Config, commands
 
 from .autorooms import AutoRooms
 from .tempchannels import TempChannels
+
+log = logging.getLogger("red.sinbadcogs.relays")
 
 
 # This previously used ``(type(commands.Cog), type(ABC))``
@@ -71,7 +74,21 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
 
     def init(self):
         self._init_task = asyncio.create_task(self.initialize())
-        self._init_task.add_done_callback(lambda f: f.result())
+
+        def done_callback(fut: asyncio.Future):
+
+            try:
+                fut.exception()
+            except asyncio.CancelledError:
+                log.info("roomtools didn't set up and was cancelled")
+            except asyncio.InvalidStateError as exc:
+                log.exception(
+                    "We somehow have a done callback when not done?", exc_info=exc
+                )
+            except Exception as exc:
+                log.exception("Unexpected exception in roomtools: ", exc_info=exc)
+
+        self._init_task.add_done_callback(done_callback)
 
     async def cog_before_invoke(self, ctx):
         await self._ready_event.wait()
