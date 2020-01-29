@@ -22,9 +22,12 @@ class CogOrCOmmand(NamedTuple):
 
     @classmethod
     async def convert(cls, ctx: commands.Context, arg: str):
-        if (com := ctx.bot.get_command(arg)) :
+        # mypy doesn't do type narrowing for the walrus yet
+        if com := ctx.bot.get_command(arg):
+            assert com, "mypy"  # nosec
             return cls("command", com.qualified_name)
-        if (cog := ctx.bot.get_cog(arg)) :
+        if cog := ctx.bot.get_cog(arg):
+            assert cog, "mypy"  # nosec
             return cls("cog", cog.__class__.__name__)
         raise commands.BadArgument('Cog or Command "{arg}" not found.'.format(arg=arg))
 
