@@ -9,5 +9,5 @@
     "description": "configureable suggestion boxes",
     "tags": [],
     "hidden": true,
-    "min_bot_version": "3.2.0a0.dev1"
+    "min_bot_version": "3.3.0"
 }

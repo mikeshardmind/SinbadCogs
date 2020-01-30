@@ -14,11 +14,6 @@ from .converters import (
 )
 from .exceptions import RoleManagementException
 
-try:
-    from redbot.core.commands import GuildContext
-except ImportError:
-    from redbot.core.commands import Context as GuildContext  # type: ignore
-
 
 log = logging.getLogger("red.sinbadcogs.rolemanagement.massmanager")
 
@@ -31,7 +26,7 @@ class MassManagementMixin(MixinMeta):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     @commands.group(name="massrole", autohelp=True, aliases=["mrole"])
-    async def mrole(self, ctx: GuildContext):
+    async def mrole(self, ctx: commands.GuildContext):
         """
         Commands for mass role management
         """
@@ -127,7 +122,7 @@ class MassManagementMixin(MixinMeta):
     @mrole.command(name="user")
     async def mrole_user(
         self,
-        ctx: GuildContext,
+        ctx: commands.GuildContext,
         users: commands.Greedy[discord.Member],
         *,
         _query: RoleSyntaxConverter,
@@ -164,7 +159,9 @@ class MassManagementMixin(MixinMeta):
         await ctx.tick()
 
     @mrole.command(name="search")
-    async def mrole_search(self, ctx: GuildContext, *, _query: ComplexSearchConverter):
+    async def mrole_search(
+        self, ctx: commands.GuildContext, *, _query: ComplexSearchConverter
+    ):
         """
         Searches for users with the specified role criteria
 
@@ -221,7 +218,7 @@ class MassManagementMixin(MixinMeta):
             await self.send_maybe_chunked_csv(ctx, list(members))
 
     @staticmethod
-    async def send_maybe_chunked_csv(ctx: GuildContext, members):
+    async def send_maybe_chunked_csv(ctx: commands.GuildContext, members):
         chunk_size = 75000
         chunks = [
             members[i : (i + chunk_size)] for i in range(0, len(members), chunk_size)
@@ -271,7 +268,9 @@ class MassManagementMixin(MixinMeta):
             del data
 
     @mrole.command(name="modify")
-    async def mrole_complex(self, ctx: GuildContext, *, _query: ComplexActionConverter):
+    async def mrole_complex(
+        self, ctx: commands.GuildContext, *, _query: ComplexActionConverter
+    ):
         """
         Similar syntax to search, while applying/removing roles
         

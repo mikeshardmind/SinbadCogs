@@ -16,10 +16,6 @@ from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import pagify
 
-try:
-    from redbot.core.commands import GuildContext
-except ImportError:
-    from redbot.core.commands import Context as GuildContext  # type: ignore
 
 from .cleanup import html_to_text
 from .converters import TriState
@@ -69,7 +65,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "323.0.5"
+    __version__ = "330.0.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -300,7 +296,7 @@ class RSS(commands.Cog):
     @checks.mod_or_permissions(manage_channels=True)
     @commands.guild_only()
     @commands.group()
-    async def rss(self, ctx: GuildContext):
+    async def rss(self, ctx: commands.GuildContext):
         """
         Configuration for rss
         """
@@ -345,7 +341,7 @@ class RSS(commands.Cog):
     @rss.command()
     async def addfeed(
         self,
-        ctx: GuildContext,
+        ctx: commands.GuildContext,
         name: str,
         url: str,
         channel: Optional[discord.TextChannel] = None,
@@ -385,7 +381,7 @@ class RSS(commands.Cog):
 
     @rss.command(name="list")
     async def list_feeds(
-        self, ctx: GuildContext, channel: Optional[discord.TextChannel] = None
+        self, ctx: commands.GuildContext, channel: Optional[discord.TextChannel] = None
     ):
         """
         Lists the current feeds for the current channel, or a provided one.
