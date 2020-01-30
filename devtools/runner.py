@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import asyncio
+import contextlib
 import functools
 import io
 import os
 import subprocess  # nosec
 import sys
-from concurrent.futures import ThreadPoolExecutor
+from typing import List
 
 import discord
 from redbot.core import commands, checks
@@ -18,7 +20,7 @@ class Runner(commands.Cog):
     Look, it works. Be careful when using this.
     """
 
-    __version__ = "323.0.1"
+    __version__ = "333.1.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -27,12 +29,13 @@ class Runner(commands.Cog):
     def __init__(self, bot, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bot = bot
-        self.executor = ThreadPoolExecutor()
+        self._futures: List[asyncio.Future] = []
 
     def cog_unload(self):
-        self.executor.shutdown(wait=False)
+        for fut in self._futures:
+            fut.cancel()
 
-    async def _run(self, command):
+    def get_env(self) -> dict:
         env = os.environ.copy()
         if hasattr(sys, "real_prefix") or sys.base_prefix != sys.prefix:
             # os.path.sep - this is folder separator, i.e. `\` on win or `/` on unix
@@ -44,19 +47,49 @@ class Runner(commands.Cog):
             else:
                 binfolder = f"{sys.prefix}{os.path.sep}bin"
                 env["PATH"] = f"{binfolder}{os.pathsep}{env['PATH']}"
-        return (
-            await self.bot.loop.run_in_executor(
-                self.executor,
-                functools.partial(
-                    subprocess.run,
-                    command,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    shell=True,  # nosec
-                    env=env,
-                ),
+        return env
+
+    async def run(self, ctx: commands.Context, command: str, to_file=False):
+
+        env = self.get_env()
+
+        async with ctx.typing():
+            p = await asyncio.create_subprocess_shell(
+                command,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.STDOUT,
+                env=env,
             )
-        ).stdout
+
+            f = asyncio.create_task(p.communicate())
+
+            def kill_if_cancelled(p: asyncio.subprocess.Process, f: asyncio.Future):
+                if f.cancelled():
+                    with contextlib.suppress(Exception):
+                        p.kill()
+
+            f.add_done_callback(functools.partial(kill_if_cancelled, p))
+
+            raw_result, _err = await f
+
+        if to_file:
+            fp = io.BytesIO(raw_result)
+            fp.seek(0)
+            await ctx.send(files=[discord.File(fp, filename=f"{ctx.message.id}.log")])
+        else:
+            result = raw_result.decode()
+            if not result:
+                await ctx.tick()
+            else:
+                rpages = [
+                    box(p) for p in pagify(result, shorten_by=(len(command) + 100))
+                ]
+                plen = len(rpages)
+                pages = [
+                    f"Page {index} / {plen} of output for\n{box(command)}\n{rpage}"
+                    for index, rpage in enumerate(rpages, 1)
+                ]
+                await menu(ctx, pages, DEFAULT_CONTROLS)
 
     @checks.is_owner()
     @commands.command()
@@ -64,11 +97,8 @@ class Runner(commands.Cog):
         """
         Runs a command.
         """
-        async with ctx.typing():
-            result = await self._run(command)
-            fp = io.BytesIO(result)
-            fp.seek(0)
-        await ctx.send(files=[discord.File(fp, filename=f"{ctx.message.id}.log")])
+        f = asyncio.create_task(self.run(ctx, command, to_file=True))
+        self._futures.append(f)
 
     @checks.is_owner()
     @commands.command()
@@ -76,19 +106,8 @@ class Runner(commands.Cog):
         """
         Runs a command, output in chat.
         """
-        async with ctx.typing():
-            result = (await self._run(command)).decode()
-
-        if not result:
-            return await ctx.tick()
-
-        rpages = [box(p) for p in pagify(result, shorten_by=(len(command) + 100))]
-        plen = len(rpages)
-        pages = [
-            f"Page {index} / {plen} of output for\n{box(command)}\n{rpage}"
-            for index, rpage in enumerate(rpages, 1)
-        ]
-        await menu(ctx, pages, DEFAULT_CONTROLS)
+        f = asyncio.create_task(self.run(ctx, command, to_file=False))
+        self._futures.append(f)
 
     @checks.is_owner()
     @commands.command()
@@ -96,6 +115,6 @@ class Runner(commands.Cog):
         """
         kills the shells
         """
-        self.executor.shutdown(wait=False)
-        self.executor = ThreadPoolExecutor()
+        for f in self._futures:
+            f.cancel()
         await ctx.tick()
