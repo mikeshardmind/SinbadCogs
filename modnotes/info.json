@@ -2,7 +2,7 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "Cog development currently on hold. What works works. If something here doesn't, open an issue.",
+    "install_msg": "A cog for making notes",
     "name": "ModNotes",
     "disabled": false,
     "short": "Notes",
@@ -12,5 +12,5 @@
         "apsw-wheels"
     ],
     "hidden": true,
-    "min_bot_version": "3.2.0a0.dev1"
+    "min_bot_version": "3.3.0"
 }

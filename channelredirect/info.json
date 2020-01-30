@@ -9,5 +9,5 @@
     "description": "Why don't we take these command uses, and shove them somewhere else.",
     "tags": [],
     "hidden": false,
-    "min_bot_version": "3.2.3"
+    "min_bot_version": "3.3.0"
 }

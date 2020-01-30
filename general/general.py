@@ -17,8 +17,11 @@ def as_iterable(item: Union[Iterable, SupportsInt]) -> Iterable:
 
 
 class General(RedGeneral):
+    """
+    Mostly just for the dice.
+    """
 
-    __version__ = "323.0.1"
+    __version__ = "330.0.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

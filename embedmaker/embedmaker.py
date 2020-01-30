@@ -15,18 +15,13 @@ from .yaml_parse import embed_from_userstr
 
 log = logging.getLogger("red.sinbadcogs.embedmaker")
 
-try:
-    from redbot.core.commands import GuildContext
-except ImportError:
-    from redbot.core.commands import Context as GuildContext  # type: ignore
-
 
 class EmbedMaker(commands.Cog):
     """
     Storable, recallable, embed maker
     """
 
-    __version__ = "323.0.2"
+    __version__ = "330.0.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -54,7 +49,7 @@ class EmbedMaker(commands.Cog):
     @_embed.command(name="editmsg")
     async def editmessage_embed(
         self,
-        ctx: GuildContext,
+        ctx: commands.GuildContext,
         message: discord.Message,
         embedname: str,
         use_global: bool = False,
@@ -88,7 +83,7 @@ class EmbedMaker(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command(name="advmake")
-    async def make_adv(self, ctx: GuildContext, name: str, *, data: str):
+    async def make_adv(self, ctx: commands.GuildContext, name: str, *, data: str):
         """
         makes an embed from valid yaml
 
@@ -149,7 +144,7 @@ class EmbedMaker(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command(name="upload")
-    async def make_upload(self, ctx: GuildContext, name: str):
+    async def make_upload(self, ctx: commands.GuildContext, name: str):
         """
         makes an embed from valid yaml file upload
 
@@ -261,7 +256,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.guild_only()
     @_embed.command(name="nostore")
-    async def _e_nostore(self, ctx: GuildContext, *, content: str):
+    async def _e_nostore(self, ctx: commands.GuildContext, *, content: str):
         """
         Quick embeds.
         """
@@ -274,7 +269,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.guild_only()
     @_embed.command(name="make")
-    async def _make(self, ctx: GuildContext, name: str, *, content: str):
+    async def _make(self, ctx: commands.GuildContext, name: str, *, content: str):
         """
         makes an embed
         """
@@ -341,7 +336,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.guild_only()
     @_embed.command(name="remove")
-    async def _remove(self, ctx: GuildContext, name: str):
+    async def _remove(self, ctx: commands.GuildContext, name: str):
         """
         removes an embed
         """
@@ -373,7 +368,7 @@ class EmbedMaker(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command()
-    async def drop(self, ctx: GuildContext, name: str):
+    async def drop(self, ctx: commands.GuildContext, name: str):
         """
         drops an embed here
         """
@@ -398,7 +393,7 @@ class EmbedMaker(commands.Cog):
     @checks.admin()
     @commands.guild_only()
     @_embed.command()
-    async def dm(self, ctx: GuildContext, name: str, user: discord.Member):
+    async def dm(self, ctx: commands.GuildContext, name: str, user: discord.Member):
         """
         DMs an embed
         """
@@ -415,7 +410,9 @@ class EmbedMaker(commands.Cog):
 
     @checks.admin()
     @_embed.command()
-    async def dmglobal(self, ctx: GuildContext, name: str, user: discord.Member):
+    async def dmglobal(
+        self, ctx: commands.GuildContext, name: str, user: discord.Member
+    ):
         """
         DMs a global embed
         """
@@ -432,7 +429,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.guild_only()
     @_embed.command()
-    async def dmme(self, ctx: GuildContext, name: str):
+    async def dmme(self, ctx: commands.GuildContext, name: str):
         """
         DMs an embed
         """
@@ -465,7 +462,7 @@ class EmbedMaker(commands.Cog):
 
     @commands.guild_only()
     @_embed.command(name="frommsg")
-    async def from_message(self, ctx: GuildContext, name: str, _id: int):
+    async def from_message(self, ctx: commands.GuildContext, name: str, _id: int):
         """
         Store's a message's embed
         """

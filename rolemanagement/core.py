@@ -18,10 +18,6 @@ from .exceptions import RoleManagementException, PermissionOrHierarchyException
 from .massmanager import MassManagementMixin
 from .utils import UtilMixin, variation_stripper_re
 
-try:
-    from redbot.core.commands import GuildContext
-except ImportError:
-    from redbot.core.commands import Context as GuildContext  # type: ignore
 
 log = logging.getLogger("red.sinbadcogs.rolemanagement")
 
@@ -54,7 +50,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "323.1.5"
+    __version__ = "330.0.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -161,7 +157,9 @@ class RoleManagement(
     @commands.bot_has_permissions(manage_roles=True)
     @checks.admin_or_permissions(manage_roles=True)
     @commands.command(name="hackrole")
-    async def hackrole(self, ctx: GuildContext, user_id: int, *, role: discord.Role):
+    async def hackrole(
+        self, ctx: commands.GuildContext, user_id: int, *, role: discord.Role
+    ):
         """
         Puts a stickyrole on someone not in the server.
         """
@@ -195,7 +193,7 @@ class RoleManagement(
 
     @checks.is_owner()
     @commands.command(name="rrcleanup", hidden=True)
-    async def rolemanagementcleanup(self, ctx: GuildContext):
+    async def rolemanagementcleanup(self, ctx: commands.GuildContext):
         """ :eyes: """
         data = await self.config.custom("REACTROLE").all()
 
@@ -234,7 +232,7 @@ class RoleManagement(
     @commands.command(name="rolebind")
     async def bind_role_to_reactions(
         self,
-        ctx: GuildContext,
+        ctx: commands.GuildContext,
         role: discord.Role,
         channel: discord.TextChannel,
         msgid: int,
@@ -318,14 +316,14 @@ class RoleManagement(
     @commands.bot_has_permissions(manage_roles=True)
     @checks.admin_or_permissions(manage_guild=True)
     @commands.group(name="roleset", autohelp=True)
-    async def rgroup(self, ctx: GuildContext):
+    async def rgroup(self, ctx: commands.GuildContext):
         """
         Settings for role requirements
         """
         pass
 
     @rgroup.command(name="viewreactions")
-    async def rg_view_reactions(self, ctx: GuildContext):
+    async def rg_view_reactions(self, ctx: commands.GuildContext):
         """
         View the reactions enabled for the server
         """
@@ -360,7 +358,7 @@ class RoleManagement(
                 await ctx.send(page)
 
     @rgroup.command(name="viewrole")
-    async def rg_view_role(self, ctx: GuildContext, *, role: discord.Role):
+    async def rg_view_role(self, ctx: commands.GuildContext, *, role: discord.Role):
         """
         Views the current settings for a role
         """
@@ -401,7 +399,7 @@ class RoleManagement(
 
     @rgroup.command(name="cost")
     async def make_purchasable(
-        self, ctx: GuildContext, cost: int, *, role: discord.Role
+        self, ctx: commands.GuildContext, cost: int, *, role: discord.Role
     ):
         """
         Makes a role purchasable for a specified cost. 
@@ -430,7 +428,7 @@ class RoleManagement(
 
     @rgroup.command(name="forbid")
     async def forbid_role(
-        self, ctx: GuildContext, role: discord.Role, *, user: discord.Member
+        self, ctx: commands.GuildContext, role: discord.Role, *, user: discord.Member
     ):
         """
         Forbids a user from gaining a specific role.
@@ -444,7 +442,7 @@ class RoleManagement(
 
     @rgroup.command(name="unforbid")
     async def unforbid_role(
-        self, ctx: GuildContext, role: discord.Role, *, user: discord.Member
+        self, ctx: commands.GuildContext, role: discord.Role, *, user: discord.Member
     ):
         """
         Unforbids a user from gaining a specific role.
@@ -457,7 +455,7 @@ class RoleManagement(
         await ctx.tick()
 
     @rgroup.command(name="exclusive")
-    async def set_exclusivity(self, ctx: GuildContext, *roles: discord.Role):
+    async def set_exclusivity(self, ctx: commands.GuildContext, *roles: discord.Role):
         """
         Takes 2 or more roles and sets them as exclusive to eachother
         """
@@ -475,7 +473,7 @@ class RoleManagement(
         await ctx.tick()
 
     @rgroup.command(name="unexclusive")
-    async def unset_exclusivity(self, ctx: GuildContext, *roles: discord.Role):
+    async def unset_exclusivity(self, ctx: commands.GuildContext, *roles: discord.Role):
         """
         Takes any number of roles, and removes their exclusivity settings
         """
@@ -493,7 +491,7 @@ class RoleManagement(
 
     @rgroup.command(name="sticky")
     async def setsticky(
-        self, ctx: GuildContext, role: discord.Role, sticky: bool = None
+        self, ctx: commands.GuildContext, role: discord.Role, sticky: bool = None
     ):
         """
         sets a role as sticky if used without a settings, gets the current ones
@@ -517,7 +515,9 @@ class RoleManagement(
         await ctx.tick()
 
     @rgroup.command(name="requireall")
-    async def reqall(self, ctx: GuildContext, role: discord.Role, *roles: discord.Role):
+    async def reqall(
+        self, ctx: commands.GuildContext, role: discord.Role, *roles: discord.Role
+    ):
         """
         Sets the required roles to gain a role
 
@@ -529,7 +529,9 @@ class RoleManagement(
         await ctx.tick()
 
     @rgroup.command(name="requireany")
-    async def reqany(self, ctx: GuildContext, role: discord.Role, *roles: discord.Role):
+    async def reqany(
+        self, ctx: commands.GuildContext, role: discord.Role, *roles: discord.Role
+    ):
         """
         Sets a role to require already having one of another
 
@@ -542,7 +544,7 @@ class RoleManagement(
 
     @rgroup.command(name="selfrem")
     async def selfrem(
-        self, ctx: GuildContext, role: discord.Role, removable: bool = None
+        self, ctx: commands.GuildContext, role: discord.Role, removable: bool = None
     ):
         """
         Sets if a role is self-removable (default False)
@@ -563,7 +565,7 @@ class RoleManagement(
 
     @rgroup.command(name="selfadd")
     async def selfadd(
-        self, ctx: GuildContext, role: discord.Role, assignable: bool = None
+        self, ctx: commands.GuildContext, role: discord.Role, assignable: bool = None
     ):
         """
         Sets if a role is self-assignable via command
@@ -587,14 +589,14 @@ class RoleManagement(
     @checks.bot_has_permissions(manage_roles=True)
     @commands.guild_only()
     @commands.group(name="srole", autohelp=True)
-    async def srole(self, ctx: GuildContext):
+    async def srole(self, ctx: commands.GuildContext):
         """
         Self assignable role commands
         """
         pass
 
     @srole.command(name="list")
-    async def srole_list(self, ctx: GuildContext):
+    async def srole_list(self, ctx: commands.GuildContext):
         """
         Lists the selfroles and any associated costs.
         """
@@ -632,7 +634,7 @@ class RoleManagement(
             await ctx.send(box(message))
 
     @srole.command(name="buy")
-    async def srole_buy(self, ctx: GuildContext, *, role: discord.Role):
+    async def srole_buy(self, ctx: commands.GuildContext, *, role: discord.Role):
         """
         Purchase a role
         """
@@ -672,7 +674,7 @@ class RoleManagement(
                 await ctx.tick()
 
     @srole.command(name="add")
-    async def sadd(self, ctx: GuildContext, *, role: discord.Role):
+    async def sadd(self, ctx: commands.GuildContext, *, role: discord.Role):
         """
         Join a role
         """
@@ -704,7 +706,7 @@ class RoleManagement(
                 await ctx.tick()
 
     @srole.command(name="remove")
-    async def srem(self, ctx: GuildContext, *, role: discord.Role):
+    async def srem(self, ctx: commands.GuildContext, *, role: discord.Role):
         """
         leave a role
         """

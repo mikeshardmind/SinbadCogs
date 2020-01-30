@@ -9,14 +9,13 @@ from typing import List, Set, Union, AsyncIterator, Dict, Optional, cast
 
 import discord
 from discord.ext.commands import Greedy
-from redbot.core import checks
+from redbot.core import checks, commands
 from redbot.core.bot import Red
 from redbot.core.config import Config
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.modlog import create_case
 from redbot.core.utils.chat_formatting import box, pagify
 
-from . import commands
 from .converters import SyndicatedConverter, ParserError, MentionOrID
 
 GuildList = List[discord.Guild]
@@ -37,7 +36,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "323.0.4"
+    __version__ = "330.0.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

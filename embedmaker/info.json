@@ -13,7 +13,7 @@
         "embedmaker"
     ],
     "hidden": false,
-    "min_bot_version": "3.2.0a0.dev1",
+    "min_bot_version": "3.3.0",
     "requirements": [
         "python-dateutil",
         "pytz"

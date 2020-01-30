@@ -5,13 +5,12 @@ from datetime import timedelta, datetime
 from typing import Dict, TYPE_CHECKING
 
 import discord
-from redbot.core import checks
+from redbot.core import checks, commands
 from redbot.core.bot import Red
 from redbot.core.config import Config
 from redbot.core.modlog import create_case
 from redbot.core.utils.antispam import AntiSpam
 
-from . import commands
 
 log = logging.getLogger("red.sinbadcogs.antimentionspam")
 
@@ -21,7 +20,7 @@ __all__ = ["AntiMentionSpam"]
 class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
-    __version__ = "323.0.2"
+    __version__ = "330.0.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
