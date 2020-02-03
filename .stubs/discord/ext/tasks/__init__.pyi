@@ -1,15 +1,27 @@
 import asyncio
 import datetime
 
-from typing import Any, Optional, Union, TypeVar, Generic, Type, Awaitable, Generator, Callable, Sequence, overload
+from typing import (
+    Any,
+    Optional,
+    Union,
+    TypeVar,
+    Generic,
+    Type,
+    Awaitable,
+    Generator,
+    Callable,
+    Sequence,
+    overload,
+)
 from typing_extensions import Final
 
 MAX_ASYNCIO_SECONDS: Final[int]
 
-_T = TypeVar('_T')
-_L = TypeVar('_L', bound=Loop)
+_T = TypeVar("_T")
+_L = TypeVar("_L", bound=Loop)
 _CoroType = Callable[..., Union[Awaitable[_T], Generator[Any, None, _T]]]
-_C = TypeVar('_C', bound=Callable[..., Awaitable[Any]])
+_C = TypeVar("_C", bound=Callable[..., Awaitable[Any]])
 
 class Loop(Generic[_T]):
     coro: _CoroType[_T] = ...
@@ -20,13 +32,25 @@ class Loop(Generic[_T]):
     loop: asyncio.AbstractEventLoop = ...
     count: Optional[int] = ...
     @overload
-    def __init__(self, coro: _CoroType[_T], seconds: float, hours: float,
-                 minutes: float, count: Optional[int], reconnect: bool,
-                 loop: Optional[asyncio.AbstractEventLoop]) -> None: ...
+    def __init__(
+        self,
+        coro: _CoroType[_T],
+        seconds: float,
+        hours: float,
+        minutes: float,
+        count: Optional[int],
+        reconnect: bool,
+        loop: Optional[asyncio.AbstractEventLoop],
+    ) -> None: ...
     @overload
-    def __init__(self, coro: _CoroType[_T], time: Union[Sequence[datetime.time], datetime.time],
-                 count: Optional[int], reconnect: bool,
-                 loop: Optional[asyncio.AbstractEventLoop]) -> None: ...
+    def __init__(
+        self,
+        coro: _CoroType[_T],
+        time: Union[Sequence[datetime.time], datetime.time],
+        count: Optional[int],
+        reconnect: bool,
+        loop: Optional[asyncio.AbstractEventLoop],
+    ) -> None: ...
     def __get__(self: _L, obj: Any, objtype: Any) -> _L: ...
     @property
     def current_loop(self) -> int: ...
@@ -44,15 +68,29 @@ class Loop(Generic[_T]):
     def before_loop(self, coro: _C) -> _C: ...
     def after_loop(self, coro: _C) -> _C: ...
     @overload
-    def change_interval(self, *, seconds: float = ..., minutes: float = ..., hours: float = ...) -> None: ...
+    def change_interval(
+        self, *, seconds: float = ..., minutes: float = ..., hours: float = ...
+    ) -> None: ...
     @overload
-    def change_interval(self, *, time: Union[Sequence[datetime.time], datetime.time]) -> None: ...
+    def change_interval(
+        self, *, time: Union[Sequence[datetime.time], datetime.time]
+    ) -> None: ...
 
 @overload
-def loop(*, seconds: float = ..., minutes: float = ..., hours: float = ...,
-         count: Optional[int] = ..., reconnect: bool = ...,
-         loop: Optional[asyncio.AbstractEventLoop] = ...) -> Callable[[_CoroType[_T]], Loop[_T]]: ...
+def loop(
+    *,
+    seconds: float = ...,
+    minutes: float = ...,
+    hours: float = ...,
+    count: Optional[int] = ...,
+    reconnect: bool = ...,
+    loop: Optional[asyncio.AbstractEventLoop] = ...,
+) -> Callable[[_CoroType[_T]], Loop[_T]]: ...
 @overload
-def loop(*, time: Union[Sequence[datetime.time], datetime.time],
-         count: Optional[int] = ..., reconnect: bool = ...,
-         loop: Optional[asyncio.AbstractEventLoop] = ...) -> Callable[[_CoroType[_T]], Loop[_T]]: ...
+def loop(
+    *,
+    time: Union[Sequence[datetime.time], datetime.time],
+    count: Optional[int] = ...,
+    reconnect: bool = ...,
+    loop: Optional[asyncio.AbstractEventLoop] = ...,
+) -> Callable[[_CoroType[_T]], Loop[_T]]: ...

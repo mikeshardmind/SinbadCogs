@@ -52,7 +52,7 @@ class CachedSlotProperty(Generic[_T, _U_co]):
     ) -> CachedSlotProperty[_T, _U_co]: ...
 
 def cached_slot_property(
-    name: str
+    name: str,
 ) -> Callable[[Callable[[_T], _U_co]], CachedSlotProperty[_T, _U_co]]: ...
 
 class SequenceProxy(Sequence[_T]):
@@ -90,13 +90,13 @@ async def maybe_coroutine(
 async def async_all(
     gen: Iterable[Union[Any, Coroutine[Any, Any, Any]]],
     *,
-    check: Callable[[Any], bool] = ...
+    check: Callable[[Any], bool] = ...,
 ) -> bool: ...
 async def sane_wait_for(
     futures: List[asyncio.Future[_T]],
     *,
     timeout: float,
-    loop: asyncio.AbstractEventLoop
+    loop: asyncio.AbstractEventLoop,
 ) -> Set[asyncio.Future[_T]]: ...
 def valid_icon_size(size: int) -> bool: ...
 def _string_width(string: str, *, _IS_ASCII: Pattern[str] = ...) -> int: ...

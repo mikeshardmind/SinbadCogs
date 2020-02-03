@@ -3,12 +3,25 @@ import io
 
 from .voice_client import VoiceClient
 
-from typing import Any, Union, Optional, BinaryIO, ClassVar, TypeVar, Type, Callable, Tuple, overload
+from typing import (
+    Any,
+    Union,
+    Optional,
+    BinaryIO,
+    ClassVar,
+    TypeVar,
+    Type,
+    Callable,
+    Tuple,
+    overload,
+)
 from typing_extensions import Literal
 
-_FOA = TypeVar('_FOA', bound=FFmpegOpusAudio)
-_MethodCallback = Callable[[Union[str, io.BufferedIOBase], str], Tuple[Optional[str], Optional[int]]]
-_OpusMethods = Literal['native', 'fallback']
+_FOA = TypeVar("_FOA", bound=FFmpegOpusAudio)
+_MethodCallback = Callable[
+    [Union[str, io.BufferedIOBase], str], Tuple[Optional[str], Optional[int]]
+]
+_OpusMethods = Literal["native", "fallback"]
 
 class AudioSource:
     def read(self) -> bytes: ...
@@ -22,55 +35,112 @@ class PCMAudio(AudioSource):
     def read(self) -> bytes: ...
 
 class FFmpegAudio(AudioSource):
-    def __init__(self, source: Any, *, executable: str = ..., args: Any, **subprocess_kwargs: Any) -> None: ...
+    def __init__(
+        self, source: Any, *, executable: str = ..., args: Any, **subprocess_kwargs: Any
+    ) -> None: ...
     def cleanup(self) -> None: ...
 
 class FFmpegPCMAudio(FFmpegAudio):
     @overload
-    def __init__(self, source: io.BufferedIOBase, *, executable: str = ..., pipe: bool,
-                 stderr: Optional[BinaryIO] = ..., before_options: Optional[str] = ...,
-                 options: Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        source: io.BufferedIOBase,
+        *,
+        executable: str = ...,
+        pipe: bool,
+        stderr: Optional[BinaryIO] = ...,
+        before_options: Optional[str] = ...,
+        options: Optional[str] = ...,
+    ) -> None: ...
     @overload
-    def __init__(self, source: str, *, executable: str = ..., stderr: Optional[BinaryIO] = ...,
-                 before_options: Optional[str] = ..., options: Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        source: str,
+        *,
+        executable: str = ...,
+        stderr: Optional[BinaryIO] = ...,
+        before_options: Optional[str] = ...,
+        options: Optional[str] = ...,
+    ) -> None: ...
     def read(self) -> bytes: ...
     def is_opus(self) -> bool: ...
 
 class FFmpegOpusAudio(FFmpegAudio):
     @overload
-    def __init__(self, source: io.BufferedIOBase, *, bitrate: int = ..., codec: Optional[str] = ...,
-                 executable: str = ..., pipe: bool = ..., stderr: Optional[BinaryIO] = ...,
-                 before_options: Optional[str] = ..., options: Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        source: io.BufferedIOBase,
+        *,
+        bitrate: int = ...,
+        codec: Optional[str] = ...,
+        executable: str = ...,
+        pipe: bool = ...,
+        stderr: Optional[BinaryIO] = ...,
+        before_options: Optional[str] = ...,
+        options: Optional[str] = ...,
+    ) -> None: ...
     @overload
-    def __init__(self, source: str, *, bitrate: int = ..., codec: Optional[str] = ...,
-                 executable: str = ..., stderr: Optional[BinaryIO] = ...,
-                 before_options: Optional[str] = ..., options: Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        source: str,
+        *,
+        bitrate: int = ...,
+        codec: Optional[str] = ...,
+        executable: str = ...,
+        stderr: Optional[BinaryIO] = ...,
+        before_options: Optional[str] = ...,
+        options: Optional[str] = ...,
+    ) -> None: ...
     @overload
     @classmethod
-    async def from_probe(cls: Type[_FOA], source: io.BufferedIOBase, *,
-                         method: Optional[Union[_OpusMethods, _MethodCallback]] = ...,
-                         executable: str = ..., pipe: bool = ..., stderr: Optional[BinaryIO] = ...,
-                         before_options: Optional[str] = ..., options: Optional[str] = ...) -> _FOA: ...
+    async def from_probe(
+        cls: Type[_FOA],
+        source: io.BufferedIOBase,
+        *,
+        method: Optional[Union[_OpusMethods, _MethodCallback]] = ...,
+        executable: str = ...,
+        pipe: bool = ...,
+        stderr: Optional[BinaryIO] = ...,
+        before_options: Optional[str] = ...,
+        options: Optional[str] = ...,
+    ) -> _FOA: ...
     @overload
     @classmethod
-    async def from_probe(cls: Type[_FOA], source: str, *, method: Optional[Union[_OpusMethods, _MethodCallback]] = ...,
-                         executable: str = ..., pipe: bool = ..., stderr: Optional[BinaryIO] = ...,
-                         before_options: Optional[str] = ..., options: Optional[str] = ...) -> _FOA: ...
+    async def from_probe(
+        cls: Type[_FOA],
+        source: str,
+        *,
+        method: Optional[Union[_OpusMethods, _MethodCallback]] = ...,
+        executable: str = ...,
+        pipe: bool = ...,
+        stderr: Optional[BinaryIO] = ...,
+        before_options: Optional[str] = ...,
+        options: Optional[str] = ...,
+    ) -> _FOA: ...
     @overload
     @classmethod
-    async def probe(cls, source: io.BufferedIOBase, *, method: Optional[Union[_OpusMethods, _MethodCallback]] = ...,
-                    executable: Optional[str] = ...) -> Tuple[Optional[str], Optional[int]]: ...
+    async def probe(
+        cls,
+        source: io.BufferedIOBase,
+        *,
+        method: Optional[Union[_OpusMethods, _MethodCallback]] = ...,
+        executable: Optional[str] = ...,
+    ) -> Tuple[Optional[str], Optional[int]]: ...
     @overload
     @classmethod
-    async def probe(cls, source: str, *, method: Optional[Union[_OpusMethods, _MethodCallback]] = ...,
-                    executable: Optional[str] = ...) -> Tuple[Optional[str], Optional[int]]: ...
+    async def probe(
+        cls,
+        source: str,
+        *,
+        method: Optional[Union[_OpusMethods, _MethodCallback]] = ...,
+        executable: Optional[str] = ...,
+    ) -> Tuple[Optional[str], Optional[int]]: ...
     def read(self) -> bytes: ...
     def is_opus(self) -> bool: ...
 
 class PCMVolumeTransformer(AudioSource):
     original: AudioSource
     volume: float
-
     def __init__(self, original: AudioSource, volume: float = ...) -> None: ...
     def cleanup(self) -> None: ...
     def read(self) -> bytes: ...
@@ -82,7 +152,6 @@ class AudioPlayer(threading.Thread):
     source: AudioSource
     client: VoiceClient
     loops: int
-
     def run(self) -> None: ...
     def stop(self) -> None: ...
     def pause(self, *, update_speaking: bool = ...) -> None: ...

@@ -1,9 +1,20 @@
-from typing import Any, Optional, Union, List, Tuple, Iterator, Callable, TypeVar, Coroutine, Generic
+from typing import (
+    Any,
+    Optional,
+    Union,
+    List,
+    Tuple,
+    Iterator,
+    Callable,
+    TypeVar,
+    Coroutine,
+    Generic,
+)
 from .core import Command
 from .context import Context
 
-_CT = TypeVar('_CT', bound=Context)
-_L = TypeVar('_L', bound=Callable[..., Coroutine[Any, Any, Any]])
+_CT = TypeVar("_CT", bound=Context)
+_L = TypeVar("_L", bound=Callable[..., Coroutine[Any, Any, Any]])
 
 class CogMeta(type):
     @classmethod
@@ -11,7 +22,6 @@ class CogMeta(type):
 
 class Cog(Generic[_CT], metaclass=CogMeta):
     __cog_commands__: Any = ...
-
     def get_commands(self) -> List[Command]: ...
     @property
     def qualified_name(self) -> str: ...
@@ -25,6 +35,8 @@ class Cog(Generic[_CT], metaclass=CogMeta):
     def bot_check_once(self, ctx: Any) -> Union[bool, Coroutine[Any, Any, bool]]: ...
     def bot_check(self, ctx: Any) -> Union[bool, Coroutine[Any, Any, bool]]: ...
     def cog_check(self, ctx: Any) -> Union[bool, Coroutine[Any, Any, bool]]: ...
-    def cog_command_error(self, ctx: Any, error: Any) -> Union[None, Coroutine[Any, Any, None]]: ...
+    def cog_command_error(
+        self, ctx: Any, error: Any
+    ) -> Union[None, Coroutine[Any, Any, None]]: ...
     async def cog_before_invoke(self, ctx: Any) -> None: ...
     async def cog_after_invoke(self, ctx: Any) -> None: ...

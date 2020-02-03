@@ -8,7 +8,7 @@ setlocal ENABLEDELAYEDEXPANSION
 
 REM This will set PYFILES as a list of tracked .py files
 set PYFILES=
-for /F "tokens=* USEBACKQ" %%A in (`git ls-files "*.py"`) do (
+for /F "tokens=* USEBACKQ" %%A in (`git ls-files "*.py" "*.pyi"`) do (
     set PYFILES=!PYFILES! %%A
 )
 

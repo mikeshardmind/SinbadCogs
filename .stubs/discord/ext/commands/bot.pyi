@@ -7,21 +7,39 @@ from .context import Context
 from .help import HelpCommand
 from .cog import Cog
 
-from typing import Any, Optional, Union, Callable, Coroutine, List, Tuple, Dict, Set, TypeVar, Type, Iterable, overload
+from typing import (
+    Any,
+    Optional,
+    Union,
+    Callable,
+    Coroutine,
+    List,
+    Tuple,
+    Dict,
+    Set,
+    TypeVar,
+    Type,
+    Iterable,
+    overload,
+)
 from types import MappingProxyType, ModuleType
 
-_CT = TypeVar('_CT', bound=Context)
-_OT = TypeVar('_OT', bound=Context)
+_CT = TypeVar("_CT", bound=Context)
+_OT = TypeVar("_OT", bound=Context)
 
 _CoroType = Callable[..., Coroutine[Any, Any, Any]]
-_C = TypeVar('_C', bound=_CoroType)
+_C = TypeVar("_C", bound=_CoroType)
 
-_T = TypeVar('_T')
+_T = TypeVar("_T")
 _CallablePrefix = Callable[[Bot, discord.Message], Union[_T, Coroutine[Any, Any, _T]]]
-_CommandPrefix = Union[str, Iterable[str], _CallablePrefix[str], _CallablePrefix[Iterable[str]]]
+_CommandPrefix = Union[
+    str, Iterable[str], _CallablePrefix[str], _CallablePrefix[Iterable[str]]
+]
 
 def when_mentioned(bot: Bot, msg: discord.Message) -> List[str]: ...
-def when_mentioned_or(*prefixes: str) -> Callable[[Bot, discord.Message], List[str]]: ...
+def when_mentioned_or(
+    *prefixes: str,
+) -> Callable[[Bot, discord.Message], List[str]]: ...
 
 class BotBase(GroupMixin[_CT]):
     command_prefix: _CommandPrefix
@@ -31,9 +49,13 @@ class BotBase(GroupMixin[_CT]):
     owner_id: Optional[int]
     owner_ids: Optional[Set[int]]
     help_command: Optional[HelpCommand[_CT]]
-
-    def __init__(self, command_prefix: _CommandPrefix, help_command: Optional[HelpCommand[_CT]] = ...,
-                 description: Optional[str] = ..., **options: Any) -> None: ...
+    def __init__(
+        self,
+        command_prefix: _CommandPrefix,
+        help_command: Optional[HelpCommand[_CT]] = ...,
+        description: Optional[str] = ...,
+        **options: Any,
+    ) -> None: ...
     def dispatch(self, __event_name: str, *args: Any, **kwargs: Any) -> None: ...
     async def close(self) -> None: ...
     async def on_command_error(self, context: Any, exception: Exception) -> None: ...
@@ -68,23 +90,49 @@ class BotBase(GroupMixin[_CT]):
     async def on_message(self, message: discord.Message) -> None: ...
 
 class Bot(BotBase[_CT], discord.Client):
-    def __init__(self, command_prefix: _CommandPrefix, description: Optional[str] = ...,
-                 help_command: Optional[HelpCommand[_CT]] = ..., *,
-                 case_insensitive: bool = ..., loop: Optional[asyncio.AbstractEventLoop] = ...,
-                 shard_id: Optional[int] = ..., shard_count: Optional[int] = ...,
-                 connector: aiohttp.BaseConnector = ..., proxy: Optional[str] = ...,
-                 proxy_auth: Optional[aiohttp.BasicAuth] = ..., max_messages: Optional[int] = ...,
-                 fetch_offline_members: bool = ..., status: Optional[discord.Status] = ...,
-                 activity: Optional[Union[discord.Activity, discord.Game, discord.Streaming]] = ...,
-                 heartbeat_timeout: float = ..., **options: Any) -> None: ...
+    def __init__(
+        self,
+        command_prefix: _CommandPrefix,
+        description: Optional[str] = ...,
+        help_command: Optional[HelpCommand[_CT]] = ...,
+        *,
+        case_insensitive: bool = ...,
+        loop: Optional[asyncio.AbstractEventLoop] = ...,
+        shard_id: Optional[int] = ...,
+        shard_count: Optional[int] = ...,
+        connector: aiohttp.BaseConnector = ...,
+        proxy: Optional[str] = ...,
+        proxy_auth: Optional[aiohttp.BasicAuth] = ...,
+        max_messages: Optional[int] = ...,
+        fetch_offline_members: bool = ...,
+        status: Optional[discord.Status] = ...,
+        activity: Optional[
+            Union[discord.Activity, discord.Game, discord.Streaming]
+        ] = ...,
+        heartbeat_timeout: float = ...,
+        **options: Any,
+    ) -> None: ...
 
 class AutoShardedBot(BotBase[_CT], discord.AutoShardedClient):
-    def __init__(self, command_prefix: _CommandPrefix, description: Optional[str] = ...,
-                 help_command: Optional[HelpCommand[_CT]] = ..., *,
-                 case_insensitive: bool = ..., loop: Optional[asyncio.AbstractEventLoop] = ...,
-                 shard_ids: Optional[Union[List[int], Tuple[int]]] = ..., shard_count: Optional[int] = ...,
-                 connector: aiohttp.BaseConnector = ..., proxy: Optional[str] = ...,
-                 proxy_auth: Optional[aiohttp.BasicAuth] = ..., max_messages: Optional[int] = ...,
-                 fetch_offline_members: bool = ..., status: Optional[discord.Status] = ...,
-                 activity: Optional[Union[discord.Activity, discord.Game, discord.Streaming]] = ...,
-                 heartbeat_timeout: float = ..., **options: Any) -> None: ...
+    def __init__(
+        self,
+        command_prefix: _CommandPrefix,
+        description: Optional[str] = ...,
+        help_command: Optional[HelpCommand[_CT]] = ...,
+        *,
+        case_insensitive: bool = ...,
+        loop: Optional[asyncio.AbstractEventLoop] = ...,
+        shard_ids: Optional[Union[List[int], Tuple[int]]] = ...,
+        shard_count: Optional[int] = ...,
+        connector: aiohttp.BaseConnector = ...,
+        proxy: Optional[str] = ...,
+        proxy_auth: Optional[aiohttp.BasicAuth] = ...,
+        max_messages: Optional[int] = ...,
+        fetch_offline_members: bool = ...,
+        status: Optional[discord.Status] = ...,
+        activity: Optional[
+            Union[discord.Activity, discord.Game, discord.Streaming]
+        ] = ...,
+        heartbeat_timeout: float = ...,
+        **options: Any,
+    ) -> None: ...

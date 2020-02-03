@@ -12,101 +12,83 @@ class CommandError(DiscordException):
 class ConversionError(DiscordException):
     converter: Any
     original: Exception
-
     def __init__(self, converter: Any, original: Exception) -> None: ...
 
 class UserInputError(CommandError): ...
-
 class CommandNotFound(CommandError): ...
 
 class MissingRequiredArgument(UserInputError):
     param: Parameter
-
     def __init__(self, param: Parameter) -> None: ...
 
 class TooManyArguments(UserInputError): ...
-
 class BadArgument(UserInputError): ...
-
 class CheckFailure(CommandError): ...
-
 class PrivateMessageOnly(CheckFailure): ...
 
 class NoPrivateMessage(CheckFailure):
     def __init__(self, message: Optional[str] = ...) -> None: ...
 
 class NotOwner(CheckFailure): ...
-
 class DisabledCommand(CommandError): ...
 
 class CommandInvokeError(CommandError):
     original: Exception
-
     def __init__(self, e: Exception) -> None: ...
 
 class CommandOnCooldown(CommandError):
     cooldown: Cooldown
     retry_after: float
-
     def __init__(self, cooldown: Cooldown, retry_after: float) -> None: ...
 
 class MissingRole(CheckFailure):
     missing_role: Union[str, int]
-
     def __init__(self, missing_role: Union[str, int]) -> None: ...
 
 class BotMissingRole(CheckFailure):
     missing_role: Union[str, int]
-
     def __init__(self, missing_role: Union[str, int]) -> None: ...
 
 class MissingAnyRole(CheckFailure):
     missing_roles: List[Union[str, int]]
-
     def __init__(self, missing_roles: List[Union[str, int]]) -> None: ...
 
 class BotMissingAnyRole(CheckFailure):
     missing_roles: List[Union[str, int]]
-
     def __init__(self, missing_roles: List[Union[str, int]]) -> None: ...
 
 class NSFWChannelRequired(CheckFailure):
     channel: abc.GuildChannel
-
     def __init__(self, channel: abc.GuildChannel) -> None: ...
 
 class MissingPermissions(CheckFailure):
     missing_perms: List[Permissions]
-
     def __init__(self, missing_perms: List[Permissions], *args: Any) -> None: ...
 
 class BotMissingPermissions(CheckFailure):
     missing_perms: List[Permissions]
-
     def __init__(self, missing_perms: List[Permissions], *args: Any) -> None: ...
 
 class BadUnionArgument(UserInputError):
     param: Parameter
     converters: Tuple[Any, ...]
     errors: List[CommandError]
-
-    def __init__(self, param: Parameter, converters: Tuple[Any, ...], errors: List[CommandError]) -> None: ...
+    def __init__(
+        self, param: Parameter, converters: Tuple[Any, ...], errors: List[CommandError]
+    ) -> None: ...
 
 class ArgumentParsingError(UserInputError): ...
 
 class UnexpectedQuoteError(ArgumentParsingError):
     quote: str
-
     def __init__(self, quote: str) -> None: ...
 
 class InvalidEndOfQuotedStringError(ArgumentParsingError):
     char: str
-
     def __init__(self, char: str) -> None: ...
 
 class ExpectedClosingQuoteError(ArgumentParsingError):
     close_quote: str
-
     def __init__(self, close_quote: str) -> None: ...
 
 class ExtensionError(DiscordException):
@@ -123,10 +105,8 @@ class NoEntryPointError(ExtensionError):
 
 class ExtensionFailed(ExtensionError):
     original: Exception
-
     def __init__(self, name: str, original: Exception) -> None: ...
 
 class ExtensionNotFound(ExtensionError):
     original: ImportError
-
     def __init__(self, name: str, original: Optional[ImportError] = ...) -> None: ...

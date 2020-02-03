@@ -13,12 +13,19 @@ from .message import Message as Message, Attachment as Attachment
 from .asset import Asset as Asset
 from .errors import *
 from .calls import CallMessage as CallMessage, GroupCall as GroupCall
-from .permissions import Permissions as Permissions, PermissionOverwrite as PermissionOverwrite
+from .permissions import (
+    Permissions as Permissions,
+    PermissionOverwrite as PermissionOverwrite,
+)
 from .role import Role as Role
 from .file import File as File
 from .colour import Color as Color, Colour as Colour
 from .invite import Invite as Invite
-from .widget import Widget as Widget, WidgetMember as WidgetMember, WidgetChannel as WidgetChannel
+from .widget import (
+    Widget as Widget,
+    WidgetMember as WidgetMember,
+    WidgetChannel as WidgetChannel,
+)
 from .object import Object as Object
 from .reaction import Reaction as Reaction
 from . import utils as utils, opus as opus, abc as abc
@@ -28,7 +35,11 @@ from .shard import AutoShardedClient as AutoShardedClient
 from .player import *
 from .webhook import *
 from .voice_client import VoiceClient as VoiceClient
-from .audit_logs import AuditLogChanges as AuditLogChanges, AuditLogEntry as AuditLogEntry, AuditLogDiff as AuditLogDiff
+from .audit_logs import (
+    AuditLogChanges as AuditLogChanges,
+    AuditLogEntry as AuditLogEntry,
+    AuditLogDiff as AuditLogDiff,
+)
 from .raw_models import *
 from .team import *
 

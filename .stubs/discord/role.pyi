@@ -15,7 +15,6 @@ class Role(Hashable):
     position: int
     managed: bool
     mentionable: bool
-
     def __lt__(self, other: Any) -> bool: ...
     def __le__(self, other: Any) -> bool: ...
     def __gt__(self, other: Any) -> bool: ...
@@ -34,11 +33,27 @@ class Role(Hashable):
     @property
     def members(self) -> List[Member]: ...
     @overload
-    async def edit(self, *, name: str = ..., permissions: Permissions = ..., colour: Colour = ...,
-                   hoist: bool = ..., mentionable: bool = ..., position: int = ...,
-                   reason: Optional[str] = ...) -> None: ...
+    async def edit(
+        self,
+        *,
+        name: str = ...,
+        permissions: Permissions = ...,
+        colour: Colour = ...,
+        hoist: bool = ...,
+        mentionable: bool = ...,
+        position: int = ...,
+        reason: Optional[str] = ...,
+    ) -> None: ...
     @overload
-    async def edit(self, *, name: str = ..., permissions: Permissions = ..., color: Colour = ...,
-                   hoist: bool = ..., mentionable: bool = ..., position: int = ...,
-                   reason: Optional[str] = ...) -> None: ...
+    async def edit(
+        self,
+        *,
+        name: str = ...,
+        permissions: Permissions = ...,
+        color: Colour = ...,
+        hoist: bool = ...,
+        mentionable: bool = ...,
+        position: int = ...,
+        reason: Optional[str] = ...,
+    ) -> None: ...
     async def delete(self, *, reason: Optional[str] = ...) -> None: ...
