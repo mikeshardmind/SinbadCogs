@@ -20,7 +20,6 @@ class AppInfo:
     primary_sku_id: Optional[int]
     slug: Optional[str]
     cover_image: Optional[str]
-
     @property
     def icon_url(self) -> Asset: ...
     @property

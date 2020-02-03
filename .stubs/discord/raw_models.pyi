@@ -33,7 +33,6 @@ class RawMessageDeleteEvent:
     channel_id: int
     guild_id: Optional[int]
     cached_message: Optional[Message]
-
     def __init__(self, data: _MessageDict) -> None: ...
 
 class RawBulkMessageDeleteEvent:
@@ -41,7 +40,6 @@ class RawBulkMessageDeleteEvent:
     channel_id: int
     guild_id: Optional[int]
     cached_messages: List[Message]
-
     def __init__(self, data: _BulkMessageDeleteDict) -> None: ...
 
 class RawMessageUpdateEvent:
@@ -49,7 +47,6 @@ class RawMessageUpdateEvent:
     channel_id: int
     data: _MessageDict
     cached_message: Optional[Message]
-
     def __init__(self, data: _MessageDict) -> None: ...
 
 class RawReactionActionEvent:
@@ -57,14 +54,12 @@ class RawReactionActionEvent:
     channel_id: int
     user_id: int
     emoji: PartialEmoji
-    event_type: Literal['REACTION_ADD', 'REACTION_REMOVE']
+    event_type: Literal["REACTION_ADD", "REACTION_REMOVE"]
     guild_id: Optional[int]
-
     def __init__(self, data: _ReactionActionDict, emoji: PartialEmoji) -> None: ...
 
 class RawReactionClearEvent:
     message_id: int
     channel_id: int
     guild_id: Optional[int]
-
     def __init__(self, data: _ReactionClearDict) -> None: ...

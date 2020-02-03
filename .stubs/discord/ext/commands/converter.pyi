@@ -46,8 +46,13 @@ class PartialEmojiConverter(Converter):
     async def convert(self, ctx: Context, argument: str) -> discord.PartialEmoji: ...
 
 class clean_content(Converter):
-    def __init__(self, *, fix_channel_mentions: bool = ..., use_nicknames: bool = ...,
-                 escape_markdown: bool = ...) -> None: ...
+    def __init__(
+        self,
+        *,
+        fix_channel_mentions: bool = ...,
+        use_nicknames: bool = ...,
+        escape_markdown: bool = ...,
+    ) -> None: ...
     async def convert(self, ctx: Context, argument: str) -> str: ...
 
 Greedy = List

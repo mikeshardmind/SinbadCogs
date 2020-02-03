@@ -27,8 +27,13 @@ class CallMessage:
     ended_timestamp: Optional[datetime.datetime]
     participants: Optional[List[User]]
     message: Message
-
-    def __init__(self, message: Message, *, ended_timestamp: Optional[str] = ..., participants: List[User]) -> None: ...
+    def __init__(
+        self,
+        message: Message,
+        *,
+        ended_timestamp: Optional[str] = ...,
+        participants: List[User],
+    ) -> None: ...
     @property
     def call_ended(self) -> bool: ...
     @property
@@ -41,11 +46,19 @@ class GroupCall:
     unavailable: Optional[bool]
     ringing: List[User]
     region: VoiceRegion
-
-    def __init__(self, *, call: CallMessage, unavailable: bool, voice_states: List[_VoiceStateDict] = ...,
-                 region: VoiceRegion, ringing: List[int] = ...) -> None: ...
+    def __init__(
+        self,
+        *,
+        call: CallMessage,
+        unavailable: bool,
+        voice_states: List[_VoiceStateDict] = ...,
+        region: VoiceRegion,
+        ringing: List[int] = ...,
+    ) -> None: ...
     @property
     def connected(self) -> List[Union[User, ClientUser]]: ...
     @property
     def channel(self) -> GroupChannel: ...
-    def voice_state_for(self, user: Union[User, ClientUser]) -> Optional[VoiceState]: ...
+    def voice_state_for(
+        self, user: Union[User, ClientUser]
+    ) -> Optional[VoiceState]: ...

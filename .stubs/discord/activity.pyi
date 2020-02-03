@@ -4,7 +4,13 @@ from typing import Any, Optional, Union, List, overload
 
 from .colour import Colour
 from .enums import ActivityType
-from .http import _ActivityDict, _TimestampsDict, _ActivityAssetsDict, _ActivityPartyDict, _SpotifyActivityDict
+from .http import (
+    _ActivityDict,
+    _TimestampsDict,
+    _ActivityAssetsDict,
+    _ActivityPartyDict,
+    _SpotifyActivityDict,
+)
 
 class _ActivityTag: ...
 
@@ -21,13 +27,22 @@ class Activity(_ActivityTag):
     flags: int
     sync_id: Optional[str]
     session_id: Optional[str]
-
-    def __init__(self, *, state: Optional[str] = ..., details: Optional[str] = ...,
-                 timestamps: _TimestampsDict = ..., assets: _ActivityAssetsDict = ...,
-                 party: _ActivityPartyDict = ...,
-                 application_id: Optional[Union[str, int]] = ..., name: Optional[str] = ...,
-                 url: Optional[str] = ..., flags: int = ..., sync_id: Optional[str] = ...,
-                 session_id: Optional[str] = ..., type: ActivityType = ...) -> None: ...
+    def __init__(
+        self,
+        *,
+        state: Optional[str] = ...,
+        details: Optional[str] = ...,
+        timestamps: _TimestampsDict = ...,
+        assets: _ActivityAssetsDict = ...,
+        party: _ActivityPartyDict = ...,
+        application_id: Optional[Union[str, int]] = ...,
+        name: Optional[str] = ...,
+        url: Optional[str] = ...,
+        flags: int = ...,
+        sync_id: Optional[str] = ...,
+        session_id: Optional[str] = ...,
+        type: ActivityType = ...,
+    ) -> None: ...
     def to_dict(self) -> _ActivityDict: ...
     @property
     def start(self) -> Optional[datetime.datetime]: ...
@@ -44,11 +59,16 @@ class Activity(_ActivityTag):
 
 class Game(_ActivityTag):
     name: str
-
     @overload
     def __init__(self, name: str, *, timestamps: _TimestampsDict) -> None: ...
     @overload
-    def __init__(self, name: str, *, start: Optional[datetime.datetime] = ..., end: Optional[datetime.datetime] = ...) -> None: ...
+    def __init__(
+        self,
+        name: str,
+        *,
+        start: Optional[datetime.datetime] = ...,
+        end: Optional[datetime.datetime] = ...,
+    ) -> None: ...
     @property
     def type(self) -> ActivityType: ...
     @property
@@ -65,8 +85,14 @@ class Streaming(_ActivityTag):
     url: str
     details: Optional[str]
     assets: _ActivityAssetsDict
-
-    def __init__(self, *, name: str, url: str, details: Optional[str] = ..., assets: _ActivityAssetsDict = ...) -> None: ...
+    def __init__(
+        self,
+        *,
+        name: str,
+        url: str,
+        details: Optional[str] = ...,
+        assets: _ActivityAssetsDict = ...,
+    ) -> None: ...
     @property
     def type(self) -> ActivityType: ...
     @property
@@ -110,4 +136,6 @@ class Spotify:
     @property
     def party_id(self) -> str: ...
 
-def create_activity(data: Optional[_ActivityDict]) -> Optional[Union[Activity, Game, Streaming, Spotify]]: ...
+def create_activity(
+    data: Optional[_ActivityDict],
+) -> Optional[Union[Activity, Game, Streaming, Spotify]]: ...

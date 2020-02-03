@@ -1,7 +1,15 @@
 import discord.abc
 
 from .channel import DMChannel, GroupChannel
-from .enums import DefaultAvatar, HypeSquadHouse, PremiumType, UserContentFilter, FriendFlags, Status, Theme
+from .enums import (
+    DefaultAvatar,
+    HypeSquadHouse,
+    PremiumType,
+    UserContentFilter,
+    FriendFlags,
+    Status,
+    Theme,
+)
 from .colour import Colour
 from .guild import Guild
 from .http import _ClientUserDict
@@ -14,8 +22,8 @@ import datetime
 from typing import Any, Optional, NamedTuple, List, Set, Dict
 from typing_extensions import Literal
 
-_VALID_STATIC_FORMATS = Literal['jpeg', 'jpg', 'webp', 'png']
-_VALID_AVATAR_FORMATS = Literal[_VALID_STATIC_FORMATS, 'gif']
+_VALID_STATIC_FORMATS = Literal["jpeg", "jpg", "webp", "png"]
+_VALID_AVATAR_FORMATS = Literal[_VALID_STATIC_FORMATS, "gif"]
 
 class Profile(NamedTuple):
     flags: int
@@ -24,7 +32,6 @@ class Profile(NamedTuple):
     connected_accounts: List[Any]
     premium_since: Optional[datetime.datetime]
     premium: bool
-
     @property
     def nitro(self) -> bool: ...
     @property
@@ -48,15 +55,19 @@ class BaseUser(_BaseUser):
     discriminator: str
     avatar: Optional[str]
     bot: bool
-
     def __eq__(self, other: Any) -> bool: ...
     def __ne__(self, other: Any) -> bool: ...
     def __hash__(self) -> int: ...
     @property
     def avatar_url(self) -> Asset: ...
     def is_avatar_animated(self) -> bool: ...
-    def avatar_url_as(self, *, format: Optional[_VALID_AVATAR_FORMATS] = ...,
-                      static_format: _VALID_STATIC_FORMATS = ..., size: int = ...) -> Asset: ...
+    def avatar_url_as(
+        self,
+        *,
+        format: Optional[_VALID_AVATAR_FORMATS] = ...,
+        static_format: _VALID_STATIC_FORMATS = ...,
+        size: int = ...,
+    ) -> Asset: ...
     @property
     def default_avatar(self) -> DefaultAvatar: ...
     @property
@@ -81,7 +92,6 @@ class ClientUser(BaseUser):
     mfa_enabled: bool
     premium: bool
     premium_type: Optional[PremiumType]
-
     def get_relationship(self, user_id: int) -> Optional[Relationship]: ...
     @property
     def relationships(self) -> List[Relationship]: ...
@@ -89,19 +99,43 @@ class ClientUser(BaseUser):
     def friends(self) -> List[User]: ...
     @property
     def blocked(self) -> List[User]: ...
-    async def edit(self, *, password: str = ..., new_password: str = ..., email: str = ..., username: str = ...,
-                   avatar: bytes = ...) -> None: ...
+    async def edit(
+        self,
+        *,
+        password: str = ...,
+        new_password: str = ...,
+        email: str = ...,
+        username: str = ...,
+        avatar: bytes = ...,
+    ) -> None: ...
     async def create_group(self, *recipients: User) -> GroupChannel: ...
-    async def edit_settings(self, *, afk_timeout: int = ..., animate_emojis: bool = ..., convert_emoticons: bool = ...,
-                            default_guilds_restricted: bool = ..., detect_platform_accounts: bool = ...,
-                            developer_mode: bool = ..., disable_games_tab: bool = ..., enable_tts_command: bool = ...,
-                            explicit_content_filter: UserContentFilter = ..., friend_source_flags: FriendFlags = ...,
-                            gif_auto_play: bool = ..., guild_positions: List[discord.abc.Snowflake] = ...,
-                            inline_attachment_media: bool = ..., inline_embed_media: bool = ..., locale: str = ...,
-                            message_display_compact: bool = ..., render_embeds: bool = ...,
-                            render_reactions: bool = ..., restricted_guilds: List[discord.abc.Snowflake] = ...,
-                            show_current_game: bool = ..., status: Status = ..., theme: Theme = ...,
-                            timezone_offset: int = ...) -> _ClientUserDict: ...
+    async def edit_settings(
+        self,
+        *,
+        afk_timeout: int = ...,
+        animate_emojis: bool = ...,
+        convert_emoticons: bool = ...,
+        default_guilds_restricted: bool = ...,
+        detect_platform_accounts: bool = ...,
+        developer_mode: bool = ...,
+        disable_games_tab: bool = ...,
+        enable_tts_command: bool = ...,
+        explicit_content_filter: UserContentFilter = ...,
+        friend_source_flags: FriendFlags = ...,
+        gif_auto_play: bool = ...,
+        guild_positions: List[discord.abc.Snowflake] = ...,
+        inline_attachment_media: bool = ...,
+        inline_embed_media: bool = ...,
+        locale: str = ...,
+        message_display_compact: bool = ...,
+        render_embeds: bool = ...,
+        render_reactions: bool = ...,
+        restricted_guilds: List[discord.abc.Snowflake] = ...,
+        show_current_game: bool = ...,
+        status: Status = ...,
+        theme: Theme = ...,
+        timezone_offset: int = ...,
+    ) -> _ClientUserDict: ...
 
 class User(BaseUser, discord.abc.Messageable):
     @property

@@ -1,10 +1,9 @@
 from typing import Any, Tuple, TypeVar, Type
 
-_C = TypeVar('_C', bound=Colour)
+_C = TypeVar("_C", bound=Colour)
 
 class Colour:
     value: int
-
     def __init__(self, value: int) -> None: ...
     def __eq__(self, other: Any) -> bool: ...
     def __ne__(self, other: Any) -> bool: ...

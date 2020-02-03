@@ -9,7 +9,6 @@ class Team:
     icon: Optional[str]
     owner_id: int
     members: List[TeamMember]
-
     @property
     def icon_url(self) -> Asset: ...
     @property

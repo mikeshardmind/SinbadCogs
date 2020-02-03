@@ -12,7 +12,6 @@ class WidgetChannel(NamedTuple):
     id: int
     name: str
     position: int
-
     @property
     def mention(self) -> str: ...
     @property
@@ -31,7 +30,6 @@ class WidgetMember(BaseUser):
     muted: Optional[bool]
     suppress: Optional[bool]
     connected_channel: Optional[VoiceChannel]
-
     @property
     def display_name(self) -> str: ...
 
@@ -40,7 +38,6 @@ class Widget:
     name: str
     channels: Optional[List[WidgetChannel]]
     members: Optional[List[WidgetMember]]
-
     def __eq__(self, other: Any) -> bool: ...
     @property
     def created_at(self) -> datetime: ...
