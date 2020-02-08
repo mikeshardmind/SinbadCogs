@@ -65,7 +65,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "330.0.0"
+    __version__ = "330.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -103,9 +103,6 @@ class RSS(commands.Cog):
         if self.bg_loop_task:
             self.bg_loop_task.cancel()
         asyncio.create_task(self.session.close())
-
-    def clear_feed(self, channel, feedname):
-        return self.config.channel(channel).clear_raw("feeds", feedname)
 
     async def should_embed(self, channel: discord.TextChannel) -> bool:
         ret: bool = await self.bot.embed_requested(channel, channel.guild.me)
@@ -427,14 +424,24 @@ class RSS(commands.Cog):
         after this.
         """
         channel = channel or ctx.channel
-        await self.clear_feed(channel, name)
+        async with self.config.channel(channel).feeds() as feeds:
+            if name not in feeds:
+                await ctx.send(
+                    _("No feed named {feedname} in {channel}.").format(
+                        feedname=name, channel=channel.mention
+                    )
+                )
+                return
+
+            del feeds[name]
+
         await ctx.tick()
 
     @rss.command(name="embed")
     async def set_embed(
         self,
         ctx,
-        feed: str,
+        name: str,
         setting: TriState,
         channel: Optional[discord.TextChannel] = None,
     ):
@@ -451,16 +458,25 @@ class RSS(commands.Cog):
         """
 
         channel = channel or ctx.channel
-        await self.config.channel(channel).set_raw(
-            "feeds", feed, "embed_override", value=setting.state
-        )
+
+        async with self.config.channel(channel).feeds() as feeds:
+            if name not in feeds:
+                await ctx.send(
+                    _("No feed named {feedname} in {channel}.").format(
+                        feedname=name, channel=channel.mention
+                    )
+                )
+                return
+
+            feeds[name]["embed_override"] = setting.state
+
         await ctx.tick()
 
     @rss.command(name="template")
     async def set_template(
         self,
         ctx,
-        feed,
+        name,
         channel: Optional[discord.TextChannel] = None,
         *,
         template: str = None,
@@ -500,18 +516,36 @@ class RSS(commands.Cog):
         channel = channel or ctx.channel
         template = template.replace("\\t", "\t")
         template = template.replace("\\n", "\n")
-        await self.config.channel(channel).set_raw(
-            "feeds", feed, "template", value=template
-        )
+        async with self.config.channel(channel).feeds() as feeds:
+            if name not in feeds:
+                await ctx.send(
+                    _("No feed named {feedname} in {channel}.").format(
+                        feedname=name, channel=channel.mention
+                    )
+                )
+                return
+
+            feeds[name]["template"] = template
+
         await ctx.tick()
 
     @rss.command(name="resettemplate")
     async def reset_template(
-        self, ctx, feed, channel: Optional[discord.TextChannel] = None
+        self, ctx, name, channel: Optional[discord.TextChannel] = None
     ):
         """
         Resets the template in use for a specific feed in this, or a provided channel
         """
         channel = channel or ctx.channel
-        await self.config.channel(channel).clear_raw("feeds", feed, "template")
+        async with self.config.channel(channel).feeds() as feeds:
+            if name not in feeds:
+                await ctx.send(
+                    _("No feed named {feedname} in {channel}.").format(
+                        feedname=name, channel=channel.mention
+                    )
+                )
+                return
+
+            del feeds[name]["template"]
+
         await ctx.tick()
