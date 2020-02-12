@@ -58,7 +58,7 @@ class EmojiRolePairConverter(NamedTuple):
             if maybe_emoji in pairs:
                 raise BadArgument("You can't provide the same emoji multiple times.")
 
-            role = _RoleConverter.convert(ctx, maybe_role)
+            role = await _RoleConverter.convert(ctx, maybe_role)
 
             pairs[maybe_emoji] = role
 
