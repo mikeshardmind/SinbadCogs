@@ -173,7 +173,8 @@ for hashname in hashlib.algorithms_available:
 
     # Patch this in Red... ffs
     p = functools.wraps(
-        callback, assigned=("__module__", "__name__", "__qualname__", "__doc__")
+        callback,
+        assigned=("__module__", "__name__", "__qualname__", "__doc__", "__globals__"),
     )(functools.partial(callback, hashname))
 
     c = commands.command(name=hashname, help=f"Hash using {hashname}")(p)
@@ -191,7 +192,7 @@ class HashlibMixin:
 class DevTools(HashlibMixin, DevBase, commands.Cog):
     """ Some tools """
 
-    __version__ = "330.1.6"
+    __version__ = "330.1.7"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
