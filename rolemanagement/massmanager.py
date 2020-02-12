@@ -1,7 +1,7 @@
 import csv
 import io
 import logging
-from typing import Optional, cast, Set
+from typing import Optional, Set
 
 import discord
 from redbot.core import checks, commands
@@ -134,13 +134,13 @@ class MassManagementMixin(MixinMeta):
 
         Example Usage:
 
-        [p]massrole user Sinbad --add RoleToGive "Role with spaces to give" 
+        [p]massrole user Sinbad --add RoleToGive "Role with spaces to give"
         --remove RoleToRemove "some other role to remove" Somethirdrole
 
         [p]massrole user LoudMouthedUser ProfaneUser --add muted
 
         For role operations based on role membership, permissions had, or whether someone is a bot
-        (or even just add to/remove from all) see `[p]massrole search` and `[p]massrole modify` 
+        (or even just add to/remove from all) see `[p]massrole search` and `[p]massrole modify`
         """
         query = _query.parsed
         apply = query["add"] + query["remove"]
@@ -273,7 +273,7 @@ class MassManagementMixin(MixinMeta):
     ):
         """
         Similar syntax to search, while applying/removing roles
-        
+
         --has-all roles
         --has-none roles
         --has-any roles
@@ -293,7 +293,7 @@ class MassManagementMixin(MixinMeta):
         --only-humans
         --only-bots
         --everyone
-        
+
         --add roles
         --remove roles
         """

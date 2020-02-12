@@ -36,7 +36,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "330.0.0"
+    __version__ = "330.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -448,7 +448,7 @@ class BanSync(commands.Cog):
         artificial_delay: float,
     ):
         """
-        This exists to speed up large syncs and consume ratelimits concurrently 
+        This exists to speed up large syncs and consume ratelimits concurrently
         """
         count = 0
         for target in targets:

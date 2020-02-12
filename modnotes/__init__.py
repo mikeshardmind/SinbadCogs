@@ -4,6 +4,7 @@ try:
     import apsw
 except ImportError:
     HAS_APSW = False
+    apsw = None
 else:
     HAS_APSW = True
 

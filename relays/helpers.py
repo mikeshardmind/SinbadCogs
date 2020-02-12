@@ -4,7 +4,6 @@ import re
 from typing import List, TypeVar, Iterable, Union, Iterator, cast
 
 import discord
-from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.utils.common_filters import INVITE_URL_RE
 

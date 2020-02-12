@@ -53,7 +53,7 @@ class Note(NamedTuple):
 class ModNotes(commands.Cog):
     """ Store moderation notes """
 
-    __version__ = "330.0.0"
+    __version__ = "330.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

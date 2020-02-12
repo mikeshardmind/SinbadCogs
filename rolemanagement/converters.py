@@ -1,8 +1,9 @@
 import argparse
 import shlex
-from typing import Optional, List, NamedTuple, Dict
+from itertools import islice
+from typing import List, NamedTuple, Dict
 
-from redbot.core.commands import RoleConverter, Context, BadArgument
+from redbot.core.commands import RoleConverter, Context, BadArgument, GuildContext
 import discord
 
 
@@ -36,6 +37,32 @@ class RoleSyntaxConverter(NamedTuple):
             vals[attr] = [await _RoleConverter.convert(ctx, r) for r in vals[attr]]
 
         return cls(vals)
+
+
+class EmojiRolePairConverter(NamedTuple):
+    pairs: Dict[str, discord.Role]
+
+    @classmethod
+    async def convert(cls, ctx: GuildContext, argument: str):
+
+        chunks = shlex.split(argument)
+        if not chunks:
+            raise BadArgument("Must provide at least one pair.")
+        if len(chunks) % 2:
+            raise BadArgument("Must provide pairings of emojis to roles.")
+
+        pairs: Dict[str, discord.Role] = {}
+
+        for maybe_emoji, maybe_role in islice(chunks, None, None, 2):
+
+            if maybe_emoji in pairs:
+                raise BadArgument("You can't provide the same emoji multiple times.")
+
+            role = _RoleConverter.convert(ctx, maybe_role)
+
+            pairs[maybe_emoji] = role
+
+        return cls(pairs)
 
 
 class ComplexActionConverter(NamedTuple):

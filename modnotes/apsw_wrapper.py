@@ -6,8 +6,7 @@ lazy in the short term here.
 """
 
 from contextlib import contextmanager
-from os import PathLike
-from typing import Generator, Union, TYPE_CHECKING
+from typing import Generator, TYPE_CHECKING
 
 import apsw
 

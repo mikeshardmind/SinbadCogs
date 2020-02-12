@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from random import randint
-from typing import Union, Iterable, Tuple, SupportsInt
+from typing import Union, Iterable, SupportsInt
 
 import dice
 from redbot.cogs.general.general import General as RedGeneral
@@ -21,7 +21,7 @@ class General(RedGeneral):
     Mostly just for the dice.
     """
 
-    __version__ = "330.0.0"
+    __version__ = "330.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

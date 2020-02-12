@@ -5,7 +5,7 @@ import dataclasses
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple, NamedTuple
 
-from redbot.core.commands import Context, BadArgument, Converter
+from redbot.core.commands import Context, BadArgument
 
 from .time_utils import parse_time, parse_timedelta
 

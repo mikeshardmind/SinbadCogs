@@ -1,9 +1,8 @@
 import argparse
-import contextlib
 import re
 import shlex
 from dataclasses import dataclass
-from typing import NamedTuple, Optional, Set, Union
+from typing import NamedTuple, Set, Union
 
 import discord
 from redbot.core.commands import Context, BadArgument
