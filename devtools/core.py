@@ -6,6 +6,7 @@ import re
 import unicodedata as ud
 from copy import copy
 import hashlib
+import functools
 
 import discord
 from redbot.core import commands, checks
@@ -162,13 +163,17 @@ for hashname in hashlib.algorithms_available:
 
     # Meanwhile (see above about self), as this is not defined on the class at all
     # This needs to *not* have self defined
-    @commands.command(name=hashname, help=f"Hash using {hashname}")
-    async def c(ctx: commands.Context, *, to_hash: str):
 
-        hashed = hashlib.new(ctx.command.name)
+    async def callback(func_name, ctx: commands.Context, *, to_hash: str):
+
+        hashed = hashlib.new(func_name)
         hashed.update(to_hash.encode())
         hexed = hashed.hexdigest()
         await ctx.send(box(hexed))
+
+    c = commands.command(name=hashname, help=f"Hash using {hashname}")(
+        functools.partial(callback, hashname)
+    )
 
     if c.name not in hashlib_command.all_commands:
         hashlib_command.add_command(c)
@@ -183,7 +188,7 @@ class HashlibMixin:
 class DevTools(HashlibMixin, DevBase, commands.Cog):
     """ Some tools """
 
-    __version__ = "330.1.3"
+    __version__ = "330.1.4"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
