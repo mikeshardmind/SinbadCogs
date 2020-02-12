@@ -171,9 +171,10 @@ for hashname in hashlib.algorithms_available:
         hexed = hashed.hexdigest()
         await ctx.send(box(hexed))
 
-    # functools doesn't copy this, maybe patch in Red?
+    # Patch this in Red... ffs
     p = functools.partial(callback, hashname)
     p.__module__ = callback.__module__
+    p.__globals__ = callback.__globals__
 
     c = commands.command(name=hashname, help=f"Hash using {hashname}")(p)
 
