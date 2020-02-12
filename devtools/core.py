@@ -172,9 +172,9 @@ for hashname in hashlib.algorithms_available:
         await ctx.send(box(hexed))
 
     # Patch this in Red... ffs
-    p = functools.partial(callback, hashname)
-    p.__module__ = callback.__module__
-    p.__globals__ = callback.__globals__
+    p = functools.wraps(
+        callback, assigend=("__module__", "__name__", "__qualname__", "__doc__")
+    )(functools.partial(callback, hashname))
 
     c = commands.command(name=hashname, help=f"Hash using {hashname}")(p)
 
@@ -191,7 +191,7 @@ class HashlibMixin:
 class DevTools(HashlibMixin, DevBase, commands.Cog):
     """ Some tools """
 
-    __version__ = "330.1.5"
+    __version__ = "330.1.6"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
