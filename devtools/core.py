@@ -154,7 +154,7 @@ for hashname in hashlib.algorithms_available:
     # Would support if length was optional and defaulted to max
 
     @commands.command(name=hashname, help=f"Hash using {hashname}")
-    async def c(self, ctx, to_hash: str):
+    async def c(ctx, to_hash: str):
 
         hashed = hashlib.new(hashname)
         hashed.update(to_hash.encode())
