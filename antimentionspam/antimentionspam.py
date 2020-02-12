@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from datetime import timedelta, datetime
-from typing import Dict, TYPE_CHECKING
+from typing import Dict
 
 import discord
 from redbot.core import checks, commands
@@ -20,7 +20,7 @@ __all__ = ["AntiMentionSpam"]
 class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
-    __version__ = "330.0.0"
+    __version__ = "330.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

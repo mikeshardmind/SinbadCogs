@@ -17,6 +17,7 @@ from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
 from .massmanager import MassManagementMixin
 from .utils import UtilMixin, variation_stripper_re
+from .converters import EmojiRolePairConverter
 
 
 log = logging.getLogger("red.sinbadcogs.rolemanagement")
@@ -50,7 +51,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.0.0"
+    __version__ = "330.1.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -229,6 +230,95 @@ class RoleManagement(
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
     @checks.admin_or_permissions(manage_guild=True)
+    @commands.command(name="clearmessagebinds")
+    async def clear_message_binds(
+        self, ctx: commands.Context, channel: discord.TextChannel, message_id: int
+    ):
+        """
+        Clear all binds from a message.
+        """
+        try:
+            message = await channel.fetch_message(message_id)
+        except discord.HTTPException:
+            return await ctx.maybe_send_embed("No such message")
+
+        await self.config.custom("REACTROLE", str(message.id)).clear()
+        await ctx.tick()
+
+    @commands.guild_only()
+    @commands.bot_has_permissions(manage_roles=True)
+    @checks.admin_or_permissions(manage_guild=True)
+    @commands.command(name="bulkrolebind")
+    async def bulk_role_bind_command(
+        self,
+        ctx: commands.GuildContext,
+        channel: discord.TextChannel,
+        message_id: int,
+        *,
+        emoji_role_pairs: EmojiRolePairConverter,
+    ):
+        """
+        Add role binds to a message
+        """
+
+        pairs = emoji_role_pairs.pairs
+
+        if not await self.all_are_valid_roles(ctx, *pairs.values()):
+            return await ctx.maybe_send_embed(
+                "Can't do that. Discord role heirarchy applies here."
+            )
+
+        try:
+            message = await channel.fetch_message(message_id)
+        except discord.HTTPException:
+            return await ctx.maybe_send_embed("No such message")
+
+        to_store: Dict[str, discord.Role] = {}
+        _emoji: Optional[Union[discord.Emoji, str]]
+
+        for emoji, role in pairs.items():
+
+            _emoji = discord.utils.find(lambda e: str(e) == emoji, self.bot.emojis)
+            if _emoji is None:
+                try:
+                    await ctx.message.add_reaction(emoji)
+                except discord.HTTPException:
+                    return await ctx.maybe_send_embed(f"No such emoji {emoji}")
+                else:
+                    _emoji = emoji
+                    eid = self.strip_variations(emoji)
+            else:
+                eid = str(_emoji.id)
+
+            if not any(str(r) == emoji for r in message.reactions):
+                try:
+                    await message.add_reaction(_emoji)
+                except discord.HTTPException:
+                    return await ctx.maybe_send_embed(
+                        "Hmm, that message couldn't be reacted to"
+                    )
+
+            to_store[eid] = role
+
+        for eid, role in to_store.items():
+            cfg = self.config.custom("REACTROLE", str(message.id), eid)
+            await cfg.set(
+                {
+                    "roleid": role.id,
+                    "channelid": message.channel.id,
+                    "guildid": role.guild.id,
+                }
+            )
+
+        await ctx.send(
+            f"Remember, the reactions only function according to "
+            f"the rules set for the roles using `{ctx.prefix}roleset`",
+            delete_after=30,
+        )
+
+    @commands.guild_only()
+    @commands.bot_has_permissions(manage_roles=True)
+    @checks.admin_or_permissions(manage_guild=True)
     @commands.command(name="rolebind")
     async def bind_role_to_reactions(
         self,
@@ -241,7 +331,7 @@ class RoleManagement(
         """
         Binds a role to a reaction on a message...
 
-        The role is only given if the criteria for it are met. 
+        The role is only given if the criteria for it are met.
         Make sure you configure the other settings for a role in [p]roleset
         """
 
@@ -402,14 +492,14 @@ class RoleManagement(
         self, ctx: commands.GuildContext, cost: int, *, role: discord.Role
     ):
         """
-        Makes a role purchasable for a specified cost. 
+        Makes a role purchasable for a specified cost.
         Cost must be a number greater than 0.
         A cost of exactly 0 can be used to remove purchasability.
-        
+
         Purchase eligibility still follows other rules including self assignable.
-        
-        Warning: If these roles are bound to a reaction, 
-        it will be possible to gain these without paying. 
+
+        Warning: If these roles are bound to a reaction,
+        it will be possible to gain these without paying.
         """
 
         if not await self.all_are_valid_roles(ctx, role):
@@ -569,7 +659,7 @@ class RoleManagement(
     ):
         """
         Sets if a role is self-assignable via command
-        
+
         (default False)
 
         use without a setting to view current
@@ -726,7 +816,7 @@ class RoleManagement(
         """
         Builds info.
 
-        Info is suitable for passing to embeds if use_embeds is True 
+        Info is suitable for passing to embeds if use_embeds is True
         """
 
         linkfmt = (
@@ -770,7 +860,7 @@ class RoleManagement(
         """
         yields:
             str, str, dict
-            
+
             first str: message id
             second str: emoji id or unicode codepoint
             dict: data from the corresponding:

@@ -47,7 +47,7 @@ def normalize_text(text: str, length: int) -> List[str]:
     lines = textwrap.wrap(text, length)
     if extra:
         lines += textwrap.wrap(extra, length)
-    maxlen = max(len(l) for l in lines)
+    maxlen = max(len(ln) for ln in lines)
     return [line.ljust(maxlen) for line in lines]
 
 
