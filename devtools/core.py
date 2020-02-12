@@ -5,6 +5,7 @@ import contextlib
 import re
 import unicodedata as ud
 from copy import copy
+import hashlib
 
 import discord
 from redbot.core import commands, checks
@@ -29,19 +30,7 @@ def get_name(c: str) -> str:
         return c.encode("raw_unicode_escape").decode("utf-8")
 
 
-class DevTools(commands.Cog):
-    """ Some tools """
-
-    __version__ = "330.0.0"
-
-    def format_help_for_context(self, ctx):
-        pre_processed = super().format_help_for_context(ctx)
-        return f"{pre_processed}\nCog Version: {self.__version__}"
-
-    def __init__(self, bot, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.bot = bot
-
+class DevBase:
     @commands.guild_only()
     @commands.command(name="userallowedcoms")
     async def usercontextallowedcoms(
@@ -146,3 +135,53 @@ class DevTools(commands.Cog):
         text = text.strip()
         if text:
             await ctx.send(text)
+
+
+@commands.cooldown(1, 2, commands.BucketType.user)
+@commands.group(name="hashlib")
+async def hashlib_command(ctx: commands.Context):
+    """
+    Hash commands
+    """
+    pass
+
+
+for hashname in hashlib.algorithms_available:
+
+    if "shake" in hashname:
+        continue
+    # not supporting it.
+    # Would support if length was optional and defaulted to max
+
+    @commands.command(
+        name=hashname.replace("_", "").replace("-", ""), help=f"Hash using {hashname}"
+    )
+    async def c(ctx, to_hash: str):
+
+        hashed = hashlib.new(hashname)
+        hashed.update(to_hash.encode())
+        hexed = hashed.hexdigest()
+        await ctx.send(box(hexed))
+
+    if c.name not in hashlib_command.all_commands:
+        hashlib_command.add_command(c)
+
+
+class HashlibMixin:
+    """ This is mostly here to easily mess with things... """
+
+    c = hashlib_command
+
+
+class DevTools(HashlibMixin, DevBase, commands.Cog):
+    """ Some tools """
+
+    __version__ = "330.1.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
+
+    def __init__(self, bot, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bot = bot
