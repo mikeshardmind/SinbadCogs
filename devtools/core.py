@@ -139,7 +139,7 @@ class DevBase:
 
 @commands.cooldown(1, 2, commands.BucketType.user)
 @commands.group(name="hashlib")
-async def hashlib_command(ctx: commands.Context):
+async def hashlib_command(self, ctx: commands.Context):
     """
     Hash commands
     """
@@ -153,10 +153,8 @@ for hashname in hashlib.algorithms_available:
     # not supporting it.
     # Would support if length was optional and defaulted to max
 
-    @commands.command(
-        name=hashname.replace("_", "").replace("-", ""), help=f"Hash using {hashname}"
-    )
-    async def c(ctx, to_hash: str):
+    @commands.command(name=hashname, help=f"Hash using {hashname}")
+    async def c(self, ctx, to_hash: str):
 
         hashed = hashlib.new(hashname)
         hashed.update(to_hash.encode())
