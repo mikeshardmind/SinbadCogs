@@ -163,9 +163,9 @@ for hashname in hashlib.algorithms_available:
     # Meanwhile (see above about self), as this is not defined on the class at all
     # This needs to *not* have self defined
     @commands.command(name=hashname, help=f"Hash using {hashname}")
-    async def c(ctx, *, to_hash: str):
+    async def c(ctx: commands.Context, *, to_hash: str):
 
-        hashed = hashlib.new(hashname)
+        hashed = hashlib.new(ctx.command.name)
         hashed.update(to_hash.encode())
         hexed = hashed.hexdigest()
         await ctx.send(box(hexed))
@@ -183,7 +183,7 @@ class HashlibMixin:
 class DevTools(HashlibMixin, DevBase, commands.Cog):
     """ Some tools """
 
-    __version__ = "330.1.2"
+    __version__ = "330.1.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
