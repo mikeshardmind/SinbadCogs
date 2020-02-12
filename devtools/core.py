@@ -137,6 +137,13 @@ class DevBase:
             await ctx.send(text)
 
 
+# Okay, so some dynamic fuckery is gonna happen here due to the
+# way the discord.py metaclass works
+
+
+# This needs self, as it belongs to the cog, discord.py will try to
+# inject the cog instance as the first parameter.
+# We don't actually need it if not for this behavior
 @commands.cooldown(1, 2, commands.BucketType.user)
 @commands.group(name="hashlib")
 async def hashlib_command(self, ctx: commands.Context):
@@ -153,6 +160,8 @@ for hashname in hashlib.algorithms_available:
     # not supporting it.
     # Would support if length was optional and defaulted to max
 
+    # Meanwhile (see above about self), as this is not defined on the class at all
+    # This needs to *not* have self defined
     @commands.command(name=hashname, help=f"Hash using {hashname}")
     async def c(ctx, to_hash: str):
 
