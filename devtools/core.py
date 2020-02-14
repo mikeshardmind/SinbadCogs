@@ -173,7 +173,7 @@ for hashname in hashlib.algorithms_available:
 
     # Patch this in Red... ffs
     p = functools.partial(callback, hashname)
-    p.__globals__ = callback  # type: ignore
+    p.__globals__ = callback.__globals__  # type: ignore
     p.__module__ = callback.__module__
 
     c = commands.command(name=hashname, help=f"Hash using {hashname}")(p)
