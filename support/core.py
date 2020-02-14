@@ -77,6 +77,7 @@ class Support(commands.Cog):
     ):
         """ Remove a misbehaving user """
         await self.punish(user_or_id.id)
+        await ctx.tick()
 
     async def get_message(
         self, channel: discord.TextChannel, _id: int
