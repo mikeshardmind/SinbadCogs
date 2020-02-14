@@ -1,0 +1,11 @@
+{
+    "author": [
+        "mikeshardmind(Sinbad)"
+    ],
+    "install_msg": "Lol, This probably isn't for you.",
+    "name": "Support",
+    "disabled": false,
+    "tags": [],
+    "hidden": true,
+    "min_bot_version": "3.3.0"
+}
