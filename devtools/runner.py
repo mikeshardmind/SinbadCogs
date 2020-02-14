@@ -5,7 +5,13 @@ import io
 import os
 import subprocess  # nosec
 import sys
+import threading
+import queue
+import weakref
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures.thread import _worker  # type: ignore
+from typing import Callable
+
 
 import discord
 from redbot.core import commands, checks
@@ -13,12 +19,55 @@ from redbot.core.utils.chat_formatting import pagify, box
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
+class NoAtExitExecutor(ThreadPoolExecutor):
+
+    _idle_semaphore: threading.Semaphore
+    _threads: set
+    _work_queue: queue.SimpleQueue
+    _thread_name_prefix: str
+    _max_workers: int
+    _initializer: Callable
+    _initargs: tuple
+
+    def _adjust_thread_count(self):
+        """
+        https://github.com/python/cpython/blob/3.8/Lib/concurrent/futures/thread.py
+        minus 1 line, as we actually *don't* want CPython joining these at exit.
+        """
+
+        # if idle threads are available, don't spin new threads
+        if self._idle_semaphore.acquire(timeout=0):
+            return
+
+        # When the executor gets lost, the weakref callback will wake up
+        # the worker threads.
+        def weakref_cb(_, q=self._work_queue):
+            q.put(None)
+
+        num_threads = len(self._threads)
+        if num_threads < self._max_workers:
+            thread_name = "%s_%d" % (self._thread_name_prefix or self, num_threads)
+            t = threading.Thread(
+                name=thread_name,
+                target=_worker,
+                args=(
+                    weakref.ref(self, weakref_cb),
+                    self._work_queue,
+                    self._initializer,
+                    self._initargs,
+                ),
+            )
+            t.daemon = True
+            t.start()
+            self._threads.add(t)
+
+
 class Runner(commands.Cog):
     """
     Look, it works. Be careful when using this.
     """
 
-    __version__ = "323.0.1"
+    __version__ = "323.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -27,7 +76,7 @@ class Runner(commands.Cog):
     def __init__(self, bot, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bot = bot
-        self.executor = ThreadPoolExecutor()
+        self.executor = NoAtExitExecutor()
 
     def cog_unload(self):
         self.executor.shutdown(wait=False)
@@ -97,5 +146,5 @@ class Runner(commands.Cog):
         kills the shells
         """
         self.executor.shutdown(wait=False)
-        self.executor = ThreadPoolExecutor()
+        self.executor = NoAtExitExecutor()
         await ctx.tick()
