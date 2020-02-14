@@ -67,7 +67,7 @@ class Runner(commands.Cog):
     Look, it works. Be careful when using this.
     """
 
-    __version__ = "323.0.2"
+    __version__ = "323.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -145,6 +145,11 @@ class Runner(commands.Cog):
         """
         kills the shells
         """
-        self.executor.shutdown(wait=False)
-        self.executor = NoAtExitExecutor()
-        await ctx.tick()
+        await ctx.send(
+            "So, the boundary between sync and async code sucks and this is broken right now. "
+            "Restarting your bot will handle it."
+        )
+        return
+        # self.executor.shutdown(wait=False)
+        # self.executor = NoAtExitExecutor()
+        # await ctx.tick()
