@@ -7,7 +7,6 @@ from typing import NamedTuple, Union, Optional
 import discord
 from redbot.core import commands, checks
 from redbot.core.bot import Red
-from redbot.core.data_manager import cog_data_path
 from redbot.core.config import Config
 
 
