@@ -10,9 +10,33 @@ from redbot.core.bot import Red
 from redbot.core.config import Config
 from redbot.core.modlog import create_case
 from redbot.core.utils.antispam import AntiSpam
+from redbot.core.data_manager import cog_data_path
+
+
+class AddOnceHandler(logging.FileHandler):
+    """
+    Red's hot reload logic will break my logging if I don't do this.
+    """
 
 
 log = logging.getLogger("red.sinbadcogs.antimentionspam")
+
+
+for handler in log.handlers:
+    # Red hotreload shit.... can't use isinstance, need to check not already added.
+    if handler.__class__.__name__ == "AddOnceHandler":
+        break
+else:
+    fp = cog_data_path(raw_name="AntiMentionSpam") / "antispamlog.log"
+    handler = AddOnceHandler(fp)
+    formatter = logging.Formatter(
+        "[{asctime}] [{levelname}] {name}: {message}",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        style="%",
+    )
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
+
 
 __all__ = ["AntiMentionSpam"]
 

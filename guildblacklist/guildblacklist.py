@@ -7,9 +7,33 @@ from redbot.core import Config
 from redbot.core import commands, checks
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
+from redbot.core.data_manager import cog_data_path
+
+_ = Translator("GuildBlacklist", __file__)
+
+
+class AddOnceHandler(logging.FileHandler):
+    """
+    Red's hot reload logic will break my logging if I don't do this.
+    """
+
 
 log = logging.getLogger("red.sinbadcogs.guildblacklist")
-_ = Translator("GuildBlacklist", __file__)
+
+for handler in log.handlers:
+    # Red hotreload shit.... can't use isinstance, need to check not already added.
+    if handler.__class__.__name__ == "AddOnceHandler":
+        break
+else:
+    fp = cog_data_path(raw_name="GuildBlacklist") / "blacklist.log"
+    handler = AddOnceHandler(fp)
+    formatter = logging.Formatter(
+        "[{asctime}] [{levelname}] {name}: {message}",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        style="%",
+    )
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
 
 
 @cog_i18n(_)
@@ -19,7 +43,7 @@ class GuildBlacklist(commands.Cog):
     the server's ID, or the serverowner's ID
     """
 
-    __version__ = "333.0.0"
+    __version__ = "333.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -37,7 +61,7 @@ class GuildBlacklist(commands.Cog):
     async def on_guild_join(self, guild: discord.Guild):
         async with self.config.blacklist() as blacklist:
             if any(x in blacklist for x in (guild.id, guild.owner.id)):
-                log.info("leaving {0.id} {0.name}".format(guild))
+                log.info("leaving guild: %s", guild)
                 await guild.leave()
 
     @checks.is_owner()
