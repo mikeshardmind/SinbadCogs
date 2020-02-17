@@ -28,7 +28,7 @@ else:
     fp = cog_data_path(raw_name="GuildBlacklist") / "blacklist.log"
     handler = AddOnceHandler(fp)
     formatter = logging.Formatter(
-        "[{asctime}] [{levelname}] {name}: {message}",
+        "[%(asctime)] [%(levelname)] %(name): %(message)",
         datefmt="%Y-%m-%d %H:%M:%S",
         style="%",
     )
@@ -43,7 +43,7 @@ class GuildBlacklist(commands.Cog):
     the server's ID, or the serverowner's ID
     """
 
-    __version__ = "333.0.1"
+    __version__ = "333.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
