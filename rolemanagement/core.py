@@ -29,6 +29,7 @@ class AddOnceHandler(logging.FileHandler):
 
 log = logging.getLogger("red.sinbadcogs.rolemanagement")
 
+
 for handler in log.handlers:
     # Red hotreload shit.... can't use isinstance, need to check not already added.
     if handler.__class__.__name__ == "AddOnceHandler":
@@ -37,7 +38,7 @@ else:
     fp = cog_data_path(raw_name="RoleManagement") / "rolemanagement.log"
     handler = AddOnceHandler(fp)
     formatter = logging.Formatter(
-        "[{asctime}] [{levelname}] {name}: {message}",
+        "[%(asctime)] [%(levelname)] %(name): %(message)",
         datefmt="%Y-%m-%d %H:%M:%S",
         style="%",
     )
@@ -73,7 +74,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.1.1"
+    __version__ = "330.1.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
