@@ -30,7 +30,7 @@ else:
     fp = cog_data_path(raw_name="AntiMentionSpam") / "antispamlog.log"
     handler = AddOnceHandler(fp)
     formatter = logging.Formatter(
-        "[%(asctime)] [%(levelname)] %(name): %(message)",
+        "[%(asctime)s] [%(levelname)s] %(name)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         style="%",
     )
@@ -44,7 +44,7 @@ __all__ = ["AntiMentionSpam"]
 class AntiMentionSpam(commands.Cog):
     """removes mass mention spam"""
 
-    __version__ = "330.0.2"
+    __version__ = "330.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

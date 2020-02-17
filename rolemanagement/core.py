@@ -38,7 +38,7 @@ else:
     fp = cog_data_path(raw_name="RoleManagement") / "rolemanagement.log"
     handler = AddOnceHandler(fp)
     formatter = logging.Formatter(
-        "[%(asctime)] [%(levelname)] %(name): %(message)",
+        "[%(asctime)s] [%(levelname)s] %(name)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         style="%",
     )
@@ -74,7 +74,7 @@ class RoleManagement(
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.1.2"
+    __version__ = "330.1.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

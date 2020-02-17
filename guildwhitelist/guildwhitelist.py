@@ -29,7 +29,7 @@ else:
     fp = cog_data_path(raw_name="GuildWhitelist") / "whitelist.log"
     handler = AddOnceHandler(fp)
     formatter = logging.Formatter(
-        "[%(asctime)] [%(levelname)] %(name): %(message)",
+        "[%(asctime)s] [%(levelname)s] %(name)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         style="%",
     )
@@ -44,7 +44,7 @@ class GuildWhitelist(commands.Cog):
     or whose owner is not whitelisted or the owner of the bot
     """
 
-    __version__ = "333.0.2"
+    __version__ = "333.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
