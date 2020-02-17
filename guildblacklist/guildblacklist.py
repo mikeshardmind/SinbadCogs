@@ -8,7 +8,7 @@ from redbot.core import commands, checks
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
 
-log = logging.getLogger("red.guildblacklist")
+log = logging.getLogger("red.sinbadcogs.guildblacklist")
 _ = Translator("GuildBlacklist", __file__)
 
 

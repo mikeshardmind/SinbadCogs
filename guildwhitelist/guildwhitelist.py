@@ -9,7 +9,7 @@ from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
 
 _ = Translator("GuildWhitelist", __file__)
-log = logging.getLogger("red.guildwhitelist")
+log = logging.getLogger("red.sinbadcogs.guildwhitelist")
 
 
 @cog_i18n(_)
