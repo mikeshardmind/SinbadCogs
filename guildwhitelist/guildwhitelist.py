@@ -7,9 +7,34 @@ from redbot.core import Config
 from redbot.core import commands, checks
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
+from redbot.core.data_manager import cog_data_path
 
 _ = Translator("GuildWhitelist", __file__)
+
+
+class AddOnceHandler(logging.FileHandler):
+    """
+    Red's hot reload logic will break my logging if I don't do this.
+    """
+
+
 log = logging.getLogger("red.sinbadcogs.guildwhitelist")
+
+
+for handler in log.handlers:
+    # Red hotreload shit.... can't use isinstance, need to check not already added.
+    if handler.__class__.__name__ == "AddOnceHandler":
+        break
+else:
+    fp = cog_data_path(raw_name="GuildWhitelist") / "whitelist.log"
+    handler = AddOnceHandler(fp)
+    formatter = logging.Formatter(
+        "[{asctime}] [{levelname}] {name}: {message}",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        style="%",
+    )
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
 
 
 @cog_i18n(_)
@@ -19,7 +44,7 @@ class GuildWhitelist(commands.Cog):
     or whose owner is not whitelisted or the owner of the bot
     """
 
-    __version__ = "333.0.0"
+    __version__ = "333.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -39,7 +64,7 @@ class GuildWhitelist(commands.Cog):
             if not any(
                 x in whitelist for x in (guild.id, guild.owner.id)
             ) and not await self.bot.is_owner(guild.owner):
-                log.info("leaving {0.id} {0.name}".format(guild))
+                log.info("leaving guild: %s", guild)
                 await guild.leave()
 
     @checks.is_owner()

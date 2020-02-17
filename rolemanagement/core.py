@@ -12,6 +12,7 @@ from discord.ext.commands import CogMeta as DPYCogMeta
 from redbot.core import checks, commands, bank
 from redbot.core.config import Config
 from redbot.core.utils.chat_formatting import box, pagify
+from redbot.core.data_manager import cog_data_path
 
 from .events import EventMixin
 from .exceptions import RoleManagementException, PermissionOrHierarchyException
@@ -20,7 +21,28 @@ from .utils import UtilMixin, variation_stripper_re
 from .converters import EmojiRolePairConverter
 
 
+class AddOnceHandler(logging.FileHandler):
+    """
+    Red's hot reload logic will break my logging if I don't do this.
+    """
+
+
 log = logging.getLogger("red.sinbadcogs.rolemanagement")
+
+for handler in log.handlers:
+    # Red hotreload shit.... can't use isinstance, need to check not already added.
+    if handler.__class__.__name__ == "AddOnceHandler":
+        break
+else:
+    fp = cog_data_path(raw_name="RoleManagement") / "rolemanagement.log"
+    handler = AddOnceHandler(fp)
+    formatter = logging.Formatter(
+        "[{asctime}] [{levelname}] {name}: {message}",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        style="%",
+    )
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
 
 
 # This previously used ``(type(commands.Cog), type(ABC))``
