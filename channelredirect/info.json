@@ -2,7 +2,6 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "This cog is still in early stages, but ff you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "ChannelRedirect",
     "disabled": false,
     "short": "Cog for redirecting command uses to other channels.",

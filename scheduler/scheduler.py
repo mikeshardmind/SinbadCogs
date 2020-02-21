@@ -1,5 +1,16 @@
 from __future__ import annotations
 
+"""
+To anyone that comes to this later to improve it, the number one improvement
+which can be made is to stop storing just a unix timestamp.
+
+Store a naive time tuple(limited granularity to seconds) with timezone code instead.
+
+The scheduling logic itself is solid, even if not the easiest to reason about.
+
+The patching of discord.TextChannel and fake discord.Message objects is *messy* but works.
+"""
+
 import asyncio
 import contextlib
 import functools

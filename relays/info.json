@@ -2,7 +2,6 @@
     "author": [
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "If you need help, I have a channel in https://discord.gg/mb85deu",
     "name": "Relays",
     "disabled": false,
     "short": "Forwards messages",
