@@ -4,6 +4,15 @@
 [![Red](https://img.shields.io/badge/Red-DiscordBot-red.svg)](https://github.com/Cog-Creators/Red-DiscordBot/tree/V3/develop) 
 
 
+## Availability of Support
+
+I was supporting these cogs more thoroughly before.
+
+I will not be doing that going forward, but I may occasionally fix issues if alerted to them.
+
+I will not be removing the cogs here, people are still using them and I see no good reason to do so.
+
+
 ## Whats here?
 
 Various addons for Red Discordbot. Most of these are focused around utility purposes.
@@ -83,15 +92,16 @@ Allows scheduling commands.
 For more information, use `help Scheduler`
 
 
-
-## Contact
-
-Feel free to ask for help with these in [This Discord](https://discord.gg/mb85deu)
-
-If you'd like to see additional features or find a bug, leave an issue
-or make a pull request
-
-
 ## What about the other cogs not listed here?
 
 Use at your own risk, they are disabled or hidden due to me not feeling they are ready for use.
+
+
+## Why aren't you working on this anymore?
+
+I wish I didn't need to write this out, but I've gotten too many questions already.
+
+- I left Red as my own decision.
+- The reasons which led to this are not something I care to discuss.
+- Even if I wanted to discuss them,
+  I still would not do so for reasons of fairness to other parties.

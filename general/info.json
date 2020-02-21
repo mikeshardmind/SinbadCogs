@@ -3,7 +3,6 @@
         "Cog Creators",
         "mikeshardmind(Sinbad)"
     ],
-    "install_msg": "Not really supported. Replaces general cog to replace the roll implementation",
     "name": "General",
     "disabled": false,
     "short": "Red's General cog with custom implementation for Roll",
