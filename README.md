@@ -99,9 +99,4 @@ Use at your own risk, they are disabled or hidden due to me not feeling they are
 
 ## Why aren't you working on this anymore?
 
-I wish I didn't need to write this out, but I've gotten too many questions already.
-
-- I left Red as my own decision.
-- The reasons which led to this are not something I care to discuss.
-- Even if I wanted to discuss them,
-  I still would not do so for reasons of fairness to other parties.
+See [this](why_no_support.md)
