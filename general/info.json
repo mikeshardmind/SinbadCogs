@@ -4,6 +4,7 @@
         "mikeshardmind(Sinbad)"
     ],
     "name": "General",
+    "install_msg": "This cog is provided as-is. It is expected to work, but will not be further enhanced as a cog for Red (see <https://github.com/mikeshardmind/SinbadCogs/blob/v3/why_no_support.md> for more details)",
     "disabled": false,
     "short": "Red's General cog with custom implementation for Roll",
     "description": "",

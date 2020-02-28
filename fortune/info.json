@@ -3,6 +3,7 @@
         "mikeshardmind(Sinbad)"
     ],
     "name": "Fortune",
+    "install_msg": "This cog is provided as-is. It is expected to work, but will not be further enhanced as a cog for Red (see <https://github.com/mikeshardmind/SinbadCogs/blob/v3/why_no_support.md> for more details)",
     "disabled": false,
     "short": "A cog with unix-like fortunes",
     "description": "A cog with unix-like fortunes. Maybe a cow or two too.",
