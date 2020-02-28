@@ -17,6 +17,7 @@ from typing import (
     ClassVar,
     TypeVar,
     Type,
+    AsyncIterable,
 )
 from typing_extensions import TypedDict
 
@@ -85,7 +86,14 @@ class DiscordWebSocket(websockets.client.WebSocketClientProtocol):
     @property
     def latency(self) -> float: ...
     async def poll_event(self) -> None: ...
-    async def send(self, data: Union[str, bytes]) -> None: ...
+    async def send(
+        self,
+        data: Union[
+            Union[str, bytes],
+            Iterable[Union[str, bytes]],
+            AsyncIterable[Union[str, bytes]],
+        ],
+    ) -> None: ...
     async def send_as_json(self, data: Any) -> None: ...
     async def change_presence(
         self,
