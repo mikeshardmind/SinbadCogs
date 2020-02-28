@@ -28,7 +28,7 @@ async def maybe_notify(bot):
             return
         message = (
             "Hi, Sinbad here."
-            "\nI'm glad you've found my cogs useful, and I hope they remain to be so."
+            "\nI hope you've found my cogs useful, and I hope they remain to be so."
             "\nGiven the reliance some servers have on their functionality, "
             "I'd like to ensure users are aware they are no longer supported by me. "
             "I would suggest you find another solution prior to these breaking, "
