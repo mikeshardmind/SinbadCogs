@@ -191,7 +191,7 @@ class HashlibMixin:
 class DevTools(HashlibMixin, DevBase, commands.Cog):
     """
     Some tools
-    
+
     This cog is no longer supported.
     Details as to why are available at source.
     As of time of marked unsupported,
