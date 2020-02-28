@@ -28,10 +28,19 @@ class CompositeMetaClass(DPYCogMeta, ABCMeta):
 class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaClass):
     """
     Automagical user generated rooms with configuration.
+
+    This cog is no longer supported.
+    Details as to why are available at source.
+    As of time of marked unsupported,
+    the cog was functional and not expected to be fragile to changes.
+
+    With that said, it may break in the future related to discord's stated
+    plans for intents changes
+    due to the cog using user activity to name temporary channels.
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "330.0.0"
+    __version__ = "330.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

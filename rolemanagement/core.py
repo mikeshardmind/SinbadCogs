@@ -71,10 +71,18 @@ class RoleManagement(
 ):
     """
     Cog for role management
+
+    This cog is no longer supported.
+    Details as to why are available at source.
+    As of time of marked unsupported,
+    the cog was functional and not expected to be fragile to changes.
     """
 
+    # The planned intents changes should only harm this cog if role updates
+    # are not handled in the core bot, which would be a massive permission issue.
+
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.1.3"
+    __version__ = "330.1.4"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
