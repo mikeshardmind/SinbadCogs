@@ -41,9 +41,14 @@ class GuildBlacklist(commands.Cog):
     """
     Prevent the bot from joining servers by either
     the server's ID, or the serverowner's ID
+
+    This cog is no longer supported.
+    Details as to why are available at source.
+    As of time of marked unsupported,
+    the cog was functional and not expected to be fragile to changes.
     """
 
-    __version__ = "333.0.3"
+    __version__ = "333.0.4"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

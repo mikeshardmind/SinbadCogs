@@ -34,11 +34,18 @@ _ = Translator("And I think it's gonna be a long long time...", __file__)
 @cog_i18n(_)
 class Scheduler(commands.Cog):
     """
-    A somewhat sane scheduler cog
+    A somewhat sane scheduler cog.
+
+    This cog is no longer supported.
+    Details as to why are available at source.
+    As of time of marked unsupported,
+    the cog was functional and not expected to be fragile to changes.
+
+    This cog has a known issue with timezone transtions that will not be fixed.
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.0.0"
+    __version__ = "330.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

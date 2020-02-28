@@ -34,9 +34,14 @@ _ = Translator("BanSync", __file__)
 class BanSync(commands.Cog):
     """
     synchronize your bans
+
+    This cog is no longer supported.
+    Details as to why are available at source.
+    As of time of marked unsupported,
+    the cog was functional and not expected to be fragile to changes.
     """
 
-    __version__ = "330.0.1"
+    __version__ = "330.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

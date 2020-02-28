@@ -3,7 +3,7 @@
         "mikeshardmind (Sinbad)",
         "DiscordLiz"
     ],
-    "install_msg": "The cogs within are provided as-is.",
+    "install_msg": "The cogs within are provided as-is. They are expected to work, but will not be further enhanced as cogs for red (see <https://github.com/mikeshardmind/SinbadCogs/blob/v3/why_no_support.md> for more details)",
     "name": "Sinbad's Cogs",
     "short": "Handful of various tools and features that I've wanted.",
     "description": "Handful of various tools and features that I've wanted",
