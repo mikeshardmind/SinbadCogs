@@ -21,17 +21,13 @@ from typing import Dict, List, Optional
 import discord
 from redbot.core import commands, checks
 from redbot.core.config import Config
-from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 from .checks import can_run_command
 from .converters import NonNumeric, Schedule, TempMute
 from .tasks import Task
 
-_ = Translator("And I think it's gonna be a long long time...", __file__)
 
-
-@cog_i18n(_)
 class Scheduler(commands.Cog):
     """
     A somewhat sane scheduler cog.
@@ -45,7 +41,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.0.1"
+    __version__ = "330.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

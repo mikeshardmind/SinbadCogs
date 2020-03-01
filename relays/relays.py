@@ -10,17 +10,14 @@ from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core.bot import Red
 from redbot.core.config import Config
 from redbot.core import commands
-from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.mod import mass_purge, slow_deletion
 
 from .relay import NwayRelay, OnewayRelay
 from .helpers import unique, embed_from_msg, txt_channel_finder
 
-_ = Translator("Relays", __file__)
 log = logging.getLogger("red.sinbadcogs.relays")
 
 
-@cog_i18n(_)
 class Relays(commands.Cog):
     """
     Provides channel relays
@@ -32,7 +29,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "330.0.2"
+    __version__ = "330.0.4"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -144,12 +141,12 @@ class Relays(commands.Cog):
         not_founds = [k for k, v in validation.items() if v is None]
         multi_match = [k for k, v in validation.items() if v is False]
         if not_founds:
-            error_str += _("I could not find a channel for the following inputs\n")
+            error_str += "I could not find a channel for the following inputs\n"
             error_str += "\n".join(not_founds)
             if multi_match:
                 error_str += "\n\n"
         if multi_match:
-            error_str += _(
+            error_str += (
                 "The following inputs could not be matched safely, "
                 "please try again using their ID or mention\n"
             )
@@ -162,7 +159,7 @@ class Relays(commands.Cog):
         if not names:
             return -1
         output = "\n".join(f"{i}: {name}" for i, name in enumerate(names, 1))
-        output += _("Please select a relay by number, " "or '-1' to quit")
+        output += "Please select a relay by number, " "or '-1' to quit"
         msgs_to_del = []
         for page in pagify(output, delims=["\n"]):
             msgs_to_del.append(await ctx.send(box(page)))
@@ -173,7 +170,7 @@ class Relays(commands.Cog):
         try:
             message = await self.bot.wait_for("message", check=pred, timeout=60)
         except asyncio.TimeoutError:
-            await ctx.send(_("You took too long, try again later."))
+            await ctx.send("You took too long, try again later.")
             ret = None
         else:
             try:
@@ -184,7 +181,7 @@ class Relays(commands.Cog):
                     raise IndexError("We only want positive indexes")
                 name = names[message - 1]
             except (ValueError, IndexError):
-                await ctx.send(_("That wasn't a valid choice"))
+                await ctx.send("That wasn't a valid choice")
                 ret = None
             else:
                 ret = name
@@ -203,21 +200,23 @@ class Relays(commands.Cog):
         msg: str = ""
         if name in self.oneways:
             relay = self.oneways[name]
-            msg = _(
-                "Relay name: {name}\n"
+            source_name = relay.source.name if relay.source else "???"
+            source_guild_name = relay.source.guild.name if relay.source else "???"
+            msg = (
+                f"Relay name: {name}\n"
                 "Relay type: one way\n"
-                "Source (Channel | Server): {source.name} | {source.guild.name}\n"
+                f"Source (Channel | Server): {source_name} | {source_guild_name}\n"
                 "Destinations (Channel | Guild):\n"
-            ).format(source=relay.source, name=name)
+            )
             msg += "\n".join(f"{x.name} | {x.guild.name}" for x in relay.destinations)
 
         elif name in self.nways:
             nrelay = self.nways[name]
-            msg = _(
-                "Relay name: {name}\n"
+            msg = (
+                f"Relay name: {name}\n"
                 "Relay type: multiway\n"
                 "Channels: (Channel | Guild):\n"
-            ).format(name=name)
+            )
             msg += "\n".join(f"{x.name} | {x.guild.name}" for x in nrelay.channels)
 
         return msg
@@ -254,14 +253,14 @@ class Relays(commands.Cog):
         """
 
         if name in self.relay_names:
-            await ctx.send(_("A relay of that name already exists."))
+            await ctx.send("A relay of that name already exists.")
 
         elif len(channels) < 2:
-            await ctx.send(_("You didn't give me enough channels."))
+            await ctx.send("You didn't give me enough channels.")
 
         elif len(channels) != len(unique(channels)):
             await ctx.send(
-                _("I won't set up a relay which would have a channel send to itself.")
+                "I won't set up a relay which would have a channel send to itself."
             )
         else:
             validation = self.validate_inputs(*channels)
@@ -283,14 +282,14 @@ class Relays(commands.Cog):
         """
 
         if name in self.relay_names:
-            await ctx.send(_("A relay of that name already exists."))
+            await ctx.send("A relay of that name already exists.")
 
         elif not destinations:
-            await ctx.send(_("You didn't give me enough channels."))
+            await ctx.send("You didn't give me enough channels.")
 
         elif source in destinations or len(unique(destinations)) != len(destinations):
             await ctx.send(
-                _("I won't set up a relay which would have a channel send to itself.")
+                "I won't set up a relay which would have a channel send to itself."
             )
         else:
             validation = self.validate_inputs(source, *destinations)
@@ -317,7 +316,7 @@ class Relays(commands.Cog):
             name = await self.interactive_selection(ctx)
 
         if name not in self.relay_names:
-            await ctx.send(_("No relay by that name"))
+            await ctx.send("No relay by that name")
         elif name:
             msg = self.get_relay_info(name)
             for page in pagify(msg):
@@ -335,7 +334,7 @@ class Relays(commands.Cog):
             name = await self.interactive_selection(ctx)
 
         if name not in self.relay_names:
-            await ctx.send(_("No relay by that name"))
+            await ctx.send("No relay by that name")
         elif name:
             self.nways.pop(name, None)
             self.oneways.pop(name, None)

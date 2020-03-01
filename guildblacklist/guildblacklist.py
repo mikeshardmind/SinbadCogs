@@ -5,11 +5,8 @@ import logging
 import discord
 from redbot.core import Config
 from redbot.core import commands, checks
-from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core.data_manager import cog_data_path
-
-_ = Translator("GuildBlacklist", __file__)
 
 
 class AddOnceHandler(logging.FileHandler):
@@ -36,7 +33,6 @@ else:
     log.addHandler(handler)
 
 
-@cog_i18n(_)
 class GuildBlacklist(commands.Cog):
     """
     Prevent the bot from joining servers by either
@@ -48,7 +44,7 @@ class GuildBlacklist(commands.Cog):
     the cog was functional and not expected to be fragile to changes.
     """
 
-    __version__ = "333.0.4"
+    __version__ = "333.0.5"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -100,7 +96,7 @@ class GuildBlacklist(commands.Cog):
         list blacklisted IDs
         """
         blacklist = await self.config.blacklist()
-        output = "\n".join((_("IDs in blacklist:"), *map(str, blacklist)))
+        output = "\n".join("IDs in blacklist:", *map(str, blacklist))
 
         for page in pagify(output):
             await ctx.send(box(page))
