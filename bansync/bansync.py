@@ -12,7 +12,6 @@ from discord.ext.commands import Greedy
 from redbot.core import checks, commands
 from redbot.core.bot import Red
 from redbot.core.config import Config
-from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.modlog import create_case
 from redbot.core.utils.chat_formatting import box, pagify
 
@@ -27,10 +26,6 @@ def mock_user(idx: int) -> UserLike:
     return cast(discord.User, discord.Object(id=idx))
 
 
-_ = Translator("BanSync", __file__)
-
-
-@cog_i18n(_)
 class BanSync(commands.Cog):
     """
     synchronize your bans
@@ -41,7 +36,7 @@ class BanSync(commands.Cog):
     the cog was functional and not expected to be fragile to changes.
     """
 
-    __version__ = "330.0.2"
+    __version__ = "330.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -85,7 +80,7 @@ class BanSync(commands.Cog):
         async with self.config.excluded_from_automatic() as exclusions:
             if ctx.guild.id in exclusions:
                 return await ctx.send(
-                    _("This server has already opted out of these actions.")
+                    "This server has already opted out of these actions."
                 )
             exclusions.append(ctx.guild.id)
         await ctx.tick()
@@ -101,9 +96,7 @@ class BanSync(commands.Cog):
         """
         async with self.config.excluded_from_automatic() as exclusions:
             if ctx.guild.id not in exclusions:
-                return await ctx.send(
-                    _("This server has not opted out of these actions.")
-                )
+                return await ctx.send("This server has not opted out of these actions.")
             exclusions.remove(ctx.guild.id)
         await ctx.tick()
 
@@ -145,9 +138,7 @@ class BanSync(commands.Cog):
         """
         if not ctx.message.attachments:
             return await ctx.send(
-                _(
-                    "You definitely need to supply me an exported ban list to be imported."
-                )
+                "You definitely need to supply me an exported ban list to be imported."
             )
 
         fp = io.BytesIO()
@@ -158,14 +149,14 @@ class BanSync(commands.Cog):
             if not isinstance(data, list) or not all(isinstance(x, int) for x in data):
                 raise TypeError() from None
         except (json.JSONDecodeError, TypeError):
-            return await ctx.send(_("That wasn't an exported ban list"))
+            return await ctx.send("That wasn't an exported ban list")
 
         current_bans = await ctx.guild.bans()
         to_ban = set(data) - {b.user.id for b in current_bans}
 
         if not to_ban:
             return await ctx.send(
-                _("That list doesn't contain anybody not already banned.")
+                "That list doesn't contain anybody not already banned."
             )
 
         async with ctx.typing():
@@ -182,12 +173,10 @@ class BanSync(commands.Cog):
         if all(exit_codes):
             await ctx.message.add_reaction("\N{HAMMER}")
         elif not any(exit_codes):
-            await ctx.send(_("You are not worthy"))
+            await ctx.send("You are not worthy")
         else:
             await ctx.send(
-                _(
-                    "I got some of those, but other's couldn't be banned for some reason."
-                )
+                "I got some of those, but other's couldn't be banned for some reason."
             )
 
     @commands.command(name="bulkban")
@@ -202,12 +191,10 @@ class BanSync(commands.Cog):
         if all(results.values()):
             await ctx.message.add_reaction("\N{HAMMER}")
         elif not any(results.values()):
-            await ctx.send(_("You are not worthy"))
+            await ctx.send("You are not worthy")
         else:
             await ctx.send(
-                _(
-                    "I got some of those, but other's couldn't be banned for some reason."
-                )
+                "I got some of those, but other's couldn't be banned for some reason."
             )
 
     async def can_sync(self, guild: discord.Guild, mod: UserLike) -> bool:
@@ -304,7 +291,7 @@ class BanSync(commands.Cog):
             Whether the ban was successful
         """
         member: Optional[UserLike] = guild.get_member(_id)
-        reason = reason or _("Ban synchronization")
+        reason = reason or "Ban synchronization"
         if member is None:
             member = mock_user(_id)
         if not await self.ban_filter(guild, mod, member):
@@ -349,7 +336,7 @@ class BanSync(commands.Cog):
         output = "\n".join(
             (
                 *(f"{i}: {guild.name}" for i, guild in enumerate(guilds, 1)),
-                _(
+                (
                     "Select a server to add to the sync list by number, "
                     "or -1 to stop adding servers"
                 ),
@@ -374,7 +361,7 @@ class BanSync(commands.Cog):
 
                 return guilds[message - 1]
             except (ValueError, IndexError):
-                await ctx.send(_("That wasn't a valid choice"))
+                await ctx.send("That wasn't a valid choice")
                 return None
 
     async def process_sync(
@@ -459,7 +446,7 @@ class BanSync(commands.Cog):
         for target in targets:
             if await self.ban_filter(guild, mod, target):
                 await self.ban_or_hackban(
-                    guild, target.id, mod=mod, reason=_("Ban synchronization")
+                    guild, target.id, mod=mod, reason="Ban synchronization"
                 )
                 if artificial_delay:
                     await asyncio.sleep(artificial_delay)
@@ -482,7 +469,7 @@ class BanSync(commands.Cog):
                 if s == -1:
                     break
                 if s == -2:
-                    return await ctx.send(_("You took too long, try again later"))
+                    return await ctx.send("You took too long, try again later")
                 if s is not None:
                     guilds.add(s)
 
@@ -495,7 +482,7 @@ class BanSync(commands.Cog):
             }
 
         if len(guilds) < 2:
-            return await ctx.send(_("I need at least two servers to sync"))
+            return await ctx.send("I need at least two servers to sync")
 
         async with ctx.typing():
             await self.process_sync(usr=ctx.author, sources=guilds, dests=guilds)
@@ -550,7 +537,7 @@ class BanSync(commands.Cog):
         if any(banned):
             await ctx.message.add_reaction("\N{HAMMER}")
         else:
-            await ctx.send(_("You are not worthy"))
+            await ctx.send("You are not worthy")
 
     @commands.command()
     async def unglobalban(self, ctx, users: Greedy[MentionOrID], *, reason: str = ""):

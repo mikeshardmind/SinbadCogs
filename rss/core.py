@@ -13,14 +13,11 @@ import feedparser
 import discordtextsanitizer as dts
 from redbot.core import commands, checks
 from redbot.core.config import Config
-from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import pagify
 
 
 from .cleanup import html_to_text
 from .converters import TriState
-
-_ = Translator("RSS", __file__)
 
 log = logging.getLogger("red.sinbadcogs.rss")
 
@@ -56,7 +53,6 @@ def debug_exc_log(lg: logging.Logger, exc: Exception, msg: str = "Exception in R
         lg.exception(msg, exc_info=exc)
 
 
-@cog_i18n(_)
 class RSS(commands.Cog):
     """
     An RSS cog.
@@ -68,7 +64,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "330.0.2"
+    __version__ = "330.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -214,16 +210,16 @@ class RSS(commands.Cog):
 
         if embed:
             if len(content) > 1980:
-                content = content[:1900] + _("... (Feed data too long)")
+                content = content[:1900] + "... (Feed data too long)"
             timestamp = datetime(*self.process_entry_time(entry))
             embed_data = discord.Embed(
                 description=content, color=color, timestamp=timestamp
             )
-            embed_data.set_footer(text=_("Published "))
+            embed_data.set_footer(text="Published ")
             return {"content": None, "embed": embed_data}
         else:
             if len(content) > 1950:
-                content = content[:1950] + _("... (Feed data too long)")
+                content = content[:1950] + "... (Feed data too long)"
             return {"content": content, "embed": None}
 
     async def handle_response_from_loop(
@@ -315,7 +311,7 @@ class RSS(commands.Cog):
             url = feeds[feed].get("url", None)
 
         if url is None:
-            return await ctx.send(_("No such feed."))
+            return await ctx.send("No such feed.")
 
         response = await self.fetch_feed(url)
 
@@ -331,11 +327,11 @@ class RSS(commands.Cog):
                     force=True,
                 )
             except Exception:
-                await ctx.send(_("There was an error with that."))
+                await ctx.send("There was an error with that.")
             else:
                 await ctx.tick()
         else:
-            await ctx.send(_("Could not fetch feed."))
+            await ctx.send("Could not fetch feed.")
 
     @commands.cooldown(3, 60, type=commands.BucketType.user)
     @rss.command()
@@ -354,15 +350,14 @@ class RSS(commands.Cog):
 
         async with self.config.channel(channel).feeds() as feeds:
             if name in feeds:
-                return await ctx.send(_("That name is already in use."))
+                return await ctx.send("That name is already in use.")
 
             response = await self.fetch_feed(url)
 
             if response is None:
                 return await ctx.send(
-                    _("That didn't seem to be a valid rss feed. (Syntax: {}{})").format(
-                        ctx.prefix, ctx.command.signature
-                    )
+                    f"That didn't seem to be a valid rss feed. "
+                    f"(Syntax: {ctx.prefix}{ctx.command.signature})"
                 )
 
             else:
@@ -429,11 +424,7 @@ class RSS(commands.Cog):
         channel = channel or ctx.channel
         async with self.config.channel(channel).feeds() as feeds:
             if name not in feeds:
-                await ctx.send(
-                    _("No feed named {feedname} in {channel}.").format(
-                        feedname=name, channel=channel.mention
-                    )
-                )
+                await ctx.send(f"No feed named {name} in {channel.mention}.")
                 return
 
             del feeds[name]
@@ -464,11 +455,7 @@ class RSS(commands.Cog):
 
         async with self.config.channel(channel).feeds() as feeds:
             if name not in feeds:
-                await ctx.send(
-                    _("No feed named {feedname} in {channel}.").format(
-                        feedname=name, channel=channel.mention
-                    )
-                )
+                await ctx.send(f"No feed named {name} in {channel.mention}.")
                 return
 
             feeds[name]["embed_override"] = setting.state
@@ -521,11 +508,7 @@ class RSS(commands.Cog):
         template = template.replace("\\n", "\n")
         async with self.config.channel(channel).feeds() as feeds:
             if name not in feeds:
-                await ctx.send(
-                    _("No feed named {feedname} in {channel}.").format(
-                        feedname=name, channel=channel.mention
-                    )
-                )
+                await ctx.send(f"No feed named {name} in {channel.mention}.")
                 return
 
             feeds[name]["template"] = template
@@ -542,11 +525,7 @@ class RSS(commands.Cog):
         channel = channel or ctx.channel
         async with self.config.channel(channel).feeds() as feeds:
             if name not in feeds:
-                await ctx.send(
-                    _("No feed named {feedname} in {channel}.").format(
-                        feedname=name, channel=channel.mention
-                    )
-                )
+                await ctx.send(f"No feed named {name} in {channel.mention}.")
                 return
 
             del feeds[name]["template"]

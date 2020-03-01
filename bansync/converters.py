@@ -6,9 +6,6 @@ from typing import NamedTuple, Set, Union
 
 import discord
 from redbot.core.commands import Context, BadArgument
-from redbot.core.i18n import Translator
-
-_ = Translator("BanSync", __file__)
 
 
 class ParserError(Exception):
@@ -86,7 +83,7 @@ class SyndicatedConverter:
 
         sources = set(filter(lambda g: str(g.id) in vals.sources, guilds))
         if not sources:
-            raise ParserError(_("I need at least 1 source.")) from None
+            raise ParserError("I need at least 1 source.")
 
         if vals.auto:
             destinations = guilds - sources
@@ -98,12 +95,10 @@ class SyndicatedConverter:
                     destinations.add(guild)
         else:
             raise ParserError(
-                _(
-                    "I need either at least one destination, "
-                    " to be told to automatically determine destinations, "
-                    "or a combination of both to add extra destinations beyond the automatic."
-                )
-            ) from None
+                "I need either at least one destination, "
+                " to be told to automatically determine destinations, "
+                "or a combination of both to add extra destinations beyond the automatic."
+            )
 
         return cls(
             sources=sources,

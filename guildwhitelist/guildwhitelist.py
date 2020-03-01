@@ -5,11 +5,8 @@ import logging
 import discord
 from redbot.core import Config
 from redbot.core import commands, checks
-from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core.data_manager import cog_data_path
-
-_ = Translator("GuildWhitelist", __file__)
 
 
 class AddOnceHandler(logging.FileHandler):
@@ -37,7 +34,6 @@ else:
     log.addHandler(handler)
 
 
-@cog_i18n(_)
 class GuildWhitelist(commands.Cog):
     """
     Prevent the bot from joining servers who are not whitelisted
@@ -49,7 +45,7 @@ class GuildWhitelist(commands.Cog):
     the cog was functional and not expected to be fragile to changes.
     """
 
-    __version__ = "333.0.4"
+    __version__ = "333.0.5"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -103,7 +99,7 @@ class GuildWhitelist(commands.Cog):
         list whitelisted IDs
         """
         whitelist = await self.config.whitelist()
-        output = "\n".join((_("IDs in whitelist:\n"), *map(str, whitelist)))
+        output = "\n".join("IDs in whitelist:\n", *map(str, whitelist))
 
         for page in pagify(output):
             await ctx.send(box(page))

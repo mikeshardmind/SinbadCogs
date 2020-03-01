@@ -3,15 +3,11 @@ from typing import Optional
 import discord
 from redbot.core.config import Config
 from redbot.core import commands, checks
-from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.antispam import AntiSpam
 
 from .checks import has_active_box
 
-_ = Translator("??", __file__)
 
-
-@cog_i18n(_)
 class SuggestionBox(commands.Cog):
     """
     A configureable suggestion box cog
@@ -22,7 +18,7 @@ class SuggestionBox(commands.Cog):
     the cog was functional and not expected to be fragile to changes.
     """
 
-    __version__ = "330.0.1"
+    __version__ = "330.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -106,7 +102,7 @@ class SuggestionBox(commands.Cog):
         """
         async with self.config.guild(ctx.guild).boxes() as boxes:
             if channel.id in boxes:
-                return await ctx.send(_("Channel is already a suggestion box"))
+                return await ctx.send("Channel is already a suggestion box")
             boxes.append(channel.id)
 
         await ctx.tick()
@@ -118,7 +114,7 @@ class SuggestionBox(commands.Cog):
         """
         async with self.config.guild(ctx.guild).boxes() as boxes:
             if channel.id not in boxes:
-                return await ctx.send(_("Channel was not ser as a suggestion box"))
+                return await ctx.send("Channel was not ser as a suggestion box")
             boxes.remove(channel.id)
 
         await ctx.tick()
@@ -135,22 +131,19 @@ class SuggestionBox(commands.Cog):
         """
         if option is None:
             current = await self.config.guild(ctx.guild).add_reactions()
+            command = command = f"`{ctx.clean_prefix}help suggestionset addreactions`"
             if current:
-                base = _(
+                base = (
                     "I am adding reactions to suggestions."
-                    "\nUse {command} for more information"
+                    f"\nUse {command} for more information"
                 )
             else:
-                base = _(
+                base = (
                     "I am not adding reactions to suggestions."
-                    "\nUse {command} for more information"
+                    f"\nUse {command} for more information"
                 )
 
-            await ctx.send(
-                base.format(
-                    command=f"`{ctx.clean_prefix}help suggestionset addreactions`"
-                )
-            )
+            await ctx.send(base)
             return
 
         await self.config.guild(ctx.guild).add_reactions.set(option)
@@ -180,10 +173,10 @@ class SuggestionBox(commands.Cog):
             self.antispam[ctx.guild][ctx.author] = AntiSpam([])
 
         if self.antispam[ctx.guild][ctx.author].spammy:
-            return await ctx.send(_("You've sent too many suggestions recently."))
+            return await ctx.send("You've sent too many suggestions recently.")
 
         if not suggestion:
-            return await ctx.send(_("Please try again while including a suggestion."))
+            return await ctx.send("Please try again while including a suggestion.")
 
         channel = await self.get_suggestion_channel(ctx, channel)
         if not channel:
@@ -191,21 +184,19 @@ class SuggestionBox(commands.Cog):
 
         perms = channel.permissions_for(ctx.guild.me)
         if not (perms.send_messages and perms.embed_links):
-            return await ctx.send(_("I don't have the required permissions"))
+            return await ctx.send("I don't have the required permissions")
 
         embed = discord.Embed(color=(await ctx.embed_color()), description=suggestion)
 
         embed.set_author(
-            name=_("New suggestion from {author_info}").format(
-                author_info=f"{ctx.author.display_name} ({ctx.author.id})"
-            ),
+            name=f"New suggestion from {ctx.author.display_name} ({ctx.author.id})",
             icon_url=ctx.author.avatar_url,
         )
 
         try:
             msg = await channel.send(embed=embed)
         except discord.HTTPException:
-            return await ctx.send(_("An unexpected error occured."))
+            return await ctx.send("An unexpected error occured.")
         else:
             grp = self.config.custom("SUGGESTION", msg.id)
             async with grp.data() as data:
@@ -213,9 +204,7 @@ class SuggestionBox(commands.Cog):
                     channel=channel.id, suggestion=suggestion, author=ctx.author.id
                 )
             self.antispam[ctx.guild][ctx.author].stamp()
-            await ctx.send(
-                f'{ctx.author.mention}: {_("Your suggestion has been sent")}'
-            )
+            await ctx.send(f'{ctx.author.mention}: {"Your suggestion has been sent"}')
 
         if ctx.channel.permissions_for(ctx.guild.me).manage_messages:
             try:
@@ -239,14 +228,14 @@ class SuggestionBox(commands.Cog):
         if not channel:
             if not channels:
                 await ctx.send(
-                    _("Cannot find channels to send to, even though configured.")
+                    "Cannot find channels to send to, even though configured."
                 )
                 return None
 
             if len(channels) == 1:
                 (channel,) = channels
             else:
-                base_error = _(
+                base_error = (
                     "Multiple suggestion boxes available, "
                     "Please try again specifying one of these as the channel:"
                 )
@@ -255,7 +244,7 @@ class SuggestionBox(commands.Cog):
                 return None
 
         elif channel not in channels:
-            await ctx.send(_("That channel is not a suggestionbox."))
+            await ctx.send("That channel is not a suggestionbox.")
             return None
 
         return channel

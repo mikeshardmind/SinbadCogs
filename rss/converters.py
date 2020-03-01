@@ -3,9 +3,6 @@ from __future__ import annotations
 from typing import Optional
 
 from redbot.core import commands
-from redbot.core.i18n import Translator
-
-_ = Translator("This doesn't even actually matter anymore.", __file__)
 
 
 def _tristate(arg: str) -> Optional[bool]:
@@ -16,11 +13,9 @@ def _tristate(arg: str) -> Optional[bool]:
     if arg.lower() in ("none", "default"):
         return None
     raise commands.BadArgument(
-        _(
-            '"{arg}" is not a valid setting.'
-            ' Valid settings are "true" or "false", or "default" to '
-            "remove the setting"
-        ).format(arg=arg)
+        f'"{arg}" is not a valid setting.'
+        ' Valid settings are "true" or "false", or "default" to '
+        "remove the setting"
     )
 
 
