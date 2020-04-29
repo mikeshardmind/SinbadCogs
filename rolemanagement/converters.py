@@ -1,13 +1,24 @@
 import argparse
 import shlex
-from itertools import islice
-from typing import List, NamedTuple, Dict
+from typing import List, NamedTuple, Dict, Iterable, TypeVar, Iterator, Tuple
 
 from redbot.core.commands import RoleConverter, Context, BadArgument, GuildContext
 import discord
 
 
 _RoleConverter = RoleConverter()
+
+_T = TypeVar("_T")
+
+
+def _grab_pairs(iterable: Iterable[_T]) -> Iterator[Tuple[_T, _T]]:
+    """
+    This can be generalized more, but I really don't care to do so without reason
+    """
+    it = iter(iterable)
+    for item in it:
+        n = next(it)
+        yield item, n
 
 
 class NoExitParser(argparse.ArgumentParser):
@@ -53,7 +64,7 @@ class EmojiRolePairConverter(NamedTuple):
 
         pairs: Dict[str, discord.Role] = {}
 
-        for maybe_emoji, maybe_role in islice(chunks, None, None, 2):
+        for maybe_emoji, maybe_role in _grab_pairs(chunks):
 
             if maybe_emoji in pairs:
                 raise BadArgument("You can't provide the same emoji multiple times.")
