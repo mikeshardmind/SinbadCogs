@@ -191,11 +191,6 @@ class HashlibMixin:
 class DevTools(HashlibMixin, DevBase, commands.Cog):
     """
     Some tools
-
-    This cog is no longer supported.
-    Details as to why are available at source.
-    As of time of marked unsupported,
-    the cog was functional and not expected to be fragile to changes.
     """
 
     __version__ = "330.1.9"

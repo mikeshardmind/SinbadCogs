@@ -21,11 +21,6 @@ log = logging.getLogger("red.sinbadcogs.relays")
 class Relays(commands.Cog):
     """
     Provides channel relays
-
-    This cog is no longer supported.
-    Details as to why are available at source.
-    As of time of marked unsupported,
-    the cog was functional and not expected to be fragile to changes.
     """
 
     __author__ = "mikeshardmind(Sinbad)"

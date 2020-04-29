@@ -71,11 +71,6 @@ class RoleManagement(
 ):
     """
     Cog for role management
-
-    This cog is no longer supported.
-    Details as to why are available at source.
-    As of time of marked unsupported,
-    the cog was functional and not expected to be fragile to changes.
     """
 
     # The planned intents changes should only harm this cog if role updates

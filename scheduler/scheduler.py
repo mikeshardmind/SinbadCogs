@@ -32,12 +32,7 @@ class Scheduler(commands.Cog):
     """
     A somewhat sane scheduler cog.
 
-    This cog is no longer supported.
-    Details as to why are available at source.
-    As of time of marked unsupported,
-    the cog was functional and not expected to be fragile to changes.
-
-    This cog has a known issue with timezone transtions that will not be fixed.
+    This cog has a known issue with timezone transtions
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"

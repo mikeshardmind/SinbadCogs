@@ -36,11 +36,6 @@ class GlobalTextChannel(NamedTuple):
 class QuoteTools(commands.Cog):
     """
     Cog for quoting messages by ID
-
-    This cog is no longer supported.
-    Details as to why are available at source.
-    As of time of marked unsupported,
-    the cog was functional and not expected to be fragile to changes.
     """
 
     __author__ = "mikeshardmind(Sinbad)"
