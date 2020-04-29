@@ -13,7 +13,7 @@ The guidelines here reflect the values which are to be protected here.
 
 With those values in mind, the guidelines which contributors should follow:
 
-1. Participants should be tolerant of others viewpoints.
+1. Participants should be tolerant of others.
 2. Personal views and beliefs are not to be used to excuse harassment or any other behavior which is harmful to others collaborating.
 3. Behaviour which a reasonable individual could consider to be harassment will not be tolerated.
 4. When code is criticized, the criticism should be founded in the code alone. It should never be used to single out a contributor.
