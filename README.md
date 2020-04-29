@@ -9,7 +9,7 @@
 I was supporting these cogs more thoroughly before.
 
 I will not be doing that going forward.
-If you find a security issue, feel free to reach out, otherwise it will not be changed.
+If you find a bug or security issue, feel free to reach out, new features aren't being added.
 
 I will not be removing the cogs here, people are still using them and I see no good reason to do so.
 
