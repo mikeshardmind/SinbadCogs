@@ -41,7 +41,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.0.2"
+    __version__ = "330.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -113,11 +113,19 @@ class Scheduler(commands.Cog):
         context = await self.bot.get_context(message)
         context.assume_yes = True
         await self.bot.invoke(context)
+
+        if context.valid:
+            return  # only check alias/CC when we didn't have a "real" command
+
+        # No longer interested in extending this,
+        # ideally the whole ephemeral commands idea
+        # lets this be removed completely
         for cog_name in ("CustomCommands", "Alias"):
-            cog = self.bot.get_cog(cog_name)
-            if cog:
-                await cog.on_message(message)
-        # TODO: allow registering additional cogs to process on_message for.
+            if cog := self.bot.get_cog(cog_name):
+                for handler_name in ("on_message", "on_message_without_command"):
+                    if msg_handler := getattr(cog, handler_name, None):
+                        await msg_handler(message)
+                        break
 
     async def schedule_upcoming(self) -> int:
         """
