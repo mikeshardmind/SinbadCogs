@@ -7,6 +7,9 @@
     "short": "A replacement of the general cog with only a custom roll function.",
     "description": "",
     "tags": [],
+    "requirements": [
+        "numpy"
+    ],
     "hidden": true,
     "min_bot_version": "3.6.0"
 }
