@@ -6,9 +6,9 @@
 
 ## Availability of Support
 
-I was supporting these cogs more thoroughly before.
+I was supporting these cogs more thoroughly before, going forward,
+I'll be providing some support, but new features are unlikely.
 
-I will not be doing that going forward.
 If you find a bug or security issue, feel free to reach out, new features aren't being added.
 
 I will not be removing the cogs here, people are still using them and I see no good reason to do so.
@@ -98,6 +98,11 @@ For more information, use `help Scheduler`
 Use at your own risk, they are disabled or hidden due to me not feeling they are ready for use.
 
 
-## Why aren't you working on this anymore?
+## Why weren't you working as invested in this anymore?
 
 See [this](why_no_support.md)
+
+
+## Why are you working on this again?
+
+Because I've seen a few reasons to do so.
