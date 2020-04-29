@@ -56,11 +56,6 @@ def debug_exc_log(lg: logging.Logger, exc: Exception, msg: str = "Exception in R
 class RSS(commands.Cog):
     """
     An RSS cog.
-
-    This cog is no longer supported.
-    Details as to why are available at source.
-    As of time of marked unsupported,
-    the cog was functional and not expected to be fragile to changes.
     """
 
     __author__ = "mikeshardmind(Sinbad)"

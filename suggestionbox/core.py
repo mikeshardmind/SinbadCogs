@@ -11,11 +11,6 @@ from .checks import has_active_box
 class SuggestionBox(commands.Cog):
     """
     A configureable suggestion box cog
-
-    This cog is no longer supported.
-    Details as to why are available at source.
-    As of time of marked unsupported,
-    the cog was functional and not expected to be fragile to changes.
     """
 
     __version__ = "330.0.3"
