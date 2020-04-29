@@ -5,7 +5,7 @@ import contextlib
 import io
 import json
 from datetime import datetime
-from typing import List, Set, Union, AsyncIterator, Dict, Optional, cast
+from typing import List, Set, Union, AsyncIterator, Dict, Optional, cast, Collection
 
 import discord
 from discord.ext.commands import Greedy
@@ -31,7 +31,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "330.0.3"
+    __version__ = "337.0.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -45,6 +45,7 @@ class BanSync(commands.Cog):
             excluded_from_automatic=[],
             per_request_base_ratelimit=0.02,  # Approximately accurate.
             fractional_usage=0.5,
+            opted_into_automatic=[],
         )
 
     @commands.group()
@@ -70,14 +71,20 @@ class BanSync(commands.Cog):
         Things it will not prevent:
 
         bansync with an explicit choice to include the server.
-        syndicatebans with automatic destinations
+        syndicatebans with explicit destinations
+
+        The default (as of April 29, 2020) is being opted out.
+        No settings for the prior version were re-purposed, and will require a new opt-in.
+
+        This is due to a specific question in the application process for verified bots
+        and ensuring that this cog can be used on those bots.
         """
-        async with self.config.excluded_from_automatic() as exclusions:
-            if ctx.guild.id in exclusions:
+        async with self.config.opted_into_automatic() as opts:
+            if ctx.guild.id not in opts:
                 return await ctx.send(
-                    "This server has already opted out of these actions."
+                    "This server is not currently opted into automatic actions."
                 )
-            exclusions.append(ctx.guild.id)
+            opts.remove(ctx.guild.id)
         await ctx.tick()
 
     @checks.guildowner_or_permissions(administrator=True)
@@ -85,14 +92,31 @@ class BanSync(commands.Cog):
     @bansyncset.command()
     async def automaticoptin(self, ctx: commands.GuildContext):
         """
-        This allows you to opt back into certain automatic actions.
+        This allows you to opt into certain automatic actions.
 
-        See `[p]help bansyncset automaticoptout` for more details
+        The current things it will opt into:
+
+        mjolnir|globalban
+        bansync with automatic destinations
+        syndicatebans with automatic destinations
+
+        Things which do not require an opt-in:
+
+        bansync with an explicit choice to include the server.
+        syndicatebans with explicit destinations
+
+        The default (as of April 29, 2020) is being opted out.
+        No settings for the prior version were re-purposed, and will require a new opt-in.
+
+        This is due to a specific question in the application process for verified bots
+        and ensuring that this cog can be used on those bots.
         """
-        async with self.config.excluded_from_automatic() as exclusions:
-            if ctx.guild.id not in exclusions:
-                return await ctx.send("This server has not opted out of these actions.")
-            exclusions.remove(ctx.guild.id)
+        async with self.config.opted_into_automatic() as opts:
+            if ctx.guild.id in opts:
+                return await ctx.send(
+                    "This server has already opted into automatic actions."
+                )
+            opts.append(ctx.guild.id)
         await ctx.tick()
 
     @commands.bot_has_permissions(ban_members=True, attach_files=True)
@@ -303,7 +327,11 @@ class BanSync(commands.Cog):
         return True
 
     async def guild_discovery(
-        self, ctx: commands.Context, excluded: GuildSet
+        self,
+        ctx: commands.Context,
+        *,
+        excluded: Optional[Collection[discord.Guild]] = None,
+        considered: Optional[Collection[discord.Guild]] = None,
     ) -> AsyncIterator[discord.Guild]:
         """
         Fetches guilds which can be considered for synchronization in the current context (lazily)
@@ -312,19 +340,25 @@ class BanSync(commands.Cog):
         ----------
         ctx: commands.Context
         excluded: Set[discord.Guild]
-            a set of guilds to be excluded from consideration
+        considered: Set[discord.Guild
 
         Yields
         -------
         discord.Guild
             The next guild for use
         """
-        for g in sorted(self.bot.guilds, key=lambda s: s.name):
+        considered, excluded = considered or (), excluded or ()
+        for g in sorted(considered, key=lambda s: s.name):
             if g not in excluded and await self.can_sync(g, ctx.author):
                 yield g
 
     async def interactive(self, ctx: commands.Context, excluded: GuildSet):
-        guilds = [g async for g in self.guild_discovery(ctx, excluded)]
+        guilds = [
+            g
+            async for g in self.guild_discovery(
+                ctx, excluded=excluded, considered=self.bot.guilds
+            )
+        ]
         if not guilds:
             return -1
 
@@ -390,8 +424,8 @@ class BanSync(commands.Cog):
         banlist: Set[discord.User] = set()
 
         if auto:
-            exclusions: List[int] = await self.config.excluded_from_automatic()
-            dests = {g for g in dests if g.id not in exclusions}
+            opt_ins: List[int] = await self.config.opted_into_automatic()
+            dests = {g for g in dests if g.id in opt_ins}
 
         guilds: GuildSet = sources | dests
 
@@ -469,11 +503,11 @@ class BanSync(commands.Cog):
                     guilds.add(s)
 
         elif auto is True:
-            exclusions = await self.config.excluded_from_automatic()
+            opt_ins = await self.config.opted_into_automatic()
             guilds = {
                 g
                 for g in self.bot.guilds
-                if g.id not in exclusions and await self.can_sync(g, ctx.author)
+                if g.id in opt_ins and await self.can_sync(g, ctx.author)
             }
 
         if len(guilds) < 2:
@@ -549,13 +583,18 @@ class BanSync(commands.Cog):
                 with contextlib.suppress(discord.HTTPException):
                     await guild.unban(discord.Object(id=user_id), reason=rsn)
 
-        excluded: GuildSet = {
+        to_consider: GuildSet = {
             g
             for g in self.bot.guilds
-            if g.id in await self.config.excluded_from_automatic()
+            if g.id in await self.config.opted_into_automatic()
         }
 
-        guilds = [g async for g in self.guild_discovery(ctx, excluded)]
+        guilds = [
+            g
+            async for g in self.guild_discovery(
+                ctx, excluded=None, considered=to_consider
+            )
+        ]
         uids = [u.id for u in users]
 
         tasks = [unban(guild, *uids, rsn=(reason or None)) for guild in guilds]
@@ -591,15 +630,15 @@ class BanSync(commands.Cog):
         rsn = rsn or None
         _id: int = getattr(user, "id", user)
 
-        excluded: GuildSet = {
+        opt_ins: GuildSet = {
             g
             for g in self.bot.guilds
-            if g.id in await self.config.excluded_from_automatic()
+            if g.id in await self.config.opted_into_automatic()
         }
 
         exit_codes = [
             await self.ban_or_hackban(guild, _id, mod=ctx.author, reason=rsn)
-            async for guild in self.guild_discovery(ctx, excluded)
+            async for guild in self.guild_discovery(ctx, considered=opt_ins)
         ]
 
         return any(exit_codes)
