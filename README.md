@@ -98,7 +98,7 @@ For more information, use `help Scheduler`
 Use at your own risk, they are disabled or hidden due to me not feeling they are ready for use.
 
 
-## Why weren't you working as invested in this anymore?
+## Why weren't you working on this/as invested in this anymore?
 
 See [this](why_no_support.md)
 
