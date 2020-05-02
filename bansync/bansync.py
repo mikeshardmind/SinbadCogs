@@ -1,17 +1,28 @@
 from __future__ import annotations
 
 import asyncio
-import contextlib
 import io
 import json
+import logging
 from datetime import datetime
-from typing import List, Set, Union, AsyncIterator, Dict, Optional, cast, Collection
+from typing import (
+    List,
+    Set,
+    Union,
+    AsyncIterator,
+    Dict,
+    Optional,
+    cast,
+    Collection,
+    Tuple,
+)
 
 import discord
 from discord.ext.commands import Greedy
 from redbot.core import checks, commands
 from redbot.core.bot import Red
 from redbot.core.config import Config
+from redbot.core.data_manager import cog_data_path
 from redbot.core.modlog import create_case
 from redbot.core.utils.chat_formatting import box, pagify
 
@@ -26,12 +37,36 @@ def mock_user(idx: int) -> UserLike:
     return cast(discord.User, discord.Object(id=idx))
 
 
+class AddOnceHandler(logging.FileHandler):
+    """
+    Red's hot reload logic will break my logging if I don't do this.
+    """
+
+
+log = logging.getLogger("red.sinbadcogs.bansync")
+
+for handler in log.handlers:
+    # Red hotreload shit.... can't use isinstance, need to check not already added.
+    if handler.__class__.__name__ == "AddOnceHandler":
+        break
+else:
+    fp = cog_data_path(raw_name="BanSync") / "unhandled_exceptions.log"
+    handler = AddOnceHandler(fp)
+    formatter = logging.Formatter(
+        "[%(asctime)s] [%(levelname)s] %(name)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        style="%",
+    )
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
+
+
 class BanSync(commands.Cog):
     """
     synchronize your bans
     """
 
-    __version__ = "337.0.0"
+    __version__ = "337.1.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -433,8 +468,10 @@ class BanSync(commands.Cog):
             bans[guild.id] = set()
             try:
                 g_bans = {x.user for x in await guild.bans()}
-            except discord.HTTPException:
-                pass
+            except discord.HTTPException as exc:
+                log.exception(
+                    "Unhandled exception during ban synchronization", exc_info=exc
+                )
             else:
                 bans[guild.id].update(g_bans)
                 if guild in sources:
@@ -578,10 +615,30 @@ class BanSync(commands.Cog):
 
         async def unban(
             guild: discord.Guild, *user_ids: int, rsn: Optional[str] = None
-        ):
-            for user_id in user_ids:
-                with contextlib.suppress(discord.HTTPException):
+        ) -> Tuple[discord.Guild, Set[int]]:
+            failures = set()
+            it = iter(user_ids)
+            for user_id in it:
+                try:
                     await guild.unban(discord.Object(id=user_id), reason=rsn)
+                except discord.NotFound:
+                    pass  # Not banned, don't count this as a failure
+                except discord.Forbidden:
+                    failures.add(user_id)
+                    break  # This can happen due to 2FA or a permission cache issue
+                except discord.HTTPException as exc:
+                    log.exception(
+                        "Details of failed ban for user id %d in guild with id %d",
+                        user_id,
+                        guild.id,
+                        exc_info=exc,
+                    )
+                    break
+
+            for skipped_by_break in it:
+                failures.add(skipped_by_break)
+
+            return guild, failures
 
         to_consider: GuildSet = {
             g
@@ -595,12 +652,35 @@ class BanSync(commands.Cog):
                 ctx, excluded=None, considered=to_consider
             )
         ]
+        if not guilds:
+            return await ctx.send(
+                "No guilds are currently opted into automatic actions "
+                "(Manual unbans or opt-ins required)"
+            )
+
         uids = [u.id for u in users]
 
         tasks = [unban(guild, *uids, rsn=(reason or None)) for guild in guilds]
 
         async with ctx.typing():
-            await asyncio.gather(*tasks)
+            results = await asyncio.gather(*tasks)
+
+        body = "\n\n".join(
+            f"Unsuccessful unbans (by user ID) in guild: "
+            f"{guild.name}({guild.id}):\n{', '.join(map(str, fails))}"
+            for (guild, fails) in results
+            if fails
+        )
+
+        if not body:
+            return await ctx.tick()
+
+        message = (
+            f"Some unbans were unsuccesful, see below for a list of failures.\n\n{body}"
+        )
+
+        for page in pagify(message):
+            await ctx.send(page)
 
     async def targeted_global_ban(
         self,
