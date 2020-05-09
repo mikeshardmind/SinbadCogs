@@ -284,7 +284,10 @@ class RoleManagement(
         emoji_role_pairs: EmojiRolePairConverter,
     ):
         """
-        Add role binds to a message
+        Add multiple role binds to a message.
+        Enter this command on the first line, and press Shift+Enter to create a new line.
+        On the new line enter an emoji and tag a role, pressing Shift+Enter after each pair.
+        When all pairs are entered submit the command with Enter.
         """
 
         pairs = emoji_role_pairs.pairs
