@@ -284,10 +284,10 @@ class RoleManagement(
         emoji_role_pairs: EmojiRolePairConverter,
     ):
         """
-        Add multiple role binds to a message.
-        Enter this command on the first line, and press Shift+Enter to create a new line.
-        On the new line enter an emoji and tag a role, pressing Shift+Enter after each pair.
-        When all pairs are entered submit the command with Enter.
+        Add multiple role binds to a message. This command parses emojirole pairs separated by spaces.
+        Enter an emojirole pair as an eomji and role with no spaces between them.
+        You can mention the role or type the name (use quotes for names with spaces).
+        Newlines can be used to separate emojirole pairs as well as spaces.
         """
 
         pairs = emoji_role_pairs.pairs
