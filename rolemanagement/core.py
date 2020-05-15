@@ -284,7 +284,20 @@ class RoleManagement(
         emoji_role_pairs: EmojiRolePairConverter,
     ):
         """
-        Add role binds to a message
+        Add role binds to a message.
+
+        Emoji role pairs should be any number of pairs
+        of emoji and roles seperated by spaces.
+        Role can be specified by ID or name.
+        If using a name which includes spaces, enclose in quotes.
+
+        Example usage:
+
+        [p]bulkrolebind
+        \N{DIGIT ONE}\N{VARIATION SELECTOR-16}\N{COMBINING ENCLOSING KEYCAP}
+        "Role One"
+        \N{DIGIT TWO}\N{VARIATION SELECTOR-16}\N{COMBINING ENCLOSING KEYCAP}
+        Role-two
         """
 
         pairs = emoji_role_pairs.pairs
