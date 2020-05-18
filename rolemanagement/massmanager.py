@@ -228,7 +228,7 @@ class MassManagementMixin(MixinMeta):
 
             csvf = io.StringIO()
             fieldnames = [
-                "ID",
+                "User ID",
                 "Display Name",
                 "Username#Discrim",
                 "Joined Server",
