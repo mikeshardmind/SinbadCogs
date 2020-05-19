@@ -12,7 +12,7 @@ class General(red_commands.Cog):
     Just a better roll command, the rest can go.
     """
 
-    __version__ = "362.0.0"
+    __version__ = "362.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

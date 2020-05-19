@@ -11,5 +11,5 @@
         "numpy"
     ],
     "hidden": true,
-    "min_bot_version": "3.6.0"
+    "min_bot_version": "3.3.7"
 }
