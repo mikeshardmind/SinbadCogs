@@ -39,7 +39,7 @@ class GuildBlacklist(commands.Cog):
     the server's ID, or the serverowner's ID
     """
 
-    __version__ = "333.0.5"
+    __version__ = "333.0.6"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -91,7 +91,7 @@ class GuildBlacklist(commands.Cog):
         list blacklisted IDs
         """
         blacklist = await self.config.blacklist()
-        output = "\n".join("IDs in blacklist:", *map(str, blacklist))
+        output = "\n".join(("IDs in blacklist:\n", *map(str, blacklist)))
 
         for page in pagify(output):
             await ctx.send(box(page))
