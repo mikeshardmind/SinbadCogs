@@ -40,7 +40,7 @@ class GuildWhitelist(commands.Cog):
     or whose owner is not whitelisted or the owner of the bot
     """
 
-    __version__ = "333.0.5"
+    __version__ = "333.0.6"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -94,7 +94,7 @@ class GuildWhitelist(commands.Cog):
         list whitelisted IDs
         """
         whitelist = await self.config.whitelist()
-        output = "\n".join("IDs in whitelist:\n", *map(str, whitelist))
+        output = "\n".join(("IDs in whitelist:\n", *map(str, whitelist)))
 
         for page in pagify(output):
             await ctx.send(box(page))
