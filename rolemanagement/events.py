@@ -80,7 +80,8 @@ class EventMixin(MixinMeta):
                 if await self.config.role(role).sticky():
                     to_add.append(role)
             if to_add:
-                to_add = [r for r in to_add if r < guild.me.top_role]
+                my_top = self.get_top_role(guild.me)
+                to_add = [r for r in to_add if r < my_top]
                 await member.add_roles(*to_add)
 
     @commands.Cog.listener()
@@ -158,5 +159,6 @@ class EventMixin(MixinMeta):
             role = discord.utils.get(guild.roles, id=rid)
             if not role or role not in member.roles:
                 return
-            if guild.me.guild_permissions.manage_roles and guild.me.top_role > role:
+            my_top = self.get_top_role(guild.me)
+            if guild.me.guild_permissions.manage_roles and my_top > role:
                 await self.update_roles_atomically(who=member, give=None, remove=[role])
