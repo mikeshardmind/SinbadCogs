@@ -20,6 +20,19 @@ class UtilMixin(MixinMeta):
     Mixin for utils, some of which need things stored in the class
     """
 
+    def get_top_role(self, member: discord.Member) -> discord.Role:
+        """
+        Workaround for behavior in GH-discord.py#4087
+        """
+        # DEP-WARN
+
+        guild: discord.Guild = member.guild
+
+        if len(member._roles) == 0:
+            return guild.default_role
+
+        return max(guild.get_role(rid) or guild.default_role for rid in member._roles)
+
     def strip_variations(self, s: str) -> str:
         """
         Normalizes emoji, removing variation selectors
@@ -41,12 +54,13 @@ class UtilMixin(MixinMeta):
         give = give or []
         remove = remove or []
         heirarchy_testing = give + remove
-        roles = [r for r in who.roles if r not in remove]
+        user_roles = sorted(who.roles)  # resort needed, see GH-discord.py#4087
+        roles = [r for r in user_roles if r not in remove]
         roles.extend([r for r in give if r not in roles])
-        if sorted(roles) == sorted(who.roles):
+        if sorted(roles) == user_roles:
             return
         if (
-            any(r >= me.top_role for r in heirarchy_testing)
+            any(r >= self.get_top_role(me) for r in heirarchy_testing)
             or not me.guild_permissions.manage_roles
         ):
             raise PermissionOrHierarchyException("Can't do that.")
@@ -60,22 +74,23 @@ class UtilMixin(MixinMeta):
         guild = ctx.guild
 
         # Author allowed
-        if not (
-            (guild.owner == author)
-            or all(author.top_role > role for role in roles)
-            or await ctx.bot.is_owner(ctx.author)
-        ):
-            return False
+
+        if not guild.owner == author:
+            auth_top = self.get_top_role(author)
+            if not all(auth_top > role for role in roles) or await ctx.bot.is_owner(
+                ctx.author
+            ):
+                return False
 
         # Bot allowed
-        if not (
-            guild.me.guild_permissions.manage_roles
-            and (
-                guild.me == guild.owner
-                or all(guild.me.top_role > role for role in roles)
-            )
-        ):
+
+        if not guild.me.guild_permissions.manage_roles:
             return False
+
+        if not guild.me == guild.owner:
+            bot_top = self.get_top_role(guild.me)
+            if not all(bot_top > role for role in roles):
+                return False
 
         # Sanity check on managed roles
         if any(role.managed for role in roles):
@@ -100,8 +115,9 @@ class UtilMixin(MixinMeta):
             raise PermissionOrHierarchyException()
 
         guild = who.guild
-        if not guild.me.guild_permissions.manage_roles or role > guild.me.top_role:
-            raise PermissionOrHierarchyException()
+        if not guild.me.guild_permissions.manage_roles:
+            if role > self.get_top_role(guild.me):
+                raise PermissionOrHierarchyException()
 
         return ret
 

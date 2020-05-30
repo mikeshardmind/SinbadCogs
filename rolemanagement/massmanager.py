@@ -32,8 +32,7 @@ class MassManagementMixin(MixinMeta):
         """
         pass
 
-    @staticmethod
-    def search_filter(members: set, query: dict) -> set:
+    def search_filter(self, members: set, query: dict) -> set:
         """
         Reusable
         """
@@ -97,20 +96,22 @@ class MassManagementMixin(MixinMeta):
             if query["noroles"] and len(m.roles) != 1:
                 return False
 
-            # 0 is a valid option for these, everyone role not counted
-            if query["quantity"] is not None and len(m.roles) - 1 != query["quantity"]:
+            # 0 is a valid option for these, everyone role not counted, ._roles doesnt include everyone
+            if query["quantity"] is not None and len(m._roles) != query["quantity"]:
                 return False
 
-            if query["lt"] is not None and len(m.roles) - 1 >= query["lt"]:
+            if query["lt"] is not None and len(m._roles) >= query["lt"]:
                 return False
 
-            if query["gt"] is not None and len(m.roles) - 1 <= query["gt"]:
+            if query["gt"] is not None and len(m._roles) <= query["gt"]:
                 return False
 
-            if query["above"] and m.top_role <= query["above"]:
+            top_role = self.get_top_role(m)
+
+            if query["above"] and top_role <= query["above"]:
                 return False
 
-            if query["below"] and m.top_role >= query["below"]:
+            if query["below"] and top_role >= query["below"]:
                 return False
 
             return True

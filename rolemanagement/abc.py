@@ -50,3 +50,7 @@ class MixinMeta(ABC):
     @abstractmethod
     async def maybe_update_guilds(self, *guilds: discord.Guild) -> None:
         raise NotImplementedError()
+
+    @abstractmethod
+    def get_top_role(self, member: discord.Member) -> discord.Role:
+        raise NotImplementedError()
