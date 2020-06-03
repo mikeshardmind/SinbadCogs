@@ -241,7 +241,7 @@ class MassManagementMixin(MixinMeta):
             for member in chunk:
                 writer.writerow(
                     {
-                        "ID": member.id,
+                        "User ID": member.id,
                         "Display Name": member.display_name,
                         "Username#Discrim": str(member),
                         "Joined Server": member.joined_at.strftime(fmt)
