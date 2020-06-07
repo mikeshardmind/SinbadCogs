@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+
 from typing import List
 
 import discord
@@ -10,6 +11,7 @@ from .exceptions import (
     ConflictingRoleException,
     MissingRequirementsException,
     PermissionOrHierarchyException,
+    RoleManagementException,
 )
 
 variation_stripper_re = re.compile(r"[\ufe00-\ufe0f]")
@@ -66,7 +68,9 @@ class UtilMixin(MixinMeta):
             raise PermissionOrHierarchyException("Can't do that.")
         await who.edit(roles=roles)
 
-    async def all_are_valid_roles(self, ctx, *roles: discord.Role) -> bool:
+    async def all_are_valid_roles(
+        self, ctx, *roles: discord.Role, detailed: bool = False
+    ) -> bool:
         """
         Quick heirarchy check on a role set in syntax returned
         """
@@ -80,20 +84,34 @@ class UtilMixin(MixinMeta):
             if not all(auth_top > role for role in roles) or await ctx.bot.is_owner(
                 ctx.author
             ):
+                if detailed:
+                    raise RoleManagementException(
+                        "You can't give away roles which are not below your top role."
+                    )
                 return False
 
         # Bot allowed
 
         if not guild.me.guild_permissions.manage_roles:
+            if detailed:
+                raise RoleManagementException("I can't manage roles.")
             return False
 
         if not guild.me == guild.owner:
             bot_top = self.get_top_role(guild.me)
             if not all(bot_top > role for role in roles):
+                if detailed:
+                    raise RoleManagementException(
+                        "I can't give away roles which are not below my top role."
+                    )
                 return False
 
         # Sanity check on managed roles
         if any(role.managed for role in roles):
+            if detailed:
+                raise RoleManagementException(
+                    "Managed roles can't be assigned by this."
+                )
             return False
 
         return True

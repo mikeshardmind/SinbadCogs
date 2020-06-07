@@ -4,10 +4,11 @@ from datetime import datetime, timedelta
 from typing import List
 
 import discord
+
 from redbot.core import commands
 
 from .abc import MixinMeta
-from .exceptions import RoleManagementException, PermissionOrHierarchyException
+from .exceptions import PermissionOrHierarchyException, RoleManagementException
 
 
 class EventMixin(MixinMeta):

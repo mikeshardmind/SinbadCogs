@@ -1,19 +1,20 @@
 import csv
 import io
 import logging
+
 from typing import Optional, Set
 
 import discord
+
 from redbot.core import checks, commands
 
 from .abc import MixinMeta
 from .converters import (
-    RoleSyntaxConverter,
     ComplexActionConverter,
     ComplexSearchConverter,
+    RoleSyntaxConverter,
 )
 from .exceptions import RoleManagementException
-
 
 log = logging.getLogger("red.sinbadcogs.rolemanagement.massmanager")
 
