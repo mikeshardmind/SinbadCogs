@@ -81,8 +81,9 @@ class UtilMixin(MixinMeta):
 
         if not guild.owner == author:
             auth_top = self.get_top_role(author)
-            if not all(auth_top > role for role in roles) or await ctx.bot.is_owner(
-                ctx.author
+            if not (
+                all(auth_top > role for role in roles)
+                or await ctx.bot.is_owner(ctx.author)
             ):
                 if detailed:
                     raise RoleManagementException(
