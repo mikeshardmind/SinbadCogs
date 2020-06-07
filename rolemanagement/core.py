@@ -1,24 +1,26 @@
 from __future__ import annotations
 
 import asyncio
-import logging
 import contextlib
+import logging
 import re
+
 from abc import ABCMeta
-from typing import AsyncIterator, Tuple, Optional, Union, List, Dict
+from typing import AsyncIterator, Dict, List, Optional, Tuple, Union
 
 import discord
-from discord.ext.commands import CogMeta as DPYCogMeta
-from redbot.core import checks, commands, bank
-from redbot.core.config import Config
-from redbot.core.utils.chat_formatting import box, pagify
-from redbot.core.data_manager import cog_data_path
 
+from discord.ext.commands import CogMeta as DPYCogMeta
+from redbot.core import bank, checks, commands
+from redbot.core.config import Config
+from redbot.core.data_manager import cog_data_path
+from redbot.core.utils.chat_formatting import box, pagify
+
+from .converters import EmojiRolePairConverter
 from .events import EventMixin
-from .exceptions import RoleManagementException, PermissionOrHierarchyException
+from .exceptions import PermissionOrHierarchyException, RoleManagementException
 from .massmanager import MassManagementMixin
 from .utils import UtilMixin, variation_stripper_re
-from .converters import EmojiRolePairConverter
 
 
 class AddOnceHandler(logging.FileHandler):
@@ -77,7 +79,7 @@ class RoleManagement(
     # are not handled in the core bot, which would be a massive permission issue.
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.2.1"
+    __version__ = "330.2.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -191,10 +193,13 @@ class RoleManagement(
         Puts a stickyrole on someone not in the server.
         """
 
-        if not await self.all_are_valid_roles(ctx, role):
-            return await ctx.maybe_send_embed(
-                "Can't do that. Discord role heirarchy applies here."
-            )
+        try:
+            if not await self.all_are_valid_roles(ctx, role, detailed=True):
+                return await ctx.maybe_send_embed(
+                    "Can't do that. Discord role heirarchy applies here."
+                )
+        except RoleManagementException as exc:
+            return await ctx.maybe_send_embed(f"{exc}")
 
         if not await self.config.role(role).sticky():
             return await ctx.send("This only works on sticky roles.")
@@ -302,10 +307,13 @@ class RoleManagement(
 
         pairs = emoji_role_pairs.pairs
 
-        if not await self.all_are_valid_roles(ctx, *pairs.values()):
-            return await ctx.maybe_send_embed(
-                "Can't do that. Discord role heirarchy applies here."
-            )
+        try:
+            if not await self.all_are_valid_roles(ctx, *pairs.values(), detailed=True):
+                return await ctx.maybe_send_embed(
+                    "Can't do that. Discord role heirarchy applies here."
+                )
+        except RoleManagementException as exc:
+            return await ctx.maybe_send_embed(f"{exc}")
 
         try:
             message = await channel.fetch_message(message_id)
@@ -374,10 +382,13 @@ class RoleManagement(
         Make sure you configure the other settings for a role in [p]roleset
         """
 
-        if not await self.all_are_valid_roles(ctx, role):
-            return await ctx.maybe_send_embed(
-                "Can't do that. Discord role heirarchy applies here."
-            )
+        try:
+            if not await self.all_are_valid_roles(ctx, role, detailed=True):
+                return await ctx.maybe_send_embed(
+                    "Can't do that. Discord role heirarchy applies here."
+                )
+        except RoleManagementException as exc:
+            return await ctx.maybe_send_embed(f"{exc}")
 
         try:
             message = await channel.fetch_message(msgid)
@@ -431,10 +442,13 @@ class RoleManagement(
         unbinds a role from a reaction on a message
         """
 
-        if not await self.all_are_valid_roles(ctx, role):
-            return await ctx.maybe_send_embed(
-                "Can't do that. Discord role heirarchy applies here."
-            )
+        try:
+            if not await self.all_are_valid_roles(ctx, role, detailed=True):
+                return await ctx.maybe_send_embed(
+                    "Can't do that. Discord role heirarchy applies here."
+                )
+        except RoleManagementException as exc:
+            return await ctx.maybe_send_embed(f"{exc}")
 
         await self.config.custom(
             "REACTROLE", f"{msgid}", self.strip_variations(emoji)
@@ -541,10 +555,13 @@ class RoleManagement(
         it will be possible to gain these without paying.
         """
 
-        if not await self.all_are_valid_roles(ctx, role):
-            return await ctx.maybe_send_embed(
-                "Can't do that. Discord role heirarchy applies here."
-            )
+        try:
+            if not await self.all_are_valid_roles(ctx, role, detailed=True):
+                return await ctx.maybe_send_embed(
+                    "Can't do that. Discord role heirarchy applies here."
+                )
+        except RoleManagementException as exc:
+            return await ctx.maybe_send_embed(f"{exc}")
 
         if cost < 0:
             return await ctx.send_help()

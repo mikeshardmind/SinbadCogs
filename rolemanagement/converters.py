@@ -1,10 +1,11 @@
 import argparse
 import shlex
-from typing import List, NamedTuple, Dict, Iterable, TypeVar, Iterator, Tuple
 
-from redbot.core.commands import RoleConverter, Context, BadArgument, GuildContext
+from typing import Dict, Iterable, Iterator, List, NamedTuple, Tuple, TypeVar
+
 import discord
 
+from redbot.core.commands import BadArgument, Context, GuildContext, RoleConverter
 
 _RoleConverter = RoleConverter()
 
