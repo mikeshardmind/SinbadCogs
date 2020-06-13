@@ -55,14 +55,14 @@ class UtilMixin(MixinMeta):
         me = who.guild.me
         give = give or []
         remove = remove or []
-        heirarchy_testing = give + remove
+        hierarchy_testing = give + remove
         user_roles = sorted(who.roles)  # resort needed, see GH-discord.py#4087
         roles = [r for r in user_roles if r not in remove]
         roles.extend([r for r in give if r not in roles])
         if sorted(roles) == user_roles:
             return
         if (
-            any(r >= self.get_top_role(me) for r in heirarchy_testing)
+            any(r >= self.get_top_role(me) for r in hierarchy_testing)
             or not me.guild_permissions.manage_roles
         ):
             raise PermissionOrHierarchyException("Can't do that.")
@@ -72,7 +72,7 @@ class UtilMixin(MixinMeta):
         self, ctx, *roles: discord.Role, detailed: bool = False
     ) -> bool:
         """
-        Quick heirarchy check on a role set in syntax returned
+        Quick hierarchy check on a role set in syntax returned
         """
         author = ctx.author
         guild = ctx.guild
