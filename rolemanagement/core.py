@@ -79,7 +79,7 @@ class RoleManagement(
     # are not handled in the core bot, which would be a massive permission issue.
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.2.3"
+    __version__ = "330.2.4"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -196,7 +196,7 @@ class RoleManagement(
         try:
             if not await self.all_are_valid_roles(ctx, role, detailed=True):
                 return await ctx.maybe_send_embed(
-                    "Can't do that. Discord role heirarchy applies here."
+                    "Can't do that. Discord role hierarchy applies here."
                 )
         except RoleManagementException as exc:
             return await ctx.maybe_send_embed(f"{exc}")
@@ -310,7 +310,7 @@ class RoleManagement(
         try:
             if not await self.all_are_valid_roles(ctx, *pairs.values(), detailed=True):
                 return await ctx.maybe_send_embed(
-                    "Can't do that. Discord role heirarchy applies here."
+                    "Can't do that. Discord role hierarchy applies here."
                 )
         except RoleManagementException as exc:
             return await ctx.maybe_send_embed(f"{exc}")
@@ -385,7 +385,7 @@ class RoleManagement(
         try:
             if not await self.all_are_valid_roles(ctx, role, detailed=True):
                 return await ctx.maybe_send_embed(
-                    "Can't do that. Discord role heirarchy applies here."
+                    "Can't do that. Discord role hierarchy applies here."
                 )
         except RoleManagementException as exc:
             return await ctx.maybe_send_embed(f"{exc}")
@@ -445,7 +445,7 @@ class RoleManagement(
         try:
             if not await self.all_are_valid_roles(ctx, role, detailed=True):
                 return await ctx.maybe_send_embed(
-                    "Can't do that. Discord role heirarchy applies here."
+                    "Can't do that. Discord role hierarchy applies here."
                 )
         except RoleManagementException as exc:
             return await ctx.maybe_send_embed(f"{exc}")
@@ -558,7 +558,7 @@ class RoleManagement(
         try:
             if not await self.all_are_valid_roles(ctx, role, detailed=True):
                 return await ctx.maybe_send_embed(
-                    "Can't do that. Discord role heirarchy applies here."
+                    "Can't do that. Discord role hierarchy applies here."
                 )
         except RoleManagementException as exc:
             return await ctx.maybe_send_embed(f"{exc}")
