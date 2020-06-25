@@ -1,0 +1,13 @@
+{
+    "author": [
+        "mikeshardmind(Sinbad)",
+        "DiscordLiz"
+    ],
+    "name": "MentionHelp",
+    "disabled": false,
+    "short": "Provides some amount of help to users who mention the bot",
+    "description": "Provides some amount of help to users who mention the bot",
+    "tags": [],
+    "hidden": false,
+    "min_bot_version": "3.3.0"
+}
