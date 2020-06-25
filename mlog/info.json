@@ -1,0 +1,13 @@
+{
+    "author": [
+        "mikeshardmind(Sinbad)",
+        "DiscordLiz"
+    ],
+    "name": "MLog",
+    "disabled": false,
+    "short": "A WIP Message Logging Cog",
+    "description": "A WIP Message Logging Cog",
+    "tags": [],
+    "hidden": false,
+    "min_bot_version": "3.3.0"
+}
