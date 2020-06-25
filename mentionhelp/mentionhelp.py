@@ -65,3 +65,10 @@ class MentionHelp(commands.Cog):
             "further interaction and will not resend in this channel "
             "for at least 5 minutes"
         )
+
+        # TODO: Setting governing the below:
+        # await bot.send_help_for_context(bot)
+        # needs a fake context object OR
+        # a required support for invoking help without context
+        # <https://github.com/Cog-Creators/Red-DiscordBot/pull/4011#issuecomment-649865028>
+        # for some more detail on this.
