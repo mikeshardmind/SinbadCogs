@@ -105,4 +105,5 @@ See [this](why_no_support.md)
 
 ## Why are you working on this again?
 
-Because I've seen a few reasons to do so.
+Two communities that I work closely with would like to continue using Red for now.
+I am being paid for my time spent supporting the needs of these communities.
