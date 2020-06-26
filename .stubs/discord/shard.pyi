@@ -1,12 +1,12 @@
 import asyncio
+from typing import Any, List, Optional, Tuple, Union, overload
+
 import aiohttp
 
+from .activity import Activity, Game, Spotify, Streaming
 from .client import Client
-from .guild import Guild
-from .activity import Activity, Game, Streaming, Spotify
 from .enums import Status
-
-from typing import Any, List, Tuple, Optional, Union, overload
+from .guild import Guild
 
 class Shard:
     @property

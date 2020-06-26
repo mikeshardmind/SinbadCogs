@@ -1,7 +1,8 @@
-from .errors import DiscordException
-
 from typing import ClassVar, Union
+
 from typing_extensions import Final, TypedDict
+
+from .errors import DiscordException
 
 def load_opus(name: str) -> None: ...
 def is_loaded() -> bool: ...

@@ -5,10 +5,10 @@ import contextlib
 from typing import Set
 
 import discord
-from redbot.core import commands, checks
+from redbot.core import checks, commands
 from redbot.core.config import Config
 
-from .converters import CommandConverter, CogOrCOmmand, TrinaryBool
+from .converters import CogOrCOmmand, CommandConverter, TrinaryBool
 
 
 class ChannelRedirect(commands.Cog):

@@ -1,5 +1,8 @@
 import abc
 import datetime
+from typing import Any, Dict, List, Optional, TypeVar, Union, overload
+
+from typing_extensions import Protocol, runtime
 
 from .channel import CategoryChannel
 from .context_managers import Typing
@@ -10,13 +13,10 @@ from .invite import Invite
 from .iterators import HistoryIterator
 from .member import Member
 from .message import Message
-from .permissions import Permissions, PermissionOverwrite
+from .permissions import PermissionOverwrite, Permissions
 from .role import Role
 from .user import ClientUser
 from .voice_client import VoiceClient
-
-from typing import Any, Optional, Union, List, Dict, TypeVar, overload
-from typing_extensions import Protocol, runtime
 
 _GC = TypeVar("_GC", bound=GuildChannel)
 @runtime

@@ -1,11 +1,12 @@
-from .member import Member
-from .message import Message
+from typing import Any, Optional, Union
+
+from typing_extensions import Protocol, TypedDict
+
+from .abc import Snowflake
 from .emoji import Emoji, PartialEmoji
 from .iterators import ReactionIterator
-from .abc import Snowflake
-
-from typing import Any, Union, Optional
-from typing_extensions import Protocol, TypedDict
+from .member import Member
+from .message import Message
 
 class _RequiredReactionData(TypedDict):
     me: bool

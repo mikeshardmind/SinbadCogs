@@ -16,10 +16,12 @@ goto %1
 
 :reformat
 black !PYFILES!
+isort !PYFILES!
 exit /B %ERRORLEVEL%
 
 :stylecheck
 black --check !PYFILES!
+isort --check-only !PYFILES!
 exit /B %ERRORLEVEL%
 
 :help

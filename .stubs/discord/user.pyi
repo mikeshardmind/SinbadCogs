@@ -1,26 +1,26 @@
-import discord.abc
+import datetime
+from typing import Any, Dict, List, NamedTuple, Optional, Set
 
+import discord.abc
+from typing_extensions import Literal
+
+from .asset import Asset
 from .channel import DMChannel, GroupChannel
+from .colour import Colour
 from .enums import (
     DefaultAvatar,
+    FriendFlags,
     HypeSquadHouse,
     PremiumType,
-    UserContentFilter,
-    FriendFlags,
     Status,
     Theme,
+    UserContentFilter,
 )
-from .colour import Colour
 from .guild import Guild
 from .http import _ClientUserDict
-from .permissions import Permissions
 from .message import Message
+from .permissions import Permissions
 from .relationship import Relationship
-from .asset import Asset
-
-import datetime
-from typing import Any, Optional, NamedTuple, List, Set, Dict
-from typing_extensions import Literal
 
 _VALID_STATIC_FORMATS = Literal["jpeg", "jpg", "webp", "png"]
 _VALID_AVATAR_FORMATS = Literal[_VALID_STATIC_FORMATS, "gif"]

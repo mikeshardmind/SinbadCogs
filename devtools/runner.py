@@ -3,20 +3,19 @@ from __future__ import annotations
 import functools
 import io
 import os
+import queue
 import subprocess  # nosec
 import sys
 import threading
-import queue
 import weakref
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures.thread import _worker  # type: ignore
 from typing import Callable
 
-
 import discord
-from redbot.core import commands, checks
-from redbot.core.utils.chat_formatting import pagify, box
-from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
+from redbot.core import checks, commands
+from redbot.core.utils.chat_formatting import box, pagify
+from redbot.core.utils.menus import DEFAULT_CONTROLS, menu
 
 
 class NoAtExitExecutor(ThreadPoolExecutor):

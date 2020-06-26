@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import logging
+from typing import Generator, cast
 
 import discord
-from redbot.core import Config
-from redbot.core import commands, checks
-from redbot.core.utils.chat_formatting import box, pagify
+from redbot.core import Config, checks, commands
 from redbot.core.data_manager import cog_data_path
+from redbot.core.utils.chat_formatting import box, pagify
 
 
 class AddOnceHandler(logging.FileHandler):
@@ -40,7 +40,7 @@ class GuildWhitelist(commands.Cog):
     or whose owner is not whitelisted or the owner of the bot
     """
 
-    __version__ = "333.0.6"
+    __version__ = "333.0.7"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -96,8 +96,13 @@ class GuildWhitelist(commands.Cog):
         whitelist = await self.config.whitelist()
         output = "\n".join(("IDs in whitelist:\n", *map(str, whitelist)))
 
-        for page in pagify(output):
-            await ctx.send(box(page))
+        page_gen = cast(Generator[str, None, None], pagify(output))
+
+        try:
+            for page in page_gen:
+                await ctx.send(box(page))
+        finally:
+            page_gen.close()
         await ctx.tick()
 
     @gwl.command(name="remove")

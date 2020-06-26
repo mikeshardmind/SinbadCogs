@@ -1,9 +1,10 @@
+from typing import Any, Dict, List, Optional, Set
+
+from typing_extensions import Literal, TypedDict
+
 from .emoji import PartialEmoji
 from .http import _MessageDict, _PartialEmojiDict
 from .message import Message
-
-from typing import Any, Optional, Dict, Set, List
-from typing_extensions import TypedDict, Literal
 
 class _BaseBulkMessageDeleteDict(TypedDict, total=False):
     guild_id: str

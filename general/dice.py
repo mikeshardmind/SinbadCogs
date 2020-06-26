@@ -12,7 +12,6 @@ import operator
 import random
 import re
 import sys
-
 from typing import Callable, Dict, List, Tuple, TypeVar, Union
 
 import numpy as np

@@ -1,5 +1,22 @@
 from __future__ import annotations
 
+import asyncio
+import contextlib
+import functools
+import logging
+from datetime import datetime, timezone
+from typing import Dict, List, Optional
+
+import discord
+from redbot.core import checks, commands
+from redbot.core.config import Config
+from redbot.core.utils.menus import DEFAULT_CONTROLS, menu
+
+from .checks import can_run_command
+from .converters import NonNumeric, Schedule, TempMute
+from .tasks import Task
+
+
 """
 To anyone that comes to this later to improve it, the number one improvement
 which can be made is to stop storing just a unix timestamp.
@@ -10,22 +27,6 @@ The scheduling logic itself is solid, even if not the easiest to reason about.
 
 The patching of discord.TextChannel and fake discord.Message objects is *messy* but works.
 """
-
-import asyncio
-import contextlib
-import functools
-import logging
-from datetime import datetime, timezone
-from typing import Dict, List, Optional
-
-import discord
-from redbot.core import commands, checks
-from redbot.core.config import Config
-from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
-
-from .checks import can_run_command
-from .converters import NonNumeric, Schedule, TempMute
-from .tasks import Task
 
 
 class Scheduler(commands.Cog):

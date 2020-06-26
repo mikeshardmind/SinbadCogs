@@ -1,7 +1,7 @@
 # These stubs are possibly wrong.
 # They were generated with monkeytype and are "good enough"
 # After some minor corrections
-from typing import List, Optional, Type, Union, Any, SupportsInt
+from typing import Any, List, Optional, SupportsInt, Type, Union
 
 Integer = int
 IntegerList = List[Integer]

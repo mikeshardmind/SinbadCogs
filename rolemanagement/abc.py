@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 import discord
-
 from redbot.core import Config
 from redbot.core.bot import Red
 

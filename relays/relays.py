@@ -2,18 +2,17 @@ from __future__ import annotations
 
 import asyncio
 import logging
-
-from typing import Dict, Optional, List, Union
+from typing import Dict, List, Optional, Union
 
 import discord
-from redbot.core.utils.chat_formatting import box, pagify
+from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.config import Config
-from redbot.core import commands
+from redbot.core.utils.chat_formatting import box, pagify
 from redbot.core.utils.mod import mass_purge, slow_deletion
 
+from .helpers import embed_from_msg, txt_channel_finder, unique
 from .relay import NwayRelay, OnewayRelay
-from .helpers import unique, embed_from_msg, txt_channel_finder
 
 log = logging.getLogger("red.sinbadcogs.relays")
 

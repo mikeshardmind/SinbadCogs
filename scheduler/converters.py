@@ -3,9 +3,9 @@ from __future__ import annotations
 import argparse
 import dataclasses
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Tuple, NamedTuple
+from typing import NamedTuple, Optional, Tuple
 
-from redbot.core.commands import Context, BadArgument
+from redbot.core.commands import BadArgument, Context
 
 from .time_utils import parse_time, parse_timedelta
 

@@ -3,8 +3,8 @@ import random
 from typing import List, Optional
 
 from redbot.core import commands
-from redbot.core.utils.chat_formatting import box
 from redbot.core.data_manager import bundled_data_path
+from redbot.core.utils.chat_formatting import box
 
 from .cows import cowsay
 

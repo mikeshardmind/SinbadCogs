@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import List, TypeVar, Iterable, Union, Iterator, cast
+from typing import Iterable, Iterator, List, TypeVar, Union, cast
 
 import discord
 from redbot.core.bot import Red

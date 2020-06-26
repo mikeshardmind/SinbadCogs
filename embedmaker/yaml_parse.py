@@ -7,7 +7,7 @@ import yaml
 import yaml.reader
 from redbot.core import commands
 
-from .serialize import template, deserialize_embed
+from .serialize import deserialize_embed, template
 from .time_utils import parse_time
 
 yaml.reader.Reader.NON_PRINTABLE = re.compile(

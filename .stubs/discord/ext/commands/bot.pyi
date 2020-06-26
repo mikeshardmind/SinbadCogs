@@ -1,28 +1,28 @@
-import discord
 import asyncio
-import aiohttp
-
-from .core import GroupMixin, Command
-from .context import Context
-from .help import HelpCommand
-from .cog import Cog
-
+from types import MappingProxyType, ModuleType
 from typing import (
     Any,
-    Optional,
-    Union,
     Callable,
     Coroutine,
-    List,
-    Tuple,
     Dict,
-    Set,
-    TypeVar,
-    Type,
     Iterable,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
     overload,
 )
-from types import MappingProxyType, ModuleType
+
+import aiohttp
+import discord
+
+from .cog import Cog
+from .context import Context
+from .core import Command, GroupMixin
+from .help import HelpCommand
 
 _CT = TypeVar("_CT", bound=Context)
 _OT = TypeVar("_OT", bound=Context)

@@ -2,19 +2,17 @@ from __future__ import annotations
 
 import asyncio
 import logging
-
-from typing import Iterator, NamedTuple, Optional
 from datetime import datetime
+from typing import Iterator, NamedTuple, Optional
 
 import discord
-
-from redbot.core import commands, checks
+from redbot.core import checks, commands
 from redbot.core.bot import Red
 from redbot.core.data_manager import cog_data_path
 from redbot.core.utils import menus
-from .converters import MemberOrID
-from .apsw_wrapper import Connection
 
+from .apsw_wrapper import Connection
+from .converters import MemberOrID
 
 log = logging.getLogger("red.sinbadcogs.modnotes")
 

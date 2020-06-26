@@ -1,21 +1,21 @@
 import asyncio
-import aiohttp
-
-from .file import File
-
 from typing import (
     Any,
-    Optional,
-    Union,
-    Coroutine,
-    List,
-    Dict,
-    Tuple,
-    ClassVar,
     BinaryIO,
+    ClassVar,
+    Coroutine,
+    Dict,
     Iterable,
+    List,
+    Optional,
+    Tuple,
+    Union,
 )
+
+import aiohttp
 from typing_extensions import TypedDict
+
+from .file import File
 
 class _ApplicationDict(TypedDict):
     id: int

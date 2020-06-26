@@ -5,7 +5,6 @@
 import textwrap
 from typing import List
 
-
 COW_BASE = r"""
          \   ^__^
           \  (oo)\_______

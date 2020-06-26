@@ -1,9 +1,9 @@
+from typing import Optional, Type, TypeVar
+
 from discord.enums import Enum
 
-from .context import Context
 from ...message import Message
-
-from typing import Optional, TypeVar, Type
+from .context import Context
 
 _CM = TypeVar("_CM", bound=CooldownMapping)
 

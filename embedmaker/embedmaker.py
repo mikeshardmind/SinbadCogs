@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import io
 import logging
+from typing import Generator, cast
 
 import discord
-from redbot.core import Config
-from redbot.core import checks
-from redbot.core import commands
+from redbot.core import Config, checks, commands
 from redbot.core.utils.chat_formatting import pagify
 
 from .serialize import deserialize_embed, serialize_embed
@@ -21,7 +20,7 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "330.0.1"
+    __version__ = "330.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -331,8 +330,12 @@ class EmbedMaker(commands.Cog):
             global_embeds.insert(0, "Global Embeds:")
         output = "\n".join(local_embeds + global_embeds)
 
-        for page in pagify(output):
-            await ctx.maybe_send_embed(page)
+        page_gen = cast(Generator[str, None, None], pagify(output))
+        try:
+            for page in page_gen:
+                await ctx.maybe_send_embed(page)
+        finally:
+            page_gen.close()
 
     @commands.guild_only()
     @_embed.command(name="remove")

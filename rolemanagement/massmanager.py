@@ -1,11 +1,9 @@
 import csv
 import io
 import logging
-
 from typing import Optional, Set
 
 import discord
-
 from redbot.core import checks, commands
 
 from .abc import MixinMeta

@@ -4,12 +4,10 @@ import asyncio
 import contextlib
 import logging
 import re
-
 from abc import ABCMeta
-from typing import AsyncIterator, Dict, List, Optional, Tuple, Union
+from typing import AsyncIterator, Dict, Generator, List, Optional, Tuple, Union, cast
 
 import discord
-
 from discord.ext.commands import CogMeta as DPYCogMeta
 from redbot.core import bank, checks, commands
 from redbot.core.config import Config
@@ -79,7 +77,7 @@ class RoleManagement(
     # are not handled in the core bot, which would be a massive permission issue.
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.2.4"
+    __version__ = "330.2.5"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -537,8 +535,12 @@ class RoleManagement(
         else:
             output += "\nThis role does not have an associated cost."
 
-        for page in pagify(output):
-            await ctx.send(page)
+        page_gen = pagify(output)
+        try:
+            for page in page_gen:
+                await ctx.send(page)
+        finally:
+            page_gen.close()  # type: ignore
 
     @rgroup.command(name="cost")
     async def make_purchasable(
@@ -776,8 +778,12 @@ class RoleManagement(
             )
         )
 
-        for page in pagify(message):
-            await ctx.send(box(message))
+        page_gen = cast(Generator[str, None, None], pagify(message))
+        try:
+            for page in page_gen:
+                await ctx.send(box(page))
+        finally:
+            page_gen.close()
 
     @srole.command(name="buy")
     async def srole_buy(self, ctx: commands.GuildContext, *, role: discord.Role):

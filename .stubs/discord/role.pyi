@@ -1,11 +1,11 @@
-from .mixins import Hashable
-from .permissions import Permissions
-from .member import Member
-from .colour import Colour
-from .guild import Guild
-
 import datetime
 from typing import Any, List, Optional, overload
+
+from .colour import Colour
+from .guild import Guild
+from .member import Member
+from .mixins import Hashable
+from .permissions import Permissions
 
 class Role(Hashable):
     id: int

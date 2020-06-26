@@ -6,15 +6,16 @@ import json
 import logging
 from datetime import datetime
 from typing import (
-    List,
-    Set,
-    Union,
     AsyncIterator,
-    Dict,
-    Optional,
-    cast,
     Collection,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Set,
     Tuple,
+    Union,
+    cast,
 )
 
 import discord
@@ -26,7 +27,7 @@ from redbot.core.data_manager import cog_data_path
 from redbot.core.modlog import create_case
 from redbot.core.utils.chat_formatting import box, pagify
 
-from .converters import SyndicatedConverter, ParserError, MentionOrID
+from .converters import MentionOrID, ParserError, SyndicatedConverter
 
 GuildList = List[discord.Guild]
 GuildSet = Set[discord.Guild]
@@ -66,7 +67,7 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "337.1.0"
+    __version__ = "337.1.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -407,8 +408,13 @@ class BanSync(commands.Cog):
             )
         )
 
-        for page in pagify(output, delims=["\n"]):
-            await ctx.send(box(page))
+        page_gen = cast(Generator[str, None, None], pagify(output, delims=["\n"]))
+
+        try:
+            for page in page_gen:
+                await ctx.send(box(page))
+        finally:
+            page_gen.close()
 
         def pred(m):
             return m.channel == ctx.channel and m.author == ctx.author
@@ -679,8 +685,12 @@ class BanSync(commands.Cog):
             f"Some unbans were unsuccesful, see below for a list of failures.\n\n{body}"
         )
 
-        for page in pagify(message):
-            await ctx.send(page)
+        page_gen = cast(Generator[str, None, None], pagify(message))
+        try:
+            for page in page_gen:
+                await ctx.send(page)
+        finally:
+            page_gen.close()
 
     async def targeted_global_ban(
         self,

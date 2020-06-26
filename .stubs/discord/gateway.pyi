@@ -1,25 +1,26 @@
-import websockets  # type: ignore
 import asyncio
 import threading
-from .client import Client
-from .voice_client import VoiceClient
-from .activity import _ActivityTag
-from .enums import Status, SpeakingState
-
 from typing import (
     Any,
-    Optional,
-    Union,
+    AsyncIterable,
+    Callable,
+    ClassVar,
+    Dict,
     Iterable,
     NamedTuple,
-    Callable,
-    Dict,
-    ClassVar,
-    TypeVar,
+    Optional,
     Type,
-    AsyncIterable,
+    TypeVar,
+    Union,
 )
+
+import websockets  # type: ignore
 from typing_extensions import TypedDict
+
+from .activity import _ActivityTag
+from .client import Client
+from .enums import SpeakingState, Status
+from .voice_client import VoiceClient
 
 class KeepAlivePayloadDict(TypedDict):
     op: int

@@ -1,8 +1,9 @@
 # These stubs are possibly wrong.
 # They were generated with monkeytype and are "good enough"
 # After some minor corrections
+from typing import Any, Union
+
 from .elements import IntegerList, Roll, WildRoll
-from typing import Union, Any
 
 def _roll(
     string: str,

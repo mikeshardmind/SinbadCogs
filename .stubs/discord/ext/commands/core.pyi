@@ -1,27 +1,27 @@
 from inspect import Parameter
-
-from .context import Context
-from .cooldowns import CooldownMapping, BucketType, Cooldown
-from .cog import Cog
-from ._types import _BaseCommand
-
 from typing import (
     Any,
-    Optional,
-    Union,
     Callable,
-    Dict,
-    Iterator,
     Coroutine,
-    Type,
-    ValuesView,
-    List,
-    TypeVar,
-    Mapping,
+    Dict,
     Generic,
+    Iterator,
+    List,
+    Mapping,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+    ValuesView,
     overload,
 )
+
 from typing_extensions import Protocol
+
+from ._types import _BaseCommand
+from .cog import Cog
+from .context import Context
+from .cooldowns import BucketType, Cooldown, CooldownMapping
 
 _CoroType = Callable[..., Coroutine[Any, Any, Any]]
 

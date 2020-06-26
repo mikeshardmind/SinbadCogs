@@ -1,4 +1,4 @@
-from typing import Any, Iterator, Tuple, TypeVar, Optional, Type, ClassVar, Set
+from typing import Any, ClassVar, Iterator, Optional, Set, Tuple, Type, TypeVar
 
 _P = TypeVar("_P", bound=Permissions)
 

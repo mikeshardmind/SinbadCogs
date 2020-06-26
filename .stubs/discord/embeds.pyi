@@ -1,11 +1,11 @@
 import datetime
+from typing import Any, ClassVar, Dict, List, Type, TypeVar, Union
 
+from typing_extensions import Final, TypedDict
+
+from .asset import Asset
 from .colour import Colour
 from .http import _EmbedDict
-from .asset import Asset
-
-from typing import Any, Union, Dict, List, ClassVar, TypeVar, Type
-from typing_extensions import Final, TypedDict
 
 class _EmptyEmbed:
     def __bool__(self) -> bool: ...

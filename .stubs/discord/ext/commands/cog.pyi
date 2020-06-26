@@ -1,17 +1,18 @@
 from typing import (
     Any,
-    Optional,
-    Union,
-    List,
-    Tuple,
-    Iterator,
     Callable,
-    TypeVar,
     Coroutine,
     Generic,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
 )
-from .core import Command
+
 from .context import Context
+from .core import Command
 
 _CT = TypeVar("_CT", bound=Context)
 _L = TypeVar("_L", bound=Callable[..., Coroutine[Any, Any, Any]])

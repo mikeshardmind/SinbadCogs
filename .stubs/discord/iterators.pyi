@@ -1,15 +1,15 @@
 import abc
+from typing import Any, Callable, Coroutine, Generic, List, Optional, TypeVar, Union
 
-from .user import User
-from .member import Member
-from .message import Message
+from typing_extensions import Final
+
 from .audit_logs import AuditLogEntry
 from .guild import Guild
 from .http import _GuildDict, _GuildMemberDict
+from .member import Member
+from .message import Message
 from .object import Object
-
-from typing import Any, Optional, Union, TypeVar, List, Generic, Coroutine, Callable
-from typing_extensions import Final
+from .user import User
 
 OLDEST_OBJECT: Final[Object] = ...
 

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import NamedTuple, Set, Union
 
 import discord
-from redbot.core.commands import Context, BadArgument
+from redbot.core.commands import BadArgument, Context
 
 
 class ParserError(Exception):
