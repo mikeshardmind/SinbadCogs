@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
-from redbot.core import commands
 
+from redbot.core import commands
 
 if TYPE_CHECKING:
     from . import RoomTools

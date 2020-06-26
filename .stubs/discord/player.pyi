@@ -1,21 +1,21 @@
-import threading
 import io
-
-from .voice_client import VoiceClient
-
+import threading
 from typing import (
     Any,
-    Union,
-    Optional,
     BinaryIO,
-    ClassVar,
-    TypeVar,
-    Type,
     Callable,
+    ClassVar,
+    Optional,
     Tuple,
+    Type,
+    TypeVar,
+    Union,
     overload,
 )
+
 from typing_extensions import Literal
+
+from .voice_client import VoiceClient
 
 _FOA = TypeVar("_FOA", bound=FFmpegOpusAudio)
 _MethodCallback = Callable[

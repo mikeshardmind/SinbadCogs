@@ -1,6 +1,5 @@
 import datetime
-
-from typing import Any, Union, Optional, List, Dict, Tuple, Iterable, Iterator
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from . import enums
 from .abc import User as ABCUser

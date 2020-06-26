@@ -1,7 +1,7 @@
 import asyncio
+from typing import Any, Optional
 
 from .abc import Messageable
-from typing import Any, Optional
 
 class Typing:
     loop: asyncio.AbstractEventLoop

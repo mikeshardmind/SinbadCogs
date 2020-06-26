@@ -4,17 +4,15 @@ import asyncio
 import logging
 import string
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, Generator, List, Optional, cast
 
 import aiohttp
 import discord
-import feedparser
-
 import discordtextsanitizer as dts
-from redbot.core import commands, checks
+import feedparser
+from redbot.core import checks, commands
 from redbot.core.config import Config
 from redbot.core.utils.chat_formatting import pagify
-
 
 from .cleanup import html_to_text
 from .converters import TriState
@@ -59,7 +57,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "330.0.3"
+    __version__ = "330.0.4"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -390,12 +388,18 @@ class RSS(commands.Cog):
                     for k, v in data.items()
                 )
             )
-            for page in pagify(output):
-                await ctx.send(
-                    embed=discord.Embed(
-                        description=page, color=(await ctx.embed_color())
+            page_gen = cast(Generator[str, None, None], pagify(output))
+
+            try:
+                for page in page_gen:
+                    await ctx.send(
+                        embed=discord.Embed(
+                            description=page, color=(await ctx.embed_color())
+                        )
                     )
-                )
+            finally:
+                page_gen.close()
+
         else:
             output = "\n".join(
                 (
@@ -403,8 +407,12 @@ class RSS(commands.Cog):
                     for k, v in data.items()
                 )
             )
-            for page in pagify(output):
-                await ctx.send(page)
+            page_gen = cast(Generator[str, None, None], pagify(output))
+            try:
+                for page in page_gen:
+                    await ctx.send(page)
+            finally:
+                page_gen.close()
 
     @rss.command(name="remove")
     async def remove_feed(

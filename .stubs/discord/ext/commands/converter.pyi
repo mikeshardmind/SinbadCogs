@@ -1,8 +1,8 @@
+from typing import Any, List
+
 import discord
 
 from .context import Context
-
-from typing import Any, List
 
 class Converter:
     async def convert(self, ctx: Context, argument: str) -> Any: ...

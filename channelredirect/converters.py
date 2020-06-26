@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union, NamedTuple
+from typing import NamedTuple, Union
 
 from redbot.core import commands
 

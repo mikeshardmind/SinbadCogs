@@ -1,32 +1,32 @@
-import discord
 from inspect import Parameter
-
-from .bot import Bot
-from .core import Command, Group
-from .errors import CommandError
-from .context import Context
-from .cog import Cog
-from .cooldowns import Cooldown
-
 from typing import (
     Any,
-    Optional,
-    Union,
-    List,
-    Tuple,
-    Dict,
-    Iterable,
-    Mapping,
-    ClassVar,
-    Pattern,
-    TypeVar,
-    Generic,
     Awaitable,
     Callable,
+    ClassVar,
+    Dict,
+    Generic,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Pattern,
     Sequence,
+    Tuple,
+    TypeVar,
+    Union,
 )
-from typing_extensions import Protocol
+
+import discord
 from mypy_extensions import TypedDict
+from typing_extensions import Protocol
+
+from .bot import Bot
+from .cog import Cog
+from .context import Context
+from .cooldowns import Cooldown
+from .core import Command, Group
+from .errors import CommandError
 
 _T = TypeVar("_T")
 _MaybeAwaitable = Union[Awaitable[_T], _T]

@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import functools
+import hashlib
 import re
 import unicodedata as ud
 from copy import copy
-import hashlib
-import functools
 
 import discord
-from redbot.core import commands, checks
+from redbot.core import checks, commands
 from redbot.core.utils import menus
 from redbot.core.utils.chat_formatting import box, pagify
 

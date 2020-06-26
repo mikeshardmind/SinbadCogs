@@ -1,20 +1,21 @@
 import datetime
-
-from .guild import Guild
-from .channel import TextChannel, DMChannel, GroupChannel
-from .abc import Snowflake, User as _BaseUser
-from .enums import MessageType
-from .member import Member
-from .user import User
-from .embeds import Embed
-from .reaction import Reaction
-from .emoji import Emoji, PartialEmoji
-from .calls import CallMessage
-from .role import Role
-
-from typing import Any, Optional, List, Union, BinaryIO
-from typing_extensions import TypedDict
 from os import PathLike
+from typing import Any, BinaryIO, List, Optional, Union
+
+from typing_extensions import TypedDict
+
+from .abc import Snowflake
+from .abc import User as _BaseUser
+from .calls import CallMessage
+from .channel import DMChannel, GroupChannel, TextChannel
+from .embeds import Embed
+from .emoji import Emoji, PartialEmoji
+from .enums import MessageType
+from .guild import Guild
+from .member import Member
+from .reaction import Reaction
+from .role import Role
+from .user import User
 
 class Attachment:
     id: int

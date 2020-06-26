@@ -3,15 +3,15 @@ from __future__ import annotations
 import asyncio
 from contextlib import suppress
 from datetime import datetime
-from typing import List, Set, Optional
+from typing import List, Optional, Set
 
 import apsw
 import discord
-from redbot.core import commands, checks
+from redbot.core import checks, commands
 from redbot.core.bot import Red
 from redbot.core.data_manager import cog_data_path
 from redbot.core.utils.chat_formatting import pagify
-from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
+from redbot.core.utils.menus import DEFAULT_CONTROLS, menu
 
 from .apsw_wrapper import Connection
 

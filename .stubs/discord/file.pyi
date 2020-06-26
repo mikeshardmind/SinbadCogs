@@ -1,4 +1,4 @@
-from typing import Union, Optional, BinaryIO
+from typing import BinaryIO, Optional, Union
 
 class File:
     fp: Union[str, BinaryIO]

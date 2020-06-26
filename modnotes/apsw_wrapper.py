@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Generator
+
+import apsw
+
 """
 This should be moved into a pip installable lib at some point, but I'm being
 lazy in the short term here.
 """
 
-from contextlib import contextmanager
-from typing import Generator, TYPE_CHECKING
-
-import apsw
 
 if TYPE_CHECKING:
     from typing_extensions import Protocol

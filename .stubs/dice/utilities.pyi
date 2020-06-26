@@ -1,6 +1,10 @@
 # These stubs are possibly wrong.
 # They were generated with monkeytype and are "good enough"
 # After some minor corrections
+from typing import Callable, List, Type, Union
+
+from pyparsing import CaselessLiteral, Literal, Suppress, Word, _SingleCharLiteral
+
 from .elements import (
     Dice,
     FudgeDice,
@@ -11,8 +15,6 @@ from .elements import (
     WildDice,
     WildRoll,
 )
-from pyparsing import CaselessLiteral, Literal, Suppress, Word, _SingleCharLiteral
-from typing import Callable, List, Type, Union
 
 def _trim_arity(func: Callable, maxargs: None = ...) -> Callable: ...
 def dice_switch(

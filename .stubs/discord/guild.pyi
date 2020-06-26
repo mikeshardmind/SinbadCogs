@@ -1,32 +1,30 @@
 import datetime
+from typing import Any, Dict, Iterator, List, NamedTuple, Optional, Tuple, Union
 
-from .mixins import Hashable
+from typing_extensions import Literal
+
 from .abc import Snowflake
-from .channel import VoiceChannel, TextChannel, CategoryChannel, StoreChannel
-from .member import Member
-from .voice_client import VoiceClient
-from .role import Role
+from .asset import Asset
+from .channel import CategoryChannel, StoreChannel, TextChannel, VoiceChannel
+from .colour import Colour
 from .emoji import Emoji
 from .enums import (
-    VoiceRegion,
-    VerificationLevel,
+    AuditLogAction,
     ContentFilter,
     NotificationLevel,
-    AuditLogAction,
+    VerificationLevel,
+    VoiceRegion,
 )
-from .permissions import PermissionOverwrite
-from .user import User
-from .webhook import Webhook
 from .invite import Invite
 from .iterators import AuditLogIterator, MemberIterator
-from .colour import Colour
-from .permissions import Permissions
+from .member import Member
+from .mixins import Hashable
+from .permissions import PermissionOverwrite, Permissions
+from .role import Role
+from .user import User
+from .voice_client import VoiceClient
+from .webhook import Webhook
 from .widget import Widget
-from .asset import Asset
-from .emoji import Emoji
-
-from typing import List, Optional, Tuple, Dict, Union, NamedTuple, Any, Iterator
-from typing_extensions import Literal
 
 _VALID_STATIC_ICON_FORMATS = Literal["jpeg", "jpg", "webp", "png"]
 _VALID_ANIMATED_ICON_FORMATS = Literal[_VALID_STATIC_ICON_FORMATS, "gif"]

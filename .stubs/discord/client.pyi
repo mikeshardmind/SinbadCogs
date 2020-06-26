@@ -1,56 +1,55 @@
-from .user import User, Profile, ClientUser
-from .invite import Invite
-from .guild import Guild
-from .enums import Status, VoiceRegion
-from .emoji import Emoji
-from .gateway import *
-from .activity import Activity, Game, Streaming, Spotify
-from .voice_client import VoiceClient
-from .webhook import Webhook
-from .iterators import GuildIterator
-from .member import Member, VoiceState
+import asyncio
+from datetime import datetime
+from typing import (
+    Any,
+    Callable,
+    Coroutine,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+)
+
+import aiohttp
+from typing_extensions import Literal
+
+from .abc import Snowflake
+from .activity import Activity, Game, Spotify, Streaming
+from .appinfo import AppInfo
 from .channel import (
-    TextChannel,
-    VoiceChannel,
     CategoryChannel,
-    StoreChannel,
     DMChannel,
     GroupChannel,
+    StoreChannel,
+    TextChannel,
+    VoiceChannel,
 )
+from .emoji import Emoji
+from .enums import Status, VoiceRegion
+from .gateway import *
+from .guild import Guild
+from .invite import Invite
+from .iterators import GuildIterator
+from .member import Member, VoiceState
 from .message import Message
 from .raw_models import (
-    RawMessageDeleteEvent,
     RawBulkMessageDeleteEvent,
+    RawMessageDeleteEvent,
     RawMessageUpdateEvent,
     RawReactionActionEvent,
     RawReactionClearEvent,
 )
 from .reaction import Reaction
-from .role import Role
 from .relationship import Relationship
-from .abc import Snowflake
-from .widget import Widget
-from .appinfo import AppInfo
+from .role import Role
+from .user import ClientUser, Profile, User
 from .utils import SequenceProxy
-
-import asyncio
-import aiohttp
-
-from datetime import datetime
-
-from typing import (
-    Any,
-    Union,
-    Optional,
-    List,
-    Tuple,
-    Callable,
-    Iterator,
-    Coroutine,
-    TypeVar,
-    overload,
-)
-from typing_extensions import Literal
+from .voice_client import VoiceClient
+from .webhook import Webhook
+from .widget import Widget
 
 _FuncType = Callable[..., Coroutine[Any, Any, Any]]
 _F = TypeVar("_F", bound=_FuncType)

@@ -1,19 +1,19 @@
-import discord.abc
 import datetime
+from typing import Any, List, Optional, Tuple, Union
 
-from .activity import Activity, Game, Streaming, Spotify
-from .enums import Status, DefaultAvatar
+import discord.abc
+
+from .activity import Activity, Game, Spotify, Streaming
+from .channel import DMChannel, GroupChannel, VoiceChannel
 from .colour import Colour
-from .message import Message
-from .role import Role
-from .permissions import Permissions
-from .channel import VoiceChannel, GroupChannel, DMChannel
+from .enums import DefaultAvatar, Status
 from .guild import Guild
+from .message import Message
+from .permissions import Permissions
 from .relationship import Relationship
+from .role import Role
 from .user import Profile
 from .utils import SnowflakeList
-
-from typing import Any, Optional, Union, List, Tuple
 
 class VoiceState:
     deaf: bool

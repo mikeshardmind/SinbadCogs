@@ -1,10 +1,10 @@
 import datetime
-from .role import Role
-from .guild import Guild
-from .asset import Asset
-from .user import User
+from typing import Any, Iterator, List, Optional, Tuple, Type, TypeVar
 
-from typing import Any, Optional, List, Iterator, Tuple, TypeVar, Type
+from .asset import Asset
+from .guild import Guild
+from .role import Role
+from .user import User
 
 _PE = TypeVar("_PE", bound=PartialEmoji)
 

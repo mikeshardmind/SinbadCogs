@@ -1,14 +1,14 @@
 import datetime
+from typing import List, Optional, Union
+
+from typing_extensions import TypedDict
 
 from . import utils
 from .channel import GroupChannel
 from .enums import VoiceRegion
 from .member import VoiceState
 from .message import Message
-from .user import User, ClientUser
-
-from typing import List, Optional, Union
-from typing_extensions import TypedDict
+from .user import ClientUser, User
 
 class _BaseVoiceStateDict(TypedDict):
     channel_id: Optional[int]

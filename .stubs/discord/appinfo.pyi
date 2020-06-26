@@ -1,8 +1,9 @@
+from typing import Any, List, Optional
+
 from .asset import Asset
 from .guild import Guild
 from .team import Team
 from .user import User
-from typing import Any, Optional, List
 
 class AppInfo:
     id: int

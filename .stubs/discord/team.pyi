@@ -1,7 +1,8 @@
+from typing import List, Optional
+
 from .asset import Asset
 from .enums import TeamMembershipState
 from .user import BaseUser
-from typing import Optional, List
 
 class Team:
     id: int

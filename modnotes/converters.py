@@ -3,7 +3,7 @@ import re
 from typing import NamedTuple, Optional
 
 import discord
-from redbot.core.commands import Context, BadArgument, MemberConverter
+from redbot.core.commands import BadArgument, Context, MemberConverter
 
 _discord_member_converter_instance = MemberConverter()
 _id_regex = re.compile(r"([0-9]{15,21})$")

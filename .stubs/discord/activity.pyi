@@ -1,15 +1,14 @@
 import datetime
-
-from typing import Any, Optional, Union, List, overload
+from typing import Any, List, Optional, Union, overload
 
 from .colour import Colour
 from .enums import ActivityType
 from .http import (
-    _ActivityDict,
-    _TimestampsDict,
     _ActivityAssetsDict,
+    _ActivityDict,
     _ActivityPartyDict,
     _SpotifyActivityDict,
+    _TimestampsDict,
 )
 
 class _ActivityTag: ...

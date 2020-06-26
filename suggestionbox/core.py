@@ -1,8 +1,8 @@
 from typing import Optional
 
 import discord
+from redbot.core import checks, commands
 from redbot.core.config import Config
-from redbot.core import commands, checks
 from redbot.core.utils.antispam import AntiSpam
 
 from .checks import has_active_box

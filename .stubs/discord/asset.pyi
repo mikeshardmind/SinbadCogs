@@ -1,6 +1,7 @@
-from typing import Any, Optional, Union, FrozenSet, BinaryIO
-from typing_extensions import Final
 from os import PathLike
+from typing import Any, BinaryIO, FrozenSet, Optional, Union
+
+from typing_extensions import Final
 
 VALID_STATIC_FORMATS: Final[FrozenSet[str]] = ...
 VALID_AVATAR_FORMATS: Final[FrozenSet[str]] = ...

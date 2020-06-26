@@ -1,10 +1,10 @@
-from typing import Any, Optional, TypeVar, List, Dict, Union
+from typing import Any, Dict, List, Optional, TypeVar, Union
 
 import discord
 
-from .core import Command
 from .bot import Bot
 from .cog import Cog
+from .core import Command
 
 _C = TypeVar("_C", bound=Context)
 

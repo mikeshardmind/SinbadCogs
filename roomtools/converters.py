@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import NamedTuple, Optional
 
-from redbot.core.commands import Context, BadArgument
+from redbot.core.commands import BadArgument, Context
 
 pattern = re.compile(r"--user-limit|-u")
 

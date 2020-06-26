@@ -1,12 +1,11 @@
 import asyncio
+from typing import Callable, ClassVar, Optional, Tuple
 
 from .abc import Connectable
-from .guild import Guild
-from .user import ClientUser
 from .channel import VoiceChannel
+from .guild import Guild
 from .player import AudioSource
-
-from typing import Optional, Callable, ClassVar, Tuple
+from .user import ClientUser
 
 class VoiceClient:
     warn_nacl: ClassVar[bool] = ...

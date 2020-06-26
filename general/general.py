@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from discord.ext import commands
 from redbot.core import commands as red_commands
-from redbot.core.utils.chat_formatting import pagify, box
+from redbot.core.utils.chat_formatting import box, pagify
 
 from .dice import DiceError, Expression
 

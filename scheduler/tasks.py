@@ -5,7 +5,6 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, cast
 
 import attr
-
 import discord
 from redbot.core.utils.chat_formatting import humanize_timedelta
 

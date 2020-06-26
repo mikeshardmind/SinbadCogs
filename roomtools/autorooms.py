@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timedelta
+from typing import Generator, cast
 
 import discord
-from redbot.core import checks
-from redbot.core import commands
+from redbot.core import checks, commands
 from redbot.core.utils.antispam import AntiSpam
 from redbot.core.utils.chat_formatting import pagify
 
@@ -272,8 +272,12 @@ class AutoRooms(MixedMeta):
                 clist.append("({0.id}) {0.name}".format(c))
 
         output = ", ".join(clist)
-        for page in pagify(output):
-            await ctx.send(page)
+        page_gen = cast(Generator[str, None, None], pagify(output))
+        try:
+            for page in page_gen:
+                await ctx.send(page)
+        finally:
+            page_gen.close()
 
     @aa_active()
     @checks.admin_or_permissions(manage_channels=True)

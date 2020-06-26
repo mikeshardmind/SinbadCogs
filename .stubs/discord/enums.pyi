@@ -1,5 +1,5 @@
 from enum import Enum as Enum
-from typing import Union, TypeVar, Type, overload
+from typing import Type, TypeVar, Union, overload
 
 # Technically, these enumerations do not inherit from enum.Enum, but because type checking
 # does something special for enum.Enum and discord.enums.Enum is a drop-in replacement for

@@ -1,10 +1,8 @@
 import argparse
 import shlex
-
-from typing import Dict, Iterable, Iterator, List, NamedTuple, Tuple, TypeVar
+from typing import Dict, Generator, Iterable, List, NamedTuple, Tuple, TypeVar
 
 import discord
-
 from redbot.core.commands import BadArgument, Context, GuildContext, RoleConverter
 
 _RoleConverter = RoleConverter()
@@ -12,7 +10,7 @@ _RoleConverter = RoleConverter()
 _T = TypeVar("_T")
 
 
-def _grab_pairs(iterable: Iterable[_T]) -> Iterator[Tuple[_T, _T]]:
+def _grab_pairs(iterable: Iterable[_T]) -> Generator[Tuple[_T, _T], None, None]:
     """
     This can be generalized more, but I really don't care to do so without reason
     """
@@ -65,14 +63,20 @@ class EmojiRolePairConverter(NamedTuple):
 
         pairs: Dict[str, discord.Role] = {}
 
-        for maybe_emoji, maybe_role in _grab_pairs(chunks):
+        pairs_gen = _grab_pairs(chunks)
+        try:
+            for maybe_emoji, maybe_role in pairs_gen:
 
-            if maybe_emoji in pairs:
-                raise BadArgument("You can't provide the same emoji multiple times.")
+                if maybe_emoji in pairs:
+                    raise BadArgument(
+                        "You can't provide the same emoji multiple times."
+                    )
 
-            role = await _RoleConverter.convert(ctx, maybe_role)
+                role = await _RoleConverter.convert(ctx, maybe_role)
 
-            pairs[maybe_emoji] = role
+                pairs[maybe_emoji] = role
+        finally:
+            pairs_gen.close()
 
         return cls(pairs)
 

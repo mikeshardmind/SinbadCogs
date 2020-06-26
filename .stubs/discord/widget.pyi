@@ -1,12 +1,11 @@
+from datetime import datetime
+from typing import Any, List, NamedTuple, Optional, Set, Union
+
+from .activity import Activity, Game, Spotify, Streaming
+from .channel import VoiceChannel
 from .enums import Status
 from .invite import Invite
 from .user import BaseUser
-from .activity import Activity, Game, Streaming, Spotify
-from .channel import VoiceChannel
-from .invite import Invite
-
-from datetime import datetime
-from typing import Any, Optional, Union, List, Set, NamedTuple
 
 class WidgetChannel(NamedTuple):
     id: int

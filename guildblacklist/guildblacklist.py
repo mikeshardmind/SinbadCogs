@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import logging
+from typing import Generator, cast
 
 import discord
-from redbot.core import Config
-from redbot.core import commands, checks
-from redbot.core.utils.chat_formatting import box, pagify
+from redbot.core import Config, checks, commands
 from redbot.core.data_manager import cog_data_path
+from redbot.core.utils.chat_formatting import box, pagify
 
 
 class AddOnceHandler(logging.FileHandler):
@@ -39,7 +39,7 @@ class GuildBlacklist(commands.Cog):
     the server's ID, or the serverowner's ID
     """
 
-    __version__ = "333.0.6"
+    __version__ = "333.0.7"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -93,8 +93,13 @@ class GuildBlacklist(commands.Cog):
         blacklist = await self.config.blacklist()
         output = "\n".join(("IDs in blacklist:\n", *map(str, blacklist)))
 
-        for page in pagify(output):
-            await ctx.send(box(page))
+        page_gen = cast(Generator[str, None, None], pagify(output))
+
+        try:
+            for page in page_gen:
+                await ctx.send(box(page))
+        finally:
+            page_gen.close()
         await ctx.tick()
 
     @gbl.command(name="remove")
