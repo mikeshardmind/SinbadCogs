@@ -43,7 +43,7 @@ class MultiWaiter:
 
         (event_name, future) = await self._queue.get()
         try:
-            return (event_name, *(future.result()))
+            return (event_name, future.result())
         finally:
             self._queue.task_done()
             for task in self._tasks:
@@ -58,7 +58,7 @@ class MultiWaiter:
             raise StopAsyncIteration
         (event_name, future) = await self._queue.get()
         try:
-            return (event_name, *(future.result()))
+            return (event_name, future.result())
         finally:
             self._queue.task_done()
             self._num_tasks -= 1
