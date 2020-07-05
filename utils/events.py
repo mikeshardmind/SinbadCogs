@@ -4,7 +4,6 @@ from typing import Callable, List, Optional, Tuple
 
 
 class MultiWaiter:  # works with stock d.py
-
     def __init__(self, bot):
         self.bot = bot
         self._waiters = []
