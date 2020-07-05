@@ -1,7 +1,7 @@
 import functools
-from redbot.core.bot import Red
 
 import discord
+from redbot.core.bot import Red
 
 
 async def message_is_eligible_as_command(bot: Red, message: discord.Message) -> bool:
