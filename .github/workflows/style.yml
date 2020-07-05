@@ -1,4 +1,4 @@
-name: black
+name: style
 
 on: [push, pull_request] 
 
@@ -12,7 +12,9 @@ jobs:
       - uses: actions/setup-python@v1
         with:
           python_version: "3.8"
-      - run: "python -m pip install black"
-        name: Install black
+      - run: "python -m pip install black isort"
+        name: Install deps
       - run: "python -m black --check ."
         name: Style checking with black
+      - run: "python -m isort --check ."
+        name: Import sorting check
