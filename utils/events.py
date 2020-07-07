@@ -36,6 +36,7 @@ class MultiWaiter:  # works with stock d.py
         if self._prepared:
             raise RuntimeError("You can't add waiters once you've started waiting!")
         self._waiters.append((event_name, check))
+        return self
 
     async def wait_first(self, timeout=None) -> Tuple[str, ...]:
 
