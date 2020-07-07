@@ -1,15 +1,16 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)",
-        "DiscordLiz"
-    ],
-    "name": "GuildBlacklist",
-    "disabled": false,
-    "short": "server join blacklist",
-    "description": "blacklist guilds by guild or owner ID",
-    "tags": [
-        "blacklist"
-    ],
-    "hidden": false,
-    "min_bot_version": "3.3.0"
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "GuildBlacklist",
+	"disabled": false,
+	"short": "server join blacklist",
+	"description": "blacklist guilds by guild or owner ID",
+	"tags": [
+		"blacklist"
+	],
+	"hidden": false,
+	"min_bot_version": "3.3.0",
+	"install_message": "The functionality of this cog has been moved to the guildjoinrestrict cog"
 }
