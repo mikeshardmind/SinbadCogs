@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import string
+import urllib.parse
 from datetime import datetime
 from typing import Any, Dict, Generator, List, Optional, cast
 
@@ -10,9 +11,10 @@ import aiohttp
 import discord
 import discordtextsanitizer as dts
 import feedparser
+from bs4 import BeautifulSoup as bs4
 from redbot.core import checks, commands
 from redbot.core.config import Config
-from redbot.core.utils.chat_formatting import pagify
+from redbot.core.utils.chat_formatting import box, pagify
 
 from .cleanup import html_to_text
 from .converters import TriState
@@ -57,7 +59,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "330.0.4"
+    __version__ = "339.1.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -128,6 +130,37 @@ class RSS(commands.Cog):
         if "updated_parsed" in x:
             return tuple(x.get("updated_parsed"))[:5]
         return (0,)
+
+    async def find_feeds(self, site: str) -> List[str]:
+        """
+        Attempts to find feeds on a page
+        """
+
+        async with self.session.get(site) as response:
+            data = await response.read()
+
+        possible_feeds = set()
+        html = bs4(data)
+        feed_urls = html.findAll("link", rel="alternate")
+        if len(feed_urls) > 1:
+            for f in feed_urls:
+                if t := f.get("type", None):
+                    if "rss" in t or "xml" in t:
+                        if href := f.get("href", None):
+                            possible_feeds.add(href)
+
+        parsed_url = urllib.parse.urlparse(site)
+        scheme, hostname = parsed_url.scheme, parsed_url.hostname
+        if scheme and hostname:
+            base = "://".join((scheme, hostname))
+            atags = html.findAll("a")
+
+            for a in atags:
+                if href := a.get("href", None):
+                    if "xml" in href or "rss" in href or "feed" in href:
+                        possible_feeds.add(base + href)
+
+        return [site for site in possible_feeds if await self.fetch_feed(site)]
 
     async def format_and_send(
         self,
@@ -290,6 +323,28 @@ class RSS(commands.Cog):
         Configuration for rss
         """
         pass
+
+    @checks.is_owner()
+    @rss.command(name="find", hidden=True)
+    async def find_feed_command(self, ctx: commands.Context, *, url: str):
+        """
+        Attempt to find feeds intelligently on a given site
+
+        New command currently available to owners only (to be changed?)
+        """
+        try:
+            possible_results = await self.find_feeds(url)
+        except aiohttp.ClientError as exc:
+            debug_exc_log(log, exc)
+            await ctx.send("Something went wrong when accessing that url.")
+        else:
+            output = (
+                "\n".join(("Possible feeds:", *possible_results))
+                if possible_results
+                else "No feeds found."
+            )
+            for page in pagify(output):
+                await ctx.send(box(page))
 
     @rss.command(name="force")
     async def rss_force(self, ctx, feed, channel: Optional[discord.TextChannel] = None):

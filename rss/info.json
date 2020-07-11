@@ -1,18 +1,19 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)"
-    ],
-    "name": "RSS",
-    "disabled": false,
-    "short": "rss cog",
-    "description": "An RSS cog.",
-    "tags": [
-        "rss"
-    ],
-    "hidden": false,
-    "requirements": [
-        "feedparser>=6.0.0b1",
-        "discord-text-sanitizer"
-    ],
-    "min_bot_version": "3.3.0"
+	"author": [
+		"mikeshardmind(Sinbad)"
+	],
+	"name": "RSS",
+	"disabled": false,
+	"short": "rss cog",
+	"description": "An RSS cog.",
+	"tags": [
+		"rss"
+	],
+	"hidden": false,
+	"requirements": [
+		"feedparser>=6.0.0b1",
+		"discord-text-sanitizer",
+		"beautifulsoup4"
+	],
+	"min_bot_version": "3.3.0"
 }
