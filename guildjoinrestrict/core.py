@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from typing import List, NamedTuple, Optional
 
 import discord
-from redbot.core import Config, commands, checks
+from redbot.core import Config, checks, commands
 from redbot.core.bot import Red
 from redbot.core.data_manager import cog_data_path
 
@@ -42,7 +42,7 @@ else:
 class CogBehaviorEnum(enum.IntFlag):
     NOOP = 0
     LEAVE = 1
-    USE_DENY_MODE = 2
+    USE_BLOCK_MODE = 2
     USE_ALLOW_MODE = 4
     LOG_FILE = 8
     LOG_DISCORD = 16
@@ -56,8 +56,8 @@ class EventQueueItem(NamedTuple):
     def __str__(self):
         when_s = self.when.strftime("%Y-%m-%d %H:%M:%S")
         m = [f"[{when_s}] Server ID: {self.where} | "]
-        if CogBehaviorEnum.USE_DENY_MODE in self.settings_used:
-            m.append("Actions caused by being denied | ")
+        if CogBehaviorEnum.USE_BLOCK_MODE in self.settings_used:
+            m.append("Actions caused by being blocked | ")
         elif CogBehaviorEnum.USE_ALLOW_MODE in self.settings_used:
             m.append("Actions caused by not being allowed | ")
 
@@ -79,7 +79,7 @@ class GuildJoinRestrict(commands.Cog):
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True,
         )
-        self.config.register_global(behavior=9, log_channel=None)
+        self.config.register_global(behavior=8, log_channel=None)
         self.config.register_guild(allowed=False, blocked=False)
         self.config.register_user(allowed=False, blocked=False)
         # asyncio.Queue isn't actually generic at runtime.
@@ -252,6 +252,8 @@ class GuildJoinRestrict(commands.Cog):
                     self.event_queue.put_nowait(event)
                 raise
 
+    # commands start here
+
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
 
@@ -260,7 +262,7 @@ class GuildJoinRestrict(commands.Cog):
 
         behavior = self._behavior
 
-        if CogBehaviorEnum.USE_DENY_MODE in behavior:
+        if CogBehaviorEnum.USE_BLOCK_MODE in behavior:
 
             if (await self.config.guild(guild).blocked()) or (
                 await self.config.user(guild.owner).blocked()
@@ -300,13 +302,13 @@ class GuildJoinRestrict(commands.Cog):
 
         This may be one of the following:
             "allowlist" for only allowing those explicitly specified
-            "denylist" for allowing with the exception of those specified
+            "blocklist" for allowing with the exception of those specified
             "none" to not check settings at all.
         """
 
-        if (m := mode.casefold()) not in ("allowlist", "denylist", "none"):
+        if (m := mode.casefold()) not in ("allowlist", "blocklist", "none"):
             raise commands.BadArgument(
-                "mode must be one of `allowlist`, `denylist`, or `none`"
+                "mode must be one of `allowlist`, `blocklist`, or `none`"
             )
 
         lock = self.config.behavior.get_lock()
@@ -314,13 +316,13 @@ class GuildJoinRestrict(commands.Cog):
             behavior = self._behavior
             if m == "allowlist":
                 behavior |= CogBehaviorEnum.USE_ALLOW_MODE
-                behavior &= ~CogBehaviorEnum.USE_DENY_MODE
+                behavior &= ~CogBehaviorEnum.USE_BLOCK_MODE
             elif m == "blocklist":
-                behavior |= CogBehaviorEnum.USE_DENY_MODE
+                behavior |= CogBehaviorEnum.USE_BLOCK_MODE
                 behavior &= ~CogBehaviorEnum.USE_ALLOW_MODE
             else:
                 behavior &= ~(
-                    CogBehaviorEnum.USE_ALLOW_MODE | CogBehaviorEnum.USE_DENY_MODE
+                    CogBehaviorEnum.USE_ALLOW_MODE | CogBehaviorEnum.USE_BLOCK_MODE
                 )
             self._behavior = behavior
             await self.config.behavior.set(self._behavior.value, aquire_lock=False)
@@ -396,3 +398,101 @@ class GuildJoinRestrict(commands.Cog):
                 self._behavior &= ~CogBehaviorEnum.LOG_DISCORD
                 await self.config.behavior.set(self._behavior.value, aquire_lock=False)
             await ctx.send("Channel logging is now disabled.")
+
+    @command_group.command(name="enableautomaticleave")
+    async def enable_leave(self, ctx: commands.Context):
+        """ Enables automatic leaving """
+
+        if CogBehaviorEnum.LEAVE in self._behavior:
+            await ctx.send("Automatic leaving is already enabled.")
+        else:
+            lock = self.config.behavior.get_lock()
+            async with lock:
+                self._behavior |= CogBehaviorEnum.LEAVE
+                await self.config.behavior.set(self._behavior.value, aquire_lock=False)
+            await ctx.send("Automatic leaving is now enabled.")
+
+    @command_group.command(name="disableautomaticleave")
+    async def disable_leave(self, ctx: commands.Context):
+        """ Disables automatic leaving. """
+
+        if CogBehaviorEnum.LEAVE not in self._behavior:
+            await ctx.send("Automatic leaving was already disabled.")
+        else:
+            lock = self.config.behavior.get_lock()
+            async with lock:
+                self._behavior &= ~CogBehaviorEnum.LEAVE
+                await self.config.behavior.set(self._behavior.value, aquire_lock=False)
+            await ctx.send("Automatic leaving is now disabled.")
+
+    @command_group.group(name="manageblocks")
+    async def block_group_command(self, ctx: commands.Context):
+        """ Commands for managing the blocked guilds and guild owners """
+
+    @block_group_command.command(name="addguildid")
+    async def add_guild_block(self, ctx: commands.Context, guild_id: int):
+        """
+        Add a guild id
+        """
+        await self.config.guild_from_id(guild_id).blocked.set(True)
+        await ctx.tick()
+
+    @block_group_command.command(name="addownerid")
+    async def add_guild_owner_block(self, ctx: commands.Context, user_id: int):
+        """
+        Add a guild owner's id
+        """
+        await self.config.user_from_id(user_id).blocked.set(True)
+        await ctx.tick()
+
+    @block_group_command.command(name="removeguildid")
+    async def remove_guild_block(self, ctx: commands.Context, guild_id: int):
+        """
+        Remove a guild id
+        """
+        await self.config.guild_from_id(guild_id).blocked.clear()
+        await ctx.tick()
+
+    @block_group_command.command(name="removeownerid")
+    async def remove_guild_owner_block(self, ctx: commands.Context, user_id: int):
+        """
+        Remove a guild owner's id
+        """
+        await self.config.user_from_id(user_id).blocked.clear()
+        await ctx.tick()
+
+    @command_group.group(name="manageallows")
+    async def allow_group_command(self, ctx: commands.Context):
+        """ Commands for managing the allowed guilds and guild owners """
+
+    @allow_group_command.command(name="addguildid")
+    async def add_guild_allow(self, ctx: commands.Context, guild_id: int):
+        """
+        Add a guild id
+        """
+        await self.config.guild_from_id(guild_id).allowed.set(True)
+        await ctx.tick()
+
+    @allow_group_command.command(name="addownerid")
+    async def add_guild_owner_allow(self, ctx: commands.Context, user_id: int):
+        """
+        Add a guild owner's id
+        """
+        await self.config.user_from_id(user_id).allowed.set(True)
+        await ctx.tick()
+
+    @allow_group_command.command(name="removeguildid")
+    async def remove_guild_allow(self, ctx: commands.Context, guild_id: int):
+        """
+        Remove a guild id
+        """
+        await self.config.guild_from_id(guild_id).allowed.clear()
+        await ctx.tick()
+
+    @allow_group_command.command(name="removeownerid")
+    async def remove_guild_owner_allow(self, ctx: commands.Context, user_id: int):
+        """
+        Remove a guild owner's id
+        """
+        await self.config.user_from_id(user_id).allowed.clear()
+        await ctx.tick()
