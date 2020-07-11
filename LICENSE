@@ -1,21 +1,117 @@
-MIT License
-
 Copyright (c) 2017-2020 Michael Hall
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    License Terms and Conditions
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+0. Definitions
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+  "This License" refers to the text of the document.
+
+  "The source", "The source code", "the code", "this file" and "these files" are terms which 
+  refer to the files and the code they contain
+  which is covered by copyright and licensed under this license.
+
+  "You" refers to the licensee.
+  The licensee may be either an individual or an organization.
+
+  "Personal use" is a term that applies to both individuals and organizations.
+  It is defined as use which is solely by and solely for an individual
+  and not for the purposes of profit or redistribution.
+
+  "Contribution" refers to any code given to the primary 
+  license holder for use by the license holder to improve
+  or otherwise modify the prior state of the code.
+
+  "Fork" refers to a fork of the original source code as defined
+  by the host provider's terms.
+
+  "Pull request" refers to an action which is intended to allow 
+  third-party contributions to the original licensed code,
+  by the means provided by the host provider's terms.
+
+1. Usage
+
+  You are permitted under this license to
+  download, copy, use, and compile this code for personal use.
+
+  Your personal use may extend to users of other applications this code is used in
+  so long as you do not distribute this code or otherwise imply a license to
+  additional individuals or organizations.
+
+  Under this license, the code provided may not be used in relation with any of the following
+  categories as the code has not been deemed suitable, and the owner would like to ensure
+  the code can not be used in connection with specific high-risk applications without being
+  further evaluated for safety.
+
+	- Operating a medical facility.
+	- Operating a facility which deals with nuclear fusion or nuclear fission.
+	- Operating a facility which deals with the manufacture of weapons.
+	- Operating a facility which deals with the manufacture of medicine.
+	- Handling information which is protected by any government secrecy laws.
+	- Handling information which is protected by any medical privacy laws.
+
+2. Modifications
+  
+  You are free to make modifications for personal use as covered under section 1 (Usage)
+
+  You may also make modifications for the additional purpose of contributions to the
+  original source code.
+
+3. Redistribution
+
+  You may not redistribute the code or modifications made to it
+  beyond the purpose of making a pull request to the original project.
+
+  At the time which a pull request is closed for any reason,
+  you must cease any distribution of the modification within 14 days of closure.
+
+  Use or operation of the code over the internet does not constitute
+  redistribution unless the code itself is distributed
+  to additional individuals or organizations as part of the use or operation.
+
+  The copyright owner may choose to offer redistribution rights
+  under a separate license on a case-by-case basis.
+
+4. Non-compliance
+  
+  You may not distribute, copy, modify, or sublicense this code
+  except as expressly permitted by prior clauses of this license.
+
+  Any attempt to violate this license void any rights this license
+  grants you, but does not invalidate protections
+  and rights held by the license owner.
+
+5. Acceptance of this License
+
+  There is no legal requirement for you to accept the terms of this license,
+  however, without accepting the terms,
+  you have no legal rights to copy, modify, distribute, or otherwise use the code.
+
+  Therefore, any copying, modification,
+  distribution or other use of the code will be taken
+  as having accepted the terms of this license unless
+  another agreement allowing the copying, modification,
+  distribution, or other use of this code exists.
+
+  You may request a different license with other terms,
+  but there is no obligation of one being agreed to or otherwise provided.
+
+6. No Warranty
+
+  The code provided under this license is provided "as-is".
+  This code provided under this license is provided without a warranty of any kind.
+  No statement of suitability for a purpose is provided or otherwise implied.
+  No warranty or statement of suitability is implied by any statements made by
+  the authors or copyright holder.
+
+  The responsibility of ensuring the use of this code is suitable
+  and otherwise appropriate rests with you.
+
+  In no event shall the authors or copyright owners be held
+  responsible or liable for any claim, damages, or other liability
+  whether in an action of contract, tort or otherwise,
+  which arises from or which is in connection with the code
+  or other dealings of the code as provided by this license.
+
+  If a warranty or statement of suitability is
+  required, one may be requested as part of a separate license agreement,
+  but there is no obligation for one to be offered.
