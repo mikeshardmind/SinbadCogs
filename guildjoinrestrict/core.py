@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from typing import List, NamedTuple, Optional
 
 import discord
-from redbot.core import Config, commands
+from redbot.core import Config, commands, checks
 from redbot.core.bot import Red
 from redbot.core.data_manager import cog_data_path
 
@@ -42,7 +42,7 @@ else:
 class CogBehaviorEnum(enum.IntFlag):
     NOOP = 0
     LEAVE = 1
-    USE_BLOCK_MODE = 2
+    USE_DENY_MODE = 2
     USE_ALLOW_MODE = 4
     LOG_FILE = 8
     LOG_DISCORD = 16
@@ -56,8 +56,8 @@ class EventQueueItem(NamedTuple):
     def __str__(self):
         when_s = self.when.strftime("%Y-%m-%d %H:%M:%S")
         m = [f"[{when_s}] Server ID: {self.where} | "]
-        if CogBehaviorEnum.USE_BLOCK_MODE in self.settings_used:
-            m.append("Actions caused by being blocked | ")
+        if CogBehaviorEnum.USE_DENY_MODE in self.settings_used:
+            m.append("Actions caused by being denied | ")
         elif CogBehaviorEnum.USE_ALLOW_MODE in self.settings_used:
             m.append("Actions caused by not being allowed | ")
 
@@ -148,7 +148,7 @@ class GuildJoinRestrict(commands.Cog):
 
     async def load(self):
         await self.bot.wait_until_red_ready()
-        behavior = await self.config.beavior()
+        behavior = await self.config.behavior()
         self._behavior = CogBehaviorEnum(behavior)
         self._channel_id = await self.config.log_channel()
         self._loaded.set()
@@ -197,11 +197,11 @@ class GuildJoinRestrict(commands.Cog):
                 events = []
                 iter_start = time.monotonic()
 
-                while (max_wait := time.monotonic() - iter_start) < 120:
+                while (max_wait := (time.monotonic() - iter_start)) < 120:
                     try:
                         n = await asyncio.wait_for(self.event_queue.get(), max_wait)
                     except asyncio.TimeoutError:
-                        break
+                        continue
                     else:
                         events.append(n)
                     if len(events) >= 10:
@@ -260,7 +260,7 @@ class GuildJoinRestrict(commands.Cog):
 
         behavior = self._behavior
 
-        if CogBehaviorEnum.USE_BLOCK_MODE in behavior:
+        if CogBehaviorEnum.USE_DENY_MODE in behavior:
 
             if (await self.config.guild(guild).blocked()) or (
                 await self.config.user(guild.owner).blocked()
@@ -285,3 +285,114 @@ class GuildJoinRestrict(commands.Cog):
             )
         if CogBehaviorEnum.LEAVE in behavior:
             await guild.leave()
+
+    @checks.is_owner()
+    @commands.group(name="joinrestrictset")
+    async def command_group(self, ctx: commands.Context):
+        """
+        Settings for how [botname] should handle joining new servers.
+        """
+
+    @command_group.command(name="mode")
+    async def cog_mode_command(self, ctx: commands.Context, mode: str):
+        """
+        Sets the mode in which the cog operates.
+
+        This may be one of the following:
+            "allowlist" for only allowing those explicitly specified
+            "denylist" for allowing with the exception of those specified
+            "none" to not check settings at all.
+        """
+
+        if (m := mode.casefold()) not in ("allowlist", "denylist", "none"):
+            raise commands.BadArgument(
+                "mode must be one of `allowlist`, `denylist`, or `none`"
+            )
+
+        lock = self.config.behavior.get_lock()
+        async with lock:
+            behavior = self._behavior
+            if m == "allowlist":
+                behavior |= CogBehaviorEnum.USE_ALLOW_MODE
+                behavior &= ~CogBehaviorEnum.USE_DENY_MODE
+            elif m == "blocklist":
+                behavior |= CogBehaviorEnum.USE_DENY_MODE
+                behavior &= ~CogBehaviorEnum.USE_ALLOW_MODE
+            else:
+                behavior &= ~(
+                    CogBehaviorEnum.USE_ALLOW_MODE | CogBehaviorEnum.USE_DENY_MODE
+                )
+            self._behavior = behavior
+            await self.config.behavior.set(self._behavior.value, aquire_lock=False)
+        await ctx.tick()
+
+    @command_group.command(name="logchannel")
+    async def set_log_channel(self, ctx: commands.Context, channel_id: int):
+        """
+        Set the channel events will be logged to if logging to channel is enabled.
+        """
+        if channel := self.bot.get_channel(channel_id):
+            assert channel is not None, "mypy"  # nosec
+            lock = self.config.log_channel.get_lock
+            async with lock:
+                self._channel_id = channel_id
+                await self.config.log_channel.set(channel_id, aquire_lock=False)
+            await ctx.send(f"Log channel set to <#{channel_id}>")
+        else:
+            await ctx.send("I couldn't find that channel by specified id")
+
+    @command_group.command(name="enablechannellogging")
+    async def enable_channel_logging(self, ctx: commands.Context):
+        """ enable channel logging """
+        if CogBehaviorEnum.LOG_DISCORD in self._behavior:
+            if not self._channel_id:
+                return await ctx.send(
+                    "Channel logging is already enabled, "
+                    "but I don't have a channel set to log to yet."
+                )
+
+            if channel := self.bot.get_channel(self._channel_id):
+                assert channel is not None, "mypy"  # nosec
+                return await ctx.send(
+                    f"Channel logging is already enabled on <#{channel.id}>"
+                )
+            else:
+                return await ctx.send(
+                    f"Channel logging is already enabled for channel with id "
+                    f"`{self._channel_id}` however I can't find that channel.`"
+                )
+
+        else:
+
+            lock = self.config.behavior.get_lock()
+            async with lock:
+                self._behavior |= CogBehaviorEnum.LOG_DISCORD
+                await self.config.behavior.set(self._behavior.value, aquire_lock=False)
+
+            if not self._channel_id:
+                return await ctx.send(
+                    "Channel logging is enabled, "
+                    "but I don't have a channel set to log to yet."
+                )
+
+            if channel := self.bot.get_channel(self._channel_id):
+                assert channel is not None, "mypy"  # nosec
+                return await ctx.send(f"Channel logging is enabled on <#{channel.id}>")
+            else:
+                return await ctx.send(
+                    f"Channel logging is enabled for channel with id "
+                    f"`{self._channel_id}` however I can't find that channel.`"
+                )
+
+    @command_group.command(name="disablechannellogging")
+    async def disable_channel_logging(self, ctx: commands.Context):
+        """ disables channel logging """
+
+        if CogBehaviorEnum.LOG_DISCORD not in self._behavior:
+            await ctx.send("Channel logging was already disabled.")
+        else:
+            lock = self.config.behavior.get_lock()
+            async with lock:
+                self._behavior &= ~CogBehaviorEnum.LOG_DISCORD
+                await self.config.behavior.set(self._behavior.value, aquire_lock=False)
+            await ctx.send("Channel logging is now disabled.")
