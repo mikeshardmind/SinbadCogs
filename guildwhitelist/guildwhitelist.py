@@ -131,8 +131,8 @@ class GuildWhitelist(commands.Cog):
             force_registration=True,
             cog_name="GuildJoinRestrict",
         )
-        nc.register_guild(allowed=False, blocked=False, messaged=False)
-        nc.register_user(allowed=False, blocked=False, messaged=False)
+        nc.register_guild(allowed=False, blocked=False)
+        nc.register_user(allowed=False, blocked=False)
 
         allowed_ids = await self.config.whitelist()
 

@@ -11,6 +11,6 @@
 		"whitelist"
 	],
 	"hidden": false,
-	"min_bot_version": "3.3.0",
+	"min_bot_version": "3.3.10",
 	"install_message": "The functionality of this cog has been moved to the guildjoinrestrict cog"
 }
