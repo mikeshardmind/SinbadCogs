@@ -1,0 +1,17 @@
+{
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "GuildJoinRestrict",
+	"disabled": false,
+	"short": "Manage guild joins",
+	"description": "Log or leave guilds based on a configured list of allowed or blocked guilds and or guild owners.",
+	"tags": [
+		"blocklist",
+		"allowlist"
+	],
+	"hidden": false,
+	"min_bot_version": "3.3.10",
+	"install_message": "If you notice any bugs, open an issue. If you are a previous user of guildblacklist/guildwhitelist you can update those cogs to have an additional command in them that pushes their settings over to this cog."
+}
