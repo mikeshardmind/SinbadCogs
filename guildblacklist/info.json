@@ -10,7 +10,7 @@
 	"tags": [
 		"blacklist"
 	],
-	"hidden": false,
+	"hidden": true,
 	"min_bot_version": "3.3.10",
 	"install_message": "The functionality of this cog has been moved to the guildjoinrestrict cog"
 }
