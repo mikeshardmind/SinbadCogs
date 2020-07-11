@@ -118,3 +118,24 @@ class GuildWhitelist(commands.Cog):
                 if idx in whitelist:
                     whitelist.remove(idx)
         await ctx.tick()
+
+    @gwl.command(name="movesettings")
+    async def movesettings(self, ctx: commands.Context, *ids: int):
+        """
+        Migrate the settings for this cog to the new `guildjoinrestrict` cog
+        """
+
+        nc = Config.get_conf(
+            None,
+            identifier=78631113035100160,
+            force_registration=True,
+            cog_name="GuildJoinRestrict",
+        )
+        nc.register_guild(allowed=False, blocked=False)
+        nc.register_user(allowed=False, blocked=False)
+
+        allowed_ids = await self.config.whitelist()
+
+        for idx in allowed_ids:
+            await nc.guild_from_id(idx).allowed.set(True)
+            await nc.user_from_id(idx).allowed.set(True)

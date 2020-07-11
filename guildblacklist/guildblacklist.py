@@ -39,7 +39,7 @@ class GuildBlacklist(commands.Cog):
     the server's ID, or the serverowner's ID
     """
 
-    __version__ = "333.0.7"
+    __version__ = "333.0.8"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -115,3 +115,24 @@ class GuildBlacklist(commands.Cog):
                 if idx in blacklist:
                     blacklist.remove(idx)
         await ctx.tick()
+
+    @gbl.command(name="movesettings")
+    async def movesettings(self, ctx: commands.Context, *ids: int):
+        """
+        Migrate the settings for this cog to the new `guildjoinrestrict` cog
+        """
+
+        nc = Config.get_conf(
+            None,
+            identifier=78631113035100160,
+            force_registration=True,
+            cog_name="GuildJoinRestrict",
+        )
+        nc.register_guild(allowed=False, blocked=False)
+        nc.register_user(allowed=False, blocked=False)
+
+        blocked_ids = await self.config.blacklist()
+
+        for idx in blocked_ids:
+            await nc.guild_from_id(idx).blocked.set(True)
+            await nc.user_from_id(idx).blocked.set(True)
