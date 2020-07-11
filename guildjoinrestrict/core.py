@@ -57,14 +57,14 @@ class EventQueueItem(NamedTuple):
         when_s = self.when.strftime("%Y-%m-%d %H:%M:%S")
         m = [f"[{when_s}] Server ID: {self.where} | "]
         if CogBehaviorEnum.USE_BLOCK_MODE in self.settings_used:
-            m.append("Actions caused by being blocked | ")
+            m.append("Marked as blocked | ")
         elif CogBehaviorEnum.USE_ALLOW_MODE in self.settings_used:
-            m.append("Actions caused by not being allowed | ")
+            m.append("Not marked as allowed | ")
 
         if CogBehaviorEnum.LEAVE in self.settings_used:
             m.append("Left server")
         else:
-            m.append("No action taken, review may be required.")
+            m.append("No action beyond logging taken.")
 
         return "".join(m)
 
@@ -280,13 +280,29 @@ class GuildJoinRestrict(commands.Cog):
             return
 
         if CogBehaviorEnum.LOG_FILE in behavior:
-            log.info("Leaving guild (%d) %s", guild.id, guild.name)
+            log.info(
+                "Guild (%d) %s was joined without meeting settings",
+                guild.id,
+                guild.name,
+            )
         if CogBehaviorEnum.LOG_DISCORD in behavior:
             self.event_queue.put_nowait(
                 EventQueueItem(guild.id, behavior, datetime.now(timezone.utc))
             )
         if CogBehaviorEnum.LEAVE in behavior:
-            await guild.leave()
+            if not await self.bot.is_owner(guild.owner):
+                if CogBehaviorEnum.LOG_FILE in behavior:
+                    log.info(
+                        "Guild (%d) %s triggered guild leave", guild.id, guild.name
+                    )
+                await guild.leave()  # safety hatch for this.
+            elif CogBehaviorEnum.LOG_FILE in behavior:
+                log.info(
+                    "Guild (%d) %s would have triggered guild leave, "
+                    "but the guild owenr is also a bot owner",
+                    guild.id,
+                    guild.name,
+                )
 
     @checks.is_owner()
     @commands.group(name="joinrestrictset")
