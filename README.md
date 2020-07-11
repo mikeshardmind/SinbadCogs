@@ -41,13 +41,10 @@ Full documentation is still pending,
 but a robust example is available
 [here](https://gist.github.com/mikeshardmind/0e15779370d7761a8608ce94936721ed) for now
 
-### GuildBlacklist
+### GuildJoinRestrict
 
-Allows blacklisting guilds by ID or the owner's ID
-
-### GuildWhitelist
-
-Allows whitelisting guilds by ID or the owner's ID
+Allows controlling and logging which guilds the bot can join based on configurable settings
+and either an allowlist or blocklist
 
 ### QuoteTools
 
@@ -95,8 +92,10 @@ For more information, use `help Scheduler`
 
 ## What about the other cogs not listed here?
 
-Use at your own risk, they are disabled or hidden due to me not feeling they are ready for use.
+Use at your own risk, they are disabled, hidden, undocumented,
+or intended to be replaced by newer alternatives.
 
+They aren't designed to actively cause harm, but I'm not advertising them.
 
 ## Why weren't you working on this/as invested in this anymore?
 
