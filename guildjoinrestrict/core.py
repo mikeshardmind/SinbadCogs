@@ -294,7 +294,7 @@ class GuildJoinRestrict(commands.Cog):
         """
 
     @command_group.command(name="mode")
-    async def cog_mode_command(self, ctx: commands.Context, mode: str):
+    async def mode_command(self, ctx: commands.Context, mode: str):
         """
         Sets the mode in which the cog operates.
 
