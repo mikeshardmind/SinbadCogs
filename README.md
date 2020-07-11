@@ -100,8 +100,7 @@ Use at your own risk, they are disabled or hidden due to me not feeling they are
 
 ## Why weren't you working on this/as invested in this anymore?
 
-See [this](why_no_support.md)
-
+Significant personal disagreements which led to wanting to have nothing to do with Red's community.
 
 ## Why are you working on this again?
 
