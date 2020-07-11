@@ -335,7 +335,7 @@ class GuildJoinRestrict(commands.Cog):
         """
         if channel := self.bot.get_channel(channel_id):
             assert channel is not None, "mypy"  # nosec
-            lock = self.config.log_channel.get_lock
+            lock = self.config.log_channel.get_lock()
             async with lock:
                 self._channel_id = channel_id
                 await self.config.log_channel.set(channel_id)
