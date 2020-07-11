@@ -325,7 +325,7 @@ class GuildJoinRestrict(commands.Cog):
                     CogBehaviorEnum.USE_ALLOW_MODE | CogBehaviorEnum.USE_BLOCK_MODE
                 )
             self._behavior = behavior
-            await self.config.behavior.set(self._behavior.value, aquire_lock=False)
+            await self.config.behavior.set(self._behavior.value, acquire_lock=False)
         await ctx.tick()
 
     @command_group.command(name="logchannel")
@@ -338,7 +338,7 @@ class GuildJoinRestrict(commands.Cog):
             lock = self.config.log_channel.get_lock
             async with lock:
                 self._channel_id = channel_id
-                await self.config.log_channel.set(channel_id, aquire_lock=False)
+                await self.config.log_channel.set(channel_id, acquire_lock=False)
             await ctx.send(f"Log channel set to <#{channel_id}>")
         else:
             await ctx.send("I couldn't find that channel by specified id")
@@ -369,7 +369,7 @@ class GuildJoinRestrict(commands.Cog):
             lock = self.config.behavior.get_lock()
             async with lock:
                 self._behavior |= CogBehaviorEnum.LOG_DISCORD
-                await self.config.behavior.set(self._behavior.value, aquire_lock=False)
+                await self.config.behavior.set(self._behavior.value, acquire_lock=False)
 
             if not self._channel_id:
                 return await ctx.send(
@@ -396,7 +396,7 @@ class GuildJoinRestrict(commands.Cog):
             lock = self.config.behavior.get_lock()
             async with lock:
                 self._behavior &= ~CogBehaviorEnum.LOG_DISCORD
-                await self.config.behavior.set(self._behavior.value, aquire_lock=False)
+                await self.config.behavior.set(self._behavior.value, acquire_lock=False)
             await ctx.send("Channel logging is now disabled.")
 
     @command_group.command(name="enableautomaticleave")
@@ -409,7 +409,7 @@ class GuildJoinRestrict(commands.Cog):
             lock = self.config.behavior.get_lock()
             async with lock:
                 self._behavior |= CogBehaviorEnum.LEAVE
-                await self.config.behavior.set(self._behavior.value, aquire_lock=False)
+                await self.config.behavior.set(self._behavior.value, acquire_lock=False)
             await ctx.send("Automatic leaving is now enabled.")
 
     @command_group.command(name="disableautomaticleave")
@@ -422,7 +422,7 @@ class GuildJoinRestrict(commands.Cog):
             lock = self.config.behavior.get_lock()
             async with lock:
                 self._behavior &= ~CogBehaviorEnum.LEAVE
-                await self.config.behavior.set(self._behavior.value, aquire_lock=False)
+                await self.config.behavior.set(self._behavior.value, acquire_lock=False)
             await ctx.send("Automatic leaving is now disabled.")
 
     @command_group.group(name="manageblocks")
