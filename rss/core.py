@@ -59,7 +59,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "339.1.0"
+    __version__ = "339.1.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -324,13 +324,13 @@ class RSS(commands.Cog):
         """
         pass
 
-    @checks.is_owner()
-    @rss.command(name="find", hidden=True)
+    @commands.cooldown(5, 60, commands.BucketType.guild)
+    @rss.command(name="find")
     async def find_feed_command(self, ctx: commands.Context, *, url: str):
         """
-        Attempt to find feeds intelligently on a given site
+        Attempt to find feeds intelligently on a given site.
 
-        New command currently available to owners only (to be changed?)
+        This only works on pages that link their RSS feeds.
         """
         try:
             possible_results = await self.find_feeds(url)
