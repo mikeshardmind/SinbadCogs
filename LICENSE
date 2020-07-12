@@ -6,9 +6,18 @@ Copyright (c) 2017-2020 Michael Hall
 
   "This License" refers to the text of the document.
 
-  "The source", "The source code", "the code", "this file" and "these files" are terms which 
-  refer to the files and the code they contain
-  which is covered by copyright and licensed under this license.
+  "The source", "The source code", "the code", "this file"
+  and "these files" are terms which refer to the files 
+  and the code they contain which is covered by copyright
+  and licensed under this license except as superceded by
+  more specific definitions.
+
+  "Metadata file" refers to a file with the name "info.json",
+  specifically intended for programatic access by other applications.
+  There may be multiple metadata files.
+  Metadata files are excluded from the more general definition of "these files".
+  If a clause refers to a Metadata File alongside files which
+  are instead governed by the more general definition, both terms will be used.
 
   "You" refers to the licensee.
   The licensee may be either an individual or an organization.
@@ -21,8 +30,9 @@ Copyright (c) 2017-2020 Michael Hall
   license holder for use by the license holder to improve
   or otherwise modify the prior state of the code.
 
-  "Fork" refers to a fork of the original source code as defined
-  by the host provider's terms.
+  "Fork" refers to the seperately owned branch created by or for use with
+  the version control software "git", or through use of interfaces
+  provided by the hosting provider.
 
   "Pull request" refers to an action which is intended to allow 
   third-party contributions to the original licensed code,
@@ -58,18 +68,23 @@ Copyright (c) 2017-2020 Michael Hall
 
 3. Redistribution
 
-  You may not redistribute the code or modifications made to it
-  beyond the purpose of making a pull request to the original project.
+  a. You may not redistribute the code, modifications made to the code,
+  or substantive portions of the code beyond the purpose of
+  making a pull request to the original project.
 
-  At the time which a pull request is closed for any reason,
+  b. At the time which a pull request is closed for any reason,
   you must cease any distribution of the modification within 14 days of closure.
 
-  Use or operation of the code over the internet does not constitute
+  c. A fork may be made without modification. If a fork is made without modifications,
+  it does not constiture redistribution if made under the terms of the hosting provider.
+
+  d. Use or operation of the code over the internet does not constitute
   redistribution unless the code itself is distributed
   to additional individuals or organizations as part of the use or operation.
+  Displaying data included as part of metadata files does not constitute redistribution.
 
-  The copyright owner may choose to offer redistribution rights
-  under a separate license on a case-by-case basis.
+  e. The copyright owner may choose to offer redistribution rights
+  under a separate license on a case-by-case basis, but there is no obligation to do so.
 
 4. Non-compliance
   
@@ -95,13 +110,49 @@ Copyright (c) 2017-2020 Michael Hall
   You may request a different license with other terms,
   but there is no obligation of one being agreed to or otherwise provided.
 
-6. No Warranty
+6. Grandfather Provision
+
+  The following GitHub users have contributed to the source
+  prior to the adoption of this license. These contributions were
+  made under the MIT license.
+
+	https://github.com/DiscordLiz
+	https://github.com/jack1142
+	https://github.com/zephyrkul
+	https://github.com/aikaterna
+	https://github.com/Tobotimus
+	https://github.com/PredaaA
+
+  These users retain the the rights to their contributions, but have also
+  granted this code to the copyright owner under GitHub's terms for contributions.
+
+	"Whenever you make a contribution to a repository containing notice of a license,
+	you license your contribution under the same terms, and you agree that you have
+	the right to license your contribution under those terms."
+	(Reference: GitHub Contribution Terms)
+
+  Should any of these users request the removal of their contributions that predate
+  this license, the request will be accommodated at the convenience of the copyright
+  owner through no obligation beyond respecting that these users may not have considered
+  that a license change was possible as part of their decision to contribute.
+
+7. Survival
+
+  If there remains no person alive with a claim to the copyrighted
+  materials this license governs, clauses 3a and 3b are voided.
+
+  If there remains no person alive with a claim to the copyrighted
+  materials this license governs, you are given a non-exclusive
+  license to use, modify, redistribute, and include as part of other works
+  the copyrighted material governed by this license.
+
+8. No Warranty
 
   The code provided under this license is provided "as-is".
   This code provided under this license is provided without a warranty of any kind.
   No statement of suitability for a purpose is provided or otherwise implied.
   No warranty or statement of suitability is implied by any statements made by
-  the authors or copyright holder.
+  the authors or copyright holder which are not part of a separate license agreement.
 
   The responsibility of ensuring the use of this code is suitable
   and otherwise appropriate rests with you.
@@ -115,3 +166,9 @@ Copyright (c) 2017-2020 Michael Hall
   If a warranty or statement of suitability is
   required, one may be requested as part of a separate license agreement,
   but there is no obligation for one to be offered.
+
+
+References
+
+  GitHub Contribution Terms:
+  https://docs.github.com/en/github/site-policy/github-terms-of-service#6-contributions-under-repository-license
