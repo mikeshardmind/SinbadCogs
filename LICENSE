@@ -9,11 +9,11 @@ Copyright (c) 2017-2020 Michael Hall
   "The source", "The source code", "the code", "this file"
   and "these files" are terms which refer to the files 
   and the code they contain which is covered by copyright
-  and licensed under this license except as superceded by
+  and licensed under this license except as superseded by
   more specific definitions.
 
   "Metadata file" refers to a file with the name "info.json",
-  specifically intended for programatic access by other applications.
+  specifically intended for programmatic access by other applications.
   There may be multiple metadata files.
   Metadata files are excluded from the more general definition of "these files".
   If a clause refers to a Metadata File alongside files which
@@ -30,7 +30,7 @@ Copyright (c) 2017-2020 Michael Hall
   license holder for use by the license holder to improve
   or otherwise modify the prior state of the code.
 
-  "Fork" refers to the seperately owned branch created by or for use with
+  "Fork" refers to the separately owned branch created by or for use with
   the version control software "git", or through use of interfaces
   provided by the hosting provider.
 
@@ -46,6 +46,10 @@ Copyright (c) 2017-2020 Michael Hall
   Your personal use may extend to users of other applications this code is used in
   so long as you do not distribute this code or otherwise imply a license to
   additional individuals or organizations.
+
+  You may not profit off of the source or modifications made to it.
+  Any profit made in connection with the source must be derived from
+  inclusion in a larger product or offering which contains other works.
 
   Under this license, the code provided may not be used in relation with any of the following
   categories as the code has not been deemed suitable, and the owner would like to ensure
@@ -68,22 +72,29 @@ Copyright (c) 2017-2020 Michael Hall
 
 3. Redistribution
 
-  a. You may not redistribute the code, modifications made to the code,
-  or substantive portions of the code beyond the purpose of
-  making a pull request to the original project.
+  You may not redistribute the code or modifications made to the code
+  beyond the purpose of making a pull request to the original project.
 
-  b. At the time which a pull request is closed for any reason,
+  At the time which a pull request is closed for any reason,
   you must cease any distribution of the modification within 14 days of closure.
 
-  c. A fork may be made without modification. If a fork is made without modifications,
-  it does not constiture redistribution if made under the terms of the hosting provider.
+  You may use, include, or replicate portions of the code that are not
+  core to ideas expressed by the source and which have use in other projects
+  so long as that use does not interfere with the operation of this code
+  or interfere with data which could be used by this code on the same system.
+  If you include portions in this manner, you must link back to the original
+  hosted source or include it as a seperate file which also is paired
+  with a copy of this license.
 
-  d. Use or operation of the code over the internet does not constitute
+  A fork may be made without modification. If a fork is made without modifications,
+  it does not constitute redistribution if made under the terms of the hosting provider.
+
+  Use or operation of the code over the internet does not constitute
   redistribution unless the code itself is distributed
   to additional individuals or organizations as part of the use or operation.
   Displaying data included as part of metadata files does not constitute redistribution.
 
-  e. The copyright owner may choose to offer redistribution rights
+  The copyright owner may choose to offer redistribution rights
   under a separate license on a case-by-case basis, but there is no obligation to do so.
 
 4. Non-compliance
@@ -136,17 +147,7 @@ Copyright (c) 2017-2020 Michael Hall
   owner through no obligation beyond respecting that these users may not have considered
   that a license change was possible as part of their decision to contribute.
 
-7. Survival
-
-  If there remains no person alive with a claim to the copyrighted
-  materials this license governs, clauses 3a and 3b are voided.
-
-  If there remains no person alive with a claim to the copyrighted
-  materials this license governs, you are given a non-exclusive
-  license to use, modify, redistribute, and include as part of other works
-  the copyrighted material governed by this license.
-
-8. No Warranty
+7. No Warranty
 
   The code provided under this license is provided "as-is".
   This code provided under this license is provided without a warranty of any kind.

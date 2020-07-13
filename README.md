@@ -108,7 +108,22 @@ I am being paid for my time spent supporting the needs of these communities.
 
 ## Custom forks
 
-Read the license, but it's basically disallowed.
+Read the license, but disallowed.
 
 I previously attempted to keep this more permissive while protecting my own time,
 it took less than a day from that attempt for this to need to be solved more strongly.
+
+## Code re-use
+
+Again, read the license.
+
+The cliff notes in plain English:
+
+Generally, if you're modifying for personal use privately, it's allowed.
+Taking portions of the code which have general utility not specific to the cog
+is allowed with proper attribution of source.
+Modifying the code and maintaining a fork is not allowed.
+Attaching monetization to this code specifically is not allowed.
+
+While the above attempts to be accurate, the language of the license takes precedence and
+is only provided to help rule out disaalowed usage prior to reading in full.
