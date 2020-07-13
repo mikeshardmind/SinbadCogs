@@ -108,14 +108,22 @@ I am being paid for my time spent supporting the needs of these communities.
 
 ## Custom forks
 
-While the license intentionally allows custom forks, if you fork these cogs to make changes intended for use as a fork, please take the time to ensure the following changes
+Read the license, but disallowed.
 
-1. Update the info.json to note that it is a modification and add yourself to the author list.
-2. If you modify the way in which data is stored, please create a new config object with a seperate unique id. This includes changing how data is accessed (different key) changing what data is stored in a way different to how I stored it, deleting data which is stored, and anything else which would break a user switching from my repo, to your fork, and then back.
-3. Add something to the cog help text to make it clear that it is a modification.
+I previously attempted to keep this more permissive while protecting my own time,
+it took less than a day from that attempt for this to need to be solved more strongly.
 
-This is a very short list of requests to ensure I don't end up being support for your modifications (if you want your modifications to be supported, convince me they belong via issue)
+## Code re-use
 
-Assuming these requests are abided by,
-you may take this section of the Readme as explicit consent for modification under
-Red's Cogboard rules. (sepcifically pertaining to "Do not ask for a developer to modify another developer’s code, cog, or source without their explicit permission.")
+Again, read the license.
+
+The cliff notes in plain English:
+
+Generally, if you're modifying for personal use privately, it's allowed.
+Taking portions of the code which have general utility not specific to the cog
+is allowed with proper attribution of source.
+Modifying the code and maintaining a fork is not allowed.
+Attaching monetization to this code specifically is not allowed.
+
+While the above attempts to be accurate, the language of the license takes precedence and
+is only provided to help rule out disaalowed usage prior to reading in full.
