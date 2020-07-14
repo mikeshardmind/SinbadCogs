@@ -278,9 +278,9 @@ class Scheduler(commands.Cog):
 
         if recur and t.next_call_delay < 60:
             ret += (
-                "\nWith the intial start being set so soon, "
+                "\nWith the initial start being set so soon, "
                 "you might have missed an initial use being scheduled by the loop. "
-                "you may find the very first expected run of this was missed or otherwise seems late. "
+                "You may find the very first expected run of this was missed or otherwise seems late. "
                 "Future runs will be on time."  # fractions of a second in terms of accuracy.
             )
 
@@ -290,7 +290,7 @@ class Scheduler(commands.Cog):
     @commands.command()
     async def unschedule(self, ctx: commands.GuildContext, info: str):
         """
-        unschedule something.
+        Unschedule something.
         """
 
         quiet: bool = ctx.assume_yes
@@ -327,7 +327,9 @@ class Scheduler(commands.Cog):
     async def showscheduled(
         self, ctx: commands.GuildContext, all_channels: bool = False
     ):
-        """ shows your scheduled tasks in this, or all channels """
+        """
+        Shows your scheduled tasks in this, or all channels.
+        """
 
         if all_channels:
             tasks = await self.fetch_tasks_by_guild(ctx.guild)
@@ -449,7 +451,9 @@ class Scheduler(commands.Cog):
     @commands.check(lambda ctx: ctx.message.__class__.__name__ == "SchedulerMessage")
     @commands.group(hidden=True, name="schedhelpers")
     async def helpers(self, ctx: commands.GuildContext):
-        """ helper commands for scheduler use """
+        """
+        Helper commands for scheduler use.
+        """
         pass
 
     @helpers.command(name="say")
@@ -465,13 +469,17 @@ class Scheduler(commands.Cog):
     @commands.guild_only()
     @commands.group()
     async def scheduleradmin(self, ctx: commands.GuildContext):
-        """ Administrative commands for scheduler """
+        """
+        Administrative commands for scheduler.
+        """
         pass
 
     @checks.bot_has_permissions(add_reactions=True, embed_links=True)
     @scheduleradmin.command()
     async def viewall(self, ctx: commands.GuildContext):
-        """ view all scheduled events in a guild """
+        """
+        View all scheduled events in a guild.
+        """
 
         tasks = await self.fetch_tasks_by_guild(ctx.guild)
 
@@ -482,7 +490,9 @@ class Scheduler(commands.Cog):
 
     @scheduleradmin.command()
     async def kill(self, ctx: commands.GuildContext, *, task_id: str):
-        """ kill another user's task (id only) """
+        """
+        Kill another user's task. (id only)
+        """
 
         tasks = await self.fetch_task_by_attrs_exact(uid=task_id)
 
@@ -505,7 +515,9 @@ class Scheduler(commands.Cog):
 
     @scheduleradmin.command()
     async def killchannel(self, ctx, channel: discord.TextChannel):
-        """ kill all in a channel """
+        """
+        Kill all tasks scheduled in a specified channel.
+        """
 
         tasks = await self.fetch_task_by_attrs_exact(channel=channel)
 
@@ -519,10 +531,11 @@ class Scheduler(commands.Cog):
     @commands.group()
     async def tempmute(self, ctx):
         """
-        binding for mute + scheduled unmute
-        This exists only until it is added to core red
+        A binding for mute + scheduled unmute.
 
-        relies on core commands for mute/unmute
+        This exists only until it is added to core red.
+
+        This relies on core commands for mute/unmute.
         This *may* show up in help for people who cannot use it.
 
         This does not support voice mutes, sorry.
@@ -533,8 +546,9 @@ class Scheduler(commands.Cog):
     @tempmute.command(usage="<user> [reason] [args]")
     async def channel(self, ctx, user: discord.Member, *, mute: TempMute):
         """
-        binding for mute + scheduled unmute
-        This exists only until it is added to core red
+        A binding for mute + scheduled unmute.
+
+        This exists only until it is added to core red.
 
         args can be
             --until time
@@ -595,8 +609,9 @@ class Scheduler(commands.Cog):
     @tempmute.command(usage="<user> [reason] [args]", aliases=["guild"])
     async def server(self, ctx, user: discord.Member, *, mute: TempMute):
         """
-        binding for mute + scheduled unmute
-        This exists only until it is added to core red
+        A binding for mute + scheduled unmute.
+
+        This exists only until it is added to core red.
 
         args can be
             --until time
