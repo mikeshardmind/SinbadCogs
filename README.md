@@ -124,4 +124,4 @@ Modifying the code and maintaining a fork is not allowed.
 Attaching monetization to this code specifically is not allowed.
 
 While the above attempts to be accurate, the language of the license takes precedence and
-is only provided to help rule out disaalowed usage prior to reading in full.
+is only provided to help rule out disallowed usage prior to reading in full.
