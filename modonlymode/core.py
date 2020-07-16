@@ -8,8 +8,14 @@ from redbot.core.bot import Red
 
 class ModOnlyMode(commands.Cog):
     """
-    Cog to limit the bot to mods and higher
+    Cog to limit the bot to mods and higher.
     """
+
+    __version__ = "339.1.0"
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
 
     def __init__(self, bot: Red, config: Config, cache: SnowflakeList):
         self.bot: Red = bot
@@ -45,7 +51,11 @@ class ModOnlyMode(commands.Cog):
     @commands.command()
     async def enablemodonlymode(self, ctx: commands.GuildContext):
         """
-        Makes the bot's commands only work for mods and above in the guild
+        Makes the bot's commands only work for mods and above in the guild.
+
+        Note: The licenseinfo command will still be available.
+          Disabling this command is not allowed under red's license,
+          please do not look for alternative means of doing so.
         """
 
         if self.cache.has(ctx.guild.id):
@@ -60,7 +70,7 @@ class ModOnlyMode(commands.Cog):
     @commands.command()
     async def disablemodonlymode(self, ctx: commands.GuildContext):
         """
-        Disable mod only mode in this guild
+        Disable mod only mode in this guild.
         """
 
         if not self.cache.has(ctx.guild.id):
