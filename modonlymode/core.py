@@ -1,4 +1,5 @@
-from typing import Optional
+from collections import defaultdict
+from typing import Dict, Optional
 
 import discord
 from discord.utils import SnowflakeList
@@ -11,45 +12,67 @@ class ModOnlyMode(commands.Cog):
     Cog to limit the bot to mods and higher.
     """
 
-    __version__ = "339.1.1"
+    __version__ = "339.1.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
         return f"{pre_processed}\nCog Version: {self.__version__}"
 
-    def __init__(self, bot: Red, config: Config, cache: SnowflakeList):
+    def __init__(
+        self,
+        bot: Red,
+        config: Config,
+        cache: SnowflakeList,
+        exclusion_cache: Dict[str, SnowflakeList],
+    ):
         self.bot: Red = bot
         self.cache: SnowflakeList = cache
         self.config: Config = config
+        self.exclusion_cache: Dict[str, SnowflakeList] = exclusion_cache
 
     @classmethod
     async def setup(cls, bot: Red):
         config = Config.get_conf(None, 78631113035100160, cog_name="ModOnlyMode")
-        config.register_guild(active=False)
+        config.register_guild(active=False, exclusions=[])
 
-        active = (
-            guild_id
-            for guild_id, data in (await config.all_guilds()).items()
-            if data.get("active", False)
+        all_guild_data = await config.all_guilds()
+
+        cache = SnowflakeList(())
+        exclusion_cache: Dict[str, SnowflakeList] = defaultdict(
+            lambda: SnowflakeList(())
         )
 
-        cache = SnowflakeList(active)
+        for guild_id, guild_data in all_guild_data.items():
+            if guild_data.get("active", False):
+                cache.add(guild_id)
+            for exclusion in guild_data.get("exclusions", []):
+                exclusion_cache[exclusion].add(guild_id)
 
-        cog = cls(bot, config, cache)
+        cog = cls(bot, config, cache, exclusion_cache)
         bot.add_cog(cog)
 
     async def __permissions_hook(self, ctx: commands.Context) -> Optional[bool]:
         if ctx.guild and self.cache.has(ctx.guild.id):
             assert isinstance(ctx.author, discord.Member), "mypy"  # nosec
             if not await self.bot.is_mod(ctx.author):
+                if ctx.cog and self.exclusion_cache[ctx.cog.qualified_name].has(
+                    ctx.guild.id
+                ):
+                    return None
                 return False
 
         return None
 
     @checks.admin()
     @commands.guild_only()
-    @commands.command()
-    async def enablemodonlymode(self, ctx: commands.GuildContext):
+    @commands.group(name="modonlymodeset", aliases=["momset"])
+    async def momset(self, ctx: commands.Context):
+        """
+        Settings for ModOnlyMode
+        """
+
+    @momset.command()
+    async def enable(self, ctx: commands.GuildContext):
         """
         Makes the bot's commands only work for mods and above in the guild.
 
@@ -65,10 +88,8 @@ class ModOnlyMode(commands.Cog):
         self.cache.add(ctx.guild.id)
         await ctx.tick()
 
-    @checks.admin()
-    @commands.guild_only()
-    @commands.command()
-    async def disablemodonlymode(self, ctx: commands.GuildContext):
+    @momset.command()
+    async def disable(self, ctx: commands.GuildContext):
         """
         Disable mod only mode in this guild.
         """
@@ -79,3 +100,37 @@ class ModOnlyMode(commands.Cog):
         await self.config.guild(ctx.guild).active.clear()
         self.cache.remove(ctx.guild.id)
         await ctx.tick()
+
+    @momset.command()
+    async def excludecog(self, ctx: commands.GuildContext, *, cog_name: str):
+        """
+        Exclude a cog from mod only mode.
+        """
+
+        if self.bot.get_cog(cog_name) is None:
+            return await ctx.send_help()
+
+        if self.exclusion_cache[cog_name].has(ctx.guild.id):
+            return await ctx.send("That cog was already excluded.")
+
+        async with self.config.guild(ctx.guild).exclusions() as cog_list:
+            cog_list.append(cog_name)
+            self.exclusion_cache[cog_name].add(ctx.guild.id)
+            await ctx.tick()
+
+    @momset.command()
+    async def reincludecog(self, ctx: commands.GuildContext, *, cog_name: str):
+        """
+        Reinclude a cog in mod only mode.
+        """
+
+        if self.bot.get_cog(cog_name) is None:
+            return await ctx.send_help()
+
+        if not self.exclusion_cache[cog_name].has(ctx.guild.id):
+            return await ctx.send("That cog was not excluded.")
+
+        async with self.config.guild(ctx.guild).exclusions() as cog_list:
+            cog_list.remove(cog_name)
+            self.exclusion_cache[cog_name].remove(ctx.guild.id)
+            await ctx.tick()
