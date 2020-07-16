@@ -99,7 +99,7 @@ class AntiMentionSpam(commands.Cog):
         self, ctx: commands.GuildContext, number: int, seconds: int
     ):
         """
-        sets the maximum number of mentions allowed in a time period.
+        Sets the maximum number of mentions allowed in a time period.
 
         Setting both to 0 will disable this check.
         """
