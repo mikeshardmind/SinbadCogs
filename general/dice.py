@@ -68,8 +68,12 @@ def ncr(n, r):
     if 0 <= r <= n:
         ntok = 1
         rtok = 1
-        if n - r < r:
-            r = n - r
+        # Branchless handling of `if n - r < r then r = n - r`
+        # numba is smart enough to not recompute the condition
+        # but uses better instructions when provided it this way.
+        # This is a micro optimization, but this entire file is
+        # intended to be optimized as much as can be reasonably done.
+        r = ((n - r) * (n - r < n)) + (r * (not (n - r < n)))
         for t in prange(r):
             ntok *= n - t
             rtok *= t + 1
