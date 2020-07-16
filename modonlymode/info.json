@@ -1,0 +1,13 @@
+{
+	"author": [
+		"mikeshardmind(Sinbad)"
+	],
+	"name": "ModOnlyMode",
+	"disabled": false,
+	"short": "Make the bot only respond to mods or higher (server by server)",
+	"description": "Make the bot only respond to mods or higher (server by server)",
+	"tags": [],
+	"requirements": [],
+	"hidden": false,
+	"min_bot_version": "3.3.10"
+}
