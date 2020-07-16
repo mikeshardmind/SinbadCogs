@@ -20,7 +20,7 @@ class ChannelRedirect(commands.Cog):
     Redirect commands from wrong channels
     """
 
-    __version__ = "339.0.1"
+    __version__ = "339.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -260,7 +260,7 @@ class ChannelRedirect(commands.Cog):
         )
         await ctx.tick()
 
-    @rset_except.command(name="set")
+    @rset_except.command(name="add")
     async def rset_except_add(
         self,
         ctx: commands.Context,
@@ -275,7 +275,7 @@ class ChannelRedirect(commands.Cog):
         value should be one of "allow", "deny", "clear" (to clear an existing setting)
 
         example: Allow audio cog in music-room even if other settings would deny
-            [p]redirectset exception add #music-room False Audio
+            [p]redirectset exceptions add #music-room allow Audio
         """
         await self.config.guild(ctx.guild).set_raw(
             *cog_or_command, str(channel.id), value=value.state
