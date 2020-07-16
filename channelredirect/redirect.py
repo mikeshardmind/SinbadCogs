@@ -10,13 +10,17 @@ from redbot.core.config import Config
 
 from .converters import CogOrCOmmand, CommandConverter, TrinaryBool
 
+# TODO
+# user facing terminology has been updated to `allowlist` and `blocklist`
+# when more time is available, create a migration for the storage component of this
+
 
 class ChannelRedirect(commands.Cog):
     """
     Redirect commands from wrong channels
     """
 
-    __version__ = "330.0.1"
+    __version__ = "339.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -134,7 +138,7 @@ class ChannelRedirect(commands.Cog):
     @commands.group(name="redirectset")
     async def rset(self, ctx):
         """
-        Setting for channel redirection
+        Setting for channel redirection.
         """
         pass
 
@@ -142,7 +146,7 @@ class ChannelRedirect(commands.Cog):
     async def rest_show_settings(self, ctx, command: CommandConverter = None):
         """
         Shows guild settings, or if a command is provided, the channels that
-        command is allowed including exceptions
+        command is allowed including exceptions.
         """
         com_obj = command.com if command is not None else None
         channels = await self.get_allowed_channels(
@@ -154,20 +158,22 @@ class ChannelRedirect(commands.Cog):
     @rset.command(name="mode")
     async def rset_set_mode(self, ctx, *, mode: str = ""):
         """
-        Whether to operate on a `whitelist`, or a `blacklist`
+        Whether to operate on a allowlist, or a blocklist.
         """
 
-        mode = mode.lower()
-        if mode not in ("whitelist", "blacklist"):
-            return await ctx.send_help()
+        mode = mode.casefold()
+        lookup = {"allowlist": "whitelist", "blocklist": "blacklist"}
 
-        await self.config.guild(ctx.guild).mode.set(mode)
-        await ctx.tick()
+        if to_store := lookup.get(mode, None):
+            await self.config.guild(ctx.guild).mode.set(mode)
+            await ctx.tick()
+        else:
+            return await ctx.send_help()
 
     @rset.command(name="addchan")
     async def rset_add_chan(self, ctx, *channels: discord.TextChannel):
         """
-        Adds one or more channels to the current mode's settings
+        Adds one or more channels to the current mode's settings.
         """
 
         if not channels:
@@ -192,7 +198,7 @@ class ChannelRedirect(commands.Cog):
     @rset.command(name="remchan")
     async def rset_rem_chan(self, ctx, *channels: discord.TextChannel):
         """
-        removes one or more channels from the current mode's settings
+        Removes one or more channels from the current mode's settings.
         """
 
         if not channels:
@@ -217,16 +223,16 @@ class ChannelRedirect(commands.Cog):
     @rset.group(name="exceptions")
     async def rset_except(self, ctx):
         """
-        commands for configuring exceptions
+        Commands for configuring exceptions.
         """
         pass
 
-    @rset_except.command(name="whitelistcommand")
+    @rset_except.command(name="allowcommandeverywhere")
     async def rset_whitelistcom_add(
         self, ctx: commands.Context, *, cog_or_command: CogOrCOmmand
     ):
         """
-        Whitelists a command for all channels.
+        Creates an exception allowing a command for all channels.
 
             May not work with subcommands with parent commands locked!!
         """
@@ -235,12 +241,19 @@ class ChannelRedirect(commands.Cog):
         )
         await ctx.tick()
 
-    @rset_except.command(name="unwhitelistcommand")
+    @rset_except.command(name="unallowcommandeverywhere")
     async def rset_whitelistcom_rem(
         self, ctx: commands.Context, *, cog_or_command: CogOrCOmmand
     ):
         """
-        Unwhitelists a command for all channels.
+        Removes an exception allowing a command in all channels.
+
+        Note: This command name is not a typo as it is undoing
+
+        [p]allowcommandeverywhere
+
+        However, if you have a better name
+        feel free to open an issue suggesting it
         """
         await self.config.guild(ctx.guild).com_whitelist.set_raw(
             *cog_or_command, value=False
@@ -257,12 +270,12 @@ class ChannelRedirect(commands.Cog):
         cog_or_command: CogOrCOmmand,
     ):
         """
-        creates an exception for a specifc channel/command combination
+        Creates an exception for a specifc channel/command combination
 
         value should be one of "allow", "deny", "clear" (to clear an existing setting)
 
         example: Allow audio cog in music-room even if other settings would deny
-            `[p]redirectset exception add #music-room False Audio`
+            [p]redirectset exception add #music-room False Audio
         """
         await self.config.guild(ctx.guild).set_raw(
             *cog_or_command, str(channel.id), value=value.state
@@ -300,14 +313,14 @@ class ChannelRedirect(commands.Cog):
     @rset.group(name="immune")
     async def rset_immune(self, ctx):
         """
-        Settings for roles to be immune from the redirect
+        Settings for roles to be immune from the redirect.
         """
         pass
 
     @rset_immune.group(name="channel")
     async def rset_chanimmune(self, ctx):
         """
-        channel specific immunities
+        Channel specific immunities.
         """
         pass
 
@@ -316,7 +329,7 @@ class ChannelRedirect(commands.Cog):
         self, ctx, channel: discord.TextChannel, *roles: discord.Role
     ):
         """
-        Adds roles to redirect immunity
+        Adds roles to redirect immunity.
         """
         if not roles:
             return await ctx.send_help()
@@ -332,7 +345,7 @@ class ChannelRedirect(commands.Cog):
         self, ctx, channel: discord.TextChannel, *roles: discord.Role
     ):
         """
-        removes roles from redirect immunity
+        Removes roles from redirect immunity.
         """
         if not roles:
             return await ctx.send_help()
@@ -345,13 +358,15 @@ class ChannelRedirect(commands.Cog):
 
     @rset_immune.group(name="global")
     async def rset_globimmune(self, ctx):
-        """ Global immunities """
+        """
+        Global immunities.
+        """
         pass
 
     @rset_globimmune.command(name="addroles")
     async def rset_globimmune_addroles(self, ctx, *roles: discord.Role):
         """
-        Adds roles to redirect immunity
+        Adds roles to redirect immunity.
         """
         if not roles:
             return await ctx.send_help()
@@ -365,7 +380,7 @@ class ChannelRedirect(commands.Cog):
     @rset_globimmune.command(name="remroles")
     async def rset_globimmune_remroles(self, ctx, *roles: discord.Role):
         """
-        removes roles from redirect immunity
+        Removes roles from redirect immunity.
         """
         if not roles:
             return await ctx.send_help()
@@ -379,8 +394,9 @@ class ChannelRedirect(commands.Cog):
     @rset_immune.command(name="list")
     async def rset_list_immune(self, ctx, channel: discord.TextChannel = None):
         """
-        Show the immunity settings. Either the global ones, or if a channel is provided,
-        the channel ones
+        Show the immunity settings.
+
+        Either the global ones, or if a channel is provided, the channel ones.
         """
 
         ims = await self.config.guild(ctx.guild).immunities.all()
