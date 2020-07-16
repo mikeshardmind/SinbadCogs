@@ -1,18 +1,13 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)",
-        "DiscordLiz"
-    ],
-    "name": "DevTools",
-    "disabled": false,
-    "short": "Some dev tools",
-    "description": "Some dev tools",
-    "tags": [],
-    "hidden": true,
-    "min_python_version": [
-        3,
-        7,
-        0
-    ],
-    "min_bot_version": "3.3.0"
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "DevTools",
+	"disabled": false,
+	"short": "Some dev tools",
+	"description": "Some dev tools",
+	"tags": [],
+	"hidden": true,
+	"min_bot_version": "3.3.0"
 }
