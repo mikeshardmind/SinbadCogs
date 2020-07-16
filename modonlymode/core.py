@@ -11,7 +11,7 @@ class ModOnlyMode(commands.Cog):
     Cog to limit the bot to mods and higher.
     """
 
-    __version__ = "339.1.0"
+    __version__ = "339.1.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -29,7 +29,7 @@ class ModOnlyMode(commands.Cog):
 
         active = (
             guild_id
-            for guild_id, data in (await config.all_guilds())
+            for guild_id, data in (await config.all_guilds()).items()
             if data.get("active", False)
         )
 
