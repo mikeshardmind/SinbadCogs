@@ -9,7 +9,6 @@ from typing import Any, Dict, Generator, List, Optional, cast
 
 import aiohttp
 import discord
-import discordtextsanitizer as dts
 import feedparser
 from bs4 import BeautifulSoup as bs4
 from redbot.core import checks, commands
@@ -59,7 +58,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "339.1.1"
+    __version__ = "339.2.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -203,7 +202,15 @@ class RSS(commands.Cog):
                 entry, use_embed, color, feed_settings.get("template", None)
             )
             try:
-                await self.bot.send_filtered(destination, **kwargs)
+                r = discord.http.Route(
+                    "POST", "/channels/{channel_id}/messages", channel_id=destination.id
+                )
+                if em := kwargs.pop("embed", None):
+                    assert isinstance(em, discord.Embed), "mypy"  # nosec
+                    kwargs["embed"] = em.to_dict()
+                kwargs["allowed_mentions"] = {"parse": []}
+
+                await self.bot.http.request(r, json=kwargs)
             except discord.HTTPException as exc:
                 debug_exc_log(log, exc, "Exception while sending feed.")
             last_sent = list(self.process_entry_time(entry))
@@ -232,7 +239,6 @@ class RSS(commands.Cog):
         escaped_usable_fields = {k: maybe_clean(k, v) for k, v in data.items() if v}
 
         content = template.safe_substitute(**escaped_usable_fields)
-        content = dts.sanitize_mass_mentions(content, strip_html=False, aggresive=True)
 
         if embed:
             if len(content) > 1980:
@@ -242,11 +248,11 @@ class RSS(commands.Cog):
                 description=content, color=color, timestamp=timestamp
             )
             embed_data.set_footer(text="Published ")
-            return {"content": None, "embed": embed_data}
+            return {"embed": embed_data}
         else:
             if len(content) > 1950:
                 content = content[:1950] + "... (Feed data too long)"
-            return {"content": content, "embed": None}
+            return {"content": content}
 
     async def handle_response_from_loop(
         self,

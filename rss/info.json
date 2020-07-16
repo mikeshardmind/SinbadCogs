@@ -12,8 +12,7 @@
 	"hidden": false,
 	"requirements": [
 		"feedparser>=6.0.0b1",
-		"discord-text-sanitizer",
 		"beautifulsoup4"
 	],
-	"min_bot_version": "3.3.0"
+	"min_bot_version": "3.3.10"
 }
