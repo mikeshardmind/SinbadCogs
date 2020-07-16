@@ -6,10 +6,9 @@
 
 ## Availability of Support
 
-I was supporting these cogs more thoroughly before, going forward,
-I'll be providing some support, but new features are unlikely.
+Support is available for bugs and feature requests only.
 
-If you find a bug or security issue, feel free to reach out.
+Support for usage issues is outside of what I currently have time or prioritization for.
 
 
 ## Whats here?
@@ -85,6 +84,8 @@ Provides:
  
 Note: Roles self assigned via reaction or command are subject to
 the settings configured in the `roleset` command.
+
+This cog has some additional information documented [here](rolemanagement/README.md)
 
 ### RoomTools
 
