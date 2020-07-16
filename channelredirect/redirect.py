@@ -20,7 +20,7 @@ class ChannelRedirect(commands.Cog):
     Redirect commands from wrong channels
     """
 
-    __version__ = "339.0.2"
+    __version__ = "339.0.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -165,7 +165,7 @@ class ChannelRedirect(commands.Cog):
         lookup = {"allowlist": "whitelist", "blocklist": "blacklist"}
 
         if to_store := lookup.get(mode, None):
-            await self.config.guild(ctx.guild).mode.set(mode)
+            await self.config.guild(ctx.guild).mode.set(to_store)
             await ctx.tick()
         else:
             return await ctx.send_help()
