@@ -31,6 +31,12 @@ This cog provides a few functions for handling bans across multiple servers.
 More help is available via `help BanSync`
 
 
+### ChannelRedirect
+
+This cog can lock commands down to specific channels, with exceptions.
+
+This cog does not disable or otherwise interfere with licenseinfo.
+
 ### EmbedMaker
 
 This cog provides a means to create, store, and send embedded messages from the bot.
@@ -42,7 +48,22 @@ but a robust example is available
 ### GuildJoinRestrict
 
 Allows controlling and logging which guilds the bot can join based on configurable settings
-and either an allowlist or blocklist
+and either an allowlist or blocklist.
+
+Tip: If you do not want the bot taking these actions automatically,
+or just want a log of guilds the bot has joined, set up a discord log channel,
+use the allowlist mode with an empty allowlist, and do not turn on autoleaving.
+
+### MentionHelp
+
+This cog provides people who mention the bot a bit of assistance
+in finding the help command and a valid prefix should they need it.
+
+### ModOnlyMode
+
+This cog is for locking a bot's usage to mods and admins (on a per sever basis).
+
+This cog does not disable or otherwise interfere with licenseinfo.
 
 ### QuoteTools
 
@@ -63,7 +84,7 @@ Provides:
  - Mass Role modifications
  
 Note: Roles self assigned via reaction or command are subject to
-the settings configured in the `roleset` command. 
+the settings configured in the `roleset` command.
 
 ### RoomTools
 
