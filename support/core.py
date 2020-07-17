@@ -1,5 +1,5 @@
 import discord
-from redbot.core import Config, checks, commands
+from redbot.core import commands
 from redbot.core.bot import Red
 
 SUPPORT_CHANNEL_ID = 444660866273771540
