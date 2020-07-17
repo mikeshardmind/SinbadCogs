@@ -67,7 +67,12 @@ class BanSync(commands.Cog):
     synchronize your bans
     """
 
-    __version__ = "337.1.1"
+    __version__ = "337.2.0"
+    __end_user_data_statement__ = (
+        "This cog does not persistently store data or metadata about users. "
+        "Discord snowflakes of users may occasionaly be logged to file "
+        "as part of exception logging."
+    )
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

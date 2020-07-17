@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from contextlib import suppress
 from datetime import datetime
-from typing import List, Optional, Set
+from typing import List, Literal, Optional, Set
 
 import apsw
 import discord
@@ -18,6 +18,23 @@ from .apsw_wrapper import Connection
 
 class MLog(commands.Cog):
     """ WIP """
+
+    __end_user_data_statement__ = (
+        "This cog logs messages and does not respect the data APIs. "
+        "Bot owners have been warned against loading this cog as it is a work in progress. "
+        "Bot owners will recieve notice of attempts to delete data and it is on them to handle "
+        "this manually at the current time."
+    )
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        await self.bot.send_to_owners(
+            f"Data deletion request for `MLog` by {requester} for user id {user_id}."
+        )
 
     def __init__(self, bot: Red):
         self.bot: Red = bot

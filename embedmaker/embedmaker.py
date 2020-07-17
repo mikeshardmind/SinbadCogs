@@ -4,6 +4,7 @@ import io
 import logging
 import random
 from typing import Generator, Optional, cast
+from typing import Generator, Literal, cast
 
 import discord
 from redbot.core import Config, checks, commands
@@ -21,7 +22,35 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "339.0.4"
+    __version__ = "340.0.0"
+    __end_user_data_statement__ = (
+        "This cog stores data provided by users "
+        "for the express purpose of redisplaying. "
+        "It does not store user data which was not "
+        "provided through a command. "
+        "Users may remove their own content "
+        "without making a data removal request. "
+        "This cog does not support data requests, "
+        "but will respect deletion requests."
+    )
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        group = self.config.custom("EMBED")
+
+        key_paths = []
+
+        async with group as all_data:
+            for guild_id, guild_data in all_data.items():
+                for embed_name, embed_data in guild_data.items():
+                    if embed_data["owner"] == user_id:
+                        key_paths.append((guild_id, embed_name))
+            for guild_id, name in key_paths:
+                del all_data[guild_id][name]
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

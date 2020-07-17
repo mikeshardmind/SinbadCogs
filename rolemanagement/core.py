@@ -5,7 +5,17 @@ import contextlib
 import logging
 import re
 from abc import ABCMeta
-from typing import AsyncIterator, Dict, Generator, List, Optional, Tuple, Union, cast
+from typing import (
+    AsyncIterator,
+    Dict,
+    Generator,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 import discord
 from discord.ext.commands import CogMeta as DPYCogMeta
@@ -77,7 +87,26 @@ class RoleManagement(
     # are not handled in the core bot, which would be a massive permission issue.
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "339.3.0"
+    __version__ = "340.0.0"
+
+    __end_user_data_statement__ = (
+        "This cog does not persistently store end user data. "
+        "This cog does store discord IDs as needed for operation. "
+    )
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        if requester == "discord":
+            # user is deleted, just comply
+
+            data = await self.config.all_members()
+            for guild_id, members in data.items():
+                if user_id in members:
+                    await self.config.member_from_ids(guild_id, user_id).clear()
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

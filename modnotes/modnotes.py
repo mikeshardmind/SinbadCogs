@@ -53,7 +53,13 @@ class ModNotes(commands.Cog):
     Store moderation notes
     """
 
-    __version__ = "330.0.2"
+    __version__ = "339.1.0"
+
+    __end_user_data_statement__ = (
+        "This cog stores data provided to it for "
+        "the purpose of a permanent moderation note system. "
+        "\nThis cog does not respect the data APIs."
+    )
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

@@ -5,7 +5,7 @@ import contextlib
 import functools
 import logging
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Dict, List, Literal, Optional
 
 import discord
 from redbot.core import checks, commands
@@ -36,7 +36,24 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.0.3"
+    __version__ = "339.1.0"
+    __end_user_data_statement__ = (
+        "This cog does not persistently store data or metadata about users. "
+        "It does store commands provided for intended later use. "
+        "Users may delete their own data without making a data request. "
+        "This cog does not support a data deletion API fully yet, but will record "
+        "data deletion requests to be proccessed when the "
+        "functionality is fully supported."
+    )
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        async with self.config.unhandled_data_requests() as udr_list:
+            udr_list.append([requester, user_id])
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -47,6 +64,7 @@ class Scheduler(commands.Cog):
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
+        self.config.register_global(unhandled_data_requests=[])
         self.config.register_channel(tasks={})  # Serialized Tasks go in here.
         self.log = logging.getLogger("red.sinbadcogs.scheduler")
         self.bg_loop_task: Optional[asyncio.Task] = None

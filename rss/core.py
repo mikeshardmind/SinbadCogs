@@ -60,7 +60,10 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "339.5.3"
+    __version__ = "340.0.0"
+    __end_user_data_statement__ = (
+        "This cog does not persistently store data or metadata about users."
+    )
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

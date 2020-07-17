@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 
 import discord
 from redbot.core import checks, commands
@@ -13,7 +13,35 @@ class SuggestionBox(commands.Cog):
     A configureable suggestion box cog
     """
 
-    __version__ = "330.0.3"
+    __version__ = "339.1.0"
+    __end_user_data_statement__ = (
+        "This cog stores data provided to it by command as needed for operation. "
+        "As this data is for suggestions to be given from a user to a community, "
+        "it is not reasonably considered end user data and will not be deleted."
+    )
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        if requester == "discord":
+            # user is deleted, must comply on IDs here...
+
+            data = await self.config.all_members()
+            for guild_id, members in data.items():
+                if user_id in members:
+                    await self.config.member_from_ids(guild_id, user_id).clear()
+            await self.config.user_from_id(user_id).clear()
+
+            grp = self.config.custom("SUGGESTION")
+
+            async with grp as data:
+                for message_id, suggestion in data.items():
+                    if d := suggestion.get("data"):
+                        if d.get("author_id", 0) == user_id:
+                            d["author_id"] = 0
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

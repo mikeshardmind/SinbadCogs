@@ -46,7 +46,12 @@ class AntiMentionSpam(commands.Cog):
     removes mass mention spam
     """
 
-    __version__ = "330.0.4"
+    __end_user_data_statement__ = (
+        "This cog does not persistently store data or metadata about users. "
+        "Discord snowflakes of users may occasionaly be logged to file "
+        "as part of exception logging."
+    )
+    __version__ = "330.1.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
