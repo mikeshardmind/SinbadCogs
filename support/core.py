@@ -10,7 +10,7 @@ BOT_ID = 275047522026913793
 PUNISH_PERMS = 329792
 
 
-class Support(commands.Cog, qualified_name="Sinbad's Support Toolbox"):
+class Support(commands.Cog, name="Sinbad's Support Toolbox"):
     """
     Shhhhhhh.
     """
