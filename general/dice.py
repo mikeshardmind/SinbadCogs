@@ -32,7 +32,7 @@ except ImportError:
 
 __all__ = ["Expression", "DiceError"]
 
-USE_PARALLEL_WITH_NJIT = sys.maxsize > 2 ** 32
+_USE_P = sys.maxsize > 2 ** 32
 
 _OP_T = TypeVar("_OP_T")
 
@@ -61,7 +61,7 @@ class DiceError(Exception):
         super().__init__(msg, *args)
 
 
-@njit("uint32(uint32, uint32)")
+@njit("uint32(uint32, uint32)", nogil=True)
 def ncr(n, r):
     # With numba, this is significantly better than using scipy.special.comb
     # https://en.wikipedia.org/wiki/Binomial_coefficient#Multiplicative_formula
@@ -108,7 +108,7 @@ def _inner_flattened_cdf_math(quant, sides, i, j, k):
     return ncr(quant, i) * (x - y)
 
 
-@njit("float32(uint32, uint32, uint32)", parallel=USE_PARALLEL_WITH_NJIT)
+@njit("float32(uint32, uint32, uint32)", parallel=_USE_P, nogil=True, cache=True)
 def _ev_roll_dice_keep_best(quant, sides, keep):
 
     outermost_sum = 0
@@ -123,7 +123,7 @@ def _ev_roll_dice_keep_best(quant, sides, keep):
     return outermost_sum
 
 
-@njit("float32(uint32, uint32, uint32)", parallel=USE_PARALLEL_WITH_NJIT)
+@njit("float32(uint32, uint32, uint32)", parallel=_USE_P, nogil=True)
 def _ev_roll_dice_keep_worst(quant, sides, keep):
 
     outermost_sum = 0
@@ -138,7 +138,7 @@ def _ev_roll_dice_keep_worst(quant, sides, keep):
     return outermost_sum
 
 
-@njit("float32(uint32, uint32, uint32, uint32)")
+@njit("float32(uint32, uint32, uint32, uint32)", nogil=True)
 def fast_analytic_ev(quant, sides, low, high):
 
     if high < quant:
