@@ -52,8 +52,14 @@ class Scheduler(commands.Cog):
         requester: Literal["discord", "owner", "user", "user_strict"],
         user_id: int,
     ):
-        async with self.config.unhandled_data_requests() as udr_list:
-            udr_list.append([requester, user_id])
+        """
+        Scheduler tasks are going to need a bit more handling to make this easy,
+        Ensuring we don't lose knowledge of any, but these requests need special
+        batching implemented here to be safe with the iteration locks.
+        """
+        await self.config.custom(
+            "PENDING_DATA_DELETIONS", requester, user_id
+        ).needs_action.set(True)
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -64,7 +70,8 @@ class Scheduler(commands.Cog):
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.register_global(unhandled_data_requests=[])
+        self.config.init_custom("PENDING_DATA_DELETIONS", 2)
+        self.config.register_custom("PENDING_DATA_DELETIONS", needs_action=None)
         self.config.register_channel(tasks={})  # Serialized Tasks go in here.
         self.log = logging.getLogger("red.sinbadcogs.scheduler")
         self.bg_loop_task: Optional[asyncio.Task] = None
