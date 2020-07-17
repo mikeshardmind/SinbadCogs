@@ -91,7 +91,7 @@ class GuildJoinRestrict(commands.Cog):
     ):
         if requester == "discord":
             # user is deleted, just comply
-            await self.config.user(user_id).clear()
+            await self.config.user_from_id(user_id).clear()
         elif requester == "owner":
             await self.bot.send_to_owners(
                 "`GuildJoinRestrict` recieved a data deletion request "
