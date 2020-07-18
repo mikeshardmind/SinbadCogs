@@ -15,10 +15,10 @@ log = logging.getLogger("red.sinbadcogs.support")
 
 COMMIT_FIX = """
 The following is a single command that will fix the whole problem in theory
-With that said, running evals is dangerous, as is touching the data of other cogs.
-so use this only if you are confident in understanding what this is doing.
-Additionally, this should only be run on Red Version 3.2.10:
+With that said, running evals is dangerous, as is touching things owned by other cogs.
 
+Use this only if you are confident in understanding what this is doing.
+This should only be run on Red Version 3.2.10 (where it was tested):
 
 [p]eval
 ```py
@@ -39,6 +39,11 @@ for repo in repo_manager.repos:
         await ctx.invoke(bot.get_command("repo update"), repo)
 ```
 """
+
+MESSAGE_ALT = (
+    "https://discordapp.com/channels/"
+    "240154543684321280/444660866273771540/734090016740999218"
+)
 
 
 class Support(commands.Cog, name="Sinbad's Support Toolbox"):
@@ -199,10 +204,8 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
 
     @checks.is_owner()
     @commands.command()
-    async def fixswitch(self, ctx, confident: bool):
+    async def fixswitch(self, ctx, confident: bool = False):
         if not confident:
-            await ctx.send(
-                "Follow the direction in this link: <https://discordapp.com/channels/240154543684321280/444660866273771540/734090016740999218>"
-            )
+            await ctx.send(f"Follow the directions in this link: <{MESSAGE_ALT}>")
         else:
             await ctx.send(COMMIT_FIX)
