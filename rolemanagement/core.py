@@ -77,7 +77,7 @@ class RoleManagement(
     # are not handled in the core bot, which would be a massive permission issue.
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.2.5"
+    __version__ = "339.3.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -374,7 +374,7 @@ class RoleManagement(
         emoji: str,
     ):
         """
-        Binds a role to a reaction on a message...
+        Binds a role to a reaction on a message.
 
         The role is only given if the criteria for it are met.
         Make sure you configure the other settings for a role in [p]roleset
@@ -423,11 +423,154 @@ class RoleManagement(
                 "guildid": role.guild.id,
             }
         )
-        await ctx.send(
-            f"Remember, the reactions only function according to "
-            f"the rules set for the roles using `{ctx.prefix}roleset`",
-            delete_after=30,
+
+        role_settings = await self.config.role(role).all()
+
+        self_assign, self_remove = (
+            role_settings["self_role"],
+            role_settings["self_removable"],
         )
+
+        if self_assign and self_remove:
+            await ctx.send(
+                f"Role bound. "
+                f"This role is both self assignable and self removable already. "
+                f"If you need to modify this or any requirements related to this role, "
+                f"remember to use `{ctx.prefix}roleset`."
+            )
+            return
+
+        if self_assign:
+
+            await ctx.send(
+                "This role is self assignable, "
+                "but not self removable. "
+                "Would you like to make it self removable? "
+                "(Options are yes or no)"
+            )
+            try:
+                m = await ctx.bot.wait_for(
+                    "message",
+                    check=lambda m: m.channel.id == ctx.channel.id
+                    and m.author.id == ctx.author.id,
+                    timeout=30,
+                )
+            except asyncio.TimeoutError:
+                await ctx.send(
+                    f"I won't wait forever for a response. "
+                    f"If you decide to change this later, use `{ctx.prefix}roleset`."
+                )
+
+            else:
+                if (resp := m.content.casefold()) == "yes":
+                    await self.config.role(role).self_removable.set(True)
+                    await ctx.send("Ok, I've made the role self removable")
+                elif resp == "no":
+                    await ctx.send("Got it, leaving it alone.")
+                else:
+                    await ctx.send(
+                        f"That did not appear to be a yes or a no. "
+                        f"If you need to change this, use `{ctx.prefix}roleset`"
+                    )
+
+        elif self_remove:
+            await ctx.send(
+                "This role is self removable, but nor self assignable. "
+                "While this is sometimes intentional, "
+                "this particular configuration is usually a mistake. "
+                "Would you like to make this role self assignable to go with that? "
+                "(Options are yes or no)"
+            )
+            try:
+                m = await ctx.bot.wait_for(
+                    "message",
+                    check=lambda m: m.channel.id == ctx.channel.id
+                    and m.author.id == ctx.author.id,
+                    timeout=30,
+                )
+            except asyncio.TimeoutError:
+                await ctx.send(
+                    f"I won't change this for you without "
+                    f"confirmation of it not being intentional. "
+                    f"If you decide to change this later, use `{ctx.prefix}roleset`."
+                )
+
+            else:
+                if (resp := m.content.casefold()) == "yes":
+                    await self.config.role(role).self_role.set(True)
+                    await ctx.send("Ok, I've made the role self assignable")
+                elif resp == "no":
+                    await ctx.send("Got it, change was intentional.")
+                else:
+                    await ctx.send(
+                        f"That did not appear to be a yes or a no. "
+                        f"If you need to change this, use `{ctx.prefix}roleset`"
+                    )
+
+        else:
+
+            await ctx.send(
+                "This role is neither self assignable not self removable. "
+                "This rolebind will be essentiall useless without changing that. "
+                "Would you like me to make it self assignable? (Options are yes or no)"
+            )
+
+            try:
+                m = await ctx.bot.wait_for(
+                    "message",
+                    check=lambda m: m.channel.id == ctx.channel.id
+                    and m.author.id == ctx.author.id,
+                    timeout=30,
+                )
+            except asyncio.TimeoutError:
+                await ctx.send(
+                    f"I won't wait forever for a response. "
+                    f"If you decide to change this later, use `{ctx.prefix}roleset`."
+                )
+                return
+            else:
+                if (resp := m.content.casefold()) == "yes":
+                    await self.config.role(role).self_role.set(True)
+                    await ctx.send(
+                        "Ok, I've made the role self assignable. "
+                        "Would you also like it to be self removable? (Options are yes or no)"
+                    )
+                    try:
+                        m2 = await ctx.bot.wait_for(
+                            "message",
+                            check=lambda m: m.channel.id == ctx.channel.id
+                            and m.author.id == ctx.author.id,
+                            timeout=30,
+                        )
+                    except asyncio.TimeoutError:
+                        await ctx.send(
+                            f"I won't wait forever for a response. "
+                            f"If you decide to change this later, use `{ctx.prefix}roleset`."
+                        )
+                        return
+                    else:
+                        if (resp2 := m2.content.casefold()) == "yes":
+                            await self.config.role(role).self_removable.set(True)
+                            await ctx.send(
+                                "Ok, I've made the role self removable as well."
+                            )
+                        elif resp2 == "no":
+                            await ctx.send("Got it, leaving it alone.")
+                        else:
+                            return await ctx.send(
+                                f"That did not appear to be a yes or a no. "
+                                f"If you need to change this, use `{ctx.prefix}roleset`"
+                            )
+
+                elif resp == "no":
+                    return await ctx.send(
+                        "Ok, I assume you know what you are doing then."
+                    )
+                else:
+                    return await ctx.send(
+                        f"That did not appear to be a yes or a no. "
+                        f"If you need to change this, use `{ctx.prefix}roleset`"
+                    )
 
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
@@ -437,7 +580,7 @@ class RoleManagement(
         self, ctx: commands.Context, role: discord.Role, msgid: int, emoji: str
     ):
         """
-        unbinds a role from a reaction on a message
+        Unbinds a role from a reaction on a message.
         """
 
         try:
@@ -459,14 +602,14 @@ class RoleManagement(
     @commands.group(name="roleset", autohelp=True)
     async def rgroup(self, ctx: commands.GuildContext):
         """
-        Settings for role requirements
+        Settings for role requirements.
         """
         pass
 
     @rgroup.command(name="viewreactions")
     async def rg_view_reactions(self, ctx: commands.GuildContext):
         """
-        View the reactions enabled for the server
+        View the reactions enabled for the server.
         """
         # This design is intentional for later extention to view this per role
 
@@ -501,7 +644,7 @@ class RoleManagement(
     @rgroup.command(name="viewrole")
     async def rg_view_role(self, ctx: commands.GuildContext, *, role: discord.Role):
         """
-        Views the current settings for a role
+        Views the current settings for a role.
         """
 
         rsets = await self.config.role(role).all()
@@ -548,6 +691,7 @@ class RoleManagement(
     ):
         """
         Makes a role purchasable for a specified cost.
+
         Cost must be a number greater than 0.
         A cost of exactly 0 can be used to remove purchasability.
 
@@ -605,7 +749,7 @@ class RoleManagement(
     @rgroup.command(name="exclusive")
     async def set_exclusivity(self, ctx: commands.GuildContext, *roles: discord.Role):
         """
-        Takes 2 or more roles and sets them as exclusive to eachother
+        Takes 2 or more roles and sets them as exclusive to eachother.
         """
 
         _roles = set(roles)
@@ -623,7 +767,7 @@ class RoleManagement(
     @rgroup.command(name="unexclusive")
     async def unset_exclusivity(self, ctx: commands.GuildContext, *roles: discord.Role):
         """
-        Takes any number of roles, and removes their exclusivity settings
+        Takes any number of roles and removes their exclusivity settings.
         """
 
         _roles = set(roles)
@@ -639,22 +783,14 @@ class RoleManagement(
 
     @rgroup.command(name="sticky")
     async def setsticky(
-        self, ctx: commands.GuildContext, role: discord.Role, sticky: bool = None
+        self, ctx: commands.GuildContext, role: discord.Role, yes_or_no: bool
     ):
         """
-        sets a role as sticky if used without a settings, gets the current ones
+        Sets whether a role should be reapplied to people who leave and rejoin.
         """
 
-        if sticky is None:
-            is_sticky = await self.config.role(role).sticky()
-            return await ctx.send(
-                "{role} {verb} sticky".format(
-                    role=role.name, verb=("is" if is_sticky else "is not")
-                )
-            )
-
-        await self.config.role(role).sticky.set(sticky)
-        if sticky:
+        await self.config.role(role).sticky.set(yes_or_no)
+        if yes_or_no:
             for m in role.members:
                 async with self.config.member(m).roles() as rids:
                     if role.id not in rids:
@@ -667,9 +803,10 @@ class RoleManagement(
         self, ctx: commands.GuildContext, role: discord.Role, *roles: discord.Role
     ):
         """
-        Sets the required roles to gain a role
+        Sets the required roles to gain a role.
 
-        Takes a role plus zero or more other roles (as requirements for the first)
+        Takes a role plus zero or more other roles.
+        The additional roles are treated as the requirements of the first.
         """
 
         rids = [r.id for r in roles]
@@ -681,9 +818,10 @@ class RoleManagement(
         self, ctx: commands.GuildContext, role: discord.Role, *roles: discord.Role
     ):
         """
-        Sets a role to require already having one of another
+        Sets a role to require already having one of another.
 
-        Takes a role plus zero or more other roles (as requirements for the first)
+        Takes a role plus zero or more other roles.
+        The additional roles are treated as the requirements of the first.
         """
 
         rids = [r.id for r in (roles or [])]
@@ -692,46 +830,23 @@ class RoleManagement(
 
     @rgroup.command(name="selfrem")
     async def selfrem(
-        self, ctx: commands.GuildContext, role: discord.Role, removable: bool = None
+        self, ctx: commands.GuildContext, role: discord.Role, yes_or_no: bool
     ):
         """
-        Sets if a role is self-removable (default False)
-
-        use without a setting to view current
+        Sets if a role is self-removable.
         """
-
-        if removable is None:
-            is_removable = await self.config.role(role).self_removable()
-            return await ctx.send(
-                "{role} {verb} self-removable".format(
-                    role=role.name, verb=("is" if is_removable else "is not")
-                )
-            )
-
-        await self.config.role(role).self_removable.set(removable)
+        await self.config.role(role).self_removable.set(yes_or_no)
         await ctx.tick()
 
     @rgroup.command(name="selfadd")
     async def selfadd(
-        self, ctx: commands.GuildContext, role: discord.Role, assignable: bool = None
+        self, ctx: commands.GuildContext, role: discord.Role, yes_or_no: bool
     ):
         """
-        Sets if a role is self-assignable via command
-
-        (default False)
-
-        use without a setting to view current
+        Sets if a role is self-assignable.
         """
 
-        if assignable is None:
-            is_assignable = await self.config.role(role).self_role()
-            return await ctx.send(
-                "{role} {verb} self-assignable".format(
-                    role=role.name, verb=("is" if is_assignable else "is not")
-                )
-            )
-
-        await self.config.role(role).self_role.set(assignable)
+        await self.config.role(role).self_role.set(yes_or_no)
         await ctx.tick()
 
     @checks.bot_has_permissions(manage_roles=True)
@@ -739,7 +854,7 @@ class RoleManagement(
     @commands.group(name="srole", autohelp=True)
     async def srole(self, ctx: commands.GuildContext):
         """
-        Self assignable role commands
+        Self assignable role commands.
         """
         pass
 
@@ -788,7 +903,7 @@ class RoleManagement(
     @srole.command(name="buy")
     async def srole_buy(self, ctx: commands.GuildContext, *, role: discord.Role):
         """
-        Purchase a role
+        Purchase a role.
         """
         try:
             remove = await self.is_self_assign_eligible(ctx.author, role)
@@ -828,7 +943,7 @@ class RoleManagement(
     @srole.command(name="add")
     async def sadd(self, ctx: commands.GuildContext, *, role: discord.Role):
         """
-        Join a role
+        Join a role.
         """
         try:
             remove = await self.is_self_assign_eligible(ctx.author, role)
@@ -860,7 +975,7 @@ class RoleManagement(
     @srole.command(name="remove")
     async def srem(self, ctx: commands.GuildContext, *, role: discord.Role):
         """
-        leave a role
+        Leave a role.
         """
         if await self.config.role(role).self_removable():
             await self.update_roles_atomically(who=ctx.author, remove=[role])

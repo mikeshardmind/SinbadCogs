@@ -1,19 +1,19 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)",
-        "DiscordLiz"
-    ],
-    "name": "RoleManagement",
-    "disabled": false,
-    "short": "Role searches, reactroles, requirements for roles, etc.",
-    "description": "React roles with requirements, selfroles with requirements, role based member search and more.",
-    "tags": [
-        "react_roles",
-        "react roles",
-        "rolemanagement",
-        "role search",
-        "massrole"
-    ],
-    "hidden": false,
-    "min_bot_version": "3.3.0"
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "RoleManagement",
+	"disabled": false,
+	"short": "Role searches, reactroles, requirements for roles, etc.",
+	"description": "React roles with requirements, selfroles with requirements, role based member search and more.",
+	"tags": [
+		"react_roles",
+		"react roles",
+		"rolemanagement",
+		"role search",
+		"massrole"
+	],
+	"hidden": false,
+	"min_bot_version": "3.3.10"
 }
