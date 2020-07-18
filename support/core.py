@@ -1,3 +1,5 @@
+import logging
+
 import discord
 from redbot.core import commands
 from redbot.core.bot import Red
@@ -8,6 +10,8 @@ OWNER_IDS = (78631113035100160, 240961564503441410)
 BOT_ID = 275047522026913793
 
 PUNISH_PERMS = 329792
+
+log = logging.getLogger("red.sinbadcogs.support")
 
 
 class Support(commands.Cog, name="Sinbad's Support Toolbox"):
@@ -26,6 +30,64 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
             or message.channel.id != SUPPORT_CHANNEL_ID
         ):
             return
+
+        await self.maybe_notify_against_mentioning(message)
+
+        await self.maybe_delete_for_attach(message)
+
+    async def maybe_delete_for_attach(self, message: discord.Message):
+
+        if not message.attachments:
+            return
+
+        elif sum(a.size for a in message.attachments) > 8_000_000:
+            author = message.author
+            channel = message.channel
+            try:
+                await message.delete()
+            except discord.HTTPException as exc:
+                log.exception("Delete fail", exc_info=exc)
+
+            r = discord.http.Route(
+                "POST",
+                "/channels/{channel_id}/messages",
+                channel_id=message.channel.id,
+            )
+
+            kwargs = {
+                "allowed_mentions": {"parse": []},
+                "content": f"Please refrain from large attachments. {message.author.mention}",
+            }  # This will prevent it from pinging, but leave a record in the chat.
+
+            return await self.bot.http.request(r, json=kwargs)  # type: ignore
+
+        elif message.attachments[0].filename == "message.txt":
+
+            author = message.author
+            channel = message.channel
+            try:
+                await message.delete()
+            except discord.HTTPException as exc:
+                log.exception("Delete fail", exc_info=exc)
+
+            r = discord.http.Route(
+                "POST",
+                "/channels/{channel_id}/messages",
+                channel_id=message.channel.id,
+            )
+
+            kwargs = {
+                "allowed_mentions": {"parse": []},
+                "content": (
+                    f"Please use <https://gist.github.com> or <https://mystb.in/> "
+                    f"for content which will not fit in a single message "
+                    f"{message.author.mention}"
+                ),
+            }  # This will prevent it from pinging, but leave a record in the chat.
+
+            return await self.bot.http.request(r, json=kwargs)  # type: ignore
+
+    async def maybe_notify_against_mentioning(self, message: discord.Message):
 
         for u in message.mentions:
             if u.id in OWNER_IDS:
