@@ -5,6 +5,7 @@ import logging
 import string
 import urllib.parse
 from datetime import datetime
+from types import MappingProxyType
 from typing import Any, Dict, Generator, List, Optional, cast
 
 import aiohttp
@@ -58,7 +59,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "339.3.0"
+    __version__ = "339.4.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -166,6 +167,7 @@ class RSS(commands.Cog):
         *,
         destination: discord.TextChannel,
         response: feedparser.FeedParserDict,
+        feed_name: str,
         feed_settings: dict,
         embed_default: bool,
         force: bool = False,
@@ -214,7 +216,35 @@ class RSS(commands.Cog):
                 await self.bot.http.request(r, json=kwargs)
             except discord.HTTPException as exc:
                 debug_exc_log(log, exc, "Exception while sending feed.")
-            last_sent = list(self.process_entry_time(entry))
+                self.bot.dispatch(
+                    # If you want to use this, make your listener accept
+                    # what you need from this + **kwargs to not break if I add more
+                    # This listener is versioned.
+                    # you should not mutate the feedparser classes.
+                    "sinbadcogs_rss_send_fail",
+                    listener_version=1,
+                    destination=destination,
+                    feed_name=feed_name,
+                    feedparser_entry=entry,
+                    feed_settings=MappingProxyType(kwargs),
+                    forced_update=force,
+                )
+            else:
+                self.bot.dispatch(
+                    # If you want to use this, make your listener accept
+                    # what you need from this + **kwargs to not break if I add more
+                    # This listener is versioned.
+                    # you should not mutate the feedparser classes.
+                    "sinbadcogs_rss_send",
+                    listener_version=1,
+                    destination=destination,
+                    feed_name=feed_name,
+                    feedparser_entry=entry,
+                    feed_settings=MappingProxyType(kwargs),
+                    forced_update=force,
+                )
+            finally:
+                last_sent = list(self.process_entry_time(entry))
 
         return last_sent
 
@@ -277,6 +307,7 @@ class RSS(commands.Cog):
             return
         try:
             last = await self.format_and_send(
+                feed_name=feed_name,
                 destination=channel,
                 response=response,
                 feed_settings=feed,
@@ -384,6 +415,7 @@ class RSS(commands.Cog):
 
             try:
                 await self.format_and_send(
+                    feed_name=feed,
                     destination=channel,
                     response=response,
                     feed_settings=feeds[feed],
