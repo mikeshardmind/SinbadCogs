@@ -60,7 +60,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "339.5.0"
+    __version__ = "339.5.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -254,7 +254,7 @@ class RSS(commands.Cog):
                     destination=destination,
                     feed_name=feed_name,
                     feedparser_entry=entry,
-                    feed_settings=MappingProxyType(kwargs),
+                    feed_settings=MappingProxyType(feed_settings),
                     forced_update=force,
                 )
             else:
@@ -275,7 +275,7 @@ class RSS(commands.Cog):
                     destination=destination,
                     feed_name=feed_name,
                     feedparser_entry=entry,
-                    feed_settings=MappingProxyType(kwargs),
+                    feed_settings=MappingProxyType(feed_settings),
                     forced_update=force,
                 )
             finally:
