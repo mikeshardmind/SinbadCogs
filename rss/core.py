@@ -58,7 +58,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "339.2.0"
+    __version__ = "339.3.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -198,8 +198,9 @@ class RSS(commands.Cog):
         last_sent = None
         for entry in to_send:
             color = destination.guild.me.color
+            roles = feed_settings.get("role_mentions", [])
             kwargs = self.format_post(
-                entry, use_embed, color, feed_settings.get("template", None)
+                entry, use_embed, color, feed_settings.get("template", None), roles
             )
             try:
                 r = discord.http.Route(
@@ -208,7 +209,7 @@ class RSS(commands.Cog):
                 if em := kwargs.pop("embed", None):
                     assert isinstance(em, discord.Embed), "mypy"  # nosec
                     kwargs["embed"] = em.to_dict()
-                kwargs["allowed_mentions"] = {"parse": []}
+                kwargs["allowed_mentions"] = {"parse": [], "roles": roles}
 
                 await self.bot.http.request(r, json=kwargs)
             except discord.HTTPException as exc:
@@ -217,7 +218,7 @@ class RSS(commands.Cog):
 
         return last_sent
 
-    def format_post(self, entry, embed: bool, color, template=None) -> dict:
+    def format_post(self, entry, embed: bool, color, template=None, roles=[]) -> dict:
 
         if template is None:
             if embed:
@@ -248,11 +249,20 @@ class RSS(commands.Cog):
                 description=content, color=color, timestamp=timestamp
             )
             embed_data.set_footer(text="Published ")
-            return {"embed": embed_data}
+            data = {"embed": embed_data}
+            if roles:
+                data["content"] = " ".join((f"<&{rid}>" for rid in roles))
+            return data
         else:
-            if len(content) > 1950:
-                content = content[:1950] + "... (Feed data too long)"
-            return {"content": content}
+            if roles:
+                mention_string = " ".join((f"<&{rid}>" for rid in roles)) + "\n\n"
+            else:
+                mention_string = ""
+
+            if len(content) > 1900:
+                content = content[:1900] + "... (Feed data too long)"
+
+            return {"content": content + mention_string if mention_string else content}
 
     async def handle_response_from_loop(
         self,
@@ -594,4 +604,45 @@ class RSS(commands.Cog):
 
             del feeds[name]["template"]
 
+        await ctx.tick()
+
+    @checks.admin_or_permissions(manage_guild=True)
+    @rss.command(name="rolementions")
+    async def feedset_mentions(
+        self,
+        ctx,
+        name,
+        channel: Optional[discord.TextChannel] = None,
+        *roles: discord.Role,
+    ):
+        """
+        Sets the roles which are mentioned when this feed updates.
+
+        This will clear the setting if none.
+        """
+
+        if len(roles) > 4:
+            return await ctx.send(
+                "I'm judging you hard here. "
+                "Fix your notification roles, "
+                "don't mention this many (exiting without changes)."
+            )
+
+        if roles and max(roles) > ctx.author.top_role and ctx.author != ctx.guild.owner:
+            return await ctx.send(
+                "I'm not letting you set a role mention for a role above your own."
+            )
+
+        channel = channel or ctx.channel
+        async with self.config.channel(channel).feeds() as feeds:
+            if name not in feeds:
+                await ctx.send(f"No feed named {name} in {channel.mention}.")
+                return
+
+            feeds[name]["role_mentions"] = [r.id for r in set(roles)]
+
+        if roles:
+            await ctx.send("I've set those roles to be mentioned.")
+        else:
+            await ctx.send("Roles won't be mentioned.")
         await ctx.tick()
