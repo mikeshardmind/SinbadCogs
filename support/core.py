@@ -18,25 +18,22 @@ The following is a single command that will fix the whole problem in theory
 With that said, running evals is dangerous, as is touching things owned by other cogs.
 
 Use this only if you are confident in understanding what this is doing.
-This should only be run on Red Version 3.2.10 (where it was tested):
+This should only be run on Red Version 3.3.10 (where it was tested):
+
+This will fix the data red has stored about a fork, update, and reload.
 
 [p]eval
 ```py
-from redbot.cogs.downloader.repo_manager import ProcessFormatter
-
-rev = "bebb29b781913fd006ae4684cd14a64aec2eb687"
-repo_manager = bot.get_cog('Downloader')._repo_manager
-for repo in repo_manager.repos:
-    if repo.url == "https://github.com/mikeshardmind/SinbadCogs":
-
-        git_command = ProcessFormatter().format(
-            "git -C {path} reset --hard {rev} -q",
-            path=repo.folder_path,
-            rev=rev,
-        )
-        await repo._run(git_command)
-        repo.commit = rev
-        await ctx.invoke(bot.get_command("repo update"), repo)
+ctx.assume_yes = True
+downloader = bot.get_cog("Downloader")
+installed_cogs = await downloader.installed_cogs()
+updated_cogs = []
+for cog in installed_cogs:
+    if cog.repo and cog.repo.url == "https://github.com/mikeshardmind/SinbadCogs":
+        cog.commit = ""
+        updated_cogs.append(cog)
+await downloader._save_to_installed(updated_cogs)
+await ctx.invoke(bot.get_command("cog update"), *updated_cogs)
 ```
 """
 
