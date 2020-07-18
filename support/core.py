@@ -41,8 +41,6 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
             return
 
         elif sum(a.size for a in message.attachments) > 8_000_000:
-            author = message.author
-            channel = message.channel
             try:
                 await message.delete()
             except discord.HTTPException as exc:
@@ -59,12 +57,11 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
                 "content": f"Please refrain from large attachments. {message.author.mention}",
             }  # This will prevent it from pinging, but leave a record in the chat.
 
-            return await self.bot.http.request(r, json=kwargs)  # type: ignore
+            await self.bot.http.request(r, json=kwargs)  # type: ignore
+            return
 
         elif message.attachments[0].filename == "message.txt":
 
-            author = message.author
-            channel = message.channel
             try:
                 await message.delete()
             except discord.HTTPException as exc:
@@ -85,7 +82,27 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
                 ),
             }  # This will prevent it from pinging, but leave a record in the chat.
 
-            return await self.bot.http.request(r, json=kwargs)  # type: ignore
+            await self.bot.http.request(r, json=kwargs)  # type: ignore
+            return
+
+        if not all((a.height and a.width) for a in message.attachments):
+            r = discord.http.Route(
+                "POST",
+                "/channels/{channel_id}/messages",
+                channel_id=message.channel.id,
+            )
+
+            kwargs = {
+                "allowed_mentions": {"parse": []},
+                "content": (
+                    "This message appears to have a non-mobile friendly attachment. "
+                    "If this is the case (detection is experimental) "
+                    "you may want to consider sending this another way."
+                    f"{message.author.mention}"
+                ),
+            }  # This will prevent it from pinging, but leave a record in the chat.
+
+            await self.bot.http.request(r, json=kwargs)  # type: ignore
 
     async def maybe_notify_against_mentioning(self, message: discord.Message):
 
