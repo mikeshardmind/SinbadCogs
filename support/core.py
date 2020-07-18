@@ -1,8 +1,6 @@
 import logging
 
 import discord
-from redbot import VersionInfo
-from redbot import version_info as red_version
 from redbot.core import checks, commands
 from redbot.core.bot import Red
 
