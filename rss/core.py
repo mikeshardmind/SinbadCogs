@@ -5,6 +5,7 @@ import logging
 import string
 import urllib.parse
 from datetime import datetime
+from functools import partial
 from types import MappingProxyType
 from typing import Any, Dict, Generator, List, Optional, cast
 
@@ -59,7 +60,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "339.4.0"
+    __version__ = "339.5.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -118,6 +119,26 @@ class RSS(commands.Cog):
             return None
 
         ret = feedparser.parse(data)
+        self.bot.dispatch(
+            # dispatch is versioned.
+            # To remain compatible, accept kwargs and check version
+            #
+            # version: 1
+            # response_regerator: Callable[[], feedparser.FeedParserDict]
+            # bozo: Whether this was already a junk response.
+            #
+            # This may be dispatched any time a feed is fetched,
+            # and if you use this, you should compare with prior info
+            # The response regeneration exists to remove potential
+            # of consumers accidentally breaking the cog by mutating
+            # a response which has not been consumed by the cog yet.
+            # re-parsing is faster than a deepcopy, and prevents needing it
+            # should nothing be using the listener.
+            "sinbadcogs_rss_fetch",
+            listener_version=1,
+            response_regenerator=partial(feedparser.parse, data),
+            bozo=ret.bozo,
+        )
         if ret.bozo:
             log.debug(f"Feed url: {url} is invalid.")
             return None
@@ -221,6 +242,13 @@ class RSS(commands.Cog):
                     # what you need from this + **kwargs to not break if I add more
                     # This listener is versioned.
                     # you should not mutate the feedparser classes.
+                    #
+                    # version: 1
+                    # destination: discord.TextChannel
+                    # feed_name: str
+                    # feedparser_entry: feedparser.FeedParserDict
+                    # feed_settings: MappingProxy
+                    # forced_update: bool
                     "sinbadcogs_rss_send_fail",
                     listener_version=1,
                     destination=destination,
@@ -235,6 +263,13 @@ class RSS(commands.Cog):
                     # what you need from this + **kwargs to not break if I add more
                     # This listener is versioned.
                     # you should not mutate the feedparser classes.
+                    #
+                    # version: 1
+                    # destination: discord.TextChannel
+                    # feed_name: str
+                    # feedparser_entry: feedparser.FeedParserDict
+                    # feed_settings: MappingProxy
+                    # forced_update: bool
                     "sinbadcogs_rss_send",
                     listener_version=1,
                     destination=destination,
