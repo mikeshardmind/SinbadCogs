@@ -1,7 +1,9 @@
 import logging
 
 import discord
-from redbot.core import commands
+from redbot import VersionInfo
+from redbot import version_info as red_version
+from redbot.core import checks, commands
 from redbot.core.bot import Red
 
 SUPPORT_CHANNEL_ID = 444660866273771540
@@ -12,6 +14,33 @@ BOT_ID = 275047522026913793
 PUNISH_PERMS = 329792
 
 log = logging.getLogger("red.sinbadcogs.support")
+
+COMMIT_FIX = """
+The following is a single command that will fix the whole problem in theory
+With that said, running evals is dangerous, as is touching the data of other cogs.
+so use this only if you are confident in understanding what this is doing.
+Additionally, this should only be run on Red Version 3.2.10:
+
+
+[p]eval
+```py
+from redbot.cogs.downloader.repo_manager import ProcessFormatter
+
+rev = "bebb29b781913fd006ae4684cd14a64aec2eb687"
+repo_manager = bot.get_cog('Downloader')._repo_manager
+for repo in repo_manager.repos:
+    if repo.url == "https://github.com/mikeshardmind/SinbadCogs":
+
+        git_command = ProcessFormatter().format(
+            "git -C {path} reset --hard {rev} -q",
+            path=repo.folder_path,
+            rev=rev,
+        )
+        await repo._run(git_command)
+        repo.commit = rev
+        await ctx.invoke(bot.get_command("repo update"), repo)
+```
+"""
 
 
 class Support(commands.Cog, name="Sinbad's Support Toolbox"):
@@ -169,3 +198,13 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
             await channel.set_permissions(
                 author, overwrite=auth_overwrites, reason="Emoji Mute."
             )
+
+    @checks.is_owner()
+    @commands.command()
+    async def fixswitch(self, ctx, confident: bool):
+        if not confident:
+            await ctx.send(
+                "Follow the direction in this link: <https://discordapp.com/channels/240154543684321280/444660866273771540/734090016740999218>"
+            )
+        else:
+            await ctx.send(COMMIT_FIX)
