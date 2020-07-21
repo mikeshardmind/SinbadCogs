@@ -60,7 +60,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "339.5.1"
+    __version__ = "339.5.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -316,11 +316,11 @@ class RSS(commands.Cog):
             embed_data.set_footer(text="Published ")
             data = {"embed": embed_data}
             if roles:
-                data["content"] = " ".join((f"<&{rid}>" for rid in roles))
+                data["content"] = " ".join((f"<@&{rid}>" for rid in roles))
             return data
         else:
             if roles:
-                mention_string = " ".join((f"<&{rid}>" for rid in roles)) + "\n\n"
+                mention_string = " ".join((f"<@&{rid}>" for rid in roles)) + "\n\n"
             else:
                 mention_string = ""
 
