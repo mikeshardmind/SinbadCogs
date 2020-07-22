@@ -1,4 +1,5 @@
 from redbot.core.errors import CogLoadError
+
 from .core import MLog
 
 
