@@ -1,20 +1,20 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)",
-        "DiscordLiz"
-    ],
-    "name": "EmbedMaker",
-    "disabled": false,
-    "short": "Embeds",
-    "description": "Highly featured embed creation. Still needs a lot of UX improvement.",
-    "tags": [
-        "embed",
-        "embedmaker"
-    ],
-    "hidden": false,
-    "min_bot_version": "3.3.0",
-    "requirements": [
-        "python-dateutil",
-        "pytz"
-    ]
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "EmbedMaker",
+	"disabled": false,
+	"short": "Embeds",
+	"description": "Highly featured embed creation. Still needs a lot of UX improvement.",
+	"tags": [
+		"embed",
+		"embedmaker"
+	],
+	"hidden": false,
+	"min_bot_version": "3.3.10",
+	"requirements": [
+		"python-dateutil",
+		"pytz"
+	]
 }
