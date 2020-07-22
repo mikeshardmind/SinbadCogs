@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import io
 import logging
-from typing import Generator, cast
+from typing import Generator, Optional, cast
 
 import discord
 from redbot.core import Config, checks, commands
@@ -20,7 +20,7 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "330.0.2"
+    __version__ = "339.0.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -36,15 +36,15 @@ class EmbedMaker(commands.Cog):
         self.config.register_custom("EMBED", embed={}, owner=None)
         self.config.register_guild(active=True)
 
+    @commands.guild_only()
     @commands.group(name="embed", autohelp=True)
-    async def _embed(self, ctx: commands.Context):
+    async def _embed(self, ctx: commands.GuildContext):
         """
         Embed commands
         """
         pass
 
     @checks.guildowner()
-    @commands.guild_only()
     @_embed.command(name="editmsg")
     async def editmessage_embed(
         self,
@@ -79,7 +79,6 @@ class EmbedMaker(commands.Cog):
             pass  # TODO
         await ctx.tick()
 
-    @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command(name="advmake")
     async def make_adv(self, ctx: commands.GuildContext, name: str, *, data: str):
@@ -107,10 +106,20 @@ class EmbedMaker(commands.Cog):
 
     @_embed.command(name="uploadnostore")
     @commands.bot_has_permissions(embed_links=True)
-    async def no_storage_upload(self, ctx: commands.Context):
+    async def no_storage_upload(
+        self, ctx: commands.GuildContext, channel: Optional[discord.TextChannel] = None
+    ):
         """
         Quickly make an embed without intent to store
         """
+        if channel:
+            if not channel.permissions_for(ctx.me).send_messages:
+                return await ctx.send("I can't send messages there.")
+            if not channel.permissions_for(ctx.author).send_messages:
+                return await ctx.send("You can't send messages there.")
+        else:
+            channel = ctx.channel
+
         try:
             with io.BytesIO() as fp:
                 await ctx.message.attachments[0].save(fp)
@@ -120,7 +129,7 @@ class EmbedMaker(commands.Cog):
 
         try:
             e = await embed_from_userstr(ctx, data)
-            await ctx.send(embed=e)
+            await channel.send(embed=e)
         except discord.HTTPException:
             await ctx.send("Discord didn't like that embed", delete_after=30)
         except Exception:
@@ -128,19 +137,32 @@ class EmbedMaker(commands.Cog):
 
     @_embed.command(name="advnostore")
     @commands.bot_has_permissions(embed_links=True)
-    async def no_storage_adv(self, ctx: commands.Context, *, data: str):
+    async def no_storage_adv(
+        self,
+        ctx: commands.GuildContext,
+        channel: Optional[discord.TextChannel] = None,
+        *,
+        data: str,
+    ):
         """
         Quickly make an embed without intent to store
         """
+        if channel:
+            if not channel.permissions_for(ctx.me).send_messages:
+                return await ctx.send("I can't send messages there.")
+            if not channel.permissions_for(ctx.author).send_messages:
+                return await ctx.send("You can't send messages there.")
+        else:
+            channel = ctx.channel
+
         try:
             e = await embed_from_userstr(ctx, data)
-            await ctx.send(embed=e)
+            await channel.send(embed=e)
         except discord.HTTPException:
             await ctx.send("Discord didn't like that embed", delete_after=30)
         except Exception:
             await ctx.send("There was something wrong with that input", delete_after=30)
 
-    @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command(name="upload")
     async def make_upload(self, ctx: commands.GuildContext, name: str):
@@ -253,20 +275,33 @@ class EmbedMaker(commands.Cog):
                 serialize_embed(e)
             )
 
-    @commands.guild_only()
     @_embed.command(name="nostore")
-    async def _e_nostore(self, ctx: commands.GuildContext, *, content: str):
+    async def _e_nostore(
+        self,
+        ctx: commands.GuildContext,
+        channel: Optional[discord.TextChannel],
+        *,
+        content: str,
+    ):
         """
         Quick embeds.
         """
+
+        if channel:
+            if not channel.permissions_for(ctx.me).send_messages:
+                return await ctx.send("I can't send messages there.")
+            if not channel.permissions_for(ctx.author).send_messages:
+                return await ctx.send("You can't send messages there.")
+        else:
+            channel = ctx.channel
+
         color = await ctx.embed_color()
         e = discord.Embed(description=content, color=color)
         try:
-            await ctx.send(embed=e)
+            await channel.send(embed=e)
         except (discord.Forbidden, discord.HTTPException):
             await ctx.maybe_send_embed("Discord didn't like that embed")
 
-    @commands.guild_only()
     @_embed.command(name="make")
     async def _make(self, ctx: commands.GuildContext, name: str, *, content: str):
         """
@@ -337,7 +372,6 @@ class EmbedMaker(commands.Cog):
         finally:
             page_gen.close()
 
-    @commands.guild_only()
     @_embed.command(name="remove")
     async def _remove(self, ctx: commands.GuildContext, name: str):
         """
@@ -368,33 +402,59 @@ class EmbedMaker(commands.Cog):
         await self.config.custom("EMBED", "GLOBAL", name).clear()
         await ctx.tick()
 
-    @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     @_embed.command()
-    async def drop(self, ctx: commands.GuildContext, name: str):
+    async def drop(
+        self,
+        ctx: commands.GuildContext,
+        name: str,
+        channel: Optional[discord.TextChannel] = None,
+    ):
         """
-        drops an embed here
+        Drops an embed here
         """
         name = name.lower()
+
+        if channel:
+            if not channel.permissions_for(ctx.me).send_messages:
+                return await ctx.send("I can't send messages there.")
+            if not channel.permissions_for(ctx.author).send_messages:
+                return await ctx.send("You can't send messages there.")
+        else:
+            channel = ctx.channel
+
         try:
-            await self.get_and_send(ctx.channel, str(ctx.guild.id), name)
+            await self.get_and_send(channel, str(ctx.guild.id), name)
         except (discord.Forbidden, discord.HTTPException) as e:
             log.error(e)
 
     @checks.is_owner()
     @_embed.command(name="dropglobal")
-    async def drop_global(self, ctx: commands.Context, name: str):
+    async def drop_global(
+        self,
+        ctx: commands.GuildContext,
+        name: str,
+        channel: Optional[discord.TextChannel] = None,
+    ):
         """
         drop a global embed here
         """
         name = name.lower()
+
+        if channel:
+            if not channel.permissions_for(ctx.me).send_messages:
+                return await ctx.send("I can't send messages there.")
+            if not channel.permissions_for(ctx.author).send_messages:
+                return await ctx.send("You can't send messages there.")
+        else:
+            channel = ctx.channel
+
         try:
-            await self.get_and_send(ctx.channel, "GLOBAL", name)
+            await self.get_and_send(channel, "GLOBAL", name)
         except (discord.Forbidden, discord.HTTPException) as e:
             log.error(e)
 
     @checks.admin()
-    @commands.guild_only()
     @_embed.command()
     async def dm(self, ctx: commands.GuildContext, name: str, user: discord.Member):
         """
@@ -430,7 +490,6 @@ class EmbedMaker(commands.Cog):
             if x is not None:
                 await ctx.tick()
 
-    @commands.guild_only()
     @_embed.command()
     async def dmme(self, ctx: commands.GuildContext, name: str):
         """
@@ -463,7 +522,6 @@ class EmbedMaker(commands.Cog):
             if x is not None:
                 await ctx.tick()
 
-    @commands.guild_only()
     @_embed.command(name="frommsg")
     async def from_message(self, ctx: commands.GuildContext, name: str, _id: int):
         """
