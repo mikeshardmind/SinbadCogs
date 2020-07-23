@@ -1,4 +1,4 @@
-from typing import Any, Tuple, Type, TypeVar
+from typing import Any, Tuple, Type, TypeVar, SupportsFloat
 
 _C = TypeVar("_C", bound=Colour)
 
@@ -17,6 +17,10 @@ class Colour:
     def to_rgb(self) -> Tuple[int, int, int]: ...
     @classmethod
     def from_rgb(cls: Type[_C], r: int, g: int, b: int) -> _C: ...
+    @classmethod
+    def from_hsv(
+        cls: Type[_C], h: SupportsFloat, s: SupportsFloat, v: SupportsFloat
+    ) -> _C: ...
     @classmethod
     def default(cls: Type[_C]) -> _C: ...
     @classmethod
