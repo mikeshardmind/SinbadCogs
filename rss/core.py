@@ -18,7 +18,7 @@ from redbot.core.config import Config
 from redbot.core.utils.chat_formatting import box, pagify
 
 from .cleanup import html_to_text
-from .converters import TriState
+from .converters import NonEveryoneRole, TriState
 
 log = logging.getLogger("red.sinbadcogs.rss")
 
@@ -60,7 +60,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "339.5.2"
+    __version__ = "339.5.3"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -680,13 +680,15 @@ class RSS(commands.Cog):
         ctx,
         name,
         channel: Optional[discord.TextChannel] = None,
-        *roles: discord.Role,
+        *non_everyone_roles: NonEveryoneRole,
     ):
         """
         Sets the roles which are mentioned when this feed updates.
 
         This will clear the setting if none.
         """
+
+        roles = set(non_everyone_roles)
 
         if len(roles) > 4:
             return await ctx.send(
@@ -706,7 +708,7 @@ class RSS(commands.Cog):
                 await ctx.send(f"No feed named {name} in {channel.mention}.")
                 return
 
-            feeds[name]["role_mentions"] = [r.id for r in set(roles)]
+            feeds[name]["role_mentions"] = [r.id for r in roles]
 
         if roles:
             await ctx.send("I've set those roles to be mentioned.")

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
+import discord
 from redbot.core import commands
 
 
@@ -26,3 +27,15 @@ class TriState:
     @classmethod
     async def convert(cls, ctx, arg):
         return cls(_tristate(arg))
+
+
+_role_converter = commands.RoleConverter()
+
+
+class NonEveryoneRole(discord.Role):
+    @classmethod
+    async def convert(cls, ctx: commands.Context, arg: str) -> discord.Role:
+        role: discord.Role = await _role_converter.convert(ctx, arg)
+        if role.is_default():
+            raise commands.BadArgument("You can't set this for the everyone role")
+        return role
