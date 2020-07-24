@@ -21,7 +21,7 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "339.0.3"
+    __version__ = "339.0.4"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -99,6 +99,7 @@ class EmbedMaker(commands.Cog):
             return await ctx.send("No embed by that name here")
 
         try:
+            assert isinstance(message.channel, discord.TextChannel)  # nosec
             if message.channel.permissions_for(ctx.me).manage_messages:
                 await message.edit(embed=embed, suppress=True)
             else:
