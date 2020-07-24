@@ -14,10 +14,17 @@ log = logging.getLogger("red.sinbadcogs.anticommandspam")
 class AntiCommandSpam(commands.Cog):
     """
     Blocks users who spam commands from
-    interacting with the bot until next reboot
+    interacting with the bot for a while.
+
+    This cog is still in early testing!
+
+    TODO:
+        - Add spam stats commands
+        - Dynamic settings
+        - Progressive Punishments for repeat offenders.
     """
 
-    __version__ = "0.0.6a"
+    __version__ = "0.0.7a"
     messages = {
         1: "Come back in another 30 seconds or so.",
         2: "I don't like spam.",
@@ -41,7 +48,7 @@ class AntiCommandSpam(commands.Cog):
 
     async def bg_loop(self):
         # This is non-precise block age-outs
-        while asyncio.sleep(7200, True):
+        while await asyncio.sleep(7200, True):
             self.prev_blocks = self.blocked
             self.blocked = discord.utils.SnowflakeList(())
 
