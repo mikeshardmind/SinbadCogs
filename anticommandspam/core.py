@@ -16,7 +16,7 @@ class AntiCommandSpam(commands.Cog):
     interacting with the bot until next reboot
     """
 
-    __version__ = "0.0.1a"
+    __version__ = "0.0.2a"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -26,7 +26,7 @@ class AntiCommandSpam(commands.Cog):
         self.bot: Red = bot
         self.blocked = discord.utils.SnowflakeList(())
         self.cooldown = commands.CooldownMapping.from_cooldown(
-            8, 15, commands.BucketType.user
+            6, 12, commands.BucketType.user
         )
         self.consecutive_cooldowns: MutableMapping[int, int] = Counter()
 
