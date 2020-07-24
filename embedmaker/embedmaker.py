@@ -61,12 +61,12 @@ class EmbedMaker(commands.Cog):
 
         hue = random.random()  # nosec
         degree = hue * 360
-        color = discord.Color.from_hsv(hue, 0.5, 1)
+        color = discord.Color.from_hsv(hue, 0.75, 0.8)
         embed = discord.Embed(
             description=f"Color Suggestion for {ctx.author.mention}", color=color,
         )
         embed.add_field(name="RBG", value=hex(color.value))
-        embed.add_field(name="HSV", value=f"({degree:.3g}\N{DEGREE SIGN}, 50%, 100%)")
+        embed.add_field(name="HSV", value=f"({degree:.3g}\N{DEGREE SIGN}, 75%, 80%)")
         await ctx.send(embed=embed)
 
     @checks.guildowner()
