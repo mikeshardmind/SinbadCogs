@@ -1,0 +1,13 @@
+{
+	"author": [
+		"mikeshardmind(Sinbad)"
+	],
+	"name": "AntiCommandSpam",
+	"disabled": false,
+	"short": "Temporarily blocks users who spam commands",
+	"description": "Temporarily blocks users who spam commands",
+	"tags": [],
+	"hidden": false,
+	"min_bot_version": "3.3.10",
+	"install_message": "This cog is still a bit new. You may experience minor issues with it, if this is the case, please report the issues."
+}
