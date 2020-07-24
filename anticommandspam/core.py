@@ -76,7 +76,7 @@ class AntiCommandSpam(commands.Cog):
 
     def cog_unload(self):
         self.bot.remove_before_invoke_hook(self.custom_before_invoke)
-        self.bot.remove_check(self.custom_check_once, call_once=False)
+        self.bot.remove_check(self.custom_check_once, call_once=True)
 
     @checks.is_owner()
     @commands.group()
