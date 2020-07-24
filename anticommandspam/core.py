@@ -16,7 +16,13 @@ class AntiCommandSpam(commands.Cog):
     interacting with the bot until next reboot
     """
 
-    __version__ = "0.0.2a"
+    __version__ = "0.0.4a"
+    messages = {
+        1: "I don't like spam.",
+        2: "Come back in another 15 seconds or so.",
+        3: "I really don't like spam.",
+        4: "And, that's my cue to ignore you.",
+    }
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -26,7 +32,7 @@ class AntiCommandSpam(commands.Cog):
         self.bot: Red = bot
         self.blocked = discord.utils.SnowflakeList(())
         self.cooldown = commands.CooldownMapping.from_cooldown(
-            6, 12, commands.BucketType.user
+            4, 10, commands.BucketType.user
         )
         self.consecutive_cooldowns: MutableMapping[int, int] = Counter()
 
@@ -41,7 +47,7 @@ class AntiCommandSpam(commands.Cog):
 
         if retry_time:
             self.consecutive_cooldowns[author_id] += 1
-            if self.consecutive_cooldowns[author_id] > 3:
+            if (ccc := self.consecutive_cooldowns[author_id]) > 3:
                 if not self.blocked.has(author_id):
                     self.blocked.add(author_id)
                 log.info(
@@ -50,7 +56,8 @@ class AntiCommandSpam(commands.Cog):
                     user_id=author_id,
                 )
 
-            raise commands.CheckFailure("I don't like spam.")
+            message = self.messages[min(ccc, 4)]
+            raise commands.UserFeedbackCheckFailure(message)
 
         else:
 
