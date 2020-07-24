@@ -1,6 +1,7 @@
+import asyncio
 import logging
 from collections import Counter
-from typing import MutableMapping
+from typing import MutableMapping, Optional
 
 import discord
 from redbot.core import checks, commands
@@ -16,13 +17,12 @@ class AntiCommandSpam(commands.Cog):
     interacting with the bot until next reboot
     """
 
-    __version__ = "0.0.5a"
+    __version__ = "0.0.6a"
     messages = {
-        1: "I don't like spam.",
-        2: "Come back in another 20 seconds or so.",
-        3: "I really don't like spam.",
-        4: "And, that's my cue to ignore you.",
-        5: None,
+        1: "Come back in another 30 seconds or so.",
+        2: "I don't like spam.",
+        3: "And, that's my cue to ignore you for now. Maybe try tommorow.",
+        4: None,
     }
 
     def format_help_for_context(self, ctx):
@@ -32,10 +32,18 @@ class AntiCommandSpam(commands.Cog):
     def __init__(self, bot: Red):
         self.bot: Red = bot
         self.blocked = discord.utils.SnowflakeList(())
+        self.prev_blocks = discord.utils.SnowflakeList(())
         self.cooldown = commands.CooldownMapping.from_cooldown(
-            6, 18, commands.BucketType.user
+            6, 20, commands.BucketType.user
         )
         self.consecutive_cooldowns: MutableMapping[int, int] = Counter()
+        self.loop_task: Optional[asyncio.Task] = None
+
+    async def bg_loop(self):
+        # This is non-precise block age-outs
+        while asyncio.sleep(7200, True):
+            self.prev_blocks = self.blocked
+            self.blocked = discord.utils.SnowflakeList(())
 
     async def custom_before_invoke(self, ctx: commands.Context):
 
@@ -48,16 +56,16 @@ class AntiCommandSpam(commands.Cog):
 
         if retry_time:
             self.consecutive_cooldowns[author_id] += 1
-            if (ccc := self.consecutive_cooldowns[author_id]) > 4:
+            if (ccc := self.consecutive_cooldowns[author_id]) > 3:
                 if not self.blocked.has(author_id):
                     self.blocked.add(author_id)
                 log.info(
-                    "User: {user_id} has been blocked until next "
-                    "cog load for many consecutive global cooldown hits",
+                    "User: {user_id} has been blocked temporarily for "
+                    "hitting the global ratelimit a lot.",
                     user_id=author_id,
                 )
 
-            message = self.messages[min(ccc, 5)]
+            message = self.messages[min(ccc, 4)]
             raise commands.UserFeedbackCheckFailure(message)
 
         else:
@@ -65,7 +73,9 @@ class AntiCommandSpam(commands.Cog):
             self.consecutive_cooldowns.pop(author_id, None)
 
     async def custom_check_once(self, ctx: commands.Context):
-        return not self.blocked.has(ctx.author.id)
+        return not (
+            self.blocked.has(ctx.author.id) or self.prev_blocks.has(ctx.author.id)
+        )
 
     @classmethod
     async def setup(cls, bot: Red):
@@ -73,10 +83,13 @@ class AntiCommandSpam(commands.Cog):
         bot.add_cog(c)
         bot.add_check(c.custom_check_once, call_once=True)
         bot.before_invoke(c.custom_before_invoke)
+        c.loop_task = asyncio.create_task(c.bg_loop())
 
     def cog_unload(self):
         self.bot.remove_before_invoke_hook(self.custom_before_invoke)
         self.bot.remove_check(self.custom_check_once, call_once=True)
+        if self.loop_task:
+            self.loop_task.cancel()
 
     @checks.is_owner()
     @commands.group()
@@ -91,7 +104,7 @@ class AntiCommandSpam(commands.Cog):
         if not self.blocked:
             return await ctx.send("Nobody blocked right now.")
 
-        message = " ".join(f"<@!{idx}>" for idx in self.blocked)
+        message = " ".join(f"<@!{idx}>" for idx in (*self.blocked, *self.prev_blocks))
 
         r = discord.http.Route(
             "POST", "/channels/{channel_id}/messages", channel_id=ctx.channel.id,
@@ -109,6 +122,7 @@ class AntiCommandSpam(commands.Cog):
     async def acs_clear(self, ctx: commands.Context):
         """ Clear the currrent spam list """
         self.blocked = discord.utils.SnowflakeList(())
+        self.prev_blocks = discord.utils.SnowflakeList(())
         await ctx.tick()
 
     @anticommandspam.command(name="remove")
@@ -116,6 +130,8 @@ class AntiCommandSpam(commands.Cog):
         """ Remove a user id from the spam list """
         if self.blocked.has(user_id):
             self.blocked.remove(user_id)
-            await ctx.tick()
-        else:
-            await ctx.send("User was not in the spam list")
+
+        if self.prev_blocks.has(user_id):
+            self.prev_blocks.remove(user_id)
+
+        await ctx.tick()
