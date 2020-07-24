@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import logging
+import random
 from typing import Generator, Optional, cast
 
 import discord
@@ -20,7 +21,7 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "339.0.0"
+    __version__ = "339.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -43,6 +44,30 @@ class EmbedMaker(commands.Cog):
         Embed commands
         """
         pass
+
+    @commands.cooldown(2, 5, commands.BucketType.channel)
+    @_embed.command(name="suggestcolor")
+    async def randcolor(self, ctx: commands.GuildContext):
+        """
+        Get ideas for a color.
+
+        The randomness is limited to the hue,
+        Saturation and Value are locked to amounts that provide
+        the maximum number of "appealing" hues in both light and dark theming.
+
+        Randomness is uniform across the space, but is not adjusted
+        for human perception of color. (ie. CIELAB)
+        """
+
+        hue = random.random()  # nosec
+        degree = hue * 360
+        color = discord.Color.from_hsv(hue, 0.5, 1)
+        embed = discord.Embed(
+            description=f"Color Suggestion for {ctx.author.mention}", color=color,
+        )
+        embed.add_field(name="RBG", value=hex(color.value))
+        embed.add_field(name="HSV", value=f"({degree:.3g}\N{DEGREE SIGN}, 50%, 100%)")
+        await ctx.send(embed=embed)
 
     @checks.guildowner()
     @_embed.command(name="editmsg")
