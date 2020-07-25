@@ -105,6 +105,8 @@ class DevBase:
                 f"Bots don't need nitro, but do need the emote to use it. Example: "
                 f"\n```py\n"
                 f"emoji = discord.utils.get(bot.emojis, id={emoji.id})\n"
+                f"# or"
+                f"emoji = bot.get_emoji({emoji.id})\n"
                 f"# This is the id of the emoji you reacted with\n"
                 f"if emoji:\n"
                 f'    await ctx.send("Some string {{}}".format(emoji))\n'
