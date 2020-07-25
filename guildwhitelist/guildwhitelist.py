@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Generator, cast
+from typing import Generator, Literal, cast
 
 import discord
 from redbot.core import Config, checks, commands
@@ -40,7 +40,27 @@ class GuildWhitelist(commands.Cog):
     or whose owner is not whitelisted or the owner of the bot
     """
 
-    __version__ = "333.0.7"
+    __version__ = "340.0.0"
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        if requester == "discord_deleted_user":
+            # user is deleted, just comply
+            async with self.config.whitelist() as wlist:
+                if user_id in wlist:
+                    wlist.remove(user_id)
+        elif requester == "owner":
+            await self.bot.send_to_owners(
+                "`GuildWhitelist` recieved a data deletion request "
+                f"from a bot owner for ID : `{user_id}`."
+                "\nThis cog will remove the ID if you use the command "
+                "to unwhitelist them, but is retaining the "
+                "ID for operational purposes if you do not."
+            )
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

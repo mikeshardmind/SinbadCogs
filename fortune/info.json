@@ -1,12 +1,12 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)"
-    ],
-    "name": "Fortune",
-    "disabled": false,
-    "short": "A cog with unix-like fortunes",
-    "description": "A cog with unix-like fortunes. Maybe a cow or two too.",
-    "tags": [],
-    "hidden": false,
-    "min_bot_version": "3.3.0"
+	"author": [
+		"mikeshardmind(Sinbad)"
+	],
+	"name": "Fortune",
+	"disabled": false,
+	"short": "A cog with unix-like fortunes",
+	"description": "A cog with unix-like fortunes. Maybe a cow or two too.",
+	"tags": [],
+	"hidden": false,
+	"min_bot_version": "3.3.10"
 }

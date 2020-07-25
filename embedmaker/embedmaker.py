@@ -3,10 +3,11 @@ from __future__ import annotations
 import io
 import logging
 import random
-from typing import Generator, Optional, cast
+from typing import Generator, Literal, Optional, cast
 
 import discord
 from redbot.core import Config, checks, commands
+from redbot.core.utils import AsyncIter
 from redbot.core.utils.chat_formatting import pagify
 
 from .serialize import deserialize_embed, serialize_embed
@@ -21,7 +22,27 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "339.0.4"
+    __version__ = "340.0.0"
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        group = self.config.custom("EMBED")
+
+        key_paths = []
+
+        async with group as all_data:
+            async for guild_id, guild_data in AsyncIter(all_data.items(), steps=100):
+                async for embed_name, embed_data in AsyncIter(
+                    guild_data.items(), steps=100
+                ):
+                    if embed_data["owner"] == user_id:
+                        key_paths.append((guild_id, embed_name))
+            async for guild_id, name in AsyncIter(key_paths, steps=100):
+                del all_data[guild_id][name]
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

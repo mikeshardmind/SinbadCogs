@@ -195,7 +195,7 @@ class DevTools(HashlibMixin, DevBase, commands.Cog):
     Some tools
     """
 
-    __version__ = "330.1.9"
+    __version__ = "340.0.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

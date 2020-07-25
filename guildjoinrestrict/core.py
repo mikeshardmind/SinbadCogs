@@ -5,7 +5,7 @@ import enum
 import logging
 import time
 from datetime import datetime, timezone
-from typing import List, NamedTuple, Optional
+from typing import List, Literal, NamedTuple, Optional
 
 import discord
 from redbot.core import Config, checks, commands
@@ -73,6 +73,24 @@ class GuildJoinRestrict(commands.Cog):
     """
     A cog to restrict which guilds [botname] can join.
     """
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        if requester == "discord_deleted_user":
+            # user is deleted, just comply
+            await self.config.user_from_id(user_id).clear()
+        elif requester == "owner":
+            await self.bot.send_to_owners(
+                "`GuildJoinRestrict` recieved a data deletion request "
+                f"from a bot owner for ID : `{user_id}`."
+                "\nThis cog will remove the ID if you use the commands provided "
+                "to remove settings for them, but is retaining the "
+                "ID for operational purposes if you do not."
+            )
 
     def __init__(self, bot):
         self.bot: Red = bot

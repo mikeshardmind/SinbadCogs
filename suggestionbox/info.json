@@ -1,12 +1,12 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)"
-    ],
-    "name": "SuggestionBox",
-    "disabled": false,
-    "short": "configureable suggestion boxes",
-    "description": "configureable suggestion boxes",
-    "tags": [],
-    "hidden": true,
-    "min_bot_version": "3.3.0"
+	"author": [
+		"mikeshardmind(Sinbad)"
+	],
+	"name": "SuggestionBox",
+	"disabled": false,
+	"short": "configureable suggestion boxes",
+	"description": "configureable suggestion boxes",
+	"tags": [],
+	"hidden": true,
+	"min_bot_version": "3.3.10"
 }

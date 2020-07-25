@@ -1,13 +1,13 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)",
-        "DiscordLiz"
-    ],
-    "name": "AntiMentionSpam",
-    "disabled": false,
-    "short": "filters mass mentions",
-    "description": "mass mention filter",
-    "tags": [],
-    "hidden": false,
-    "min_bot_version": "3.3.0"
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "AntiMentionSpam",
+	"disabled": false,
+	"short": "filters mass mentions",
+	"description": "mass mention filter",
+	"tags": [],
+	"hidden": false,
+	"min_bot_version": "3.3.10"
 }

@@ -12,6 +12,10 @@ from .tempchannels import TempChannels
 
 log = logging.getLogger("red.sinbadcogs.relays")
 
+__end_user_data_statement__ = (
+    "This cog does not persistently store data or metadata about users."
+)
+
 
 # This previously used ``(type(commands.Cog), type(ABC))``
 # This was changed to be explicit so that mypy would be slightly happier about it.
@@ -31,7 +35,7 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "330.0.3"
+    __version__ = "340.0.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
