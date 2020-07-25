@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime
-from typing import Iterator, NamedTuple, Optional
+from typing import Iterator, Literal, NamedTuple, Optional
 
 import discord
 from redbot.core import checks, commands
@@ -53,7 +53,19 @@ class ModNotes(commands.Cog):
     Store moderation notes
     """
 
-    __version__ = "330.0.2"
+    __version__ = "340.0.0"
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        if requester != "discord_deleted_user":
+            return
+        await self.bot.send_to_owners(
+            f"Data deletion request for `ModNotes` by {requester} for user id {user_id}."
+        )
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

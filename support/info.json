@@ -1,3 +1,7 @@
 {
-	"hidden": true
+	"author": [
+		"mikeshardmind(Sinbad)"
+	],
+	"hidden": true,
+	"min_bot_version": "3.3.10"
 }

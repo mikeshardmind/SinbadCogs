@@ -1,16 +1,16 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)",
-        "DiscordLiz"
-    ],
-    "name": "BanSync",
-    "disabled": false,
-    "short": "Synchronize bans",
-    "description": "Ban a user across all servers where you can, or synchronize bans between multiple servers",
-    "tags": [
-        "ban",
-        "sync"
-    ],
-    "hidden": false,
-    "min_bot_version": "3.3.0"
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "BanSync",
+	"disabled": false,
+	"short": "Synchronize bans",
+	"description": "Ban a user across all servers where you can, or synchronize bans between multiple servers",
+	"tags": [
+		"ban",
+		"sync"
+	],
+	"hidden": false,
+	"min_bot_version": "3.3.10"
 }

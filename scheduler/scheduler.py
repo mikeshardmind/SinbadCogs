@@ -5,7 +5,7 @@ import contextlib
 import functools
 import logging
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Dict, List, Literal, Optional
 
 import discord
 from redbot.core import checks, commands
@@ -36,7 +36,22 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "330.0.3"
+    __version__ = "340.0.0"
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        """
+        Scheduler tasks are going to need a bit more handling to make this easy,
+        Ensuring we don't lose knowledge of any, but these requests need special
+        batching implemented here to be safe with the iteration locks.
+        """
+        await self.config.custom(
+            "PENDING_DATA_DELETIONS", requester, user_id
+        ).needs_action.set(True)
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -47,6 +62,8 @@ class Scheduler(commands.Cog):
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
+        self.config.init_custom("PENDING_DATA_DELETIONS", 2)
+        self.config.register_custom("PENDING_DATA_DELETIONS", needs_action=None)
         self.config.register_channel(tasks={})  # Serialized Tasks go in here.
         self.log = logging.getLogger("red.sinbadcogs.scheduler")
         self.bg_loop_task: Optional[asyncio.Task] = None

@@ -5,13 +5,24 @@ import contextlib
 import logging
 import re
 from abc import ABCMeta
-from typing import AsyncIterator, Dict, Generator, List, Optional, Tuple, Union, cast
+from typing import (
+    AsyncIterator,
+    Dict,
+    Generator,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 import discord
 from discord.ext.commands import CogMeta as DPYCogMeta
 from redbot.core import bank, checks, commands
 from redbot.core.config import Config
 from redbot.core.data_manager import cog_data_path
+from redbot.core.utils import AsyncIter
 from redbot.core.utils.chat_formatting import box, pagify
 
 from .converters import EmojiRolePairConverter
@@ -77,7 +88,21 @@ class RoleManagement(
     # are not handled in the core bot, which would be a massive permission issue.
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "339.3.0"
+    __version__ = "340.0.0"
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        if requester == "discord_deleted_user":
+            # user is deleted, just comply
+
+            data = await self.config.all_members()
+            async for guild_id, members in AsyncIter(data.items(), steps=100):
+                if user_id in members:
+                    await self.config.member_from_ids(guild_id, user_id).clear()
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

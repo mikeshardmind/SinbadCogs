@@ -1,19 +1,19 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)",
-        "DiscordLiz"
-    ],
-    "name": "Scheduler",
-    "disabled": false,
-    "short": "A semi-timezone aware scheduler cog",
-    "description": "A semi-timezone aware scheduler cog",
-    "tags": [
-        "scheduler"
-    ],
-    "hidden": false,
-    "requirements": [
-        "python-dateutil",
-        "pytz"
-    ],
-    "min_bot_version": "3.3.0"
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "Scheduler",
+	"disabled": false,
+	"short": "A semi-timezone aware scheduler cog",
+	"description": "A semi-timezone aware scheduler cog",
+	"tags": [
+		"scheduler"
+	],
+	"hidden": false,
+	"requirements": [
+		"python-dateutil",
+		"pytz"
+	],
+	"min_bot_version": "3.3.10"
 }
