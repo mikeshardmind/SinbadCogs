@@ -74,22 +74,13 @@ class GuildJoinRestrict(commands.Cog):
     A cog to restrict which guilds [botname] can join.
     """
 
-    __end_user_data_statement__ = (
-        "This cog persistently stores the minimum "
-        "amount of data needed to restrict guild joins to those allowed by settings. "
-        "It will not respect data deletion by end users, nor can end users request "
-        "their data from this cog since it only stores "
-        "discord IDs and whether those IDs are allowed or denied. "
-        "Discord IDs may occasionally be logged to a file as needed for audit purposes."
-    )
-
     async def red_delete_data_for_user(
         self,
         *,
-        requester: Literal["discord", "owner", "user", "user_strict"],
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
         user_id: int,
     ):
-        if requester == "discord":
+        if requester == "discord_deleted_user":
             # user is deleted, just comply
             await self.config.user_from_id(user_id).clear()
         elif requester == "owner":

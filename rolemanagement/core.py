@@ -22,6 +22,7 @@ from discord.ext.commands import CogMeta as DPYCogMeta
 from redbot.core import bank, checks, commands
 from redbot.core.config import Config
 from redbot.core.data_manager import cog_data_path
+from redbot.core.utils import AsyncIter
 from redbot.core.utils.chat_formatting import box, pagify
 
 from .converters import EmojiRolePairConverter
@@ -89,22 +90,17 @@ class RoleManagement(
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
     __version__ = "340.0.0"
 
-    __end_user_data_statement__ = (
-        "This cog does not persistently store end user data. "
-        "This cog does store discord IDs as needed for operation. "
-    )
-
     async def red_delete_data_for_user(
         self,
         *,
-        requester: Literal["discord", "owner", "user", "user_strict"],
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
         user_id: int,
     ):
-        if requester == "discord":
+        if requester == "discord_deleted_user":
             # user is deleted, just comply
 
             data = await self.config.all_members()
-            for guild_id, members in data.items():
+            async for guild_id, members in AsyncIter(data.items(), steps=100):
                 if user_id in members:
                     await self.config.member_from_ids(guild_id, user_id).clear()
 

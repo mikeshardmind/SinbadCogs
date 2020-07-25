@@ -193,10 +193,7 @@ class DevTools(HashlibMixin, DevBase, commands.Cog):
     Some tools
     """
 
-    __end_user_data_statement__ = (
-        "This cog does not persistently store data or metadata about users."
-    )
-    __version__ = "339.1.0"
+    __version__ = "340.0.0"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)

@@ -3,11 +3,11 @@ from __future__ import annotations
 import io
 import logging
 import random
-from typing import Generator, Optional, cast
-from typing import Generator, Literal, cast
+from typing import Generator, Literal, Optional, cast
 
 import discord
 from redbot.core import Config, checks, commands
+from redbot.core.utils import AsyncIter
 from redbot.core.utils.chat_formatting import pagify
 
 from .serialize import deserialize_embed, serialize_embed
@@ -23,21 +23,11 @@ class EmbedMaker(commands.Cog):
     """
 
     __version__ = "340.0.0"
-    __end_user_data_statement__ = (
-        "This cog stores data provided by users "
-        "for the express purpose of redisplaying. "
-        "It does not store user data which was not "
-        "provided through a command. "
-        "Users may remove their own content "
-        "without making a data removal request. "
-        "This cog does not support data requests, "
-        "but will respect deletion requests."
-    )
 
     async def red_delete_data_for_user(
         self,
         *,
-        requester: Literal["discord", "owner", "user", "user_strict"],
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
         user_id: int,
     ):
         group = self.config.custom("EMBED")
@@ -45,11 +35,13 @@ class EmbedMaker(commands.Cog):
         key_paths = []
 
         async with group as all_data:
-            for guild_id, guild_data in all_data.items():
-                for embed_name, embed_data in guild_data.items():
+            async for guild_id, guild_data in AsyncIter(all_data.items(), steps=100):
+                async for embed_name, embed_data in AsyncIter(
+                    guild_data.items(), steps=100
+                ):
                     if embed_data["owner"] == user_id:
                         key_paths.append((guild_id, embed_name))
-            for guild_id, name in key_paths:
+            async for guild_id, name in AsyncIter(key_paths, steps=100):
                 del all_data[guild_id][name]
 
     def format_help_for_context(self, ctx):

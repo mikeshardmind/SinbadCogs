@@ -40,23 +40,15 @@ class GuildWhitelist(commands.Cog):
     or whose owner is not whitelisted or the owner of the bot
     """
 
-    __version__ = "339.1.0"
-
-    __end_user_data_statement__ = (
-        "This cog persistently stores the minimum "
-        "amount of data needed to maintain a server and server owner whitelist. "
-        "It will not respect data deletion by end users, nor can end users request "
-        "their data from this cog since it only stores a discord ID. "
-        "Discord IDs may occasionally be logged to a file as needed for audit purposes."
-    )
+    __version__ = "340.0.0"
 
     async def red_delete_data_for_user(
         self,
         *,
-        requester: Literal["discord", "owner", "user", "user_strict"],
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
         user_id: int,
     ):
-        if requester == "discord":
+        if requester == "discord_deleted_user":
             # user is deleted, just comply
             async with self.config.whitelist() as wlist:
                 if user_id in wlist:

@@ -3,6 +3,7 @@ from typing import Literal, Optional
 import discord
 from redbot.core import checks, commands
 from redbot.core.config import Config
+from redbot.core.utils import AsyncIter
 from redbot.core.utils.antispam import AntiSpam
 
 from .checks import has_active_box
@@ -13,32 +14,27 @@ class SuggestionBox(commands.Cog):
     A configureable suggestion box cog
     """
 
-    __version__ = "339.1.0"
-    __end_user_data_statement__ = (
-        "This cog stores data provided to it by command as needed for operation. "
-        "As this data is for suggestions to be given from a user to a community, "
-        "it is not reasonably considered end user data and will not be deleted."
-    )
+    __version__ = "340.0.0"
 
     async def red_delete_data_for_user(
         self,
         *,
-        requester: Literal["discord", "owner", "user", "user_strict"],
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
         user_id: int,
     ):
-        if requester == "discord":
+        if requester == "discord_deleted_user":
             # user is deleted, must comply on IDs here...
 
             data = await self.config.all_members()
-            for guild_id, members in data.items():
+            await self.config.user_from_id(user_id).clear()
+            async for guild_id, members in AsyncIter(data.items(), steps=100):
                 if user_id in members:
                     await self.config.member_from_ids(guild_id, user_id).clear()
-            await self.config.user_from_id(user_id).clear()
 
             grp = self.config.custom("SUGGESTION")
 
             async with grp as data:
-                for message_id, suggestion in data.items():
+                async for message_id, suggestion in AsyncIter(data.items(), steps=100):
                     if d := suggestion.get("data"):
                         if d.get("author_id", 0) == user_id:
                             d["author_id"] = 0

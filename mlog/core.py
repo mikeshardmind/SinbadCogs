@@ -29,7 +29,7 @@ class MLog(commands.Cog):
     async def red_delete_data_for_user(
         self,
         *,
-        requester: Literal["discord", "owner", "user", "user_strict"],
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
         user_id: int,
     ):
         await self.bot.send_to_owners(
