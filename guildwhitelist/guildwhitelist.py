@@ -55,7 +55,7 @@ class GuildWhitelist(commands.Cog):
                     wlist.remove(user_id)
         elif requester == "owner":
             await self.bot.send_to_owners(
-                "`GuildWhitelist` recieved a data deletion request "
+                "`GuildWhitelist` received a data deletion request "
                 f"from a bot owner for ID : `{user_id}`."
                 "\nThis cog will remove the ID if you use the command "
                 "to unwhitelist them, but is retaining the "

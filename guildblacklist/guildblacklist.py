@@ -54,7 +54,7 @@ class GuildBlacklist(commands.Cog):
                     blist.remove(user_id)
         elif requester == "owner":
             await self.bot.send_to_owners(
-                "`GuildBlacklist` recieved a data deletion request "
+                "`GuildBlacklist` received a data deletion request "
                 f"from a bot owner for ID : `{user_id}`."
                 "\nThis cog will remove the ID if you use the command "
                 "to unblacklist them, but is retaining the "

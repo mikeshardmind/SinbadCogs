@@ -85,7 +85,7 @@ class GuildJoinRestrict(commands.Cog):
             await self.config.user_from_id(user_id).clear()
         elif requester == "owner":
             await self.bot.send_to_owners(
-                "`GuildJoinRestrict` recieved a data deletion request "
+                "`GuildJoinRestrict` received a data deletion request "
                 f"from a bot owner for ID : `{user_id}`."
                 "\nThis cog will remove the ID if you use the commands provided "
                 "to remove settings for them, but is retaining the "
