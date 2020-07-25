@@ -1,6 +1,6 @@
 from .modnotes import ModNotes
 
-__end_user_data_statement__ = (
+__red_end_user_data_statement__ = (
     "This cog stores data provided to it for "
     "the purpose of a permanent moderation note system. "
     "\nThis cog does not currently respect the data APIs and bot "

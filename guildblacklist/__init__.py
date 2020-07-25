@@ -1,6 +1,6 @@
 from .guildblacklist import GuildBlacklist
 
-__end_user_data_statement__ = (
+__red_end_user_data_statement__ = (
     "This cog persistently stores the minimum "
     "amount of data needed to maintain a server and server owner blacklist.\n"
     "It will not respect data deletion by end users as the data kept is the minimum "
