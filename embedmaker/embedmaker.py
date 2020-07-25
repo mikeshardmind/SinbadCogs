@@ -22,7 +22,7 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "340.0.0"
+    __version__ = "340.0.1"
 
     async def red_delete_data_for_user(
         self,
@@ -34,7 +34,7 @@ class EmbedMaker(commands.Cog):
 
         key_paths = []
 
-        async with group as all_data:
+        async with group.all() as all_data:
             async for guild_id, guild_data in AsyncIter(all_data.items(), steps=100):
                 async for embed_name, embed_data in AsyncIter(
                     guild_data.items(), steps=100
