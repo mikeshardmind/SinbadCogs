@@ -1,6 +1,6 @@
 from .core import GuildJoinRestrict
 
-__end_user_data_statement__ = (
+__red_end_user_data_statement__ = (
     "This cog persistently stores the minimum "
     "amount of data needed to restrict guild joins to those allowed by settings. "
     "It will not respect data deletion by end users, nor can end users request "

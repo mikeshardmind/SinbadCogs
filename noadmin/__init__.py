@@ -3,7 +3,7 @@ import contextlib
 import discord
 from redbot.core import commands
 
-__end_user_data_statement__ = (
+__red_end_user_data_statement__ = (
     "This extension does not persistently store data or metadata about users."
 )
 

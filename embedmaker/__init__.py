@@ -1,6 +1,6 @@
 from . import embedmaker
 
-__end_user_data_statement__ = (
+__red_end_user_data_statement__ = (
     "This cog stores data provided by users "
     "for the express purpose of redisplaying.\n"
     "It does not store user data which was not "
