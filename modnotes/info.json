@@ -1,15 +1,15 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)"
-    ],
-    "name": "ModNotes",
-    "disabled": false,
-    "short": "Notes",
-    "description": " Notes",
-    "tags": [],
-    "requirements": [
-        "apsw-wheels"
-    ],
-    "hidden": true,
-    "min_bot_version": "3.3.0"
+	"author": [
+		"mikeshardmind(Sinbad)"
+	],
+	"name": "ModNotes",
+	"disabled": false,
+	"short": "Notes",
+	"description": " Notes",
+	"tags": [],
+	"requirements": [
+		"apsw-wheels"
+	],
+	"hidden": true,
+	"min_bot_version": "3.3.10"
 }

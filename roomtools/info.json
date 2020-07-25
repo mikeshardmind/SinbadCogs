@@ -1,17 +1,17 @@
 {
-    "author": [
-        "mikeshardmind(Sinbad)"
-    ],
-    "name": "RoomTools",
-    "disabled": false,
-    "short": "Tools for temporary rooms",
-    "description": "Never run out of voice lobbies again",
-    "tags": [
-        "autorooms",
-        "tempchannels",
-        "temporary",
-        "roomtools"
-    ],
-    "hidden": false,
-    "min_bot_version": "3.3.0"
+	"author": [
+		"mikeshardmind(Sinbad)"
+	],
+	"name": "RoomTools",
+	"disabled": false,
+	"short": "Tools for temporary rooms",
+	"description": "Never run out of voice lobbies again",
+	"tags": [
+		"autorooms",
+		"tempchannels",
+		"temporary",
+		"roomtools"
+	],
+	"hidden": false,
+	"min_bot_version": "3.3.10"
 }
