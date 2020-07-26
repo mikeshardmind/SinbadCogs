@@ -22,7 +22,7 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "340.0.3"
+    __version__ = "340.0.4"
 
     async def red_delete_data_for_user(
         self,
@@ -90,7 +90,7 @@ class EmbedMaker(commands.Cog):
         embed.add_field(name="HSV", value=f"({degree:.3g}\N{DEGREE SIGN}, 75%, 80%)")
         await ctx.send(embed=embed)
 
-    @checks.guildowner()
+    @checks.mod_or_permissions(manage_messages=True)
     @_embed.command(name="editmsg")
     async def editmessage_embed(
         self,
@@ -104,7 +104,7 @@ class EmbedMaker(commands.Cog):
         """
 
         if message.guild != ctx.guild:
-            return
+            return await ctx.send("Use this command in the same server as the message.")
 
         if message.author != ctx.guild.me:
             return await ctx.send("Not my message, can't edit")
@@ -122,7 +122,7 @@ class EmbedMaker(commands.Cog):
         try:
             assert isinstance(message.channel, discord.TextChannel)  # nosec
             if message.channel.permissions_for(ctx.me).manage_messages:
-                await message.edit(embed=embed, suppress=True)
+                await message.edit(embed=embed, suppress=False)
             else:
                 await message.edit(embed=embed)
         except discord.HTTPException as exc:
