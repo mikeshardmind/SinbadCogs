@@ -24,6 +24,10 @@ class AntiCommandSpam(commands.Cog):
         - Progressive Punishments for repeat offenders.
     """
 
+    async def red_delete_data_for_user(self, **kwargs):
+        """ Nothing to delete """
+        return
+
     __version__ = "0.0.7a"
     messages = {
         1: "Come back in another 30 seconds or so.",

@@ -10,6 +10,10 @@ class MentionHelp(commands.Cog):
     Provide help to people who mention the bot
     """
 
+    async def red_delete_data_for_user(self, **kwargs):
+        """ Nothing to delete """
+        return
+
     def __init__(self, bot):
         self.bot = bot
         self.mention_pattern = None

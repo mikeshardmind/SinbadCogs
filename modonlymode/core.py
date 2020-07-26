@@ -14,6 +14,10 @@ class ModOnlyMode(commands.Cog):
 
     __version__ = "340.0.0"
 
+    async def red_delete_data_for_user(self, **kwargs):
+        """ Nothing to delete """
+        return
+
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
         return f"{pre_processed}\nCog Version: {self.__version__}"
