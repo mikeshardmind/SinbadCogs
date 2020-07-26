@@ -22,7 +22,7 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "340.0.2"
+    __version__ = "340.0.3"
 
     async def red_delete_data_for_user(
         self,
@@ -126,8 +126,8 @@ class EmbedMaker(commands.Cog):
             else:
                 await message.edit(embed=embed)
         except discord.HTTPException as exc:
-            log.error("Message edit failed")
-            await ctx.send("A message edit failed unexpectedly", exc=info=True)
+            log.error("Message edit failed", exc_info=exc)
+            await ctx.send("A message edit failed unexpectedly")
             return
         await ctx.tick()
 
