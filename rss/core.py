@@ -60,7 +60,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "340.0.0"
+    __version__ = "340.0.1"
 
     async def red_delete_data_for_user(self, **kwargs):
         """ Nothing to delete """
@@ -324,14 +324,14 @@ class RSS(commands.Cog):
             return data
         else:
             if roles:
-                mention_string = " ".join((f"<@&{rid}>" for rid in roles)) + "\n\n"
+                mention_string = " ".join((f"<@&{rid}>" for rid in roles)) + "\n"
             else:
                 mention_string = ""
 
             if len(content) > 1900:
                 content = content[:1900] + "... (Feed data too long)"
 
-            return {"content": content + mention_string if mention_string else content}
+            return {"content": mention_string + content if mention_string else content}
 
     async def handle_response_from_loop(
         self,
