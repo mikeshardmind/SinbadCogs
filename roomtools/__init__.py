@@ -47,6 +47,10 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
         (timedelta(hours=1), 30),
     ]
 
+    async def red_delete_data_for_user(self, **kwargs):
+        """ Nothing to delete """
+        return
+
     def __init__(self, bot, *args) -> None:
         super().__init__(*args)
         self.bot = bot

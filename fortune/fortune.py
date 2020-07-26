@@ -30,6 +30,10 @@ class Fortune(commands.Cog):
         with path.open(mode="r", encoding="utf-8") as fp:
             self._data = json.load(fp)
 
+    async def red_delete_data_for_user(self, **kwargs):
+        """ Nothing to delete """
+        return
+
     @commands.cooldown(1, 30)
     @commands.command(usage="")
     async def fortune(

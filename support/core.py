@@ -48,6 +48,10 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
     Shhhhhhh.
     """
 
+    async def red_delete_data_for_user(self, **kwargs):
+        """ Nothing to delete """
+        return
+
     def __init__(self, bot: Red):
         self.bot: Red = bot
 

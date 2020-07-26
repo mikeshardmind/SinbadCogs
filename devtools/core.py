@@ -195,6 +195,10 @@ class DevTools(HashlibMixin, DevBase, commands.Cog):
     Some tools
     """
 
+    async def red_delete_data_for_user(self, **kwargs):
+        """ Nothing to delete """
+        return
+
     __version__ = "340.0.0"
 
     def format_help_for_context(self, ctx):
