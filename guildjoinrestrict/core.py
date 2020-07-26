@@ -19,7 +19,7 @@ class AddOnceHandler(logging.FileHandler):
     """
 
 
-log = logging.getLogger("red.sinbadcogs.guildjoinrestrcit")
+log = logging.getLogger("red.sinbadcogs.guildjoinrestrict")
 log.setLevel(logging.INFO)
 
 for handler in log.handlers:
