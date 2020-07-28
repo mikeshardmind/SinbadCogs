@@ -67,7 +67,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "340.0.2"
+    __version__ = "340.0.3"
 
     async def red_delete_data_for_user(self, **kwargs):
         """ Nothing to delete """
@@ -711,9 +711,7 @@ class RSS(commands.Cog):
         await ctx.tick()
 
     @rss.command(
-        name="setmatchreq",
-        usage="<feedname> [channel] <field name> <match term>",
-        hidden=True,
+        name="matchreq", usage="<feedname> [channel] <field name> <match term>"
     )
     async def rss_set_match_req(
         self,
@@ -742,7 +740,7 @@ class RSS(commands.Cog):
             feeds[feed_name]["match_req"] = list(field_and_term)
             await ctx.tick()
 
-    @rss.command(name="removematchreq", hidden=True)
+    @rss.command(name="removematchreq")
     async def feed_remove_match_req(
         self,
         ctx: commands.GuildContext,
