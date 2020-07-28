@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import NamedTuple, Optional
 
 import discord
 from redbot.core import commands
@@ -39,3 +39,18 @@ class NonEveryoneRole(discord.Role):
         if role.is_default():
             raise commands.BadArgument("You can't set this for the everyone role")
         return role
+
+
+class FieldAndTerm(NamedTuple):
+    field: str
+    term: str
+
+    @classmethod
+    async def convert(cls, ctx: commands.Context, arg: str) -> FieldAndTerm:
+
+        try:
+            field, term = arg.casefold().split(maxsplit=1)
+        except ValueError:
+            raise commands.BadArgument("Must provide a field and a term to match")
+
+        return cls(field, term)

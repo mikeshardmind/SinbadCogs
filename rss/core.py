@@ -18,7 +18,7 @@ from redbot.core.config import Config
 from redbot.core.utils.chat_formatting import box, pagify
 
 from .cleanup import html_to_text
-from .converters import NonEveryoneRole, TriState
+from .converters import FieldAndTerm, NonEveryoneRole, TriState
 
 log = logging.getLogger("red.sinbadcogs.rss")
 
@@ -48,6 +48,13 @@ USABLE_FIELDS = [
     "title_detail",
 ]
 
+USABLE_TEXT_FIELDS = [
+    f
+    for f in USABLE_FIELDS
+    if f
+    not in ("published", "published_parsed", "updated", "updated_parsed", "created",)
+]
+
 
 def debug_exc_log(lg: logging.Logger, exc: Exception, msg: str = "Exception in RSS"):
     if lg.getEffectiveLevel() <= logging.DEBUG:
@@ -60,7 +67,7 @@ class RSS(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "340.0.1"
+    __version__ = "340.0.2"
 
     async def red_delete_data_for_user(self, **kwargs):
         """ Nothing to delete """
@@ -208,24 +215,50 @@ class RSS(commands.Cog):
 
         assert isinstance(response.entries, list), "mypy"  # nosec
 
+        match_rule = feed_settings.get("match_req", [])
+
+        def meets_rule(entry):
+            if not match_rule:
+                return True
+
+            field_name, term = match_rule
+
+            d = getattr(entry, field_name, None)
+            if not d:
+                return False
+            elif isinstance(d, list):
+                for item in d:
+                    if term in item:
+                        return True
+                return False
+            elif isinstance(d, str):
+                return term in d.casefold()
+
+            return False
+
         if force:
-            try:
-                to_send = [response.entries[0]]
-            except IndexError:
+            _to_send = next(filter(meets_rule, response.entries), None)
+            if not _to_send:
                 return None
+            to_send = [_to_send]
         else:
             last = feed_settings.get("last", None)
             last = tuple((last or (0,))[:5])
 
             to_send = sorted(
-                [e for e in response.entries if self.process_entry_time(e) > last],
+                [
+                    e
+                    for e in response.entries
+                    if self.process_entry_time(e) > last and meets_rule(e)
+                ],
                 key=self.process_entry_time,
             )
 
         last_sent = None
+        roles = feed_settings.get("role_mentions", [])
         for entry in to_send:
             color = destination.guild.me.color
-            roles = feed_settings.get("role_mentions", [])
+
             kwargs = self.format_post(
                 entry, use_embed, color, feed_settings.get("template", None), roles
             )
@@ -677,12 +710,65 @@ class RSS(commands.Cog):
 
         await ctx.tick()
 
+    @rss.command(
+        name="setmatchreq",
+        usage="<feedname> [channel] <field name> <match term>",
+        hidden=True,
+    )
+    async def rss_set_match_req(
+        self,
+        ctx: commands.GuildContext,
+        feed_name: str,
+        channel: Optional[discord.TextChannel] = None,
+        *,
+        field_and_term: FieldAndTerm,
+    ):
+        """
+        Sets a term which must appear in the given field for a feed to be published.
+        """
+
+        channel = channel or ctx.channel
+
+        if field_and_term.field not in USABLE_TEXT_FIELDS:
+            raise commands.BadArgument(
+                f"Field must be one of: {', '.join(USABLE_TEXT_FIELDS)}"
+            )
+
+        async with self.config.channel(channel).feeds() as feeds:
+            if feed_name not in feeds:
+                await ctx.send(f"No feed named {feed_name} in {channel.mention}.")
+                return
+
+            feeds[feed_name]["match_req"] = list(field_and_term)
+            await ctx.tick()
+
+    @rss.command(name="removematchreq", hidden=True)
+    async def feed_remove_match_req(
+        self,
+        ctx: commands.GuildContext,
+        feed_name: str,
+        channel: Optional[discord.TextChannel] = None,
+    ):
+        """
+        Remove the reqs on a feed update.
+        """
+
+        channel = channel or ctx.channel
+
+        async with self.config.channel(channel).feeds() as feeds:
+            if feed_name not in feeds:
+                await ctx.send(f"No feed named {feed_name} in {channel.mention}.")
+                return
+
+            feeds[feed_name].pop("match_req", None)
+            await ctx.tick()
+
     @checks.admin_or_permissions(manage_guild=True)
     @rss.command(name="rolementions")
     async def feedset_mentions(
         self,
-        ctx,
-        name,
+        ctx: commands.GuildContext,
+        name: str,
         channel: Optional[discord.TextChannel] = None,
         *non_everyone_roles: NonEveryoneRole,
     ):
