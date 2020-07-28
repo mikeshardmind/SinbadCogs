@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import List
+from typing import Dict, List, TypedDict
 
 import discord
 
@@ -14,6 +14,12 @@ from .exceptions import (
 )
 
 variation_stripper_re = re.compile(r"[\ufe00-\ufe0f]")
+
+
+class RoleSettings(TypedDict):
+    requires_all: List[int]
+    requires_any: List[int]
+    self_removable: bool
 
 
 class UtilMixin(MixinMeta):
@@ -39,6 +45,61 @@ class UtilMixin(MixinMeta):
         Normalizes emoji, removing variation selectors
         """
         return variation_stripper_re.sub("", s)
+
+    def _can_remove(
+        self,
+        data: Dict[int, RoleSettings],
+        role_to_remove: discord.Role,
+        remaining_roles: List[discord.Role],
+    ) -> List[discord.Role]:
+        """
+        Need to test this later,
+        might be simpler to just block on any req and force the user to
+        remove themselves.
+
+        Technically speaking, this can also hit a recursion limit
+        """
+
+        to_drop: List[discord.Role] = []
+
+        for role_id, role_data in data.items():
+
+            others = [r for r in remaining_roles if r.id != role_id]
+            role = next(filter(lambda r: r.id == role_id, remaining_roles))
+
+            if role_to_remove.id in role_data.get("requires_all", []):
+                if not role_data.get("self_removable", False):
+                    raise RoleManagementException()
+                else:
+                    to_drop.extend(self._can_remove(data, role, others))
+                    to_drop.append(role)
+
+            if role_to_remove.id in (r_any := role_data.get("requires_any", [])):
+                if {r.id for r in remaining_roles}.isdisjoint(r_any):
+                    if not role_data.get("self_removable", False):
+                        raise RoleManagementException()
+                    else:
+                        to_drop.extend(self._can_remove(data, role, others))
+                        to_drop.append(role)
+
+        return list(dict.fromkeys(to_drop))
+
+    async def safe_remove_role(
+        self, *, who: discord.Member, role: discord.Role,
+    ):
+        """
+        Ensures that removing this role doesn't violate other conditions
+        """
+
+        role_info = {
+            rid: rdata
+            for rid, rdata in (await self.config.all_roles()).items()
+            if who._roles.has(rid)
+        }
+
+        to_drop = self._can_remove(role_info, role, [r for r in who.roles if r != role])
+
+        await self.update_roles_atomically(who=who, remove=to_drop)
 
     async def update_roles_atomically(
         self,
