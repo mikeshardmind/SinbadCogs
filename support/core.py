@@ -134,7 +134,7 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
                     "This message appears to have a non-mobile friendly attachment. "
                     "If this is the case (detection is experimental) "
                     "you may want to consider sending this another way."
-                    f"{message.author.mention}"
+                    f"{message.author.mention} ({message.author})"
                 ),
             }  # This will prevent it from pinging, but leave a record in the chat.
 
