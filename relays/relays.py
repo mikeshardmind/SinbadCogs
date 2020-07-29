@@ -114,6 +114,11 @@ class Relays(commands.Cog):
             return
         if message.type.value != 0:
             return
+
+        if method := getattr(self.bot, "cog_disabled_in_guild", None):
+            if await method(self, message.guild):
+                return
+
         for dest in self.gather_destinations(message):
             await dest.send(
                 embed=embed_from_msg(message, filter_invites=self.scrub_invites)

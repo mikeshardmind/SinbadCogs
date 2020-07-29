@@ -44,6 +44,12 @@ class EventMixin(MixinMeta):
         remains an iterable containing snowflakes
         """
         await self.wait_for_ready()
+
+        if method := getattr(self.bot, "cog_disabled_in_guild", None):
+            g = before.guild or after.guild
+            if await method(self, g):
+                return True
+
         if before._roles == after._roles:
             return
 
@@ -71,6 +77,10 @@ class EventMixin(MixinMeta):
         if not guild.me.guild_permissions.manage_roles:
             return
 
+        if method := getattr(self.bot, "cog_disabled_in_guild", None):
+            if await method(self, guild):
+                return True
+
         async with self.config.member(member).roles() as rids:
             to_add: List[discord.Role] = []
             for _id in rids:
@@ -91,6 +101,10 @@ class EventMixin(MixinMeta):
         await self.wait_for_ready()
         if not payload.guild_id:
             return
+
+        if method := getattr(self.bot, "cog_disabled_in_guild_raw", None):
+            if await method(self.qualified_name, payload.guild_id):
+                return True
 
         emoji = payload.emoji
         if emoji.is_custom_emoji():
@@ -134,6 +148,10 @@ class EventMixin(MixinMeta):
         await self.wait_for_ready()
         if not payload.guild_id:
             return
+
+        if method := getattr(self.bot, "cog_disabled_in_guild_raw", None):
+            if await method(self.qualified_name, payload.guild_id):
+                return True
 
         emoji = payload.emoji
 

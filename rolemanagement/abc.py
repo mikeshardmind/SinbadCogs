@@ -15,6 +15,8 @@ class MixinMeta(ABC):
 
     # https://github.com/python/mypy/issues/1996
 
+    qualified_name: str
+
     def __init__(self, *_args):
         self.config: Config
         self.bot: Red
