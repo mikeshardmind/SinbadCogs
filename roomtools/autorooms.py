@@ -62,12 +62,16 @@ class AutoRooms(MixedMeta):
             and after.channel
             and (await self.ar_config.guild(after.channel.guild).active())
         ):
-            conf = self.ar_config.channel(after.channel)
-            if await conf.autoroom() or await conf.gameroom():
-                await self.generate_room_for(who=member, source=after.channel)
+            if method := getattr(self.bot, "cog_disabled_in_guild", None):
+                if not await method(self, after.channel.guild):
+                    conf = self.ar_config.channel(after.channel)
+                    if await conf.autoroom() or await conf.gameroom():
+                        await self.generate_room_for(who=member, source=after.channel)
 
         if before.channel:
-            await self.ar_cleanup(before.channel.guild)
+            if method := getattr(self.bot, "cog_disabled_in_guild", None):
+                if not await method(self, before.channel.guild):
+                    await self.ar_cleanup(before.channel.guild)
 
     @staticmethod
     def _ar_get_overwrites(

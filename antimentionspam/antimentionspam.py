@@ -348,7 +348,8 @@ class AntiMentionSpam(commands.Cog):
         Determines if a message's author is immune from actions taken by this cog
 
         This is determined by a combination of if the bot can take action
-        on the user and if they are considered immune from automated action.
+        on the user and if they are considered immune from automated action
+        and if the cog is disabled in the guild.
 
         Parameters
         ----------
@@ -361,15 +362,21 @@ class AntiMentionSpam(commands.Cog):
             Whether the user is or is not immune from the cog
         """
         guild = message.guild
-        if guild:
-            author = message.author
-            assert isinstance(author, discord.Member), "mypy"  # nosec
-            if author == guild.owner or author.top_role >= guild.me.top_role:
-                return True
+        if not guild:
+            return True
+
+        author = message.author
+        assert isinstance(author, discord.Member), "mypy"  # nosec
+        if author == guild.owner or author.top_role >= guild.me.top_role:
+            return True
 
         if await self.bot.is_owner(message.author):
             return True
         if await self.bot.is_automod_immune(message):
             return True
+
+        if method := getattr(self.bot, "cog_disabled_in_guild", None):
+            if await method(self, message.guild):
+                return True
 
         return False
