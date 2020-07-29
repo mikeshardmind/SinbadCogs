@@ -87,7 +87,10 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
 
             kwargs = {
                 "allowed_mentions": {"parse": []},
-                "content": f"Please refrain from large attachments. {message.author.mention}",
+                "content": (
+                    f"Please refrain from large attachments. "
+                    f"{message.author.mention} ({message.author})"
+                ),
             }  # This will prevent it from pinging, but leave a record in the chat.
 
             await self.bot.http.request(r, json=kwargs)  # type: ignore
@@ -111,7 +114,7 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
                 "content": (
                     f"Please use <https://gist.github.com> or <https://mystb.in/> "
                     f"for content which will not fit in a single message "
-                    f"{message.author.mention}"
+                    f"{message.author.mention} ({message.author})"
                 ),
             }  # This will prevent it from pinging, but leave a record in the chat.
 
@@ -149,7 +152,10 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
 
                 kwargs = {
                     "allowed_mentions": {"parse": []},
-                    "content": f"Please refrain from mentioning. {message.author.mention}",
+                    "content": (
+                        f"Please refrain from mentioning. "
+                        f"{message.author.mention} ({message.author})"
+                    ),
                 }  # This will prevent it from pinging, but leave a record in the chat.
 
                 return await self.bot.http.request(r, json=kwargs)  # type: ignore
