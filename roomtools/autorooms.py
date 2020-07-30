@@ -25,6 +25,10 @@ class AutoRooms(MixedMeta):
 
     async def ar_cleanup(self, guild: discord.Guild):
 
+        if method := getattr(self.bot, "cog_disabled_in_guild", None):
+            if await method(self, guild):
+                return
+
         for channel in guild.voice_channels:
             conf = self.ar_config.channel(channel)
             if not await conf.clone():
@@ -62,16 +66,12 @@ class AutoRooms(MixedMeta):
             and after.channel
             and (await self.ar_config.guild(after.channel.guild).active())
         ):
-            if method := getattr(self.bot, "cog_disabled_in_guild", None):
-                if not await method(self, after.channel.guild):
-                    conf = self.ar_config.channel(after.channel)
-                    if await conf.autoroom() or await conf.gameroom():
-                        await self.generate_room_for(who=member, source=after.channel)
+            conf = self.ar_config.channel(after.channel)
+            if await conf.autoroom() or await conf.gameroom():
+                await self.generate_room_for(who=member, source=after.channel)
 
         if before.channel:
-            if method := getattr(self.bot, "cog_disabled_in_guild", None):
-                if not await method(self, before.channel.guild):
-                    await self.ar_cleanup(before.channel.guild)
+            await self.ar_cleanup(before.channel.guild)
 
     @staticmethod
     def _ar_get_overwrites(
@@ -119,6 +119,10 @@ class AutoRooms(MixedMeta):
         #  i.e 16 | 16777216 | = 17825808
         if not source.guild.me.guild_permissions.value & 17825808 == 17825808:
             return
+
+        if method := getattr(self.bot, "cog_disabled_in_guild", None):
+            if await method(self, source.guild):
+                return
 
         cdata = await self.ar_config.channel(source).all(acquire_lock=False)
 

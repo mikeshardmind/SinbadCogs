@@ -35,7 +35,7 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "340.0.0"
+    __version__ = "340.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
