@@ -15,7 +15,7 @@ from typing import Callable
 import discord
 from redbot.core import checks, commands
 from redbot.core.utils.chat_formatting import box, pagify
-from redbot.core.utils.menus import DEFAULT_CONTROLS, menu
+from redbot.core.utils.menus import DEFAULT_CONTROLS, menu, close_menu
 
 
 class NoAtExitExecutor(ThreadPoolExecutor):
@@ -66,7 +66,7 @@ class Runner(commands.Cog):
     Look, it works. Be careful when using this.
     """
 
-    __version__ = "323.0.4"
+    __version__ = "323.0.5"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -130,13 +130,20 @@ class Runner(commands.Cog):
         if not result:
             return await ctx.tick()
 
-        rpages = [box(p) for p in pagify(result, shorten_by=(len(command) + 100))]
-        plen = len(rpages)
-        pages = [
-            f"Page {index} / {plen} of output for\n{box(command)}\n{rpage}"
-            for index, rpage in enumerate(rpages, 1)
-        ]
-        await menu(ctx, pages, DEFAULT_CONTROLS)
+        if result:
+            rpages = [box(p) for p in pagify(result, shorten_by=(len(command) + 100))]
+            plen = len(rpages)
+            pages = [
+                f"Page {index} / {plen} of output for\n{box(command)}\n{rpage}"
+                for index, rpage in enumerate(rpages, 1)
+            ]
+        else:
+            pages = [f"No output for\n{box(command)}"]
+
+        controls = (
+            DEFAULT_CONTROLS if len(pages) > 1 else {"\N{CROSS MARK}": close_menu}
+        )
+        await menu(ctx, pages, controls)
 
     @checks.is_owner()
     @commands.command()
