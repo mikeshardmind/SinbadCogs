@@ -10,12 +10,40 @@ import threading
 import weakref
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures.thread import _worker  # type: ignore
-from typing import Callable
+from typing import Callable, List, Optional
 
 import discord
 from redbot.core import checks, commands
-from redbot.core.utils.chat_formatting import box, pagify
-from redbot.core.utils.menus import DEFAULT_CONTROLS, menu, close_menu
+from redbot.core.utils.chat_formatting import box
+from redbot.core.utils.menus import DEFAULT_CONTROLS, close_menu, menu
+
+
+def pagify(
+    text: str,
+    *,
+    page_size: int = 1800,
+    delims: Optional[List[str]] = None,
+    strip_before_yield=True,
+):
+    """
+    Using the pagification from one of my other projects since
+    red's pagification won't work here
+    """
+
+    delims = delims or ["\n"]
+
+    while len(text) > page_size:
+        closest_delims = (text.rfind(d, 1, page_size) for d in delims)
+        closest_delim = max(closest_delims)
+        closest_delim = closest_delim if closest_delim != -1 else page_size
+
+        chunk = text[:closest_delim]
+        if len(chunk.strip() if strip_before_yield else chunk) > 0:
+            yield chunk
+        text = text[closest_delim:]
+
+    if len(chunk.strip() if strip_before_yield else chunk) > 0:
+        yield text
 
 
 class NoAtExitExecutor(ThreadPoolExecutor):
@@ -66,7 +94,7 @@ class Runner(commands.Cog):
     Look, it works. Be careful when using this.
     """
 
-    __version__ = "323.0.5"
+    __version__ = "323.0.6"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -127,11 +155,8 @@ class Runner(commands.Cog):
         async with ctx.typing():
             result = (await self._run(command)).decode()
 
-        if not result:
-            return await ctx.tick()
-
         if result:
-            rpages = [box(p) for p in pagify(result, shorten_by=(len(command) + 100))]
+            rpages = [box(p) for p in pagify(result, strip_before_yield=False)]
             plen = len(rpages)
             pages = [
                 f"Page {index} / {plen} of output for\n{box(command)}\n{rpage}"
