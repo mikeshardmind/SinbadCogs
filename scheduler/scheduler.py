@@ -36,22 +36,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "340.0.0"
-
-    async def red_delete_data_for_user(
-        self,
-        *,
-        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
-        user_id: int,
-    ):
-        """
-        Scheduler tasks are going to need a bit more handling to make this easy,
-        Ensuring we don't lose knowledge of any, but these requests need special
-        batching implemented here to be safe with the iteration locks.
-        """
-        await self.config.custom(
-            "PENDING_DATA_DELETIONS", requester, user_id
-        ).needs_action.set(True)
+    __version__ = "340.0.1"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -62,8 +47,6 @@ class Scheduler(commands.Cog):
         self.config = Config.get_conf(
             self, identifier=78631113035100160, force_registration=True
         )
-        self.config.init_custom("PENDING_DATA_DELETIONS", 2)
-        self.config.register_custom("PENDING_DATA_DELETIONS", needs_action=None)
         self.config.register_channel(tasks={})  # Serialized Tasks go in here.
         self.log = logging.getLogger("red.sinbadcogs.scheduler")
         self.bg_loop_task: Optional[asyncio.Task] = None
@@ -81,6 +64,38 @@ class Scheduler(commands.Cog):
             self.bg_loop_task.cancel()
         for task in self.scheduled.values():
             task.cancel()
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        loaded_tasks = await self.fetch_task_by_attrs_exact(author=user_id)
+        if loaded_tasks:
+            await self._remove_tasks(*loaded_tasks)
+
+        chan_dict = await self.config.all_channels()
+        c = 0
+        for channel_id, channel_data in chan_dict.items():
+            c += 1
+            if not c % 100:
+                await asyncio.sleep(0)
+
+            collected = []
+            if chan_tasks := channel_data.get("tasks"):
+                for uuid, task in chan_tasks.items():
+                    c += 1
+                    if not c % 100:
+                        await asyncio.sleep(0)
+                    if task.get("author", 0) == user_id:
+                        collected.append(uuid)
+
+            if collected:
+                async with self._iter_lock:
+                    async with self.config.channel_from_id(channel_id).tasks() as tsks:
+                        for uuid in collected:
+                            tsks.pop(uuid, None)
 
     async def _load_tasks(self):
         chan_dict = await self.config.all_channels()
@@ -490,6 +505,15 @@ class Scheduler(commands.Cog):
         Administrative commands for scheduler.
         """
         pass
+
+    @checks.is_owner()
+    @scheduleradmin.command()
+    async def deleteallbyuser(self, ctx: commands.Context, user_id: int):
+        """
+        Destructive, use with care.
+        """
+        await self.red_delete_data_for_user(requester="owner", user_id=user_id)
+        await ctx.tick()
 
     @checks.bot_has_permissions(add_reactions=True, embed_links=True)
     @scheduleradmin.command()

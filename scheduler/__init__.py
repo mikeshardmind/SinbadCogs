@@ -7,10 +7,7 @@ __red_end_user_data_statement__ = (
     "This cog does not persistently store data or metadata about users. "
     "It does store commands provided for intended later use along "
     "with the user ID of the person who scheduled it.\n"
-    "Users may delete their own data without making a data request. "
-    "This cog does not support a data deletion API fully yet, but will record "
-    "data deletion requests to be proccessed when the "
-    "functionality is fully supported."
+    "Users may delete their own data with or without making a data request."
 )
 
 
