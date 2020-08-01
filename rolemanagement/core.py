@@ -88,7 +88,7 @@ class RoleManagement(
     # are not handled in the core bot, which would be a massive permission issue.
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "340.0.0"
+    __version__ = "340.0.1"
 
     async def red_delete_data_for_user(
         self,
@@ -267,6 +267,51 @@ class RoleManagement(
             message = None
             channel_id = maybe_data[ex_keys[0]]["channelid"]
             channel = ctx.bot.get_channel(channel_id)
+            if channel:
+                with contextlib.suppress(discord.HTTPException):
+                    assert isinstance(channel, discord.TextChannel)  # nosec
+                    message = await channel.fetch_message(message_id)
+
+            if not message:
+                key_data.update({maybe_message_id: ex_keys})
+
+        for mid, keys in key_data.items():
+            for k in keys:
+                await self.config.custom("REACTROLE", mid, k).clear()
+
+        await ctx.tick()
+
+    @commands.cooldown(1, 7200, commands.BucketType.guild)
+    @checks.admin_or_permissions(manage_guild=True)
+    @commands.guild_only()
+    @commands.command()
+    async def rolebindservercleanup(self, ctx: commands.GuildContext):
+        """
+        Cleanup binds that don't exist anymore.
+        """
+
+        data = await self.config.custom("REACTROLE").all()
+
+        key_data = {}
+
+        for maybe_message_id, maybe_data in data.items():
+            try:
+                message_id = int(maybe_message_id)
+            except ValueError:
+                continue
+
+            ex_keys = list(maybe_data.keys())
+            if not ex_keys:
+                continue
+
+            message = None
+            channel_id = maybe_data[ex_keys[0]]["channelid"]
+            guild_id = maybe_data[ex_keys[0]]["guildid"]
+
+            if guild_id != ctx.guild.id:
+                continue
+
+            channel = ctx.guild.get_channel(channel_id)
             if channel:
                 with contextlib.suppress(discord.HTTPException):
                     assert isinstance(channel, discord.TextChannel)  # nosec
