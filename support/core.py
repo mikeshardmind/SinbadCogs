@@ -68,6 +68,17 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
 
         await self.maybe_delete_for_attach(message)
 
+    async def safe_send(self, channel_id: int, text: str):
+        r = discord.http.Route(
+            "POST", "/channels/{channel_id}/messages", channel_id=channel_id,
+        )
+        kwargs = {
+            "allowed_mentions": {"parse": []},
+            "content": text,
+        }
+
+        await self.bot.http.request(r, json=kwargs)  # type: ignore
+
     async def maybe_delete_for_attach(self, message: discord.Message):
 
         if not message.attachments:
@@ -79,21 +90,11 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
             except discord.HTTPException as exc:
                 log.exception("Delete fail", exc_info=exc)
 
-            r = discord.http.Route(
-                "POST",
-                "/channels/{channel_id}/messages",
-                channel_id=message.channel.id,
+            await self.safe_send(
+                message.channel.id,
+                f"Please refrain from large attachments. "
+                f"{message.author.mention} ({message.author})",
             )
-
-            kwargs = {
-                "allowed_mentions": {"parse": []},
-                "content": (
-                    f"Please refrain from large attachments. "
-                    f"{message.author.mention} ({message.author})"
-                ),
-            }  # This will prevent it from pinging, but leave a record in the chat.
-
-            await self.bot.http.request(r, json=kwargs)  # type: ignore
             return
 
         elif message.attachments[0].filename == "message.txt":
@@ -103,62 +104,34 @@ class Support(commands.Cog, name="Sinbad's Support Toolbox"):
             except discord.HTTPException as exc:
                 log.exception("Delete fail", exc_info=exc)
 
-            r = discord.http.Route(
-                "POST",
-                "/channels/{channel_id}/messages",
-                channel_id=message.channel.id,
+            await self.safe_send(
+                message.channel.id,
+                f"Please use <https://gist.github.com> or <https://mystb.in/> "
+                f"for content which will not fit in a single message "
+                f"{message.author.mention} ({message.author})",
             )
-
-            kwargs = {
-                "allowed_mentions": {"parse": []},
-                "content": (
-                    f"Please use <https://gist.github.com> or <https://mystb.in/> "
-                    f"for content which will not fit in a single message "
-                    f"{message.author.mention} ({message.author})"
-                ),
-            }  # This will prevent it from pinging, but leave a record in the chat.
-
-            await self.bot.http.request(r, json=kwargs)  # type: ignore
             return
 
         if not all((a.height and a.width) for a in message.attachments):
-            r = discord.http.Route(
-                "POST",
-                "/channels/{channel_id}/messages",
-                channel_id=message.channel.id,
+
+            await self.safe_send(
+                message.channel.id,
+                "This message appears to have a non-mobile friendly attachment. "
+                "If this is the case (detection is experimental) "
+                "you may want to consider sending this another way."
+                f"{message.author.mention} ({message.author})",
             )
-
-            kwargs = {
-                "allowed_mentions": {"parse": []},
-                "content": (
-                    "This message appears to have a non-mobile friendly attachment. "
-                    "If this is the case (detection is experimental) "
-                    "you may want to consider sending this another way."
-                    f"{message.author.mention} ({message.author})"
-                ),
-            }  # This will prevent it from pinging, but leave a record in the chat.
-
-            await self.bot.http.request(r, json=kwargs)  # type: ignore
 
     async def maybe_notify_against_mentioning(self, message: discord.Message):
 
         for u in message.mentions:
             if u.id in OWNER_IDS:
-                r = discord.http.Route(
-                    "POST",
-                    "/channels/{channel_id}/messages",
-                    channel_id=message.channel.id,
+
+                await self.safe_send(
+                    message.channel.id,
+                    f"Please refrain from mentioning. "
+                    f"{message.author.mention} ({message.author})",
                 )
-
-                kwargs = {
-                    "allowed_mentions": {"parse": []},
-                    "content": (
-                        f"Please refrain from mentioning. "
-                        f"{message.author.mention} ({message.author})"
-                    ),
-                }  # This will prevent it from pinging, but leave a record in the chat.
-
-                return await self.bot.http.request(r, json=kwargs)  # type: ignore
 
     async def get_message(self, channel: discord.TextChannel, _id: int):
 
