@@ -14,7 +14,7 @@ class SuggestionBox(commands.Cog):
     A configureable suggestion box cog
     """
 
-    __version__ = "340.0.0"
+    __version__ = "340.0.1"
 
     async def red_delete_data_for_user(
         self,
@@ -33,7 +33,7 @@ class SuggestionBox(commands.Cog):
 
             grp = self.config.custom("SUGGESTION")
 
-            async with grp as data:
+            async with grp.all() as data:
                 async for message_id, suggestion in AsyncIter(data.items(), steps=100):
                     if d := suggestion.get("data"):
                         if d.get("author_id", 0) == user_id:
