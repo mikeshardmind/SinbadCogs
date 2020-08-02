@@ -42,7 +42,7 @@ def pagify(
             yield chunk
         text = text[closest_delim:]
 
-    if len(chunk.strip() if strip_before_yield else chunk) > 0:
+    if len(text.strip() if strip_before_yield else text) > 0:
         yield text
 
 
@@ -94,7 +94,11 @@ class Runner(commands.Cog):
     Look, it works. Be careful when using this.
     """
 
-    __version__ = "323.0.6"
+    __version__ = "323.0.7"
+
+    async def red_delete_data_for_user(self, **kwargs):
+        """ Nothing to delete """
+        return
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
