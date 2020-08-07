@@ -10,5 +10,6 @@
 	"tags": [],
 	"hidden": true,
 	"min_bot_version": "3.3.10",
-	"install_message": "Warning: This cog may open you up to legal liabilities. Please ensure you are legally allowed to log messages and handle all related data protection prior to loading or otherwise using this cog. It is on you to determine if your use of this cog is acceptable."
+	"install_message": "Warning: This cog may open you up to legal liabilities. Please ensure you are legally allowed to log messages and handle all related data protection prior to loading or otherwise using this cog. It is on you to determine if your use of this cog is acceptable.",
+	"end_user_data_statement": "This cog logs messages and does not respect the data APIs."
 }

@@ -13,5 +13,6 @@
 	],
 	"hidden": false,
 	"min_bot_version": "3.3.10",
-	"install_message": "If you notice any bugs, open an issue. If you are a previous user of guildblacklist/guildwhitelist you can update those cogs to have an additional command in them that pushes their settings over to this cog."
+	"install_message": "If you notice any bugs, open an issue. If you are a previous user of guildblacklist/guildwhitelist you can update those cogs to have an additional command in them that pushes their settings over to this cog.",
+	"end_user_data_statement": "This cog persistently stores the minimum amount of data needed to restrict guild joins to those allowed by settings. It will not respect data deletion by end users, nor can end users request their data from this cog since it only stores discord IDs and whether those IDs are allowed or denied. Discord IDs may occasionally be logged to a file as needed for audit purposes."
 }
