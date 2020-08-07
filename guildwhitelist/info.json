@@ -12,5 +12,6 @@
 	],
 	"hidden": true,
 	"min_bot_version": "3.3.10",
-	"install_message": "The functionality of this cog has been moved to the guildjoinrestrict cog"
+	"install_message": "The functionality of this cog has been moved to the guildjoinrestrict cog",
+	"end_user_data_statement": "This cog persistently stores the minimum amount of data needed to maintain a server and server owner whitelist.\nIt will not respect data deletion by end users as the data kept is the minimum needed for operation of an anti-abuse measure, nor can end users request their data from this cog since it only stores a discord ID.\nDiscord IDs may occasionally be logged to a file as needed for audit purposes."
 }

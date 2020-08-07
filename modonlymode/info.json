@@ -10,5 +10,6 @@
 	"tags": [],
 	"requirements": [],
 	"hidden": false,
-	"min_bot_version": "3.3.10"
+	"min_bot_version": "3.3.10",
+	"end_user_data_statement": "This cog does not persistently store data or metadata about users."
 }
