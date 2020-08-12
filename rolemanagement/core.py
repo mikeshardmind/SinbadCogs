@@ -25,7 +25,7 @@ from redbot.core.data_manager import cog_data_path
 from redbot.core.utils import AsyncIter
 from redbot.core.utils.chat_formatting import box, pagify
 
-from .converters import EmojiRolePairConverter
+from .converters import EmojiRolePairConverter, RoleSettingsConverter
 from .events import EventMixin
 from .exceptions import PermissionOrHierarchyException, RoleManagementException
 from .massmanager import MassManagementMixin
@@ -88,7 +88,7 @@ class RoleManagement(
     # are not handled in the core bot, which would be a massive permission issue.
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "340.0.1"
+    __version__ = "340.0.2"
 
     async def red_delete_data_for_user(
         self,
@@ -675,6 +675,36 @@ class RoleManagement(
         Settings for role requirements.
         """
         pass
+
+    @rgroup.command(name="bulkset")
+    async def r_bulkset(
+        self,
+        ctx: commands.GuildContext,
+        roles: commands.Greedy[discord.Role],
+        settings: RoleSettingsConverter,
+    ):
+        """
+        Bulk settings for a list of roles.
+        Any settings not provided will be left alone.
+
+        --(no-)selfadd
+        --(no-)selfrem
+        --(no-)sticky
+        """
+
+        if not roles:
+            return await ctx.send_help()
+
+        if all(x is None for x in settings):
+            raise commands.BadArgument("Must provide at least one setting.")
+
+        to_merge = settings.as_mergeable()
+
+        for role in roles:
+            async with self.config.role(role).all() as rsets:
+                rsets.update(**to_merge)
+
+        await ctx.send("Settings for the specified roles have been modified.")
 
     @rgroup.command(name="viewreactions")
     async def rg_view_reactions(self, ctx: commands.GuildContext):
