@@ -25,6 +25,14 @@ class NoExitParser(argparse.ArgumentParser):
         raise BadArgument()
 
 
+def add_bool_arg(parser: NoExitParser, name: str, default=None):
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument(f"--{name}", dest=name, action="store_true")
+    group.add_argument(f"--no-{name}", dest=name, action="store_false")
+    parser.set_defaults(**{name: default})
+    return parser
+
+
 class RoleSyntaxConverter(NamedTuple):
     parsed: Dict[str, List[discord.Role]]
 
@@ -280,3 +288,37 @@ class ComplexSearchConverter(NamedTuple):
                 raise BadArgument("You gave an invalid permission")
 
         return cls(vals)
+
+
+class RoleSettingsConverter(NamedTuple):
+    self_role: bool = False
+    self_removable: bool = False
+    sticky: bool = False
+
+    @classmethod
+    async def convert(cls, ctx, arg):
+        parser = NoExitParser(
+            description="Bulk role setting syntax help", add_help=False
+        )
+
+        for name in ("sticky", "selfrem", "selfadd"):
+            add_bool_arg(parser, name)
+
+        try:
+            parsed = parser.parse_args(shlex.split(arg))
+        except Exception:
+            raise BadArgument(
+                "Settings:\n"
+                "    --(no-)selfadd\n"
+                "    --(no-)selfrem\n"
+                "    --(no-)sticky"
+            )
+
+        return cls(parsed.selfadd, parsed.selfrem, parsed.sticky)
+
+    def as_mergeable(self):
+        return {
+            name: val
+            for name in ("self_role", "self_removable", "sticky")
+            if (val := getattr(self, name, None)) is not None
+        }
