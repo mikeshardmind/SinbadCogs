@@ -27,6 +27,8 @@ The scheduling logic itself is solid, even if not the easiest to reason about.
 The patching of discord.TextChannel and fake discord.Message objects is *messy* but works.
 """
 
+SUSPICIOUS_COMMANDS = ("restart", "shutdown", "reload")
+
 
 class Scheduler(commands.Cog):
     """
@@ -36,7 +38,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "340.0.1"
+    __version__ = "340.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -139,6 +141,13 @@ class Scheduler(commands.Cog):
         message = await task.get_message(self.bot)
         context = await self.bot.get_context(message)
         context.assume_yes = True
+        if context.invoked_with and context.command and context.command.qualified_name in SUSPICIOUS_COMMANDS:
+            self.log.warning(
+                f"Handling scheduled {context.command.qualified_name} "
+                "if you are using this to avoid an issue with another cog, "
+                "go get the other cog fixed. This use won't be supported."
+            )
+            
         await self.bot.invoke(context)
 
         if context.valid:
