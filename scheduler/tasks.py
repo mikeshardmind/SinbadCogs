@@ -20,6 +20,7 @@ class Task:
     channel: discord.TextChannel
     initial: datetime
     recur: Optional[timedelta] = None
+    extern_cog: Optional[str] = None
 
     def __attrs_post_init__(self):
         if self.initial.tzinfo is None:
@@ -46,6 +47,7 @@ class Task:
                 "channel": self.channel.id,
                 "initial": self.initial.timestamp(),
                 "recur": self.recur.total_seconds() if self.recur else None,
+                "extern_cog": self.extern_cog,
             }
         }
 
