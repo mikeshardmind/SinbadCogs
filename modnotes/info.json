@@ -11,6 +11,6 @@
 		"apsw-wheels"
 	],
 	"hidden": true,
-	"min_bot_version": "3.3.10",
+	"min_bot_version": "3.4.0",
 	"end_user_data_statement": "This cog stores data provided to it for the purpose of a permanent moderation note system. \nThis cog does not currently respect the data APIs and bot owners may need to handle data deletion requests for it manually, but they will be given notice in such cases."
 }

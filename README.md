@@ -6,10 +6,10 @@
 
 ## Availability of Support
 
-Support is available for bugs and feature requests only.
-
-Support for usage issues is outside of what I currently have time or prioritization for.
-
+Support is not available. Use Red at your own peril. 
+As the contributor with the most code and expertise contributed to red, 
+I was banned for saying I was tired of having my work misrepresented and lied about by organization members.
+I threw down an ultimatum to get it to stop, they banned me, I'll be following through with what I said.
 
 ## Whats here?
 
@@ -121,29 +121,14 @@ They aren't designed to actively cause harm, but I'm not advertising them.
 
 Significant personal disagreements which led to wanting to have nothing to do with Red's community.
 
+Then being banned for taking issue with my work being misrepresented and TwentySix repeatedly lying about it.
+
 ## Why are you working on this again?
 
-Two communities that I work closely with would like to continue using Red for now.
-I am being paid for my time spent supporting the needs of these communities.
+I'm no longer. All further of my own use will be done wlewhere.
 
 ## Custom forks
 
 Read the license, but disallowed.
 
-I previously attempted to keep this more permissive while protecting my own time,
-it took less than a day from that attempt for this to need to be solved more strongly.
 
-## Code re-use
-
-Again, read the license.
-
-The cliff notes in plain English:
-
-Generally, if you're modifying for personal use privately, it's allowed.
-Taking portions of the code which have general utility not specific to the cog
-is allowed with proper attribution of source.
-Modifying the code and maintaining a fork is not allowed.
-Attaching monetization to this code specifically is not allowed.
-
-While the above attempts to be accurate, the language of the license takes precedence and
-is only provided to help rule out disallowed usage prior to reading in full.

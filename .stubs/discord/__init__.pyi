@@ -28,6 +28,7 @@ from .guild import SystemChannelFlags as SystemChannelFlags
 from .invite import Invite as Invite
 from .member import Member as Member
 from .member import VoiceState as VoiceState
+from .mentions import AllowedMentions as AllowedMentions
 from .message import Attachment as Attachment
 from .message import Message as Message
 from .object import Object as Object

@@ -11,7 +11,7 @@
 		"numpy"
 	],
 	"hidden": false,
-	"min_bot_version": "3.3.10",
+	"min_bot_version": "3.4.0",
 	"install_message": "This cog replaces the General cog in Red (I only care about the roll command) This cog features some math. For optimal use, you'll want the `numba` and `scipy` libraries installed, though this will work without them.",
 	"end_user_data_statement": "This cog does not persistently store data or metadata about users."
 }

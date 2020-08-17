@@ -34,7 +34,7 @@ class SuggestionBox(commands.Cog):
             grp = self.config.custom("SUGGESTION")
 
             async with grp.all() as data:
-                async for message_id, suggestion in AsyncIter(data.items(), steps=100):
+                async for _message_id, suggestion in AsyncIter(data.items(), steps=100):
                     if d := suggestion.get("data"):
                         if d.get("author_id", 0) == user_id:
                             d["author_id"] = 0

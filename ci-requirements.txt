@@ -1,3 +1,2 @@
-discord-text-sanitizer
 mypy==0.761
 Red-DiscordBot

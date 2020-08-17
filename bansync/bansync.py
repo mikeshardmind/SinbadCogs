@@ -24,7 +24,7 @@ from redbot.core import checks, commands
 from redbot.core.bot import Red
 from redbot.core.config import Config
 from redbot.core.data_manager import cog_data_path
-from redbot.core.modlog import create_case
+from redbot.core.modlog import create_case as _red_create_case
 from redbot.core.utils.chat_formatting import box, pagify
 
 from .converters import MentionOrID, ParserError, SyndicatedConverter
@@ -36,6 +36,28 @@ UserLike = Union[discord.Member, discord.User]
 
 def mock_user(idx: int) -> UserLike:
     return cast(discord.User, discord.Object(id=idx))
+
+
+async def create_case(
+    bot: Red,
+    guild: discord.Guild,
+    created_at: datetime,
+    action_type: str,
+    user: UserLike,
+    moderator: Optional[UserLike] = None,
+    reason: Optional[str] = None,
+):
+    """
+    This is a lie, but for some reason,
+    Red doesn't allow discord.Object use
+    and has an incorrect typehint on top of it
+
+    This is in it's own function for easy removal of
+    the workaround at a time where modlog is
+    reasonable to interact with.
+    """
+    uid = cast(UserLike, user.id)
+    _red_create_case(bot, guild, created_at, action_type, uid, moderator, reason)
 
 
 class AddOnceHandler(logging.FileHandler):
@@ -67,7 +89,7 @@ class BanSync(commands.Cog):
     Synchronize your bans.
     """
 
-    __version__ = "340.0.0"
+    __version__ = "340.0.1"
 
     async def red_delete_data_for_user(self, **kwargs):
         """ Nothing to delete """

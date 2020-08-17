@@ -8,6 +8,6 @@
 	"description": "configureable suggestion boxes",
 	"tags": [],
 	"hidden": true,
-	"min_bot_version": "3.3.10",
+	"min_bot_version": "3.4.0",
 	"end_user_data_statement": "This cog stores data provided to it by command as needed for operation. As this data is for suggestions to be given from a user to a community, it is not reasonably considered end user data and will not be deleted except as required by Discord."
 }

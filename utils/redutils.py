@@ -25,7 +25,7 @@ async def message_is_eligible_as_command(bot: Red, message: discord.Message) -> 
         assert isinstance(channel, discord.TextChannel)  # nosec
         if not channel.permissions_for(guild.me).send_messages:
             return False
-        if not (await bot.ignored_channel_or_guild(message)):  # type: ignore
+        if not (await bot.ignored_channel_or_guild(message)):
             return False
             # This is *supposed* to only take a context object,
             # ducktyping is safe here though

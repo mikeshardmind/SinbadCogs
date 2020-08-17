@@ -42,10 +42,6 @@ class Schedule:
         command: Optional[str] = None
         recur: Optional[timedelta] = None
 
-        # Blame iOS smart punctuation,
-        # and end users who use it for this (minor) perf loss
-        argument = argument.replace("—", "--")
-
         command, *arguments = argument.split(" -- ")
         if arguments:
             argument = " -- ".join(arguments)
@@ -110,10 +106,6 @@ class TempMute(NamedTuple):
 
         start: datetime
         reason: str
-
-        # Blame iOS smart punctuation,
-        # and end users who use it for this (minor) perf loss
-        argument = argument.replace("—", "--")
 
         parser = NoExitParser(description="Scheduler event parsing", add_help=False)
         parser.add_argument("reason", nargs="*")

@@ -3,6 +3,7 @@ import re
 
 import discord
 from redbot.core import commands
+from redbot.core.bot import Red
 
 
 class MentionHelp(commands.Cog):
@@ -15,7 +16,7 @@ class MentionHelp(commands.Cog):
         return
 
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Red = bot
         self.mention_pattern = None
         self.cooldowns = commands.CooldownMapping.from_cooldown(
             1, 300, commands.BucketType.channel
@@ -29,10 +30,6 @@ class MentionHelp(commands.Cog):
     @commands.Cog.listener("on_message_without_command")
     async def help_handler(self, message: discord.Message):
 
-        if method := getattr(self.bot, "cog_disabled_in_guild", None):
-            if await method(self, message.guild):
-                return
-
         if self.mention_pattern is None:
             self.mention_pattern = re.compile(rf"^<@!?{self.bot.user.id}>$")
 
@@ -42,17 +39,12 @@ class MentionHelp(commands.Cog):
         channel = message.channel
         guild = message.guild
 
-        if guild:
-            assert isinstance(channel, discord.TextChannel)  # nosec
-            if not channel.permissions_for(guild.me).send_messages:
-                return
-            if not (await self.bot.ignored_channel_or_guild(message)):
-                return
-                # This is *supposed* to only take a context object,
-                # ducktyping is safe here though
-
-        if not (await self.bot.allowed_by_whitelist_blacklist(message.author)):
+        if not await self.bot.message_eligible_as_command(message):
             return
+
+        if guild:
+            if await self.bot.cog_disabled_in_guild_raw(self.qualified_name, guild.id):
+                return
 
         bucket = self.cooldowns.get_bucket(message)
         current = message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()

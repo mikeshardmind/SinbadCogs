@@ -35,7 +35,7 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
     """
 
     __author__ = "mikeshardmind"
-    __version__ = "340.0.1"
+    __version__ = "340.0.2"
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -117,7 +117,15 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
             await self.ar_cleanup(guild)
 
 
-def setup(bot):
+async def setup(bot):
+    await bot.send_to_owners(
+        "This cog still functions, but I suggest you leave and stop using Red. "
+        "I was removed from Red for not wanting my work misrepresented by the "
+        "organization, and stating what I would do *if* that continued. "
+        'For how much Red and it\'s members go after people who " take credit" '
+        "for their work, they sure were quick to dismiss mine. "
+        "The cog will recieve no further updates, nor is anyone legally allowed to fork to update."
+    )
     cog = RoomTools(bot)
     bot.add_cog(cog)
     cog.init()

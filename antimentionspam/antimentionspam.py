@@ -46,7 +46,7 @@ class AntiMentionSpam(commands.Cog):
     Removes mass mention spam.
     """
 
-    __version__ = "340.0.0"
+    __version__ = "340.0.2"
 
     async def red_delete_data_for_user(self, **kwargs):
         """ Nothing to delete """
@@ -375,8 +375,7 @@ class AntiMentionSpam(commands.Cog):
         if await self.bot.is_automod_immune(message):
             return True
 
-        if method := getattr(self.bot, "cog_disabled_in_guild", None):
-            if await method(self, message.guild):
-                return True
+        if await self.bot.cog_disabled_in_guild_raw(self.qualified_name, guild.id):
+            return True
 
         return False

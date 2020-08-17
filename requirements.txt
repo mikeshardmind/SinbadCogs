@@ -4,4 +4,3 @@ python-dateutil
 red-discordbot
 dice
 feedparser
-discord-text-sanitizer
