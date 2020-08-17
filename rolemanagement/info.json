@@ -15,6 +15,6 @@
 		"massrole"
 	],
 	"hidden": false,
-	"min_bot_version": "3.3.10",
+	"min_bot_version": "3.4.0",
 	"end_user_data_statement": "This cog does not persistently store end user data. This cog does store discord IDs as needed for operation."
 }

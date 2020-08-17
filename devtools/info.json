@@ -9,6 +9,6 @@
 	"description": "Some dev tools",
 	"tags": [],
 	"hidden": true,
-	"min_bot_version": "3.3.0",
+	"min_bot_version": "3.4.0",
 	"end_user_data_statement": "This cog does not persistently store data or metadata about users."
 }

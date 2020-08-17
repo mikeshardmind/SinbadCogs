@@ -29,9 +29,8 @@ class MentionHelp(commands.Cog):
     @commands.Cog.listener("on_message_without_command")
     async def help_handler(self, message: discord.Message):
 
-        if method := getattr(self.bot, "cog_disabled_in_guild", None):
-            if await method(self, message.guild):
-                return
+        if await self.bot.cog_disabled_in_guild(self, message.guild):
+            return
 
         if self.mention_pattern is None:
             self.mention_pattern = re.compile(rf"^<@!?{self.bot.user.id}>$")
