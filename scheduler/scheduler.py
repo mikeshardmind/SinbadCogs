@@ -39,7 +39,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "340.0.3"
+    __version__ = "340.0.4"
     __external_api_version__ = 1
     __external_supported_api__ = ("api_schedule", "api_unschedule")
 
@@ -106,7 +106,6 @@ class Scheduler(commands.Cog):
 
         if recur is not None and recur.total_seconds() < 60:
             raise ValueError("Recuring events must be at least a minute apart.")
-
 
         uid = uuid.uuid4().hex
 
@@ -288,8 +287,6 @@ class Scheduler(commands.Cog):
         Schedules some upcoming things as tasks.
         """
 
-        # TODO: improve handlng of next time return
-
         async with self._iter_lock:
             to_pop = []
             for k, v in self.scheduled.items():
@@ -351,6 +348,7 @@ class Scheduler(commands.Cog):
 
     # Commands go here
 
+    @commands.check(lambda ctx: not ctx.assume_yes)
     @checks.mod_or_permissions(manage_guild=True)
     @commands.guild_only()
     @commands.command(usage="<eventname> <command> <args>")
@@ -413,7 +411,7 @@ class Scheduler(commands.Cog):
             recur=recur,
         )
 
-        quiet: bool = schedule.quiet or ctx.assume_yes
+        quiet: bool = schedule.quiet
 
         if await self.fetch_task_by_attrs_exact(
             author=ctx.author, channel=ctx.channel, nicename=event_name.parsed
@@ -447,6 +445,7 @@ class Scheduler(commands.Cog):
 
         await ctx.send(ret)
 
+    @commands.check(lambda ctx: not ctx.assume_yes)
     @commands.guild_only()
     @commands.command()
     async def unschedule(self, ctx: commands.GuildContext, info: str):
@@ -454,14 +453,12 @@ class Scheduler(commands.Cog):
         Unschedule something.
         """
 
-        quiet: bool = ctx.assume_yes
-
         tasks = await self.fetch_task_by_attrs_lax(
             lax={"uid": info, "nicename": info},
             strict={"author": ctx.author, "channel": ctx.channel},
         )
 
-        if not tasks and not quiet:
+        if not tasks:
             await ctx.send(
                 f"Hmm, I couldn't find that task. (try `{ctx.clean_prefix}showscheduled`)"
             )
@@ -470,17 +467,15 @@ class Scheduler(commands.Cog):
             self.log.warning(
                 f"Mutiple tasks where should be unique. Task data: {tasks}"
             )
-            if not quiet:
-                await ctx.send(
-                    "There seems to have been breakage here. "
-                    "Cleaning up and logging incident."
-                )
+            await ctx.send(
+                "There seems to have been breakage here. "
+                "Cleaning up and logging incident."
+            )
             return
 
         else:
             await self._remove_tasks(*tasks)
-            if not quiet:
-                await ctx.tick()
+            await ctx.tick()
 
     @checks.bot_has_permissions(add_reactions=True, embed_links=True)
     @commands.guild_only()
@@ -549,6 +544,7 @@ class Scheduler(commands.Cog):
         controls.update({"\N{NO ENTRY SIGN}": actual_task_killer})
         await menu(ctx, embeds, controls, message=message)
 
+    @commands.check(lambda ctx: not ctx.assume_yes)
     @commands.command(name="remindme", usage="<what to be reminded of> <args>")
     async def reminder(self, ctx: commands.GuildContext, *, reminder: Schedule):
         """
@@ -626,6 +622,7 @@ class Scheduler(commands.Cog):
         with contextlib.suppress(discord.HTTPException):
             await ctx.author.send(content)
 
+    @commands.check(lambda ctx: not ctx.assume_yes)
     @commands.admin_or_permissions(manage_guild=True)
     @commands.guild_only()
     @commands.group()
@@ -658,6 +655,7 @@ class Scheduler(commands.Cog):
 
         await self.task_menu(ctx, tasks)
 
+    @commands.check(lambda ctx: not ctx.assume_yes)
     @scheduleradmin.command()
     async def kill(self, ctx: commands.GuildContext, *, task_id: str):
         """
@@ -683,6 +681,7 @@ class Scheduler(commands.Cog):
             await self._remove_tasks(*tasks)
             await ctx.tick()
 
+    @commands.check(lambda ctx: not ctx.assume_yes)
     @scheduleradmin.command()
     async def killchannel(self, ctx, channel: discord.TextChannel):
         """
@@ -697,6 +696,7 @@ class Scheduler(commands.Cog):
         await self._remove_tasks(*tasks)
         await ctx.tick()
 
+    @commands.check(lambda ctx: not ctx.assume_yes)
     @commands.guild_only()
     @commands.group()
     async def tempmute(self, ctx):
