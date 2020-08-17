@@ -4,7 +4,8 @@ import asyncio
 import contextlib
 import functools
 import logging
-from datetime import datetime, timezone
+import uuid
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Literal, Optional
 
 import discord
@@ -38,7 +39,122 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "340.0.2"
+    __version__ = "340.0.3"
+    __external_api_version__ = 1
+    __external_supported_api__ = ("api_schedule", "api_unschedule")
+
+    async def api_schedule(
+        self,
+        calling_cog: commands.Cog,
+        *,
+        command: str,
+        author: discord.Member,
+        channel: discord.TextChannel,
+        initial: datetime,
+        recur: Optional[timedelta] = None,
+    ) -> str:
+        """
+        Schedule a command safely from another cog
+
+        .. warning::
+
+            This method should not be used except by those who verify for a matching API version
+
+
+        .. warning::
+
+            This cog does not currently handle DST transitions but may in the future
+
+
+        .. note::
+
+            Users may unschedule things your cog schedules on their behalf. This is intentional.
+
+
+        Parameters
+        ----------
+        calling_cog: commands.Cog
+            The cog you are scheduling from
+        command: str
+            The command the user will run, as text, without a prefix and with any needed arguments.
+            No attempt is made to verify the validity of the command or it's usage here.
+        author: discord.Member
+            The member this task will run as.
+        channel: discord.TextChannel
+            The channel to schedule the command in.
+        initial: datetime
+            When the first instance should happen. If this is a naive datetime, UTC will be assumed.
+        recur: Optional[timedelta]
+            If provided, how frequently this will run. This must be at least a minute if provided.
+        
+        Returns
+        -------
+        str
+            A string which is needed to unschedule the task
+        
+        Raises
+        ------
+        TypeError
+        ValueError
+        """
+
+        # explain: mypy assumes this is always true, but other CCs using this API may not be using mypy.
+        if not (isinstance(author, discord.Member) and isinstance(channel, discord.TextChannel)):  # type: ignore
+            raise TypeError(
+                "Must provide guild specific discord.py models for both author and channel"
+            )
+
+        if recur is not None and recur.total_seconds() < 60:
+            raise ValueError("Recuring events must be at least a minute apart.")
+
+
+        uid = uuid.uuid4().hex
+
+        t = Task(
+            uid=uid,
+            nicename=f"Task scheduled by another cog: {calling_cog.qualified_name} | {uid}",
+            author=author,
+            content=command,
+            channel=channel,
+            initial=initial,
+            recur=recur,
+            extern_cog=calling_cog.qualified_name,
+        )
+
+        async with self._iter_lock:
+            async with self.config.channel(channel).tasks(acquire_lock=False) as tsks:
+                tsks.update(t.to_config())
+            self.tasks.append(t)
+
+        return uid
+
+    async def api_unschedule(self, calling_cog: commands.Cog, uid: str):
+        """
+        Unschedule a command which was scheduled through the API
+
+        This method will fail silently on already unscheduled or otherwise
+        removed tasks to make it easier to safely work with the fact that
+        users may also unschedule things, and non recurring tasks may get
+        removed automatically.
+
+        .. warning::
+
+            This method should not be used except by those who verify for a matching API version
+
+
+        Paramaters
+        ----------
+        calling_cog: commands.Cog
+            The cog you are scheduling from
+        uid: str
+            A string which is needed to unschedule the task
+        """
+
+        tasks = await self.fetch_task_by_attrs_exact(
+            extern_cog=calling_cog.qualified_name, uid=uid
+        )
+        if tasks:
+            await self._remove_tasks(*tasks)
 
     def format_help_for_context(self, ctx):
         pre_processed = super().format_help_for_context(ctx)
@@ -141,13 +257,17 @@ class Scheduler(commands.Cog):
         message = await task.get_message(self.bot)
         context = await self.bot.get_context(message)
         context.assume_yes = True
-        if context.invoked_with and context.command and context.command.qualified_name in SUSPICIOUS_COMMANDS:
+        if (
+            context.invoked_with
+            and context.command
+            and context.command.qualified_name in SUSPICIOUS_COMMANDS
+        ):
             self.log.warning(
                 f"Handling scheduled {context.command.qualified_name} "
                 "if you are using this to avoid an issue with another cog, "
                 "go get the other cog fixed. This use won't be supported."
             )
-            
+
         await self.bot.invoke(context)
 
         if context.valid:
