@@ -39,7 +39,7 @@ class Scheduler(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad), DiscordLiz"
-    __version__ = "340.0.4"
+    __version__ = "340.0.5"
     __external_api_version__ = 1
     __external_supported_api__ = ("api_schedule", "api_unschedule")
 
@@ -86,12 +86,12 @@ class Scheduler(commands.Cog):
             When the first instance should happen. If this is a naive datetime, UTC will be assumed.
         recur: Optional[timedelta]
             If provided, how frequently this will run. This must be at least a minute if provided.
-        
+
         Returns
         -------
         str
             A string which is needed to unschedule the task
-        
+
         Raises
         ------
         TypeError
@@ -201,18 +201,18 @@ class Scheduler(commands.Cog):
 
             collected = []
             if chan_tasks := channel_data.get("tasks"):
-                for uuid, task in chan_tasks.items():
+                for task_id, task in chan_tasks.items():
                     c += 1
                     if not c % 100:
                         await asyncio.sleep(0)
                     if task.get("author", 0) == user_id:
-                        collected.append(uuid)
+                        collected.append(task_id)
 
             if collected:
                 async with self._iter_lock:
                     async with self.config.channel_from_id(channel_id).tasks() as tsks:
-                        for uuid in collected:
-                            tsks.pop(uuid, None)
+                        for task_id in collected:
+                            tsks.pop(task_id, None)
 
     async def _load_tasks(self):
         chan_dict = await self.config.all_channels()
