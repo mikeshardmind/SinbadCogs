@@ -15,3 +15,4 @@ class MixedMeta(abc.ABC):
         self.antispam_intervals: list
         self.tmpc_config: Config
         self.ar_config: Config
+        self.qualified_name: str

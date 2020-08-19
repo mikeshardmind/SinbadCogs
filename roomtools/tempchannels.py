@@ -30,7 +30,7 @@ class TempChannels(MixedMeta):
 
     async def tmpc_cleanup(self, guild: discord.Guild):
 
-        if await self.bot.cog_disabled_in_guild(self, guild):
+        if await self.bot.cog_disabled_in_guild_raw(self.qualified_name, guild.id):
             return
 
         for channel in guild.voice_channels:

@@ -25,7 +25,7 @@ class AutoRooms(MixedMeta):
 
     async def ar_cleanup(self, guild: discord.Guild):
 
-        if await self.bot.cog_disabled_in_guild(self, guild):
+        if await self.bot.cog_disabled_in_guild_raw(self.qualified_name, guild.id):
             return
 
         for channel in guild.voice_channels:
@@ -119,7 +119,9 @@ class AutoRooms(MixedMeta):
         if not source.guild.me.guild_permissions.value & 17825808 == 17825808:
             return
 
-        if await self.bot.cog_disabled_in_guild(self, source.guild):
+        if await self.bot.cog_disabled_in_guild_raw(
+            self.qualified_name, source.guild.id
+        ):
             return
 
         cdata = await self.ar_config.channel(source).all(acquire_lock=False)
