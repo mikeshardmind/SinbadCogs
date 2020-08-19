@@ -10,5 +10,6 @@
 	"tags": [],
 	"hidden": true,
 	"min_bot_version": "3.4.0",
-	"end_user_data_statement": "This cog does not persistently store data or metadata about users."
+	"end_user_data_statement": "This cog does not persistently store data or metadata about users.",
+	"install_message": "This makes a small tweak to the bot's behavior for predictable-ness."
 }

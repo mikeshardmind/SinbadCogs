@@ -23,7 +23,7 @@ class Relays(commands.Cog):
     """
 
     __author__ = "mikeshardmind(Sinbad)"
-    __version__ = "340.0.0"
+    __version__ = "340.0.1"
 
     async def red_delete_data_for_user(self, **kwargs):
         """ Nothing to delete """
@@ -115,7 +115,12 @@ class Relays(commands.Cog):
         if message.type.value != 0:
             return
 
-        if await self.bot.cog_disabled_in_guild(self, message.guild):
+        if not message.guild:
+            return
+
+        if await self.bot.cog_disabled_in_guild_raw(
+            self.qualified_name, message.guild.id
+        ):
             return
 
         for dest in self.gather_destinations(message):

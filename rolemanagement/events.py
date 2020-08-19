@@ -46,7 +46,7 @@ class EventMixin(MixinMeta):
         await self.wait_for_ready()
 
         g = before.guild or after.guild
-        if await self.bot.cog_disabled_in_guild(self, g):
+        if await self.bot.cog_disabled_in_guild_raw(self.qualified_name, g.id):
             return
 
         if before._roles == after._roles:
@@ -76,7 +76,7 @@ class EventMixin(MixinMeta):
         if not guild.me.guild_permissions.manage_roles:
             return
 
-        if await self.bot.cog_disabled_in_guild(self, guild):
+        if await self.bot.cog_disabled_in_guild_raw(self.qualified_name, guild.id):
             return
 
         async with self.config.member(member).roles() as rids:
