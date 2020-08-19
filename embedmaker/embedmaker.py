@@ -22,7 +22,7 @@ class EmbedMaker(commands.Cog):
     Storable, recallable, embed maker
     """
 
-    __version__ = "340.0.4"
+    __version__ = "340.0.5"
 
     async def red_delete_data_for_user(
         self,
@@ -470,6 +470,8 @@ class EmbedMaker(commands.Cog):
         if channel:
             if not channel.permissions_for(ctx.me).send_messages:
                 return await ctx.send("I can't send messages there.")
+            if not channel.permissions_for(ctx.me).embed_links:
+                return await ctx.send("I can't send embeds there.")
             if not channel.permissions_for(ctx.author).send_messages:
                 return await ctx.send("You can't send messages there.")
         else:
@@ -480,7 +482,7 @@ class EmbedMaker(commands.Cog):
         except (discord.Forbidden, discord.HTTPException) as e:
             log.error(e)
 
-    @checks.is_owner()
+    @commands.bot_has_permissions(embed_links=True)
     @_embed.command(name="dropglobal")
     async def drop_global(
         self,
@@ -496,6 +498,8 @@ class EmbedMaker(commands.Cog):
         if channel:
             if not channel.permissions_for(ctx.me).send_messages:
                 return await ctx.send("I can't send messages there.")
+            if not channel.permissions_for(ctx.me).embed_links:
+                return await ctx.send("I can't send embeds there.")
             if not channel.permissions_for(ctx.author).send_messages:
                 return await ctx.send("You can't send messages there.")
         else:
