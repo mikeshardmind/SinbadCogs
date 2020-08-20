@@ -56,16 +56,26 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
         self.bot = bot
         self._antispam = {}
         self.tmpc_config = Config.get_conf(
-            None, identifier=78631113035100160, force_registration=True, cog_name="TempChannels",
+            None,
+            identifier=78631113035100160,
+            force_registration=True,
+            cog_name="TempChannels",
         )
         self.tmpc_config.register_guild(active=False, category=None, current=False)
         self.tmpc_config.register_channel(is_temp=False)
         self.ar_config = Config.get_conf(
-            None, identifier=78631113035100160, force_registration=True, cog_name="AutoRooms",
+            None,
+            identifier=78631113035100160,
+            force_registration=True,
+            cog_name="AutoRooms",
         )
         self.ar_config.register_guild(active=False, ownership=False)
         self.ar_config.register_channel(
-            ownership=None, gameroom=False, autoroom=False, clone=False, creatorname=False,
+            ownership=None,
+            gameroom=False,
+            autoroom=False,
+            clone=False,
+            creatorname=False,
         )
         self._ready_event = asyncio.Event()
         self._init_task: Optional[asyncio.Task] = None
@@ -80,7 +90,9 @@ class RoomTools(AutoRooms, TempChannels, commands.Cog, metaclass=CompositeMetaCl
             except asyncio.CancelledError:
                 log.info("roomtools didn't set up and was cancelled")
             except asyncio.InvalidStateError as exc:
-                log.exception("We somehow have a done callback when not done?", exc_info=exc)
+                log.exception(
+                    "We somehow have a done callback when not done?", exc_info=exc
+                )
             except Exception as exc:
                 log.exception("Unexpected exception in roomtools: ", exc_info=exc)
 
