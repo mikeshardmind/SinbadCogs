@@ -361,7 +361,7 @@ class BanSync(commands.Cog):
             return False
         else:
             await create_case(
-                self.bot, guild, datetime.utcnow(), "ban", member, mod, reason
+                self.bot, guild, datetime.utcnow(), "ban", _id, mod, reason
             )
 
         return True
