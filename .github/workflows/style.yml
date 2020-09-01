@@ -12,7 +12,7 @@ jobs:
       - uses: actions/setup-python@v1
         with:
           python-version: "3.8"
-      - run: "python -m pip install black isort"
+      - run: "python -m pip install black==19.10b0 isort"
         name: Install deps
       - run: "make stylecheck"
         name: Style checking
