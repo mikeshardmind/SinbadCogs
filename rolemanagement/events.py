@@ -27,10 +27,10 @@ class EventMixin(MixinMeta):
         now = datetime.utcnow()
         level: int = guild.verification_level.value
 
-        if level >= 3 and member.created_at + timedelta(minutes=5) > now:  # medium
+        if level >= 2 and member.created_at + timedelta(minutes=5) > now:  # medium
             return True
 
-        if level >= 4:  # high
+        if level >= 3:  # high
             if not member.joined_at or member.joined_at + timedelta(minutes=10) > now:
                 return True
 
