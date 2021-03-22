@@ -1,0 +1,19 @@
+{
+	"author": [
+		"mikeshardmind(Sinbad)"
+	],
+	"name": "RSS",
+	"disabled": false,
+	"short": "rss cog",
+	"description": "An RSS cog.",
+	"tags": [
+		"rss"
+	],
+	"hidden": false,
+	"requirements": [
+		"feedparser>=6.0.0b1",
+		"beautifulsoup4"
+	],
+	"min_bot_version": "3.4.0",
+	"end_user_data_statement": "This cog does not persistently store data or metadata about users."
+}

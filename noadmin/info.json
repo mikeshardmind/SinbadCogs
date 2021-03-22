@@ -1,0 +1,14 @@
+{
+	"author": [
+		"mikeshardmind(Sinbad)"
+	],
+	"name": "NoAdmin",
+	"disabled": false,
+	"short": "Prevent commands from being used in servers that give the bot admin rights.",
+	"description": "Prevent commands from being used in servers that give the bot admin rights. This still allows it if the guild owner is also a bot owner to prevent stupidity related lockouts.",
+	"tags": [],
+	"requirements": [],
+	"hidden": false,
+	"min_bot_version": "3.4.0",
+	"end_user_data_statement": "This cog does not persistently store data or metadata about users."
+}

@@ -1,0 +1,20 @@
+{
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "Scheduler",
+	"disabled": false,
+	"short": "A semi-timezone aware scheduler cog",
+	"description": "A semi-timezone aware scheduler cog",
+	"tags": [
+		"scheduler"
+	],
+	"hidden": false,
+	"requirements": [
+		"python-dateutil",
+		"pytz"
+	],
+	"min_bot_version": "3.4.0",
+	"end_user_data_statement": "This cog does not persistently store data or metadata about users. It does store commands provided for intended later use along with the user ID of the person who scheduled it.\nUsers may delete their own data with or without making a data request."
+}

@@ -1,0 +1,15 @@
+{
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "ModOnlyMode",
+	"disabled": false,
+	"short": "Make the bot only respond to mods or higher (server by server)",
+	"description": "Make the bot only respond to mods or higher (server by server)",
+	"tags": [],
+	"requirements": [],
+	"hidden": false,
+	"min_bot_version": "3.4.0",
+	"end_user_data_statement": "This cog does not persistently store data or metadata about users."
+}

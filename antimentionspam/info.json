@@ -1,0 +1,14 @@
+{
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "AntiMentionSpam",
+	"disabled": false,
+	"short": "filters mass mentions",
+	"description": "mass mention filter",
+	"tags": [],
+	"hidden": false,
+	"min_bot_version": "3.4.0",
+	"end_user_data_statement": "This cog does not persistently store data or metadata about users. Discord IDs of users may occasionally be logged to file as part of exception logging."
+}

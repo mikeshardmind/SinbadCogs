@@ -1,0 +1,17 @@
+{
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "GuildJoinRestrict",
+	"disabled": false,
+	"short": "Manage guild joins",
+	"description": "Log or leave guilds based on a configured list of allowed or blocked guilds and or guild owners.",
+	"tags": [
+		"blocklist",
+		"allowlist"
+	],
+	"hidden": false,
+	"min_bot_version": "3.3.10",
+	"end_user_data_statement": "This cog persistently stores the minimum amount of data needed to restrict guild joins to those allowed by settings. It will not respect data deletion by end users, nor can end users request their data from this cog since it only stores discord IDs and whether those IDs are allowed or denied. Discord IDs may occasionally be logged to a file as needed for audit purposes."
+}

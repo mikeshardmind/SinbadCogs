@@ -1,0 +1,16 @@
+{
+	"author": [
+		"mikeshardmind(Sinbad)"
+	],
+	"name": "QuoteTools",
+	"disabled": false,
+	"short": "Quote messages by ID",
+	"description": "Gets messages by ID. Works across Channels and servers.",
+	"tags": [
+		"quote",
+		"quotetools"
+	],
+	"hidden": false,
+	"min_bot_version": "3.4.0",
+	"end_user_data_statement": "This cog does not persistently store data or metadata about users."
+}

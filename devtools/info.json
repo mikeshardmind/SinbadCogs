@@ -1,0 +1,14 @@
+{
+	"author": [
+		"mikeshardmind(Sinbad)",
+		"DiscordLiz"
+	],
+	"name": "DevTools",
+	"disabled": false,
+	"short": "Some dev tools",
+	"description": "Some dev tools",
+	"tags": [],
+	"hidden": true,
+	"min_bot_version": "3.4.0",
+	"end_user_data_statement": "This cog does not persistently store data or metadata about users."
+}

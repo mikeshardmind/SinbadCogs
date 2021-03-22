@@ -1,0 +1,250 @@
+#   Copyright 2017-present Michael Hall
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+from typing import Literal, Optional
+
+import discord
+from redbot.core import checks, commands
+from redbot.core.config import Config
+from redbot.core.utils import AsyncIter
+from redbot.core.utils.antispam import AntiSpam
+
+from .checks import has_active_box
+
+
+class SuggestionBox(commands.Cog):
+    """
+    A configureable suggestion box cog
+    """
+
+    __version__ = "2021.03"
+
+    async def red_delete_data_for_user(
+        self,
+        *,
+        requester: Literal["discord_deleted_user", "owner", "user", "user_strict"],
+        user_id: int,
+    ):
+        if requester == "discord_deleted_user":
+            # user is deleted, must comply on IDs here...
+
+            data = await self.config.all_members()
+            await self.config.user_from_id(user_id).clear()
+            async for guild_id, members in AsyncIter(data.items(), steps=100):
+                if user_id in members:
+                    await self.config.member_from_ids(guild_id, user_id).clear()
+
+            grp = self.config.custom("SUGGESTION")
+
+            async with grp.all() as data:
+                async for _message_id, suggestion in AsyncIter(data.items(), steps=100):
+                    if d := suggestion.get("data"):
+                        if d.get("author_id", 0) == user_id:
+                            d["author_id"] = 0
+
+    def format_help_for_context(self, ctx):
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}"
+
+    def __init__(self, bot):
+        super().__init__()
+        self.bot = bot
+        self.config = Config.get_conf(
+            self, identifier=78631113035100160, force_registration=True
+        )
+        self.config.register_guild(
+            boxes=[],
+            add_reactions=False,
+            reactions=["\N{THUMBS UP SIGN}", "\N{THUMBS DOWN SIGN}"],
+            forms={},
+            approval_queues={},
+            log_channel=None,
+        )
+
+        self.config.register_global(
+            boxes=[],
+            add_reactions=False,
+            reactions=["\N{THUMBS UP SIGN}", "\N{THUMBS DOWN SIGN}"],
+            forms={},
+            approval_queues={},
+        )
+
+        self.config.init_custom("SUGGESTION", 1)
+        self.config.register_custom("SUGGESTION", data={})
+        self.config.register_member(blocked=False)
+        self.config.register_user(blocked=False)
+        self.antispam = {}
+
+    @checks.admin_or_permissions(manage_guild=True)
+    @commands.guild_only()
+    @commands.group(name="suggestionset", aliases=["setsuggestion"])
+    async def sset(self, ctx: commands.GuildContext):
+        """
+        Configuration settings for SuggestionBox
+        """
+        pass
+
+    @sset.command(name="make")
+    async def sset_make(self, ctx, *, channel: discord.TextChannel):
+        """
+        sets a channel as a suggestionbox
+        """
+        async with self.config.guild(ctx.guild).boxes() as boxes:
+            if channel.id in boxes:
+                return await ctx.send("Channel is already a suggestion box")
+            boxes.append(channel.id)
+
+        await ctx.tick()
+
+    @sset.command(name="remove")
+    async def sset_rm(self, ctx, *, channel: discord.TextChannel):
+        """
+        removes a channel as a suggestionbox
+        """
+        async with self.config.guild(ctx.guild).boxes() as boxes:
+            if channel.id not in boxes:
+                return await ctx.send("Channel was not ser as a suggestion box")
+            boxes.remove(channel.id)
+
+        await ctx.tick()
+
+    @sset.command(name="addreactions")
+    async def sset_adds_reactions(self, ctx, option: Optional[bool] = None):
+        """
+        sets whether to add reactions to each suggestion
+
+        displays current setting without a provided option.
+
+        off = Don't use reactions
+        on = Use reactions
+        """
+        if option is None:
+            current = await self.config.guild(ctx.guild).add_reactions()
+            command = command = f"`{ctx.clean_prefix}help suggestionset addreactions`"
+            if current:
+                base = (
+                    "I am adding reactions to suggestions."
+                    f"\nUse {command} for more information"
+                )
+            else:
+                base = (
+                    "I am not adding reactions to suggestions."
+                    f"\nUse {command} for more information"
+                )
+
+            await ctx.send(base)
+            return
+
+        await self.config.guild(ctx.guild).add_reactions.set(option)
+        await ctx.tick()
+
+    @has_active_box()
+    @commands.guild_only()
+    @commands.command()
+    async def suggest(
+        self,
+        ctx: commands.GuildContext,
+        channel: Optional[discord.TextChannel] = None,
+        *,
+        suggestion: str = "",
+    ):
+        """
+        Suggest something.
+
+        Options
+        channel : Mention channel to specify which channel to suggest to
+        """
+
+        if ctx.guild not in self.antispam:
+            self.antispam[ctx.guild] = {}
+
+        if ctx.author not in self.antispam[ctx.guild]:
+            self.antispam[ctx.guild][ctx.author] = AntiSpam([])
+
+        if self.antispam[ctx.guild][ctx.author].spammy:
+            return await ctx.send("You've sent too many suggestions recently.")
+
+        if not suggestion:
+            return await ctx.send("Please try again while including a suggestion.")
+
+        channel = await self.get_suggestion_channel(ctx, channel)
+        if not channel:
+            return
+
+        perms = channel.permissions_for(ctx.guild.me)
+        if not (perms.send_messages and perms.embed_links):
+            return await ctx.send("I don't have the required permissions")
+
+        embed = discord.Embed(color=(await ctx.embed_color()), description=suggestion)
+
+        embed.set_author(
+            name=f"New suggestion from {ctx.author.display_name} ({ctx.author.id})",
+            icon_url=ctx.author.avatar_url,
+        )
+
+        try:
+            msg = await channel.send(embed=embed)
+        except discord.HTTPException:
+            return await ctx.send("An unexpected error occured.")
+        else:
+            grp = self.config.custom("SUGGESTION", msg.id)
+            async with grp.data() as data:
+                data.update(
+                    channel=channel.id, suggestion=suggestion, author=ctx.author.id
+                )
+            self.antispam[ctx.guild][ctx.author].stamp()
+            await ctx.send(f'{ctx.author.mention}: {"Your suggestion has been sent"}')
+
+        if ctx.channel.permissions_for(ctx.guild.me).manage_messages:
+            try:
+                await ctx.message.delete()
+            except discord.HTTPException:
+                pass
+
+        if await self.config.guild(ctx.guild).add_reactions():
+
+            for reaction in await self.config.guild(ctx.guild).reactions():
+                await msg.add_reaction(reaction)
+
+    async def get_suggestion_channel(
+        self, ctx: commands.GuildContext, channel: Optional[discord.TextChannel] = None
+    ) -> Optional[discord.TextChannel]:
+        """ Tries to get the appropriate channel """
+
+        ids = await self.config.guild(ctx.guild).boxes()
+        channels = [c for c in ctx.guild.text_channels if c.id in ids]
+
+        if not channel:
+            if not channels:
+                await ctx.send(
+                    "Cannot find channels to send to, even though configured."
+                )
+                return None
+
+            if len(channels) == 1:
+                (channel,) = channels
+            else:
+                base_error = (
+                    "Multiple suggestion boxes available, "
+                    "Please try again specifying one of these as the channel:"
+                )
+                output = f'{base_error}\n{", ".join(c.mention for c in channels)}'
+                await ctx.send(output)
+                return None
+
+        elif channel not in channels:
+            await ctx.send("That channel is not a suggestionbox.")
+            return None
+
+        return channel

@@ -1,0 +1,14 @@
+{
+	"author": [
+		"mikeshardmind (Sinbad)",
+		"DiscordLiz"
+	],
+	"install_msg": "The cogs within are provided as-is. If you encounter a bug, please open an issue.",
+	"name": "Sinbad's Cogs",
+	"short": "Handful of various tools and features that I've wanted.",
+	"description": "Handful of various tools and features that I've wanted",
+	"tags": [
+		"Utility",
+		"Moderation"
+	]
+}
