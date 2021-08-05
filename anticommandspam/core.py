@@ -78,9 +78,8 @@ class AntiCommandSpam(commands.Cog):
                 if not self.blocked.has(author_id):
                     self.blocked.add(author_id)
                 log.info(
-                    "User: {user_id} has been blocked temporarily for "
-                    "hitting the global ratelimit a lot.",
-                    user_id=author_id,
+                    f"User: {user_id} has been blocked temporarily for "
+                    "hitting the global ratelimit a lot."
                 )
 
             message = self.messages[min(ccc, 4)]
