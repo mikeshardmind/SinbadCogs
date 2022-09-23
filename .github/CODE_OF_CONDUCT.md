@@ -1,5 +1,7 @@
+The below was the code of conduct for this repository. with a no longer monitored email adress removed:
 
-This document provides community guidelines for a safe, respectful, productive, and collaborative place for any person who is willing to contribute to the code provided in this respository. 
+
+This document provides community guidelines for a safe, respectful, productive, and collaborative place for any person who is willing to contribute to the code provided in this respository.
 
 The document applies in all “collaborative spaces” in which the code is being collaborated on, which is defined as communications channels used for purposes of collaboration on the code (such as issue comments, submitted patches, commit comments, etc.).
 
@@ -22,6 +24,6 @@ With those values in mind, the guidelines which contributors should follow:
 
 Those who violate the guidelines as written, as well as those who intentionally tow the line to violate the values expressed which these guidelines protect will be removed.
 
-The curent point of contact for any issues arising with this is sinbadcogs-conduct@michaelhall.tech
+The curent point of contact for any issues arising with this is (No longer monitored email address)
 This address will be monitored for so long as it is included as the point of contact.
 Should it change at a later date, the new address will be reflected in this document.

@@ -2,8 +2,14 @@
 
 ## Availability of Support
 
-Support is not available. Fixes may be accepted. For security issues, please see the contributing info.
+Support is not available. Fixes no longer accepted. Repository remains for historical reasons only.
 
 ## Whats here?
 
-Various mostly abandoned or replaced addons for Red Discordbot, re-released under a license which lets me ignore it better.
+Historical code.
+
+## What-ifs
+
+If I could go back to then, knowing what I do now with the full view of the situation, I'd have done things differently.
+
+To those who were negatively impacted, whether you see this or not, I'm sorry I did not find a better path.
